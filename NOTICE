@@ -1,0 +1,27 @@
+fowler-refactoring-skills
+Copyright 2026 Gabriel R. Marques
+
+This package is licensed under the Creative Commons Attribution 4.0 International
+License (CC BY 4.0); see LICENSE. You may share and adapt it for any purpose, including
+academic and commercial use, as long as you give appropriate credit, as described below.
+
+Credit
+------
+The refactoring catalog, the refactoring and code smell names, and the method these skills
+teach are the work of Martin Fowler, published in:
+
+  Martin Fowler. Refactoring: Improving the Design of Existing Code. 2nd ed.
+  Boston: Addison-Wesley (Pearson Education), 2018. ISBN 978-0-13-475759-9.
+
+  Online catalog: https://refactoring.com/catalog/
+
+When you reuse or adapt this package, credit both this package and the book above.
+
+What the license covers
+-----------------------
+CC BY 4.0 covers only this package's own content: the paraphrased descriptions, the
+skill structure, the C# examples and the agents. It does not cover the book, which remains
+copyright of Martin Fowler and Pearson Education, Inc. This package contains no text, code
+or figures from the book; refactoring names, former names and inverses are cited as they
+appear in the book's section headers (and in the public online catalog for the five
+web-only refactorings), and page numbers refer to the printed 2nd edition.
