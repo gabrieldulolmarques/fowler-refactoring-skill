@@ -15,9 +15,11 @@ When not to use it: if every superclass member applies to the subclass and every
 ## Mechanics
 
 1. In the subclass, add a field of the superclass type and initialize it with a new instance (usually built with the same constructor arguments).
-2. For each superclass member the callers use, add a forwarding method in the subclass that calls the same member on the field. Compile and test after each consistent group (a getter and its setter go together).
-3. When every member that is still needed has a forwarder, remove the inheritance link (drop the `: Superclass` and the base constructor call).
-4. Fix what the compiler reports: members that were used through inheritance and were not forwarded. Forward them if they make sense, or change the caller.
+2. For each member of the superclass, add a forwarding member in the subclass that calls the same member on the field. Compile and test after each consistent group (a getter and its setter go together).
+3. When every superclass member has a forwarder, remove the inheritance link (drop the `: Superclass` and the base constructor call). Compile and test.
+4. Delete, one at a time, the forwarders for members that do not apply to the subclass, changing any caller the compiler reports. Compile and test after each.
+
+With a very large superclass, such as a framework collection, forwarding every member is impractical. Forward the ones callers use, remove the link and let the compiler report the rest, as the example below does.
 5. Check the model. The delegate is now a private component owned by one subclass instance. If instances should share the delegate, continue with Change Value to Reference ([change-value-to-reference.md](change-value-to-reference.md)). Keep host-owned fields such as the id on the host.
 
 ## Example
@@ -55,7 +57,7 @@ public class Statement : List<Transaction>
 
 `new` only hides members for callers that use the `Statement` type. A caller that reaches the object through `IEnumerable<Transaction>` (LINQ, or a `foreach` over an interface-typed variable) still hits the inherited, now empty, list until step 3, so check for such callers before relying on the tests after this stage.
 
-After step 3 (link removed; the compiler now rejects `Clear`):
+After steps 3 and 4 (link removed; the compiler now rejects `Clear`):
 
 ```csharp
 using System.Collections;
