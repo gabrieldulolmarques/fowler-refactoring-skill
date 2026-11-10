@@ -14,8 +14,10 @@ writer will use to fix it. Review what is in the files, not what the writer says
 
 - `CATALOG.md` at the package root: the spec (sections 2, 3 and 4).
 - The book, if the call gives it (the PDF, read with the Read tool's `pages` parameter, or a
-  text extraction marked `===== printed page N =====`): the refactoring's section, starting
-  at the page in the Page column of `CATALOG.md`, for the mechanics and for copied wording.
+  text extraction): the refactoring's section, found by its title (the refactoring's name is
+  the section heading; the Page column of `CATALOG.md` is the printed page and only narrows
+  the search, because a PDF's physical pages are usually offset from it), for the mechanics
+  and for copied wording.
   Without it, use your knowledge of the book (*Refactoring*, 2nd ed., 2018), and when a doubt
   can only be settled with the book in hand, say so instead of asserting. Do not quote the
   book in your report beyond a few words needed to point at a copied phrase.

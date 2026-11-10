@@ -22,10 +22,13 @@ specific project, framework, engine, test runner or team workflow.
    the name in camelCase (`https://refactoring.com/catalog/replaceMagicLiteral.html`), not the
    kebab-case slug.
 3. If the call gives the book, read the refactoring's section to understand the motivation
-   and mechanics. Its first page is in the Page column of `CATALOG.md`; a section runs until
-   the next refactoring starts. With the PDF, use the Read tool's `pages` parameter (the PDF's
-   page labels match the printed pages). With a text extraction, find the line
-   `===== printed page N =====`. Read it to understand, then write from your own
+   and mechanics. Find the section by its title: the refactoring's name is the section
+   heading, and the section runs until the next refactoring's heading. The Page column of
+   `CATALOG.md` is the printed page and only narrows the search, because a PDF's physical
+   pages are usually offset from the printed ones (front matter). Confirm the heading is on
+   the page you opened before reading on. In a text extraction, search for the heading, or
+   for the line `===== printed page N =====` when the extraction has those marks. Read it to
+   understand, then write from your own
    understanding: never carry sentences, code or examples from it into the skill.
 
 ## What to write

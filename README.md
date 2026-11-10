@@ -37,7 +37,8 @@ From a session that has both agents:
 4. Check the `check against the book` marks with the book before committing.
 
 Both agents can read the book if the call gives the path to its PDF (or a text extraction
-of it); the Page column of `CATALOG.md` matches the PDF's page labels. Reading PDF pages in
+of it). They find each section by its title; the Page column of `CATALOG.md` is the printed
+page, and a PDF's physical pages are usually offset from it. Reading PDF pages in
 Claude Code needs `pdftoppm` (poppler) on the PATH. The book is not part of this package:
 bring your own copy.
 
