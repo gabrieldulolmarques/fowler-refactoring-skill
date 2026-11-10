@@ -15,12 +15,11 @@ Assigning to an input parameter is a common case: the parameter is both the inpu
 
 ## Mechanics
 1. Pick the first value the variable holds. At its declaration and first assignment, rename the variable to a name that describes only that first use.
-2. C# has no immutable local variables (`const` only fits compile-time constants), so just keep the new variable assigned exactly once.
-3. Update every reference that reads this first value, stopping before the second assignment.
-4. Compile and test.
-5. At the second assignment, declare a new variable and name it for that second use.
-6. Repeat steps 3 to 5 for each later assignment, testing after each stage. At the final assignment the original name has no references left.
-7. For a parameter: declare a local initialized from the parameter at the top of the function, rename the parameter to say it is the original input, and point the reads that mean the original input at the parameter. Then continue with the steps above on the local, renaming it to say what it holds.
+2. Update every reference that reads this first value, stopping before the second assignment.
+3. Compile and test.
+4. At the second assignment, declare a new variable and name it for that second use.
+5. Repeat steps 2 to 4 for each later assignment, testing after each stage. At the final assignment the original name has no references left.
+6. For a parameter: declare a local initialized from the parameter at the top of the function, rename the parameter to say it is the original input, and point the reads that mean the original input at the parameter. Then continue with the steps above on the local, renaming it to say what it holds.
 
 ## Example
 Before: `amount` first holds the order subtotal and is then reused for the amount after the discount, which is a different quantity.
@@ -84,7 +83,8 @@ public decimal ShippingCost(decimal weightKg, bool express)
 ```
 
 ## C# notes
-Renaming a parameter on a public method breaks callers that pass it by name (named arguments).
+- C# has no immutable local variables (`const` only fits compile-time constants), so keep each new variable assigned exactly once.
+- Renaming a parameter on a public method breaks callers that pass it by name (named arguments).
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

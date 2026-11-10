@@ -1,7 +1,7 @@
 # Replace Subclass with Delegate
 
-Fowler (2018), ch. 12, p. 381. Formerly / aka: none. Inverse: none listed in the catalog
-(Remove Subclass and Collapse Hierarchy go the other way for simple cases).
+Fowler (2018), ch. 12, p. 381. Formerly / aka: —. Inverse: —.
+Remove Subclass and Collapse Hierarchy go the other way for simple cases.
 
 ## When to use
 Smells: Insider Trading, Refused Bequest, Middle Man.

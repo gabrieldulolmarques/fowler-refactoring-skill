@@ -1,6 +1,6 @@
 # Move Statements to Callers
 
-Fowler (2018), ch. 8, p. 217. Formerly / aka: none. Inverse: Move Statements into Function ([move-statements-into-function.md](move-statements-into-function.md)).
+Fowler (2018), ch. 8, p. 217. Formerly / aka: —. Inverse: Move Statements into Function ([move-statements-into-function.md](move-statements-into-function.md)).
 
 ## When to use
 - A function that was one cohesive unit now bundles two different things, and the abstraction boundary is in the wrong place.

@@ -160,7 +160,6 @@ Scope drives severity: a variable mutated within a couple of lines is harmless; 
 - Extract Class ([extract-class.md](extract-class.md)), to bundle related fields or a client-used subset; a class that does not use all its fields all the time can be split more than once
 - Extract Superclass ([extract-superclass.md](extract-superclass.md)), when the component makes sense as inheritance
 - Replace Type Code with Subclasses ([replace-type-code-with-subclasses.md](replace-type-code-with-subclasses.md)), which is in effect extracting a subclass
-- Extract Function ([extract-function.md](extract-function.md)) also helps inside the class: long, similar methods with duplicated code shrink into small shared ones
 
 ## Alternative Classes with Different Interfaces (p. 83)
 **Symptoms:** two classes do the same job but cannot be swapped because their method names and signatures differ.

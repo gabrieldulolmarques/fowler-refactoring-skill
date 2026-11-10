@@ -1,6 +1,6 @@
 # Slide Statements
 
-Fowler (2018), ch. 8, p. 223. Formerly / aka: formerly Consolidate Duplicate Conditional Fragments. Inverse: none listed.
+Fowler (2018), ch. 8, p. 223. Formerly / aka: formerly Consolidate Duplicate Conditional Fragments. Inverse: —.
 
 ## When to use
 Smells: Duplicated Code, Mutable Data (and as a step inside Long Function).

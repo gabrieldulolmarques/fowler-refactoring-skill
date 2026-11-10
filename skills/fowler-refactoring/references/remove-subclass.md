@@ -4,7 +4,7 @@ Fowler (2018), ch. 12, p. 369. Formerly / aka: formerly Replace Subclass with Fi
 Inverse: Replace Type Code with Subclasses ([replace-type-code-with-subclasses.md](replace-type-code-with-subclasses.md)).
 
 ## When to use
-Smells: Lazy Element, Speculative Generality.
+Smell: none specific in the book (related: Lazy Element, Speculative Generality).
 
 - A subclass was added for variation that never grew: it overrides a member or two to return a
   constant, and nothing else depends on its type. The class costs readers attention and

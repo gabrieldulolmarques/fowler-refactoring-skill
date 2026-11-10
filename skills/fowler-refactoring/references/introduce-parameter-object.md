@@ -1,6 +1,6 @@
 # Introduce Parameter Object
 
-Fowler (2018), ch. 6, p. 140. Formerly / aka: -. Inverse: -.
+Fowler (2018), ch. 6, p. 140. Formerly / aka: —. Inverse: —.
 
 ## When to use
 Smells: Data Clumps, Long Parameter List, Long Function, Primitive Obsession.

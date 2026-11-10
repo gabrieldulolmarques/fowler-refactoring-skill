@@ -1,6 +1,6 @@
 # Separate Query from Modifier
 
-Fowler (2018), ch. 11, p. 306. Formerly / aka: -. Inverse: -.
+Fowler (2018), ch. 11, p. 306. Formerly / aka: —. Inverse: —.
 
 ## When to use
 Smell: Mutable Data. A function that returns a value and also has observable side effects

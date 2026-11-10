@@ -139,5 +139,5 @@ public class ExpressShippingQuote : ShippingQuote
 - If the type code is persisted or serialized, keep it as data and map it in the factory.
 
 ## Verification
-- Compiles and the tests pass after every step; commit after each green step if you prefer small commits.
+- Compiles and the tests pass after every step; one commit per refactoring.
 - Each moved branch has a test that fails if the override is removed (if you used the optional throw in step 5, the base method throws until the last branch is moved).

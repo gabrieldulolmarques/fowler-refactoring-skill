@@ -1,6 +1,6 @@
 # Consolidate Conditional Expression
 
-Fowler (2018), ch. 10, p. 263. Formerly / aka: —. Inverse: none in the catalog.
+Fowler (2018), ch. 10, p. 263. Formerly / aka: —. Inverse: —.
 
 ## When to use
 - Several `if` statements in a row, each with a different test but the same outcome (same return value, same action).

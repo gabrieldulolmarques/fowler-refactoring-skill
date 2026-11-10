@@ -3,7 +3,7 @@
 Fowler, online catalog: https://refactoring.com/catalog/returnModifiedValue.html (🌐 web edition only, no book section). Formerly / aka: —. Inverse: —.
 
 ## When to use
-Smells: Mutable Data, Long Function.
+Smell: none specific (web catalog only; related: Mutable Data, Long Function).
 - A function reads some inputs, computes a value and stores it in a variable declared outside it (a field, a local captured by the caller, a shared accumulator), returning nothing.
 - A reader of the calling code cannot tell that the call produces a value, or which variable it feeds.
 - You want to extract, move or reorder such code and the hidden write makes that risky.

@@ -107,7 +107,7 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 
 | # | Refactoring | Page | Formerly / aka | Inverse | C# note |
 |---|---|---|---|---|---|
-| 30 | Split Variable | 240 | formerly Remove Assignments to Parameters, Split Temp | — | — |
+| 30 | Split Variable | 240 | formerly Remove Assignments to Parameters, Split Temp | — | no immutable locals (`const` only fits compile-time constants), so keep each new variable assigned once; renaming a parameter breaks callers that use named arguments |
 | 31 | Rename Field | 244 | — | — | a serialized or persisted field keeps its wire name only with a mapping attribute (e.g. `[JsonPropertyName("oldName")]`) or a migration |
 | 32 | Replace Derived Variable with Query | 248 | — | — | a computed read-only property |
 | 33 | Change Reference to Value | 252 | — | Change Value to Reference | `record`, `readonly record struct` or an immutable class with value equality (`Equals`/`GetHashCode`) |

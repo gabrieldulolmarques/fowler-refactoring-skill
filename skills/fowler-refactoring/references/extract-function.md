@@ -163,7 +163,7 @@ fragment at a time and run the tests between extractions.
 
 ## Verification
 
-- Compiles and the tests pass after every step.
+- Compiles and the tests pass after every step; one commit per refactoring.
 - Observable behavior and side effects are unchanged, including the order in which they
   happen.
 - The new function's name reveals its purpose, and any duplicates found in step 7 now call it.

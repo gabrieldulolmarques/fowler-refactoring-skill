@@ -1,13 +1,13 @@
 # Replace Control Flag with Break
 
-Fowler, online catalog: https://refactoring.com/catalog/replaceControlFlagWithBreak.html. Formerly / aka: Remove Control Flag. Inverse: none listed.
+Fowler, online catalog: https://refactoring.com/catalog/replaceControlFlagWithBreak.html. Formerly / aka: Remove Control Flag. Inverse: —.
 
 ## When to use
 A boolean variable exists only to steer the loop: it is set when something happens, and then
 the loop condition or an `if` around the body reads it to skip the remaining work. The reader
 has to track the flag across iterations to see when the loop really ends.
 
-Smells: none in ch. 3 maps to this refactoring (web catalog only).
+Smell: none specific (web catalog only).
 
 Replace the flag with a direct exit: `break` to leave the loop. Use `return` when the loop is
 at the end of a function (often after Extract Function). `continue` fits only when the flag

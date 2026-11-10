@@ -104,5 +104,5 @@ Reads keep working with LINQ. Writes now go through `Order`, so a rule such as "
   `Reverse()` change the list in place, so copy first when sorting what a getter returned.
 
 ## Verification
-- Compiles and the tests pass after every step; commit after each green step.
+- Compiles and the tests pass after every step; one commit per refactoring.
 - No caller modifies the collection except through the owner's methods.

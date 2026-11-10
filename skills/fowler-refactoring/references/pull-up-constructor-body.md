@@ -3,7 +3,7 @@
 Fowler (2018), ch. 12, p. 355. Formerly / aka: —. Inverse: —.
 
 ## When to use
-Smell: Duplicated Code across subclasses. Two or more subclasses assign the same fields, or
+Smell: none specific in the book (related: Duplicated Code). Two or more subclasses assign the same fields, or
 run the same setup, at the start of their constructors. A constructor cannot be treated
 like a regular method: the superclass part must be initialized first and the subclass
 constructor calls it explicitly, so the usual "extract, then Pull Up Method" route does not

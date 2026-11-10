@@ -1,6 +1,6 @@
 # Substitute Algorithm
 
-Fowler (2018), ch. 7, p. 195. Formerly / aka: -. Inverse: -.
+Fowler (2018), ch. 7, p. 195. Formerly / aka: —. Inverse: —.
 
 ## When to use
 - You understand the problem better now and see a much simpler way to get the same result.

@@ -1,6 +1,6 @@
 # Replace Query with Parameter
 
-Fowler (2018), ch. 11, p. 327. Formerly / aka: -. Inverse: Replace Parameter with Query
+Fowler (2018), ch. 11, p. 327. Formerly / aka: —. Inverse: Replace Parameter with Query
 ([replace-parameter-with-query.md](replace-parameter-with-query.md)).
 
 ## When to use
