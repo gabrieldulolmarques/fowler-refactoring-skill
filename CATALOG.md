@@ -1,6 +1,6 @@
 # Catalog spec
 
-The spec the `fowler-skill-writer` and `fowler-skill-reviewer` agents work from: one skill,
+The spec the skill was written from and is checked against: one skill,
 `fowler-refactoring`, with one reference file per refactoring, the smells and the discipline,
 and the file format.
 

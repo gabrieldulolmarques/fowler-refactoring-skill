@@ -15,8 +15,8 @@ LICENSE # CC BY 4.0
 NOTICE # credit to Fowler and Addison-Wesley; what the license covers
 CATALOG.md # the spec: 66 refactorings, 24 smells, file format
 agents/
-├── fowler-skill-writer.md # writes or fixes one file of the skill per call
-└── fowler-skill-reviewer.md # read-only review, returns findings and a verdict
+├── refactoring-analyst.md # read-only: finds smells and returns a short plan
+└── refactoring-implementer.md # applies one refactoring, testing after each step
 skills/fowler-refactoring/
 ├── SKILL.md # flow smell → refactoring → file, smell index, table of the 66
 └── references/ # smells.md, discipline.md and one <slug>.md per refactoring, in a folder per chapter
@@ -25,22 +25,18 @@ skills/fowler-refactoring/
 Only the skill's description stays in the agent's context. The body loads when the skill is
 used, and each refactoring's file only when the agent opens it.
 
-## Building the skill
+## Agents
 
-From a session that has both agents:
+Two subagents that use the skill:
 
-1. Call `fowler-skill-writer` with the package path and the part to write (a refactoring,
-   `smells.md`, `discipline.md` or `SKILL.md`).
-2. Call `fowler-skill-reviewer` on the result, in a separate context.
-3. If the verdict is not "approved", send the report back to the writer. After two rounds,
-   stop and decide by hand.
-4. Check the `check against the book` marks with the book before committing.
+- `refactoring-analyst` reads the code it is pointed at, names the smells and returns a short
+  plan: where, which smell, which refactoring, whether tests cover it, and the risk. It never
+  edits.
+- `refactoring-implementer` applies one item of that plan (or a named refactoring), following
+  the mechanics with a build and a test run after each step.
 
-Both agents can read the book if the call gives the path to its PDF (or a text extraction
-of it). They find each section by its title; the Page column of `CATALOG.md` is the printed
-page, and a PDF's physical pages are usually offset from it. Reading PDF pages in
-Claude Code needs `pdftoppm` (poppler) on the PATH. The book is not part of this package:
-bring your own copy.
+Review the plan before handing an item to the implementer. The build and test commands come
+from the call or from the project's own instructions, not from this package.
 
 ## Using it
 
