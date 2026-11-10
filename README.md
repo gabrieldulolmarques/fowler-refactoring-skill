@@ -15,8 +15,8 @@ LICENSE # CC BY 4.0
 NOTICE # credit to Fowler and Addison-Wesley; what the license covers
 CATALOG.md # the spec: 66 refactorings, 24 smells, file format
 agents/
-├── refactoring-analyst.md # read-only: finds smells and returns a short plan
-└── refactoring-implementer.md # applies one refactoring, testing after each step
+├── fowler-analyst.md # read-only: finds smells and returns a short plan
+└── fowler-implementer.md # applies one refactoring, testing after each step
 skills/fowler-refactoring/
 ├── SKILL.md # flow smell → refactoring → file, smell index, table of the 66
 └── references/ # smells.md, discipline.md and one <slug>.md per refactoring, in a folder per chapter
@@ -29,10 +29,10 @@ used, and each refactoring's file only when the agent opens it.
 
 Two subagents that use the skill:
 
-- `refactoring-analyst` reads the code it is pointed at, names the smells and returns a short
+- `fowler-analyst` reads the code it is pointed at, names the smells and returns a short
   plan: where, which smell, which refactoring, whether tests cover it, and the risk. It never
   edits.
-- `refactoring-implementer` applies one item of that plan (or a named refactoring), following
+- `fowler-implementer` applies one item of that plan (or a named refactoring), following
   the mechanics with a build and a test run after each step.
 
 Review the plan before handing an item to the implementer. The build and test commands come

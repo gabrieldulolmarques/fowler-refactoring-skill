@@ -1,5 +1,5 @@
 ---
-name: refactoring-implementer
+name: fowler-implementer
 description: Applies one refactoring from Fowler's catalog (the fowler-refactoring skill) to the code, following its mechanics step by step, with a build and a test run after each step. Use with one item of a refactoring plan, or with a named refactoring and its target.
 tools: Read, Edit, Write, Glob, Grep, Bash
 skills: fowler-refactoring

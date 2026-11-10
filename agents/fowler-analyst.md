@@ -1,5 +1,5 @@
 ---
-name: refactoring-analyst
+name: fowler-analyst
 description: Finds code smells in the code it is pointed at and returns a short refactoring plan based on Fowler's catalog (the fowler-refactoring skill). Read-only, it never edits. Use before refactoring, to decide what to change and in what order.
 tools: Read, Glob, Grep
 skills: fowler-refactoring
