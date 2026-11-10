@@ -1,4 +1,4 @@
-# fowler-refactoring-skills
+# fowler-refactoring-skill
 
 Martin Fowler's refactoring catalog (*Refactoring*, 2nd ed., 2018) packaged as
 [Agent Skills](https://agentskills.io) for coding agents: one skill, `fowler-refactoring`,
