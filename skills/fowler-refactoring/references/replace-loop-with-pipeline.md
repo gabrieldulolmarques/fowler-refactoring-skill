@@ -26,60 +26,55 @@ the extra allocations matter.
    rename lambda parameters to say what they hold, and put one operation per line.
 
 ## Example
-Before: pick the active customers in a given country and return their name and email.
+Before: the numbers of the first overdue invoices, up to a limit.
 
 ```csharp
+using System;
 using System.Collections.Generic;
 
-public record CustomerSummary(string Name, string Email);
+public record Invoice(string Number, DateOnly DueDate, bool IsPaid);
 
-public class CustomerReport
+public class InvoiceReport
 {
-    public List<CustomerSummary> ActiveInCountry(IEnumerable<string> rows, string country)
+    public List<string> OverdueNumbers(IEnumerable<Invoice> invoices, DateOnly today, int limit)
     {
-        var result = new List<CustomerSummary>();
-        bool isHeader = true;
-        foreach (var row in rows)
+        var result = new List<string>();
+        foreach (var invoice in invoices)
         {
-            if (isHeader)
-            {
-                isHeader = false;
-                continue;
-            }
-            if (string.IsNullOrWhiteSpace(row)) continue;
-            var fields = row.Split(',');
-            if (fields[2].Trim() == country && fields[3].Trim() == "active")
-            {
-                result.Add(new CustomerSummary(fields[0].Trim(), fields[1].Trim()));
-            }
+            if (result.Count == limit) break;
+            if (invoice.IsPaid) continue;
+            if (invoice.DueDate >= today) continue;
+            result.Add(invoice.Number.ToUpperInvariant());
         }
         return result;
     }
 }
 ```
 
-After: the header flag is gone, and each step is one line.
+After: the counter check and the `continue`s are gone, and each step is one line.
 
 ```csharp
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record CustomerSummary(string Name, string Email);
+public record Invoice(string Number, DateOnly DueDate, bool IsPaid);
 
-public class CustomerReport
+public class InvoiceReport
 {
-    public List<CustomerSummary> ActiveInCountry(IEnumerable<string> rows, string country)
+    public List<string> OverdueNumbers(IEnumerable<Invoice> invoices, DateOnly today, int limit)
     {
-        return rows
-            .Skip(1)
-            .Where(row => !string.IsNullOrWhiteSpace(row))
-            .Select(row => row.Split(','))
-            .Where(fields => fields[2].Trim() == country && fields[3].Trim() == "active")
-            .Select(fields => new CustomerSummary(fields[0].Trim(), fields[1].Trim()))
+        return invoices
+            .Where(invoice => !invoice.IsPaid)
+            .Where(invoice => invoice.DueDate < today)
+            .Select(invoice => invoice.Number.ToUpperInvariant())
+            .Take(limit)
             .ToList();
     }
 }
 ```
+
+The limit counts results, not items read, so `Take` goes after the filters.
 
 ## C# notes
 - Use LINQ: `Where` for filter, `Select` for map, `Skip`/`Take` for slice, `ToList()` or
