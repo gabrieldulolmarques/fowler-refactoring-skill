@@ -19,7 +19,7 @@ agents/
 └── fowler-skill-reviewer.md # read-only review, returns findings and a verdict
 skills/fowler-refactoring/
 ├── SKILL.md # flow smell → refactoring → file, smell index, table of the 66
-└── references/ # smells.md, discipline.md and one <slug>.md per refactoring
+└── references/ # smells.md, discipline.md and one <slug>.md per refactoring, in a folder per chapter
 ```
 
 Only the skill's description stays in the agent's context. The body loads when the skill is

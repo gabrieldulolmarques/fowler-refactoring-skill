@@ -47,7 +47,7 @@ Refactoring needs self-checking tests: they run on their own and report pass/fai
 - **See each new test fail once.** Temporarily break the code (for example, flip a comparison or return a constant) and confirm the test goes red, then undo. A test that cannot fail protects nothing.
 - Probe boundaries: empty collections, zero, negative or out-of-range values, and the error paths, where bugs tend to cluster.
 - Keep tests independent: build fresh objects per test instead of sharing a mutable fixture, so one test cannot break another.
-- Use `Introduce Assertion` ([introduce-assertion.md](introduce-assertion.md)) to state a rule the code assumes, so a violation fails loudly.
+- Use `Introduce Assertion` ([introduce-assertion.md](conditional-logic/introduce-assertion.md)) to state a rule the code assumes, so a violation fails loudly.
 - Run the tests that cover the code you touch every few minutes, and the whole suite at least daily.
 
 ## When not to refactor

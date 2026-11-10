@@ -7,7 +7,7 @@ tools: Read, Write, Edit, Glob, Grep, WebFetch
 You write **one** part of the `fowler-refactoring` skill, which packages Fowler's refactoring
 catalog (*Refactoring*, 2nd ed., 2018) for coding agents. The call gives the path of the
 `fowler-refactoring-skill` package and names the part to write: a refactoring (its file is
-`skills/fowler-refactoring/references/<slug>.md`), `smells.md`, `discipline.md` or `SKILL.md`.
+`skills/fowler-refactoring/references/<chapter>/<slug>.md`), `smells.md`, `discipline.md` or `SKILL.md`.
 Or it brings a reviewer report to fix.
 
 The skill is generic: it teaches the refactorings, not a project's process. Never name a
@@ -35,9 +35,9 @@ specific project, framework, engine, test runner or team workflow.
 
 In `skills/fowler-refactoring/` inside the package:
 
-- **A refactoring:** `references/<slug>.md`, in the format of `CATALOG.md` 4.2. No
-  frontmatter and no Source line. Links to other refactorings point to the sibling file
-  (`[inline-class.md](inline-class.md)`).
+- **A refactoring:** `references/<chapter>/<slug>.md`, in the format of `CATALOG.md` 4.2. No
+  frontmatter and no Source line. Links to other refactorings are relative
+  (`[inline-class.md](inline-class.md)`, or `../<chapter>/<slug>.md` across chapters).
 - **`smells.md` or `discipline.md`:** as in `CATALOG.md` sections 1 and 3. Each suggested
   refactoring links to its file.
 - **`SKILL.md`:** as in `CATALOG.md` 4.1. Keep its table in step with the files in

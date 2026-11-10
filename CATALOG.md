@@ -28,10 +28,13 @@ descriptions.
 | `SKILL.md` | this spec | the flow smell → refactoring → file, a smell quick index and a table of the 66 refactorings (name, when, file), grouped by chapter (section 4.1) |
 | `references/smells.md` | ch. 3 | the 24 smells, symptoms and suggested refactorings (section 3) |
 | `references/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
-| `references/<slug>.md` (66 files) | ch. 6–12, or refactoring.com for 🌐 | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
+| `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or refactoring.com for 🌐 | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
-`references/extract-function.md`. The refactoring.com page uses the name in camelCase
+`references/first-set/extract-function.md`. The files are grouped in one folder per chapter:
+`first-set` (ch. 6), `encapsulation` (7), `moving-features` (8), `organizing-data` (9),
+`conditional-logic` (10), `refactoring-apis` (11) and `inheritance` (12); a 🌐 refactoring goes
+in the chapter section 2 lists it under. The refactoring.com page uses the name in camelCase
 instead: `https://refactoring.com/catalog/extractFunction.html`.
 
 ```
@@ -41,9 +44,11 @@ skills/
     └── references/
         ├── smells.md
         ├── discipline.md
-        ├── extract-function.md
-        ├── inline-function.md
-        └── ... # 66 refactoring files in all
+        ├── first-set/
+        │   ├── extract-function.md
+        │   └── ...
+        ├── encapsulation/
+        └── ... # 7 chapter folders, 66 refactoring files in all
 ```
 
 ---
@@ -165,7 +170,7 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 ## 3. `references/smells.md`: the 24 smells and where they lead
 
 Summary of ch. 3: the index the agent checks before picking a refactoring. Each refactoring
-named here is the file `references/<slug>.md`.
+named here is the file `references/<chapter>/<slug>.md`.
 
 | Smell | Page | Suggested refactorings |
 |---|---|---|
@@ -246,7 +251,8 @@ Before / after in C#, written for this package (not copied from the book).
 ```
 
 No frontmatter and no Source line: the credit is in `SKILL.md` and the NOTICE. A link to
-another refactoring points to its sibling file (`[inline-class.md](inline-class.md)`). For a 🌐
+another refactoring is relative: `[inline-class.md](inline-class.md)` in the same chapter folder,
+`[move-function.md](../moving-features/move-function.md)` in another. For a 🌐
 refactoring, the citation line is the refactoring.com URL instead of chapter and page.
 
 ### 4.3 What goes in each part
