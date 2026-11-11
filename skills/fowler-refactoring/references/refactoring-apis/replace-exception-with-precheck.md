@@ -1,6 +1,6 @@
 # Substituir Exceção por Verificação Prévia (Replace Exception with Precheck)
 
-Fowler, catálogo online: https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Antes / também: Replace Exception with Test. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Antes / também: Replace Exception with Test. Inversa: —.
 
 ## Quando usar
 Existe um `try`/`catch` para tratar uma condição que não é excepcional: o chamador pode saber de antemão que ela pode acontecer, e o bloco catch apenas fornece um valor padrão ou segue o caminho alternativo. Exceções são para falhas inesperadas; usá-las como um desvio esconde o fluxo normal, custa mais em tempo de execução e pode engolir erros reais do mesmo tipo.

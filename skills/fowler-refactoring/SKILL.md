@@ -6,7 +6,7 @@ description: O catálogo de refatorações de Martin Fowler (Refactoring, 2ª ed
 # O catálogo de refatorações de Fowler
 
 Fowler (2018), cap. 2-4 (smells e disciplina) e cap. 6-12 (o catálogo), mais cinco
-refatorações do catálogo online em refactoring.com.
+refatorações que só existem na edição web do livro.
 
 Fluxo: **smell -> refatoração -> seu arquivo em `references/`.**
 
@@ -53,8 +53,8 @@ Se o pedido nomear uma refatoração, pule para o passo 3 e abra o arquivo dela 
 ## As refatorações
 
 Cada arquivo tem: Quando usar, Mecânica, Exemplo (C#), Notas de C# onde o catálogo tem uma, e
-Verificação. "(web)" marca uma refatoração que existe só no catálogo online, sem página
-no livro.
+Verificação. "(web)" marca uma refatoração que existe só na edição web do livro, sem página
+no impresso.
 
 ### Um primeiro conjunto (cap. 6)
 

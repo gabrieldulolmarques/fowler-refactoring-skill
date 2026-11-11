@@ -28,7 +28,7 @@ descrições concorrentes.
 | `SKILL.md` | esta especificação | o fluxo smell → refatoração → arquivo, um índice rápido de smells e uma tabela das 66 refatorações (nome, quando, arquivo), agrupadas por capítulo (seção 4.1) |
 | `references/smells.md` | cap. 3 | os 24 smells, sintomas e refatorações sugeridas (seção 3) |
 | `references/discipline.md` | cap. 2 e 4 | testes primeiro, passos pequenos, commit após cada refatoração verde |
-| `references/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou refactoring.com para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
+| `references/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou a edição web para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
 
 O slug é o nome da refatoração em kebab-case. Exemplo: Extrair Função (Extract Function) →
 `references/first-set/extract-function.md`. Os arquivos são agrupados em uma pasta por capítulo:
@@ -59,7 +59,7 @@ Conferido com o livro em 2026-10-31, de forma mecânica a partir do texto do PDF
 do livro começa na **Página** indicada (edição impressa), as colunas **Antes / também** e
 **Inversa** são o próprio cabeçalho de seção do livro (`formerly:`, `aka:`, `subsumes:`,
 `inverse of:`), e todas as 575 referências cruzadas "Nome (página)" nos cap. 3–12 batem com a coluna
-Página. Para as 5 refatorações exclusivas da web, nomes e apelidos vêm do refactoring.com.
+Página. Para as 5 refatorações exclusivas da web, nomes, apelidos e mecânica vêm da edição web do livro (conferida em 2026-11-11).
 
 **Nota de C#** é o que o arquivo de referência deve acrescentar porque os exemplos do livro são em JavaScript:
 somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção de notas de C#.
@@ -253,14 +253,14 @@ Antes / depois em C#, escrito para este pacote (não copiado do livro).
 Sem frontmatter e sem linha de Fonte: o crédito está em `SKILL.md` e no NOTICE. Um link para
 outra refatoração é relativo: `[inline-class.md](inline-class.md)` na mesma pasta de capítulo,
 `[move-function.md](../moving-features/move-function.md)` em outra. Para uma refatoração
-exclusiva da web, a linha de citação é a URL do refactoring.com em vez de capítulo e página.
+exclusiva da web, a linha de citação diz "só na edição web" e aponta o resumo do refactoring.com em vez de capítulo e página.
 
 ### 4.3 O que vai em cada parte
 
 | Parte | Vem de | Observação |
 |---|---|---|
-| Nome, antes / também, inversa | o cabeçalho de seção do livro (seção 2); refactoring.com para as exclusivas da web | curto: pode ser literal |
-| Quando usar, mecânica | o livro (refactoring.com para as exclusivas da web) | **paráfrase**, com capítulo e página; nada copiado |
+| Nome, antes / também, inversa | o cabeçalho de seção do livro (seção 2); a edição web para as exclusivas da web | curto: pode ser literal |
+| Quando usar, mecânica | o livro (a edição web para as exclusivas da web) | **paráfrase**, com capítulo e página; nada copiado |
 | Exemplo | escrito para este pacote em C# | domínio neutro (pedidos, clientes, faturas, contas); não o exemplo nem o domínio do livro |
 | Notas de C# | seção 2, coluna "Nota de C#" | só onde houver algo a dizer |
 | Verificação | cap. 4 + `references/discipline.md` | igual em todos os arquivos |

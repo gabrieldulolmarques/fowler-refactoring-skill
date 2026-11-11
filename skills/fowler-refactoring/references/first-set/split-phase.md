@@ -21,7 +21,7 @@ Smells: Alteração Divergente (Divergent Change), Cirurgia com Espingarda (Shot
 5. Percorra os parâmetros da segunda fase um de cada vez. Se a primeira fase produz ou usa um parâmetro, guarde-o como campo da estrutura intermediária, leia-o de lá na segunda fase e elimine o parâmetro. Compile e teste após cada movimentação.
    - Se um parâmetro não deve ser conhecido pela segunda fase de forma alguma, calcule na primeira fase o valor que ele alimenta, guarde o resultado em um campo e mova a linha que o preenche de volta para o chamador ([move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)).
    - Os parâmetros usados apenas pela segunda fase continuam como parâmetros.
-6. O que sobra na função original agora é a primeira fase. Transforme-a em uma função própria cujo resultado é a estrutura intermediária ([extract-function.md](extract-function.md)), depois compile e teste.
+6. O que sobra na função original agora é a primeira fase. Transforme-a em uma função própria cujo resultado é a estrutura intermediária ([extract-function.md](extract-function.md)), depois compile e teste. Se a primeira fase ganhar funções auxiliares que compartilham as mesmas entradas, ela pode virar um objeto (um transformador) cujo método retorna a estrutura intermediária; veja a variação abaixo.
 7. Opcionalmente, arrume: internalize variáveis temporárias restantes na função orquestradora para que ela se leia como "execute a fase um, alimente a fase dois".
 
 ## Exemplo
@@ -98,6 +98,41 @@ public class ReportService
 ```
 
 A mesma saída para a mesma entrada. Agora um novo formato de saída toca apenas `Render`, e uma nova estatística toca `ComputeStats` mais os campos que ela alimenta.
+
+### Variação: a primeira fase como objeto transformador
+
+Quando a primeira fase precisa de várias funções auxiliares sobre a mesma entrada, uma classe pequena as mantém juntas. A classe recebe a entrada bruta, e um método retorna a estrutura intermediária. `Render` não muda.
+
+```csharp
+using System.Collections.Generic;
+using System.Linq;
+
+public class OrderStatsCalculator
+{
+    private readonly IReadOnlyList<Order> _orders;
+
+    public OrderStatsCalculator(IReadOnlyList<Order> orders) => _orders = orders;
+
+    public OrderStats Run() => new(_orders.Count, Total(), Largest());
+
+    private decimal Total() => _orders.Sum(o => o.Amount);
+
+    private decimal Largest() => _orders.Aggregate(0m, (max, o) => o.Amount > max ? o.Amount : max);
+}
+
+public class ReportService
+{
+    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    {
+        var stats = new OrderStatsCalculator(orders).Run();
+        return Render(stats, currencySymbol);
+    }
+
+    // Render como acima.
+}
+```
+
+Mesma saída de antes, inclusive para lista vazia e valores negativos (`Largest` continua começando em `0`).
 
 ## Notas de C#
 

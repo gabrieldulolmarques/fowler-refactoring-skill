@@ -1,6 +1,6 @@
 # Substituir Código de Erro por Exceção (Replace Error Code with Exception)
 
-https://refactoring.com/catalog/replaceErrorCodeWithException.html. Antes / também: —. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceErrorCodeWithException.html. Antes / também: —. Inversa: —.
 Relacionada: Substituir Exceção por Verificação Prévia (Replace Exception with Precheck) ([replace-exception-with-precheck.md](replace-exception-with-precheck.md)).
 
 ## Quando usar
@@ -14,16 +14,20 @@ que os chamadores ramifiquem por ela (uma busca que muitas vezes não encontra n
 mantenha um resultado baseado em retorno ou ofereça uma verificação prévia; veja [replace-exception-with-precheck.md](replace-exception-with-precheck.md).
 
 ## Mecânica
-1. Escolha ou crie um tipo de exceção para a falha. Dê a ele a informação que o código de erro
-   carregava (o código, um motivo, o valor problemático).
-2. Encontre todo chamador da função e, em cada ponto de chamada, envolva a chamada de modo que a
-   exceção lançada seja tratada onde o código antigo tratava o código de erro. Faça isso antes de
-   mudar a função, mantendo o ramo antigo funcionando. Compile e teste.
-3. Na função, substitua o `return <código de erro>` por `throw new <Exception>(...)`.
-   Compile e teste.
-4. Em cada chamador, remova a verificação agora morta do código de erro. Compile e teste.
-5. Se alguns chamadores não conseguem tratar a exceção, deixe-a propagar até uma camada que consiga; não
-   a capture apenas para transformá-la de volta em um código.
+1. Adicione um tratador de exceção mais acima na cadeia de chamadas, na camada que deve lidar com a
+   falha. No começo ele captura e relança tudo (`catch { throw; }`), então o comportamento não
+   muda. Se já existe um tratador adequado, amplie-o para cobrir o novo caminho. Compile
+   e teste.
+2. Escolha um jeito de distinguir as novas exceções de todas as outras. Em C#, uma classe de
+   exceção própria, que carrega o que o código de erro carregava (um motivo, o valor problemático). Compile.
+3. Altere o tratador para executar a ação de erro para esse tipo de exceção e deixar qualquer
+   outra exceção propagar. Compile e teste.
+4. Substitua cada lugar que retorna o código de erro por um `throw` da nova exceção, um de cada
+   vez. Compile e teste após cada um.
+5. Quando nenhum lugar retornar mais o código, remova o código que o verificava e o repassava
+   pela pilha de chamadas, testando após cada mudança. Um jeito seguro é primeiro transformar cada verificação
+   numa armadilha (`Debug.Fail` ou um throw) e apagá-la quando os testes mostrarem que ela nunca dispara. Limpe as
+   sobras com [remove-dead-code.md](../moving-features/remove-dead-code.md).
 6. Se o tipo de retorno da função existia apenas para carregar o código (um status `int`, um `bool`),
    simplifique-o, por exemplo para `void`, como um passo separado com [change-function-declaration.md](../first-set/change-function-declaration.md).
 

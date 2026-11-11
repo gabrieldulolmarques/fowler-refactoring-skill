@@ -60,6 +60,5 @@ A licença cobre apenas o conteúdo próprio deste pacote, não o livro (veja [N
 A motivação e a mecânica na skill são parafraseadas, com capítulo e página citados;
 nada é copiado do livro, de refactoring.com, do *Dive Into
 Refactoring* da Refactoring.Guru, nem do pacote de replicação de Chen Kuang Piao et al. Os nomes das refatorações, os nomes
-antigos e as inversas vêm dos cabeçalhos de seção do livro e do catálogo público em
-[refactoring.com/catalog](https://refactoring.com/catalog/) para as cinco
+antigos e as inversas vêm dos cabeçalhos de seção do livro e da edição web do livro para as cinco
 refatorações só da web. Os exemplos em C# são originais.
