@@ -1,0 +1,53 @@
+# Builds the site from both branches: main -> /en/, feat/pt-br-translation -> /pt-br/.
+name: Pages
+
+on:
+  push:
+    branches: [main, feat/pt-br-translation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: en
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/pt-br-translation
+          path: pt-br
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install mkdocs-material==9.6.*
+      - name: Build both languages
+        run: |
+          for lang in en pt-br; do
+            mkdir -p "$lang/_docs" && (cd "$lang" && git ls-files | grep -v -e '^\.github/' -e '^mkdocs\.yml$' | xargs -I{} cp --parents {} _docs/)
+            mkdocs build -f "$lang/mkdocs.yml" -d "$GITHUB_WORKSPACE/_site/$lang"
+          done
+          printf '<!doctype html><meta charset="utf-8"><title>Fowler Refactoring Skill</title><meta http-equiv="refresh" content="0; url=en/"><a href="en/">English</a> · <a href="pt-br/">Português</a>\n' > _site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
