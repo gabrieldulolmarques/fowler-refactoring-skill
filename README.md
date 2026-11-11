@@ -60,6 +60,5 @@ The license covers only this package's own content, not the book (see [NOTICE](N
 The motivation and mechanics in the skill are paraphrased, with chapter and page cited;
 nothing is copied from the book, refactoring.com, Refactoring.Guru's *Dive Into
 Refactoring*, or the replication package of Chen Kuang Piao et al. Refactoring names, former
-names and inverses come from the book's section headers, and from the public catalog at
-[refactoring.com/catalog](https://refactoring.com/catalog/) for the five web-only
+names and inverses come from the book's section headers, and from the book's web edition for the five web-only
 refactorings. The C# examples are original.

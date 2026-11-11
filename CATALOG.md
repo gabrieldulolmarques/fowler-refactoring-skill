@@ -28,7 +28,7 @@ descriptions.
 | `SKILL.md` | this spec | the flow smell → refactoring → file, a smell quick index and a table of the 66 refactorings (name, when, file), grouped by chapter (section 4.1) |
 | `references/smells.md` | ch. 3 | the 24 smells, symptoms and suggested refactorings (section 3) |
 | `references/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
-| `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or refactoring.com for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
+| `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or the web edition for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
 `references/first-set/extract-function.md`. The files are grouped in one folder per chapter:
@@ -59,7 +59,7 @@ Checked against the book on 2026-10-31, mechanically from the PDF's text: each o
 refactorings starts on the **Page** shown (printed edition), the **Formerly / aka** and
 **Inverse** columns are the book's own section header (`formerly:`, `aka:`, `subsumes:`,
 `inverse of:`), and all 575 "Name (page)" cross-references in ch. 3–12 agree with the Page
-column. For the 5 web-only refactorings, names and aliases come from refactoring.com.
+column. For the 5 web-only refactorings, names, aliases and mechanics come from the book's web edition (checked on 2026-11-11).
 
 **C# note** is what the reference file must add because the book's examples are JavaScript:
 only generic C# points. Where it says "—", the file has no C# notes section.
@@ -253,14 +253,14 @@ Before / after in C#, written for this package (not copied from the book).
 No frontmatter and no Source line: the credit is in `SKILL.md` and the NOTICE. A link to
 another refactoring is relative: `[inline-class.md](inline-class.md)` in the same chapter folder,
 `[move-function.md](../moving-features/move-function.md)` in another. For a web-only
-refactoring, the citation line is the refactoring.com URL instead of chapter and page.
+refactoring, the citation line says "web edition only" and links the refactoring.com summary instead of chapter and page.
 
 ### 4.3 What goes in each part
 
 | Part | Comes from | Note |
 |---|---|---|
-| Name, formerly / aka, inverse | the book's section header (section 2); refactoring.com for the web-only ones | short: may be literal |
-| When to use, mechanics | the book (refactoring.com for the web-only ones) | **paraphrase**, with chapter and page; nothing copied |
+| Name, formerly / aka, inverse | the book's section header (section 2); the web edition for the web-only ones | short: may be literal |
+| When to use, mechanics | the book (its web edition for the web-only ones) | **paraphrase**, with chapter and page; nothing copied |
 | Example | written for this package in C# | neutral domain (orders, customers, invoices, accounts); not the book's example or domain |
 | C# notes | section 2, "C# note" column | only where there is something to say |
 | Verification | ch. 4 + `references/discipline.md` | the same in every file |

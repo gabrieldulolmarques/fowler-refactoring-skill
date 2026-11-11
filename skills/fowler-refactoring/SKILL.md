@@ -6,7 +6,7 @@ description: Martin Fowler's refactoring catalog (Refactoring, 2nd ed.): the 24 
 # Fowler's refactoring catalog
 
 Fowler (2018), ch. 2-4 (smells and discipline) and ch. 6-12 (the catalog), plus five
-refactorings from the online catalog at refactoring.com.
+refactorings that exist only in the book's web edition.
 
 Flow: **smell -> refactoring -> its file in `references/`.**
 
@@ -53,7 +53,7 @@ If the request names a refactoring, skip to step 3 and open its file directly.
 ## The refactorings
 
 Each file has: When to use, Mechanics, Example (C#), C# notes where the catalog has one, and
-Verification. "(web)" marks a refactoring that exists only in the online catalog, with no book
+Verification. "(web)" marks a refactoring that exists only in the book's web edition, with no print
 page.
 
 ### A first set (ch. 6)

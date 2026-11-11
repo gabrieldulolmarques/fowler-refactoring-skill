@@ -1,6 +1,6 @@
 # Replace Error Code with Exception
 
-https://refactoring.com/catalog/replaceErrorCodeWithException.html. Formerly / aka: —. Inverse: —.
+Fowler (2018), web edition only (not in the print book); summary at https://refactoring.com/catalog/replaceErrorCodeWithException.html. Formerly / aka: —. Inverse: —.
 Related: Replace Exception with Precheck ([replace-exception-with-precheck.md](replace-exception-with-precheck.md)).
 
 ## When to use
@@ -14,16 +14,20 @@ are expected to branch on it (a lookup that often finds nothing, input that is o
 keep a return-based result or offer a precheck instead; see [replace-exception-with-precheck.md](replace-exception-with-precheck.md).
 
 ## Mechanics
-1. Pick or create an exception type for the failure. Give it the information the error code
-   carried (the code, a reason, the offending value).
-2. Find every caller of the function and, at each call site, wrap the call so that the
-   thrown exception is handled where the old code handled the error code. Do this before
-   changing the function, keeping the old branch working. Compile and test.
-3. In the function, replace the `return <error code>` with `throw new <Exception>(...)`.
-   Compile and test.
-4. In each caller, remove the now dead check of the error code. Compile and test.
-5. If some callers cannot handle the exception, let it propagate to a layer that can; do not
-   catch it only to turn it back into a code.
+1. Add an exception handler higher up the call chain, at the layer that should deal with the
+   failure. At first it catches and rethrows everything (`catch { throw; }`), so behavior does
+   not change. If a suitable handler already exists, widen it to cover the new path. Compile
+   and test.
+2. Choose a way to tell the new exceptions apart from all others. In C#, a dedicated exception
+   class that carries what the error code carried (a reason, the offending value). Compile.
+3. Change the handler so it performs the error action for that exception type and lets every
+   other exception propagate. Compile and test.
+4. Replace each place that returns the error code with a `throw` of the new exception, one at a
+   time. Compile and test after each.
+5. When no place returns the code any more, remove the code that checked it and passed it up
+   the call stack, testing after each change. A safe way is to first turn each check into a
+   trap (`Debug.Fail` or a throw) and delete it once the tests show it never fires. Clear the
+   leftovers with [remove-dead-code.md](../moving-features/remove-dead-code.md).
 6. If the function's return type existed only to carry the code (an `int` status, a `bool`),
    simplify it, for example to `void`, as a separate step with [change-function-declaration.md](../first-set/change-function-declaration.md).
 

@@ -1,6 +1,6 @@
 # Replace Exception with Precheck
 
-Fowler, online catalog: https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Formerly / aka: Replace Exception with Test. Inverse: —.
+Fowler (2018), web edition only (not in the print book); summary at https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Formerly / aka: Replace Exception with Test. Inverse: —.
 
 ## When to use
 A `try`/`catch` exists to handle a condition that is not exceptional: the caller can know in advance that it may happen, and the catch block just supplies a default or takes the alternative path. Exceptions are for unexpected failures; using them as a branch hides the normal flow, costs more at run time and can swallow real errors of the same type.
