@@ -1,6 +1,6 @@
 ---
 name: fowler-refactoring
-description: O catálogo de refatorações de Martin Fowler (Refactoring, 2ª ed.): os 24 code smells e as 66 refatorações que os corrigem, cada uma com mecânica passo a passo, um exemplo em C# e verificação. Use quando o código for difícil de ler ou de alterar (funções longas, classes grandes, código duplicado, listas longas de parâmetros, switches repetidos, inveja de recursos, cadeias de mensagens, dados mutáveis ou globais, nomes pouco claros), quando pedirem para refatorar ou limpar código sem mudar o comportamento, ou quando pedirem uma refatoração nomeada, como Extrair Função (Extract Function), Internalizar Variável (Inline Variable), Mover Função (Move Function), Extrair Classe (Extract Class), Substituir Condicional por Polimorfismo (Replace Conditional with Polymorphism), Introduzir Objeto de Parâmetros (Introduce Parameter Object) ou Substituir Variável Temporária por Consulta (Replace Temp with Query).
+description: Catálogo de refatorações de Martin Fowler (Refactoring, 2ª ed.): 24 code smells e 66 refatorações, cada uma com mecânica, exemplo em C# e verificação. Use para refatorar ou limpar código sem mudar o comportamento, quando o código estiver difícil de ler ou alterar, ou quando uma refatoração for citada pelo nome (Extrair Função/Extract Function, Mover Função/Move Function...).
 ---
 
 # O catálogo de refatorações de Fowler
