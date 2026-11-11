@@ -1,6 +1,6 @@
 ---
 name: fowler-refactoring
-description: Martin Fowler's refactoring catalog (Refactoring, 2nd ed.): the 24 code smells and the 66 refactorings that fix them, each with step-by-step mechanics, a C# example and verification. Use when code is hard to read or change (long functions, large classes, duplicated code, long parameter lists, repeated switches, feature envy, message chains, mutable or global data, unclear names), when asked to refactor or clean up code without changing behavior, or when asked for a named refactoring such as Extract Function, Inline Variable, Move Function, Extract Class, Replace Conditional with Polymorphism, Introduce Parameter Object or Replace Temp with Query.
+description: Martin Fowler's refactoring catalog (Refactoring, 2nd ed.): 24 code smells and 66 refactorings, each with mechanics, a C# example and verification. Use to refactor or clean up code without changing behavior, when code is hard to read or change, or when a refactoring is named (Extract Function, Move Function, Replace Conditional with Polymorphism...).
 ---
 
 # Fowler's refactoring catalog
