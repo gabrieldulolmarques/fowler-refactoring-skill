@@ -1,7 +1,6 @@
-"""Prepare _docs for mkdocs: copy the tracked files, make SKILL.md the home page, README the about page,
-and add one index page per chapter folder built from the chapter tables in SKILL.md.
+"""Prepare _docs for mkdocs: copy the tracked files, make SKILL.md the home page, and README the about page.
 Usage: python .github/build_site.py  (run from the repository root)"""
-import pathlib, re, shutil, subprocess
+import pathlib, shutil, subprocess
 
 root = pathlib.Path.cwd()
 docs = root / "_docs"
@@ -18,9 +17,3 @@ skill = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
 (docs / "README.md").rename(docs / "about.md")
 (docs / "index.md").write_text(skill.replace("](references/", "](skills/fowler-refactoring/references/"), encoding="utf-8")
 
-for section in re.split(r"\n(?=### )", skill)[1:]:
-    heading, _, rest = section.partition("\n")
-    table = "\n".join(l for l in rest.splitlines() if l.startswith("|"))
-    folder = re.search(r"references/([a-z-]+)/", table).group(1)
-    table = re.sub(r"\]\(references/([a-z-]+)/", lambda m: "](" if m.group(1) == folder else f"](../{m.group(1)}/", table)
-    (skill_dir / "references" / folder / "index.md").write_text(f"# {heading[4:]}\n\n{table}\n", encoding="utf-8")

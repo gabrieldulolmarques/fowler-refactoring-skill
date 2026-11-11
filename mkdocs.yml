@@ -14,13 +14,11 @@ theme:
     repo: fontawesome/brands/github
   features:
     - navigation.tabs
-    - navigation.sections
-    - navigation.indexes
     - navigation.path
     - navigation.instant
     - navigation.tracking
     - navigation.top
-    - toc.follow
+    - toc.integrate
     - navigation.footer
     - search.highlight
     - content.code.copy
@@ -60,7 +58,6 @@ nav:
       - Smells: skills/fowler-refactoring/references/smells.md
       - Discipline: skills/fowler-refactoring/references/discipline.md
       - "A first set (ch. 6)":
-          - skills/fowler-refactoring/references/first-set/index.md
           - skills/fowler-refactoring/references/first-set/extract-function.md
           - skills/fowler-refactoring/references/first-set/inline-function.md
           - skills/fowler-refactoring/references/first-set/extract-variable.md
@@ -73,7 +70,6 @@ nav:
           - skills/fowler-refactoring/references/first-set/combine-functions-into-transform.md
           - skills/fowler-refactoring/references/first-set/split-phase.md
       - "Encapsulation (ch. 7)":
-          - skills/fowler-refactoring/references/encapsulation/index.md
           - skills/fowler-refactoring/references/encapsulation/encapsulate-record.md
           - skills/fowler-refactoring/references/encapsulation/encapsulate-collection.md
           - skills/fowler-refactoring/references/encapsulation/replace-primitive-with-object.md
@@ -84,7 +80,6 @@ nav:
           - skills/fowler-refactoring/references/encapsulation/remove-middle-man.md
           - skills/fowler-refactoring/references/encapsulation/substitute-algorithm.md
       - "Moving features (ch. 8)":
-          - skills/fowler-refactoring/references/moving-features/index.md
           - skills/fowler-refactoring/references/moving-features/move-function.md
           - skills/fowler-refactoring/references/moving-features/move-field.md
           - skills/fowler-refactoring/references/moving-features/move-statements-into-function.md
@@ -95,7 +90,6 @@ nav:
           - skills/fowler-refactoring/references/moving-features/replace-loop-with-pipeline.md
           - skills/fowler-refactoring/references/moving-features/remove-dead-code.md
       - "Organizing data (ch. 9)":
-          - skills/fowler-refactoring/references/organizing-data/index.md
           - skills/fowler-refactoring/references/organizing-data/split-variable.md
           - skills/fowler-refactoring/references/organizing-data/rename-field.md
           - skills/fowler-refactoring/references/organizing-data/replace-derived-variable-with-query.md
@@ -103,7 +97,6 @@ nav:
           - skills/fowler-refactoring/references/organizing-data/change-value-to-reference.md
           - skills/fowler-refactoring/references/organizing-data/replace-magic-literal.md
       - "Simplifying conditional logic (ch. 10)":
-          - skills/fowler-refactoring/references/conditional-logic/index.md
           - skills/fowler-refactoring/references/conditional-logic/decompose-conditional.md
           - skills/fowler-refactoring/references/conditional-logic/consolidate-conditional-expression.md
           - skills/fowler-refactoring/references/conditional-logic/replace-nested-conditional-with-guard-clauses.md
@@ -112,7 +105,6 @@ nav:
           - skills/fowler-refactoring/references/conditional-logic/introduce-assertion.md
           - skills/fowler-refactoring/references/conditional-logic/replace-control-flag-with-break.md
       - "Refactoring APIs (ch. 11)":
-          - skills/fowler-refactoring/references/refactoring-apis/index.md
           - skills/fowler-refactoring/references/refactoring-apis/separate-query-from-modifier.md
           - skills/fowler-refactoring/references/refactoring-apis/parameterize-function.md
           - skills/fowler-refactoring/references/refactoring-apis/remove-flag-argument.md
@@ -127,7 +119,6 @@ nav:
           - skills/fowler-refactoring/references/refactoring-apis/replace-error-code-with-exception.md
           - skills/fowler-refactoring/references/refactoring-apis/replace-exception-with-precheck.md
       - "Dealing with inheritance (ch. 12)":
-          - skills/fowler-refactoring/references/inheritance/index.md
           - skills/fowler-refactoring/references/inheritance/pull-up-method.md
           - skills/fowler-refactoring/references/inheritance/pull-up-field.md
           - skills/fowler-refactoring/references/inheritance/pull-up-constructor-body.md
