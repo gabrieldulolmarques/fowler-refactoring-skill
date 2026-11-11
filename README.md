@@ -5,8 +5,6 @@ Martin Fowler's refactoring catalog (*Refactoring*, 2nd ed., 2018) packaged as
 that maps the 24 code smells to the refactorings that fix them, with one reference file per
 refactoring (mechanics, a C# example and verification steps).
 
-**Status:** all 66 reference files written and reviewed.
-
 ## Layout
 
 ```
