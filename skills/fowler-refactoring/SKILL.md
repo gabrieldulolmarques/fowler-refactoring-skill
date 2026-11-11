@@ -1,6 +1,6 @@
 ---
 name: fowler-refactoring
-description: Martin Fowler's refactoring catalog (Refactoring, 2nd ed.): 24 code smells and 66 refactorings, each with mechanics, a C# example and verification. Use to refactor or clean up code without changing behavior, when code is hard to read or change, or when a refactoring is named (Extract Function, Move Function, Replace Conditional with Polymorphism...).
+description: Martin Fowler's refactoring catalog (Refactoring, 2nd ed.): 24 code smells and 66 refactorings, each with mechanics, a C# example and verification. Use to refactor or clean up code without changing behavior, when code is hard to read or change, or when a refactoring or code smell is named.
 ---
 
 # Fowler's refactoring catalog
