@@ -10,7 +10,7 @@ refatorações do catálogo online em refactoring.com.
 
 Fluxo: **smell -> refatoração -> seu arquivo em `references/`.**
 
-1. Nomeie o smell (cheiro de código). Use o índice rápido abaixo, ou os sintomas em
+1. Nomeie o smell. Use o índice rápido abaixo, ou os sintomas em
    [references/smells.md](references/smells.md) para a lista completa dos 24.
 2. Escolha uma refatoração para esse smell e abra o arquivo dela na tabela mais adiante.
 3. Antes de alterar qualquer coisa, confira a rede de segurança em

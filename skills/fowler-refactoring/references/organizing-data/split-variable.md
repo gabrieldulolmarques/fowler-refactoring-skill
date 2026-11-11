@@ -8,7 +8,7 @@ Smell: Dados Mutáveis (Mutable Data).
 Uma variável que guarda o resultado de alguma computação para referência posterior deve ser atribuída uma só vez. Se ela é atribuída uma segunda vez com um valor que significa outra coisa, ela tem dois trabalhos, e o leitor precisa acompanhar qual deles ela tem em cada linha. Dê a cada trabalho a sua própria variável e o seu próprio nome.
 
 Deixe em paz:
-- Variáveis de laço, que mudam a cada iteração por projeto.
+- Variáveis de laço, que mudam a cada iteração por natureza.
 - Variáveis de coleta, que acumulam um valor (`total = total + x`, construção de string, adição a uma coleção). As atribuições posteriores dependem do valor anterior, então elas têm uma única responsabilidade.
 
 Atribuir a um parâmetro de entrada é um caso comum: o parâmetro é ao mesmo tempo a entrada e o resultado de trabalho. Dividi-lo separa "o que o chamador me deu" de "o que estou calculando".

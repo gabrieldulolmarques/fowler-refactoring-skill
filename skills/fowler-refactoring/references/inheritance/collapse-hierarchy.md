@@ -5,7 +5,7 @@ Fowler (2018), cap. 12, p. 380. Antes / também: —. Inversa: —.
 ## Quando usar
 Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative Generality).
 
-- Depois de subir e descer membros, uma classe e a sua pai podem acabar tão
+- Depois de subir e descer membros, uma classe e a sua superclasse podem acabar tão
   parecidas que a divisão não carrega significado. Una-as.
 - Uma classe base com uma única subclasse, sem segunda subclasse planejada, é o caso usual.
 - Não colapse quando as duas classes ainda modelam uma distinção real, ou quando outras

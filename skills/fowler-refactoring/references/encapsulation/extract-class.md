@@ -12,7 +12,7 @@ Smells: Classe Grande (Large Class), Alteração Divergente (Divergent Change), 
 - Subtipagem ou variação afeta apenas alguns recursos da classe, ou recursos diferentes variam de maneiras diferentes.
 
 Não use quando as partes estiverem muito emaranhadas com o resto e não houver uma
-responsabilidade clara para nomear. Também pule para uma classe que seja pequena e coesa.
+responsabilidade clara para nomear. Também não divida uma classe pequena e coesa.
 
 ## Mecânica
 1. Decida qual responsabilidade separar e dê um nome a ela.

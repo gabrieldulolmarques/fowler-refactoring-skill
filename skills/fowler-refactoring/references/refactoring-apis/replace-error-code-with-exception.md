@@ -114,5 +114,5 @@ public class OrderService
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Adicione um teste por antigo código de erro que afirme que a exceção é lançada com os dados certos.
+- Adicione um teste para cada antigo código de erro que afirme que a exceção é lançada com os dados certos.
 - Procure chamadores fora da solução (reflexão, outros assemblies) que ainda esperem o código.

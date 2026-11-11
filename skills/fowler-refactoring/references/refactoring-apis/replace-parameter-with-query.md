@@ -1,6 +1,6 @@
 # Substituir Parâmetro por Consulta (Replace Parameter with Query)
 
-Fowler (2018), cap. 11, p. 324. Antes / também: antes Replace Parameter with Method. Inversa: Substituir Consulta por Parâmetro ([replace-query-with-parameter.md](replace-query-with-parameter.md)).
+Fowler (2018), cap. 11, p. 324. Antes / também: antes Replace Parameter with Method. Inversa: Substituir Consulta por Parâmetro (Replace Query with Parameter) ([replace-query-with-parameter.md](replace-query-with-parameter.md)).
 
 ## Quando usar
 Smell: Lista Longa de Parâmetros (Long Parameter List). Um chamador passa um valor que a função poderia obter com a mesma facilidade por conta própria, normalmente a partir do receptor ou de outro parâmetro. O chamador faz trabalho extra e a lista de parâmetros repete informação que ela já tem. O caso mais seguro é um parâmetro calculado puramente a partir de outro parâmetro da mesma lista: passar os dois não acrescenta nada.

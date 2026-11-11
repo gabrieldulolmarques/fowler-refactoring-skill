@@ -1,6 +1,6 @@
 # Substituir Consulta por Parâmetro (Replace Query with Parameter)
 
-Fowler (2018), cap. 11, p. 327. Antes / também: —. Inversa: Substituir Parâmetro por Consulta
+Fowler (2018), cap. 11, p. 327. Antes / também: —. Inversa: Substituir Parâmetro por Consulta (Replace Parameter with Query)
 ([replace-parameter-with-query.md](replace-parameter-with-query.md)).
 
 ## Quando usar

@@ -1,6 +1,6 @@
 # Subir Campo (Pull Up Field)
 
-Fowler (2018), cap. 12, p. 353. Antes / também: —. Inversa: Descer Campo
+Fowler (2018), cap. 12, p. 353. Antes / também: —. Inversa: Descer Campo (Push Down Field)
 ([push-down-field.md](push-down-field.md)).
 
 ## Quando usar

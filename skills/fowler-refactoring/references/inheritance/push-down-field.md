@@ -1,6 +1,6 @@
 # Descer Campo (Push Down Field)
 
-Fowler (2018), cap. 12, p. 361. Antes / também: —. Inversa: Subir Campo ([pull-up-field.md](pull-up-field.md)).
+Fowler (2018), cap. 12, p. 361. Antes / também: —. Inversa: Subir Campo (Pull Up Field) ([pull-up-field.md](pull-up-field.md)).
 
 ## Quando usar
 Smell: Herança Recusada (Refused Bequest). Um campo está em uma superclasse mas apenas uma subclasse, ou uma pequena parte delas, o usa. As outras subclasses carregam estado que nunca tocam, e quem lê a classe base é induzido a erro sobre o que toda instância tem.

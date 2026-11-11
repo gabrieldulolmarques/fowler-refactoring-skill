@@ -43,8 +43,8 @@ public class Customer
 }
 
 // clientes
-string label = account.Customer == null ? "guest" : account.Customer.Name;
-string plan = account.Customer == null ? "basic" : account.Customer.PlanCode;
+string label = account.Customer == null ? "visitante" : account.Customer.Name;
+string plan = account.Customer == null ? "básico" : account.Customer.PlanCode;
 if (account.Customer != null) account.Customer.PlanCode = newPlan;
 int late = account.Customer == null ? 0 : account.Customer.LateInvoicesLastYear;
 ```
@@ -63,8 +63,8 @@ public class Customer
 public sealed class MissingCustomer : Customer
 {
     public override bool IsMissing => true;
-    public override string Name { get => "guest"; init { } }
-    public override string PlanCode { get => "basic"; set { /* ignorado */ } }
+    public override string Name { get => "visitante"; init { } }
+    public override string PlanCode { get => "básico"; set { /* ignorado */ } }
     public override int LateInvoicesLastYear { get => 0; init { } }
 }
 
@@ -82,7 +82,7 @@ account.Customer.PlanCode = newPlan;
 int late = account.Customer.LateInvoicesLastYear;
 
 // o único cliente que precisa se comportar de forma diferente mantém um teste explícito
-string greeting = account.Customer.IsMissing ? "Welcome, new tenant" : $"Hello, {account.Customer.Name}";
+string greeting = account.Customer.IsMissing ? "Bem-vindo, novo cliente" : $"Olá, {account.Customer.Name}";
 ```
 
 Mesmo comportamento: os chamadores recebem os mesmos valores de antes, e a escrita em um cliente ausente continua sendo uma operação vazia.

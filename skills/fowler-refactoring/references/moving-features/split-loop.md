@@ -40,7 +40,7 @@ public static class InvoiceReport
             if (invoice.DueDate > latestDue) latestDue = invoice.DueDate;
         }
 
-        return $"total: {total}, latest due: {latestDue:yyyy-MM-dd}";
+        return $"total: {total}, vencimento mais recente: {latestDue:yyyy-MM-dd}";
     }
 }
 ```
@@ -57,7 +57,7 @@ public static class InvoiceReport
 {
     public static string Summarize(IReadOnlyList<Invoice> invoices)
     {
-        return $"total: {TotalAmount(invoices)}, latest due: {LatestDueDate(invoices):yyyy-MM-dd}";
+        return $"total: {TotalAmount(invoices)}, vencimento mais recente: {LatestDueDate(invoices):yyyy-MM-dd}";
     }
 
     private static decimal TotalAmount(IReadOnlyList<Invoice> invoices)

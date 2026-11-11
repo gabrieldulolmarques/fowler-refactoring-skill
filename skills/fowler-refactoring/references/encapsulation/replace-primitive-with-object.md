@@ -52,7 +52,7 @@ public sealed record PhoneNumber
     public PhoneNumber(string value)
     {
         if (value is null || value.Length != 10 || !value.All(char.IsDigit))
-            throw new ArgumentException($"'{value}' is not a 10-digit phone number");
+            throw new ArgumentException($"'{value}' não é um telefone de 10 dígitos");
         _digits = value;
     }
 

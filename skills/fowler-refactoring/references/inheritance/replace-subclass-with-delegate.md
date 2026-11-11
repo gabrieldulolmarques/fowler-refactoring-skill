@@ -35,7 +35,7 @@ quando ela começar a doer.
    método da subclasse chamava a implementação da base, ou extraia o cálculo da base para
    um método próprio que o delegado possa chamar, ou transforme o método do delegado em uma extensão do
    resultado da base (o hospedeiro passa o seu resultado). Não chame o método virtual do próprio hospedeiro
-   a partir do delegado: isso recursa para sempre. Se o método existe apenas na subclasse,
+   a partir do delegado: isso gera recursão infinita. Se o método existe apenas na subclasse,
    despache com um padrão sensato para o caso sem delegado. Teste.
 7. Se o método não tem chamadores externos, apenas remova o método da subclasse (Remover Código Morto (Remove Dead Code),
    [remove-dead-code.md](../moving-features/remove-dead-code.md)). Teste.

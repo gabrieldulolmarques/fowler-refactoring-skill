@@ -46,7 +46,7 @@ public class Customer
 
     public string PreferredContact()
     {
-        // email and phone are never both empty
+        // email e telefone nunca são ambos vazios
         return string.IsNullOrEmpty(Email) ? Phone! : Email;
     }
 }
@@ -66,7 +66,7 @@ public class Customer
     {
         Debug.Assert(
             !string.IsNullOrEmpty(email) || !string.IsNullOrEmpty(phone),
-            "a customer needs an email or a phone");
+            "o cliente precisa de um e-mail ou de um telefone");
         Email = email;
         Phone = phone;
     }

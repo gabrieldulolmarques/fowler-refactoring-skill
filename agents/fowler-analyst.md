@@ -1,6 +1,6 @@
 ---
 name: fowler-analyst
-description: Encontra smells (cheiros de código) no código indicado e devolve um plano curto de refatoração baseado no catálogo de Fowler (a skill fowler-refactoring). Somente leitura, nunca edita. Use antes de refatorar, para decidir o que mudar e em que ordem.
+description: Encontra code smells no código indicado e devolve um plano curto de refatoração baseado no catálogo de Fowler (a skill fowler-refactoring). Somente leitura, nunca edita. Use antes de refatorar, para decidir o que mudar e em que ordem.
 tools: Read, Glob, Grep
 skills: fowler-refactoring
 ---

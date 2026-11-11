@@ -71,7 +71,7 @@ public class Order
     public void RemoveLine(OrderLine line)
     {
         if (!_lines.Remove(line))
-            throw new InvalidOperationException("The order does not contain this line.");
+            throw new InvalidOperationException("O pedido não contém esta linha.");
     }
 
     public void ReplaceLines(IEnumerable<OrderLine> lines)

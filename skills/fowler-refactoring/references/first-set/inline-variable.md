@@ -16,8 +16,7 @@ Fowler (2018), cap. 6, p. 123. Antes / também: Inline Temp. Inversa: Extrair Va
 2. Como precaução extra, verifique se nada entre a atribuição e as leituras pode mudar
    aquilo que o lado direito avalia. Se puder, pare.
 3. Confirme que a variável é atribuída exatamente uma vez. Em C# essa verificação é manual: um local `const`
-   exige uma constante de tempo de compilação, então o compilador não consegue confirmar a atribuição única para outros
-   valores. Procure no método outras atribuições, inclusive `out`, `ref`, `+=` e `++`.
+   só aceita constante de tempo de compilação, então, para outros valores, o compilador não garante a atribuição única. Procure no método outras atribuições, inclusive `out`, `ref`, `+=` e `++`.
    Se o valor for uma constante, um `const` temporário faz o compilador verificar; para um campo,
    `readonly` faz o mesmo. Execute os testes.
 4. Substitua a primeira leitura da variável pelo lado direito. Faça o build e teste.

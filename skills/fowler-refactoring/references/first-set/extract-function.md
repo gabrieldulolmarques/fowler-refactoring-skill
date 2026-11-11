@@ -52,7 +52,7 @@ Recursos (Feature Envy), Cadeias de Mensagens (Message Chains), Classe de Dados 
 6. Execute os testes.
 7. Procure o mesmo código, ou um parecido, em outros lugares e substitua-o por uma chamada
    ([replace-inline-code-with-function-call.md](../moving-features/replace-inline-code-with-function-call.md)).
-8. Toque final opcional: com a chamada em contexto, confira o nome de novo e arrume os nomes
+8. Ajuste final opcional: com a chamada em contexto, confira o nome de novo e arrume os nomes
    locais da função extraída.
 
 ## Exemplo
@@ -157,8 +157,8 @@ trecho de cada vez e execute os testes entre as extrações.
   auxiliar que você espera mover, extraia primeiro para um método irmão, para que as dependências apareçam.
 - Uma função local `static` (C# 8+) não pode capturar, então suas dependências continuam explícitas como
   parâmetros.
-- Um struct passado por valor não é modificado pela referência: um trecho que altera
-  um altera apenas uma cópia. Devolva o novo valor, ou passe-o com `ref`. Prefira devolver um
+- Um struct passado por valor não é modificado por referência: um trecho que o altera
+  só mexe em uma cópia. Devolva o novo valor, ou passe-o com `ref`. Prefira devolver um
   valor ou um record/tupla; use `out`/`ref` como último recurso.
 
 ## Verificação

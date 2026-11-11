@@ -12,8 +12,7 @@ Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative G
   depois aplicar Extrair Classe (Extract Class) ([extract-class.md](extract-class.md)) pela linha certa do que mover
   membros um por um.
 - Não use quando a classe tiver vários clientes sem relação entre si que precisariam, cada um, dos mesmos
-  membros copiados ou reexpostos, ou quando ela carregar uma responsabilidade real que apenas
-  é pequena.
+  membros copiados ou reexpostos, ou quando ela tiver uma responsabilidade real, mesmo que pequena.
 
 ## Mecânica
 1. Escolha o alvo: a classe que mais usa a classe de origem.

@@ -1,7 +1,7 @@
 # Remover Subclasse (Remove Subclass)
 
 Fowler (2018), cap. 12, p. 369. Antes / também: antes Replace Subclass with Fields.
-Inversa: Substituir Código de Tipo por Subclasses ([replace-type-code-with-subclasses.md](replace-type-code-with-subclasses.md)).
+Inversa: Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses) ([replace-type-code-with-subclasses.md](replace-type-code-with-subclasses.md)).
 
 ## Quando usar
 Smell: nenhum específico no livro (relacionados: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative Generality)).

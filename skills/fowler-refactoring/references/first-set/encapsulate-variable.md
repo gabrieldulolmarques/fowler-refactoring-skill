@@ -40,7 +40,7 @@ Opções quando os chamadores não devem mutar o objeto compartilhado:
   muitas vezes uma boa medida temporária para encontrar todos os mutadores, que você então remove ou transforma em
   métodos de atualização explícitos, antes de trocar o getter para uma cópia.
 - Copie também no setter quando a origem não deve continuar ligada aos dados armazenados.
-- Cópias e wrappers têm um nível de profundidade. Estruturas aninhadas precisam de cópias ou wrappers em cada
+- Cópias e wrappers só protegem um nível de profundidade. Estruturas aninhadas precisam de cópias ou wrappers em cada
   nível.
 
 ## Exemplo

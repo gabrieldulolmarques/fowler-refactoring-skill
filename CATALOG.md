@@ -1,7 +1,7 @@
 # Especificação do catálogo
 
 A especificação a partir da qual a skill foi escrita e contra a qual é conferida: uma skill,
-`fowler-refactoring`, com um arquivo de referência por refatoração, os smells (cheiros de código) e a disciplina,
+`fowler-refactoring`, com um arquivo de referência por refatoração, os code smells e a disciplina,
 e o formato dos arquivos.
 
 Fontes: Fowler, *Refactoring*, 2ª ed. (2018), capítulos 2–4 e 6–12, e o catálogo online

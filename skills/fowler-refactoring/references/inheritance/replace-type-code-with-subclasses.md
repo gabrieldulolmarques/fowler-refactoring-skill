@@ -1,6 +1,6 @@
 # Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses)
 
-Fowler (2018), cap. 12, p. 362. Antes / também: engloba Replace Type Code with State/Strategy e Extract Subclass. Inversa: Remover Subclasse ([remove-subclass.md](remove-subclass.md)).
+Fowler (2018), cap. 12, p. 362. Antes / também: engloba Replace Type Code with State/Strategy e Extract Subclass. Inversa: Remover Subclasse (Remove Subclass) ([remove-subclass.md](remove-subclass.md)).
 
 ## Quando usar
 Smells: Obsessão por Primitivos (Primitive Obsession), Classe Grande (Large Class).

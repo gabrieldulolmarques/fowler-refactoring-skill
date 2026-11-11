@@ -24,7 +24,7 @@ Principalmente de forma oportunista, como parte de outro trabalho (cap. 2, pp. 5
 - **Regra dos três:** tolere a duplicação duas vezes, refatore na terceira.
 - **Preparatória:** logo antes de adicionar uma funcionalidade ou corrigir um bug, remodele o código para que a mudança fique fácil.
 - **De compreensão:** quando você teve que quebrar a cabeça com um código, devolva ao código o que aprendeu (nomes, estrutura).
-- **Coleta de lixo:** pequenas limpezas pelo caminho; anote as maiores e volte depois.
+- **Limpeza de passagem:** pequenas limpezas pelo caminho; anote as maiores e volte depois.
 - **Planejada/de longo prazo:** rara; distribua os grandes esforços pelas mudanças do dia a dia em vez de um bloco de tempo.
 
 ## O ciclo
@@ -47,7 +47,7 @@ A refatoração precisa de testes autoverificáveis: eles rodam sozinhos e infor
 - **Veja cada novo teste falhar uma vez.** Quebre o código temporariamente (por exemplo, inverta uma comparação ou devolva uma constante) e confirme que o teste fica vermelho, depois desfaça. Um teste que não pode falhar não protege nada.
 - Sonde os limites: coleções vazias, zero, valores negativos ou fora da faixa, e os caminhos de erro, onde os bugs tendem a se concentrar.
 - Mantenha os testes independentes: crie objetos novos por teste em vez de compartilhar uma fixture mutável, para que um teste não possa quebrar outro.
-- Use `Introduzir Asserção` ([introduce-assertion.md](conditional-logic/introduce-assertion.md)) para declarar uma regra que o código assume, de modo que uma violação falhe de forma ruidosa.
+- Use `Introduzir Asserção` (Introduce Assertion) ([introduce-assertion.md](conditional-logic/introduce-assertion.md)) para declarar uma regra que o código assume, de modo que uma violação falhe de forma ruidosa.
 - Execute os testes que cobrem o código que você tocou a cada poucos minutos, e a suíte inteira pelo menos uma vez por dia.
 
 ## Quando não refatorar

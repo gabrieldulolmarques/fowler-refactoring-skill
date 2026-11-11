@@ -1,7 +1,7 @@
 # Substituir Função por Comando (Replace Function with Command)
 
 Fowler (2018), cap. 11, p. 337. Antes / também: Replace Method with Method Object. Inversa:
-Substituir Comando por Função ([replace-command-with-function.md](replace-command-with-function.md)).
+Substituir Comando por Função (Replace Command with Function) ([replace-command-with-function.md](replace-command-with-function.md)).
 
 ## Quando usar
 Smell: Função Longa (Long Function). O gatilho típico é uma função cujas variáveis locais e parâmetros estão tão

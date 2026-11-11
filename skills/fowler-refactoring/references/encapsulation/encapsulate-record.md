@@ -7,7 +7,7 @@ Inversa: —.
 Smells: Classe de Dados (Data Class).
 
 - Dados mutáveis vivem em um registro simples e muitos lugares leem e escrevem seus campos diretamente.
-  Uma classe pode servir um valor derivado pela mesma propriedade que um valor armazenado e pode manter
+  Uma classe pode expor um valor derivado pela mesma propriedade que um valor armazenado, e manter
   um alias obsoleto enquanto os chamadores migram para um novo nome.
 - O registro é um mapa livre com campos implícitos: para saber se ele contém
   `price`/`currency` ou apenas `amount`, você precisa ler todos os lugares que o constroem ou usam.
@@ -30,7 +30,7 @@ Desnecessário para um valor imutável usado em um escopo pequeno: ali, adiciona
 4. Mova os chamadores um de cada vez da função do registro bruto para a função que retorna o
    objeto. Em cada uso, chame um acessor no objeto, criando-o se ainda não existir
    (um setter para uma escrita, um getter para uma leitura; para um acesso profundo, aplique antes Extrair
-   Função (Extract Function) e Mover Função (Move Function) para que a escavação aconteça dentro da classe). Compile e teste
+   Função (Extract Function) e Mover Função (Move Function) para que o acesso aconteça dentro da classe). Compile e teste
    após cada chamador.
    - Para um registro aninhado, converta primeiro os escritores: reunir todas as atualizações em um só lugar é
      a parte mais valiosa. Os leitores podem então receber uma cópia ou uma visão somente leitura.
