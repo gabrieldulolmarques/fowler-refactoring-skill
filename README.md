@@ -5,6 +5,8 @@ O catálogo de refatorações de Martin Fowler (*Refactoring*, 2ª ed., 2018) em
 que relaciona os 24 code smells às refatorações que os corrigem, com um arquivo de referência por
 refatoração (mecânica, um exemplo em C# e passos de verificação).
 
+**Site:** <https://gabrieldulolmarques.github.io/fowler-refactoring-skill/> (inglês e português).
+
 ## Estrutura
 
 ```
