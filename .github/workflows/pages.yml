@@ -30,11 +30,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install mkdocs-material==9.6.*
+      - run: pip install mkdocs-material==9.8.*
       - name: Build both languages
         run: |
           for lang in en pt-br; do
-            mkdir -p "$lang/_docs" && (cd "$lang" && git ls-files | grep -v -e '^\.github/' -e '^mkdocs\.yml$' | xargs -I{} cp --parents {} _docs/)
+            (cd "$lang" && python .github/build_site.py)
             mkdocs build -f "$lang/mkdocs.yml" -d "$GITHUB_WORKSPACE/_site/$lang"
           done
           printf '<!doctype html><meta charset="utf-8"><title>Fowler Refactoring Skill</title><meta http-equiv="refresh" content="0; url=en/"><a href="en/">English</a> · <a href="pt-br/">Português</a>\n' > _site/index.html
