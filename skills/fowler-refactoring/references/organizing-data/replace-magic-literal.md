@@ -47,7 +47,7 @@ public decimal TaxAmount(decimal subtotal)
 
 O comportamento não muda, e a relação entre os dois métodos agora é visível.
 
-## Notas de C#
+## Notas (C#)
 - `const` se limita a primitivos, `string` e `null`. Use-o para valores de tempo de compilação, `static readonly` para o resto (calculados na inicialização, ou de um tipo que não pode ser `const`).
 - Um `const` de outro assembly é incorporado em tempo de compilação, então mudar o seu valor exige recompilar os consumidores; prefira `static readonly` para valores públicos que podem mudar.
 

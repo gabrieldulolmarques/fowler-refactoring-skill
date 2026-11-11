@@ -86,7 +86,7 @@ public static class Reports
 
 O mesmo comportamento para entradas válidas de 10 dígitos; um número malformado agora é rejeitado quando é atribuído, e não descoberto depois. O cliente é sempre construído com um telefone, então `Phone` nunca é nulo.
 
-## Notas de C#
+## Notas (C#)
 - Uma `string` ou `int` com significado vira seu próprio tipo: um `record`, ou um `readonly record struct` para valores pequenos. Se os valores legais forem um conjunto fechado e fixo, sem comportamento extra, um `enum` pode bastar.
 - Um `record` dá igualdade por valor de graça; mantenha o estado imutável.
 - Um `readonly record struct` pode ser `default`, o que pula o construtor e sua validação. Uma expressão `with` em um record também copia o estado sem executar a validação. Use uma `sealed class` quando qualquer um dos dois importar.

@@ -119,7 +119,7 @@ public class Customers
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Um campo público vira um campo privado mais uma propriedade. Em C#, trocar um campo por uma
   propriedade mantém a sintaxe de chamada, mas quebra a compatibilidade binária e qualquer coisa que o passe
   por `ref`/`out` ou dependa de reflexão pelo nome do campo, então verifique isso.

@@ -64,7 +64,7 @@ public static class Program
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Use `{ get; }` para um valor definido apenas no construtor, ou `{ get; init; }` quando os chamadores ainda podem defini-lo em um inicializador de objeto (`new Customer { Id = "C-1001" }`), mas não depois.
 - `init` é um primeiro passo mais leve quando muitos pontos de criação usam inicializadores: bloqueia a atribuição posterior sem forçar uma mudança de construtor de uma vez. Prefira `{ get; }` mais um construtor quando o valor é obrigatório, para que o compilador rejeite objetos construídos sem ele.
 

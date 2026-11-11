@@ -91,7 +91,7 @@ var total = order.Lines.Sum(l => l.Quantity);
 As leituras continuam funcionando com LINQ. As escritas agora passam por `Order`, então uma regra como "no máximo
 50 linhas" tem um único lugar para viver.
 
-## Notas de C#
+## Notas (C#)
 - Exponha `IReadOnlyList<T>` ou `IReadOnlyCollection<T>`, com métodos `Add`/`Remove` no
   dono.
 - Uma interface somente leitura não impede que um chamador faça o cast de volta para `List<T>` e a modifique.

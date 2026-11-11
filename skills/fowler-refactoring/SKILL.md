@@ -52,7 +52,7 @@ Se o pedido nomear uma refatoração, pule para o passo 3 e abra o arquivo dela 
 
 ## As refatorações
 
-Cada arquivo tem: Quando usar, Mecânica, Exemplo (C#), Notas de C# onde o catálogo tem uma, e
+Cada arquivo tem: Quando usar, Mecânica, Exemplo (C#), Notas (C#) onde o catálogo tem uma, e
 Verificação. "(web)" marca uma refatoração que existe só na edição web do livro, sem página
 no impresso.
 

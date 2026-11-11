@@ -173,7 +173,7 @@ public class Product
 Depois que a asserção se sustentar, remova o parâmetro do construtor e o campo e retorne
 `_category.VatPercent`.
 
-## Notas de C#
+## Notas (C#)
 - Um campo persistido ou serializado só mantém seu nome armazenado se o mapeamento também for atualizado
   (coluna, nome da propriedade JSON, atributos do serializador). Movê-lo para outra classe muda
   o formato armazenado, então migre ou mapeie os dados.

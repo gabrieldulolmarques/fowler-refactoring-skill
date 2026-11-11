@@ -243,7 +243,7 @@ não usar, se o livro disser)
 ## Exemplo
 Antes / depois em C#, escrito para este pacote (não copiado do livro).
 
-## Notas de C#
+## Notas (C#)
 - Somente quando a seção 2 tiver uma nota de C#.
 
 ## Verificação
@@ -262,7 +262,7 @@ exclusiva da web, a linha de citação diz "só na edição web" e aponta o resu
 | Nome, antes / também, inversa | o cabeçalho de seção do livro (seção 2); a edição web para as exclusivas da web | curto: pode ser literal |
 | Quando usar, mecânica | o livro (a edição web para as exclusivas da web) | **paráfrase**, com capítulo e página; nada copiado |
 | Exemplo | escrito para este pacote em C# | domínio neutro (pedidos, clientes, faturas, contas); não o exemplo nem o domínio do livro |
-| Notas de C# | seção 2, coluna "Nota de C#" | só onde houver algo a dizer |
+| Notas (C#) | seção 2, coluna "Nota de C#" | só onde houver algo a dizer |
 | Verificação | cap. 4 + `references/discipline.md` | igual em todos os arquivos |
 | Linha de Fonte | esta especificação (4.1) | uma vez, no fim de `SKILL.md`; credita o autor e a editora |
 

@@ -93,7 +93,7 @@ public class Invoice
 Se o campo tivesse começado com um valor inicial diferente de zero, a asserção falharia. Divida-o
 primeiro em `_openingPaid` e um acumulador, e calcule apenas a parte do acumulador.
 
-## Notas de C#
+## Notas (C#)
 - O cálculo cabe em uma propriedade somente leitura calculada (`=> ...`).
 - `Debug.Assert` é removido dos builds Release, então rode os testes em Debug para exercitá-lo.
 

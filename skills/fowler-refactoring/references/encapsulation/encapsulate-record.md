@@ -142,7 +142,7 @@ public static class ContactForm
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Dados em dicionário, tupla, tipo anônimo ou `dynamic` viram uma classe ou `record` com propriedades.
   Tipos anônimos não podem cruzar fronteiras de método como valor tipado, o que é um bom motivo para
   convertê-los.

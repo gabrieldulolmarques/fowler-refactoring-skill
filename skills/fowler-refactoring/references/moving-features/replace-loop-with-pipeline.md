@@ -76,7 +76,7 @@ public class InvoiceReport
 
 O limite conta resultados, não itens lidos, então `Take` vem depois dos filtros.
 
-## Notas de C#
+## Notas (C#)
 - Use LINQ: `Where` para filtrar, `Select` para mapear, `Skip`/`Take` para fatiar, `ToList()` ou
   `ToArray()` para produzir a coleção final.
 - LINQ é preguiçoso. Enumere uma vez, no fim do pipeline, e não guarde uma consulta adiada

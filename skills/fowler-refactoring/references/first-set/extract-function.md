@@ -148,7 +148,7 @@ public class CheckoutService
 Mesmo comportamento, e cada trecho agora tem um nome e uma entrada e saída claras. Extraia um
 trecho de cada vez e execute os testes entre as extrações.
 
-## Notas de C#
+## Notas (C#)
 
 - Uma função local (declarada dentro do método) é uma opção para um auxiliar usado em um só lugar.
   Ela pode ler as variáveis do escopo externo sem parâmetros, o que elimina o problema de

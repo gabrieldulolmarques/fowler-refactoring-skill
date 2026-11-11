@@ -82,7 +82,7 @@ public decimal ShippingCost(decimal weightKg, bool express)
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - C# não tem variáveis locais imutáveis (`const` só serve para constantes de tempo de compilação), então mantenha cada nova variável atribuída exatamente uma vez.
 - Renomear um parâmetro de um método público quebra os chamadores que o passam por nome (argumentos nomeados).
 

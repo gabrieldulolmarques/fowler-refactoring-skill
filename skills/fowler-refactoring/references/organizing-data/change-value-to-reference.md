@@ -92,7 +92,7 @@ public class Invoice
 Agora `a.Account` e `b.Account` são o mesmo objeto para o mesmo id, então uma mudança feita por meio de uma
 fatura é vista por todas. Aqui o repositório é passado como parâmetro em vez de lido de um global.
 
-## Notas de C#
+## Notas (C#)
 - Um repositório ou registro que entrega a instância compartilhada é a forma usual: um
   dicionário indexado por id, dentro de uma classe pequena.
 - Se o repositório for compartilhado entre threads, use uma estrutura thread-safe (por exemplo

@@ -86,7 +86,7 @@ public static bool Overdue(DateTime dueDate) =>
 
 Mesmo comportamento o tempo todo; o build continua verde após cada passo.
 
-## Notas de C#
+## Notas (C#)
 - O compilador encontra os chamadores diretos, mas não reflexão, buscas baseadas em string (exceto `nameof`) nem nomes serializados; procure por eles separadamente.
 - Em uma API pública, mantenha a assinatura antiga como um encaminhador `[Obsolete]` para a nova durante a migração.
 - Alterar um `override`, um membro `virtual` ou um membro de interface afeta todas as implementações; atualize-as juntas ou encaminhe a partir de cada uma.

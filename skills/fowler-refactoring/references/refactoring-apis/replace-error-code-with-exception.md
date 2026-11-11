@@ -109,7 +109,7 @@ public class OrderService
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Não use exceções para fluxo de controle esperado: elas são lentas em comparação com um desvio e
   escondem os caminhos normais do programa. Reserve-as para falhas que o chamador não consiga razoavelmente
   evitar verificando antes.

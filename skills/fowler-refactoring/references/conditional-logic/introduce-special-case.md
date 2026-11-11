@@ -87,7 +87,7 @@ string greeting = account.Customer.IsMissing ? "Bem-vindo, novo cliente" : $"Ol�
 
 Mesmo comportamento: os chamadores recebem os mesmos valores de antes, e a escrita em um cliente ausente continua sendo uma operação vazia.
 
-## Notas de C#
+## Notas (C#)
 - Com tipos de referência anuláveis habilitados, o caso especial remove `?` e as verificações de null nos pontos de chamada: a propriedade passa a ser não anulável e nunca retorna null.
 
 ## Verificação

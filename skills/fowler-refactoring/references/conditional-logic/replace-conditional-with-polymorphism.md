@@ -133,7 +133,7 @@ public class ExpressShippingQuote : ShippingQuote
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Um `switch` sobre um código de tipo vira membros `abstract` ou `virtual`, ou uma interface, conforme os casos compartilhem código ou não.
 - A fábrica é o único lugar que ainda faz switch sobre o código. Mantenha-a pequena e cubra-a com um teste para cada valor, inclusive o desconhecido.
 - Se o código de tipo for persistido ou serializado, mantenha-o como dado e mapeie-o na fábrica.

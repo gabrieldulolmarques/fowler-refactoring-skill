@@ -198,7 +198,7 @@ public class Quote : Document
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - O construtor da superclasse é alcançado com o encadeamento de construtores `: base(...)`. O construtor
   da base roda antes do corpo da subclasse e antes das atribuições de campo da própria subclasse no
   corpo do construtor (os inicializadores de campo da subclasse rodam ainda mais cedo).

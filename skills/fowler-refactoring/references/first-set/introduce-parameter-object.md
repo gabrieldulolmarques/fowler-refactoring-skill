@@ -86,7 +86,7 @@ public class OrderReport
 O comportamento não muda. Os estados intermediários (com os parâmetros antigos e o novo na
 assinatura) compilaram e passaram nos testes a cada passo.
 
-## Notas de C#
+## Notas (C#)
 - O novo tipo pode ser uma classe, um `record` ou um `record struct`. Um `record` dá igualdade por valor
   e imutabilidade (`init` ou propriedades posicionais) de graça, o que combina com um objeto de valor.
 

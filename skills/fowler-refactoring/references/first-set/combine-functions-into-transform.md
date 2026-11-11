@@ -98,7 +98,7 @@ campo ali. Se o tipo enriquecido deve estender `Order` em vez de repetir seus ca
 (`EnrichedOrder(Order o, decimal subtotal, decimal taxable) : base(o)`), porque uma
 expressão `with` em um `Order` devolve um `Order`, não um `EnrichedOrder`.
 
-## Notas de C#
+## Notas (C#)
 - Esta refatoração é idiomática em JavaScript. Em C#, a transformação costuma ser uma função que
   devolve um novo `record` enriquecido (construído com um construtor, ou um construtor de cópia quando
   deriva do record de origem; `with` só serve quando o tipo enriquecido é o mesmo tipo),

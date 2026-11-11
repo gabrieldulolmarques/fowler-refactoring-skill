@@ -103,7 +103,7 @@ Console.WriteLine(customer.BillingReference);
 
 O comportamento não muda; só o nome mudou de lugar.
 
-## Notas de C#
+## Notas (C#)
 - Um campo serializado ou persistido só mantém o seu nome externo com um atributo de mapeamento (por
   exemplo `[JsonPropertyName("oldName")]`) ou uma migração. Renomear a propriedade sem um deles
   muda o JSON, a coluna ou os dados armazenados.

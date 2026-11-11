@@ -78,7 +78,7 @@ public class Customer
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - `Debug.Assert` (`System.Diagnostics`) é removido dos builds Release, o que combina com a regra
   de que o programa deve se comportar do mesmo jeito sem asserções. Não ponha efeitos colaterais na
   expressão asserida.

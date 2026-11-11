@@ -88,7 +88,7 @@ public class Order
 
 Se a função movida precisar depois de mais coisas do pedido (por exemplo, o subtotal para um limite de frete grátis), passe o pedido em vez de valores avulsos: `Customer.ShippingFee(this)`.
 
-## Notas de C#
+## Notas (C#)
 - O destino pode ser outra classe, uma classe estática ou um método de extensão. Um método de extensão serve para um tipo que você não pode editar, mas só pode usar membros públicos.
 - Mover um método `virtual`, `override` ou que implementa uma interface muda o contrato para as outras implementações; verifique-as primeiro.
 

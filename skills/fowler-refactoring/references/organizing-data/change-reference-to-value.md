@@ -89,7 +89,7 @@ public class Order
 }
 ```
 
-Passo 2, dê a ele igualdade por valor (aqui à mão; veja as Notas de C# para a forma mais curta):
+Passo 2, dê a ele igualdade por valor (aqui à mão; veja as Notas (C#) para a forma mais curta):
 
 ```csharp
 using System;
@@ -117,7 +117,7 @@ public sealed class PostalAddress : IEquatable<PostalAddress>
 O comportamento visto de fora de `Order` é o mesmo; `new PostalAddress("A", "B")` agora é igual a
 outra instância construída com os mesmos argumentos.
 
-## Notas de C#
+## Notas (C#)
 - Um `record`, um `readonly record struct` ou uma classe imutável com igualdade por valor
   (`Equals`/`GetHashCode`) servem. Com um `record PostalAddress(string Street, string City)`,
   a igualdade e o hash code são gerados, e o setter do dono pode ser

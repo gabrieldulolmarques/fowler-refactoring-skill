@@ -86,7 +86,7 @@ var penalty = invoice.Penalty(DateTime.Today);
 
 Um teste agora pode passar qualquer data e obter um resultado repetível.
 
-## Notas de C#
+## Notas (C#)
 - Útil para remover uma dependência de um estático ou singleton (`DateTime.Today`, uma classe estática de
   configuração, um service locator) e tornar o código testável.
 

@@ -134,7 +134,7 @@ public class ReportService
 
 Mesma saída de antes, inclusive para lista vazia e valores negativos (`Largest` continua começando em `0`).
 
-## Notas de C#
+## Notas (C#)
 
 - A estrutura de dados intermediária costuma ser um `record` (ou um `readonly record struct` para dados pequenos e muito usados). A imutabilidade impede que as fases mexam no estado uma da outra.
 

@@ -93,7 +93,7 @@ public record Consultant(decimal HourlyRate);
 O comportamento é o mesmo. `Fees` agora é reutilizável por outros métodos, e `Total` não carrega mais
 temporárias que bloqueariam extrações futuras.
 
-## Notas de C#
+## Notas (C#)
 - Uma propriedade somente leitura (`private decimal Fees => ...`) serve para cálculos baratos e sem efeitos colaterais.
 - Mantenha as consultas caras como métodos (`ComputeFees()`), para que o custo fique visível no ponto de chamada.
 

@@ -94,7 +94,7 @@ public class CartSummaryAfter
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Não internalize um método `virtual` ou `override`, nem uma implementação de interface, sem verificar as outras implementações: os chamadores que passam pelo tipo base ou pela interface ainda precisam do método.
 - Um método alcançado por reflexão, injeção de dependência, serialização ou assinatura de evento tem chamadores que uma busca textual não encontra.
 

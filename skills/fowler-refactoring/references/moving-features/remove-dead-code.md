@@ -10,7 +10,7 @@ Smells: Generalidade Especulativa (Speculative Generality).
 - Código deixado em comentários, ou atrás de uma condição que nunca pode ser verdadeira. O controle de
   versão já guarda o texto antigo, então o comentário não acrescenta nada.
 - Não apague código que seja alcançável de formas que uma busca textual não enxerga até que você tenha
-  descartado essas possibilidades (veja Notas de C#). Se tiver dúvida, descubra antes, ou pergunte ao responsável.
+  descartado essas possibilidades (veja Notas (C#)). Se tiver dúvida, descubra antes, ou pergunte ao responsável.
 - Se quiser lembrar o que foi removido, uma nota curta com o nome da revisão basta.
   Não deixe o próprio código para trás.
 
@@ -65,7 +65,7 @@ public class InvoiceService
 O comportamento é o mesmo: o ramo removido nunca rodava, o comentário nunca foi executado e o
 método privado não tinha chamadores.
 
-## Notas de C#
+## Notas (C#)
 - Código sem chamadores estáticos ainda pode ser alcançado por reflexão, injeção de dependência ou
   serialização. Antes de apagar um tipo ou membro que parece não usado, verifique: tipos
   registrados ou resolvidos por um contêiner (inclusive por varredura de assemblies), membros

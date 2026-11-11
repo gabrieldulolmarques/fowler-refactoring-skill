@@ -45,7 +45,7 @@ public int GetLineQuantity(int lineIndex)
 }
 ```
 
-## Notas de C#
+## Notas (C#)
 - Prefira o padrão `TryParse` / `TryGetValue` do framework onde ele existir: ele realiza a verificação e a operação juntas, então não há intervalo entre o teste e o uso. Exemplo: `if (_prices.TryGetValue(sku, out var price)) return price; return 0m;` em vez de capturar `KeyNotFoundException`.
 - Um `catch` estreito facilita identificar a condição. Um `catch (Exception)` amplo exige primeiro descobrir qual causa é a pretendida, já que muitas vezes esconde mais de uma.
 

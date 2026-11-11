@@ -82,7 +82,7 @@ var b = Invoice.CreateRecurring("Acme");
 
 O comportamento é o mesmo; o código literal não aparece mais no ponto de chamada de `b`.
 
-## Notas de C#
+## Notas (C#)
 - A fábrica é um método de fábrica estático. Torne o construtor `private` (ou `protected` se as subclasses precisarem chamá-lo) quando todos os chamadores tiverem migrado.
 - Se a fábrica precisa retornar uma subclasse, um construtor `private` na base impede que subclasses externas derivem dela. Aninhe as subclasses na classe base, ou torne o construtor da base `protected` ou `private protected`. Mantenha os construtores das subclasses `internal` ou `private` para que só a fábrica os alcance.
 

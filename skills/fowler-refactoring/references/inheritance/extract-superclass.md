@@ -124,7 +124,7 @@ public class Refund : Document
 
 Uma exportação de livro-razão que só precisa de números e totais agora pode aceitar um `Document`.
 
-## Notas de C#
+## Notas (C#)
 - Torne a superclasse `abstract` quando ela não se destina a ser instanciada; membros que
   as subclasses devem fornecer se tornam `abstract`.
 - Se apenas as assinaturas são compartilhadas e não há estado ou comportamento comum, extraia uma
