@@ -21,7 +21,7 @@ Smells: Divergent Change, Shotgun Surgery.
 5. Go through the second-phase parameters one at a time. If the first phase produces or uses a parameter, store it as a field of the intermediate structure, read it from there in the second phase and drop the parameter. Compile and test after each move.
    - If a parameter should not be known to the second phase at all, compute the value it feeds in the first phase, store the result in a field, and move the line that fills it back to the caller ([move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)).
    - Parameters used only by the second phase stay as parameters.
-6. What remains in the original function is now the first phase. Turn it into a function of its own whose result is the intermediate structure ([extract-function.md](extract-function.md)), then compile and test.
+6. What remains in the original function is now the first phase. Turn it into a function of its own whose result is the intermediate structure ([extract-function.md](extract-function.md)), then compile and test. If the first phase grows helpers that share its inputs, it can be an object instead (a transformer) whose method returns the intermediate structure; see the variation below.
 7. Optionally tidy: inline leftover temporaries in the orchestrating function so it reads as "run phase one, feed phase two".
 
 ## Example
@@ -98,6 +98,41 @@ public class ReportService
 ```
 
 Same output for the same input. Now a new output format touches only `Render`, and a new statistic touches `ComputeStats` plus the fields it feeds.
+
+### Variation: the first phase as a transformer object
+
+When the first phase needs several helpers over the same input, a small class keeps them together. The class takes the raw input, and one method returns the intermediate structure. `Render` does not change.
+
+```csharp
+using System.Collections.Generic;
+using System.Linq;
+
+public class OrderStatsCalculator
+{
+    private readonly IReadOnlyList<Order> _orders;
+
+    public OrderStatsCalculator(IReadOnlyList<Order> orders) => _orders = orders;
+
+    public OrderStats Run() => new(_orders.Count, Total(), Largest());
+
+    private decimal Total() => _orders.Sum(o => o.Amount);
+
+    private decimal Largest() => _orders.Aggregate(0m, (max, o) => o.Amount > max ? o.Amount : max);
+}
+
+public class ReportService
+{
+    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    {
+        var stats = new OrderStatsCalculator(orders).Run();
+        return Render(stats, currencySymbol);
+    }
+
+    // Render as above.
+}
+```
+
+Same output as before, including an empty list and negative amounts (`Largest` still starts at `0`).
 
 ## C# notes
 
