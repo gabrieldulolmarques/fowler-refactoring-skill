@@ -1,12 +1,12 @@
-# Site built by .github/workflows/pages.yml; .github/build_site.py prepares _docs first.
+# Site gerado por .github/workflows/pages.yml; .github/build_site.py prepara o _docs antes.
 site_name: Fowler Refactoring Skill
-site_description: "Martin Fowler's refactoring catalog as an Agent Skill: 24 smells, 66 refactorings, C# examples."
-site_url: https://gabrieldulolmarques.github.io/fowler-refactoring-skill/en/
+site_description: "O catálogo de refatorações de Martin Fowler como Agent Skill: 24 smells, 66 refatorações, exemplos em C#."
+site_url: https://gabrieldulolmarques.github.io/fowler-refactoring-skill/pt-br/
 repo_url: https://github.com/gabrieldulolmarques/fowler-refactoring-skill
 docs_dir: _docs
 theme:
   name: material
-  language: en
+  language: pt-BR
   font:
     text: Inter
     code: JetBrains Mono
@@ -29,22 +29,22 @@ theme:
       accent: amber
       toggle:
         icon: material/weather-night
-        name: Dark mode
+        name: Modo escuro
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: indigo
       accent: amber
       toggle:
         icon: material/weather-sunny
-        name: Light mode
+        name: Modo claro
 extra:
   alternate:
-    - name: English
-      link: /fowler-refactoring-skill/en/
-      lang: en
     - name: Português (Brasil)
       link: /fowler-refactoring-skill/pt-br/
       lang: pt-BR
+    - name: English
+      link: /fowler-refactoring-skill/en/
+      lang: en
 markdown_extensions:
   - tables
   - admonition
@@ -53,11 +53,11 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
 nav:
-  - Home: index.md
-  - Catalog:
+  - Início: index.md
+  - Catálogo:
       - Smells: skills/fowler-refactoring/references/smells.md
-      - Discipline: skills/fowler-refactoring/references/discipline.md
-      - "A first set (ch. 6)":
+      - Disciplina: skills/fowler-refactoring/references/discipline.md
+      - "Um primeiro conjunto (cap. 6)":
           - skills/fowler-refactoring/references/first-set/extract-function.md
           - skills/fowler-refactoring/references/first-set/inline-function.md
           - skills/fowler-refactoring/references/first-set/extract-variable.md
@@ -69,7 +69,7 @@ nav:
           - skills/fowler-refactoring/references/first-set/combine-functions-into-class.md
           - skills/fowler-refactoring/references/first-set/combine-functions-into-transform.md
           - skills/fowler-refactoring/references/first-set/split-phase.md
-      - "Encapsulation (ch. 7)":
+      - "Encapsulamento (cap. 7)":
           - skills/fowler-refactoring/references/encapsulation/encapsulate-record.md
           - skills/fowler-refactoring/references/encapsulation/encapsulate-collection.md
           - skills/fowler-refactoring/references/encapsulation/replace-primitive-with-object.md
@@ -79,7 +79,7 @@ nav:
           - skills/fowler-refactoring/references/encapsulation/hide-delegate.md
           - skills/fowler-refactoring/references/encapsulation/remove-middle-man.md
           - skills/fowler-refactoring/references/encapsulation/substitute-algorithm.md
-      - "Moving features (ch. 8)":
+      - "Movendo recursos (cap. 8)":
           - skills/fowler-refactoring/references/moving-features/move-function.md
           - skills/fowler-refactoring/references/moving-features/move-field.md
           - skills/fowler-refactoring/references/moving-features/move-statements-into-function.md
@@ -89,14 +89,14 @@ nav:
           - skills/fowler-refactoring/references/moving-features/split-loop.md
           - skills/fowler-refactoring/references/moving-features/replace-loop-with-pipeline.md
           - skills/fowler-refactoring/references/moving-features/remove-dead-code.md
-      - "Organizing data (ch. 9)":
+      - "Organizando dados (cap. 9)":
           - skills/fowler-refactoring/references/organizing-data/split-variable.md
           - skills/fowler-refactoring/references/organizing-data/rename-field.md
           - skills/fowler-refactoring/references/organizing-data/replace-derived-variable-with-query.md
           - skills/fowler-refactoring/references/organizing-data/change-reference-to-value.md
           - skills/fowler-refactoring/references/organizing-data/change-value-to-reference.md
           - skills/fowler-refactoring/references/organizing-data/replace-magic-literal.md
-      - "Simplifying conditional logic (ch. 10)":
+      - "Simplificando a lógica condicional (cap. 10)":
           - skills/fowler-refactoring/references/conditional-logic/decompose-conditional.md
           - skills/fowler-refactoring/references/conditional-logic/consolidate-conditional-expression.md
           - skills/fowler-refactoring/references/conditional-logic/replace-nested-conditional-with-guard-clauses.md
@@ -104,7 +104,7 @@ nav:
           - skills/fowler-refactoring/references/conditional-logic/introduce-special-case.md
           - skills/fowler-refactoring/references/conditional-logic/introduce-assertion.md
           - skills/fowler-refactoring/references/conditional-logic/replace-control-flag-with-break.md
-      - "Refactoring APIs (ch. 11)":
+      - "Refatorando APIs (cap. 11)":
           - skills/fowler-refactoring/references/refactoring-apis/separate-query-from-modifier.md
           - skills/fowler-refactoring/references/refactoring-apis/parameterize-function.md
           - skills/fowler-refactoring/references/refactoring-apis/remove-flag-argument.md
@@ -118,7 +118,7 @@ nav:
           - skills/fowler-refactoring/references/refactoring-apis/return-modified-value.md
           - skills/fowler-refactoring/references/refactoring-apis/replace-error-code-with-exception.md
           - skills/fowler-refactoring/references/refactoring-apis/replace-exception-with-precheck.md
-      - "Dealing with inheritance (ch. 12)":
+      - "Lidando com herança (cap. 12)":
           - skills/fowler-refactoring/references/inheritance/pull-up-method.md
           - skills/fowler-refactoring/references/inheritance/pull-up-field.md
           - skills/fowler-refactoring/references/inheritance/pull-up-constructor-body.md
@@ -130,9 +130,9 @@ nav:
           - skills/fowler-refactoring/references/inheritance/collapse-hierarchy.md
           - skills/fowler-refactoring/references/inheritance/replace-subclass-with-delegate.md
           - skills/fowler-refactoring/references/inheritance/replace-superclass-with-delegate.md
-  - Agents:
+  - Agentes:
       - agents/fowler-analyst.md
       - agents/fowler-implementer.md
-  - About:
-      - The project: about.md
-      - Catalog spec: CATALOG.md
+  - Sobre:
+      - O projeto: about.md
+      - Especificação do catálogo: CATALOG.md
