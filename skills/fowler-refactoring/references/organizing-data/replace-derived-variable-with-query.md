@@ -1,36 +1,36 @@
-# Replace Derived Variable with Query
+# Substituir Variável Derivada por Consulta (Replace Derived Variable with Query)
 
-Fowler (2018), ch. 9, p. 248. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 9, p. 248. Antes / também: —. Inversa: —.
 
-## When to use
-Smell: Mutable Data. A variable holds a value that is fully determined by other data
-(a running total, a count, a cached sum), and every place that changes the source data also
-has to remember to update the variable. Miss one update and the two disagree. Computing the
-value when it is read removes that whole class of bugs and often states what the value means.
+## Quando usar
+Smell: Dados Mutáveis (Mutable Data). Uma variável guarda um valor totalmente determinado por outros dados
+(um total corrente, uma contagem, uma soma em cache), e todo lugar que altera os dados de origem também
+precisa lembrar de atualizar a variável. Esqueça uma atualização e as duas divergem. Calcular o
+valor quando ele é lido elimina toda essa classe de bugs e muitas vezes deixa claro o que o valor significa.
 
-Do not apply it when the source data is immutable and the derived result can be immutable
-too: building a new structure from it once is fine to keep. Also reconsider when the
-calculation is expensive and read very often; measure before giving up the stored value.
+Não aplique quando os dados de origem são imutáveis e o resultado derivado também pode ser imutável:
+construir uma nova estrutura a partir deles uma vez só é aceitável. Reconsidere também quando o
+cálculo é caro e lido com muita frequência; meça antes de abrir mão do valor armazenado.
 
-## Mechanics
-1. Find every place that assigns or updates the variable. If one variable mixes several
-   sources (for example an initial value plus accumulated changes), apply Split Variable
-   ([split-variable.md](split-variable.md)) first so each part has one meaning and one source.
-2. Write a function or property that calculates the value from the source data.
-3. At each read of the variable, assert that it equals the calculation (Introduce Assertion,
-   [introduce-assertion.md](../conditional-logic/introduce-assertion.md)). If there is no single place to put the assertion, apply
-   Encapsulate Variable ([encapsulate-variable.md](../first-set/encapsulate-variable.md)) first.
-4. Run the tests. If the assertion fails, the hypothesis is wrong or the split in step 1 is
-   incomplete; fix that before continuing.
-5. Replace each read of the variable with a call to the calculation.
-6. Run the tests.
-7. Remove the declaration and every update of the variable (Remove Dead Code,
-   [remove-dead-code.md](../moving-features/remove-dead-code.md)), along with the assertion. Inline the calculation
-   ([inline-function.md](../first-set/inline-function.md)) if a separate helper is no longer useful.
-8. Run the tests.
+## Mecânica
+1. Encontre todo lugar que atribui ou atualiza a variável. Se uma variável mistura várias
+   origens (por exemplo, um valor inicial mais mudanças acumuladas), aplique antes Dividir Variável (Split Variable)
+   ([split-variable.md](split-variable.md)) para que cada parte tenha um significado e uma origem.
+2. Escreva uma função ou propriedade que calcule o valor a partir dos dados de origem.
+3. Em cada leitura da variável, afirme que ela é igual ao cálculo (Introduzir Asserção (Introduce Assertion),
+   [introduce-assertion.md](../conditional-logic/introduce-assertion.md)). Se não houver um único lugar para pôr a asserção, aplique antes
+   Encapsular Variável (Encapsulate Variable) ([encapsulate-variable.md](../first-set/encapsulate-variable.md)).
+4. Rode os testes. Se a asserção falhar, a hipótese está errada ou a divisão do passo 1 está
+   incompleta; corrija isso antes de continuar.
+5. Substitua cada leitura da variável por uma chamada ao cálculo.
+6. Rode os testes.
+7. Remova a declaração e toda atualização da variável (Remover Código Morto (Remove Dead Code),
+   [remove-dead-code.md](../moving-features/remove-dead-code.md)), junto com a asserção. Internalize o cálculo
+   ([inline-function.md](../first-set/inline-function.md)) se uma função auxiliar separada não for mais útil.
+8. Rode os testes.
 
-## Example
-Before: `AmountPaid` is a second copy of information already held in `Payments`.
+## Exemplo
+Antes: `AmountPaid` é uma segunda cópia de uma informação que já está em `Payments`.
 
 ```csharp
 using System.Collections.Generic;
@@ -58,7 +58,7 @@ public class Invoice
 }
 ```
 
-Intermediate step: assert against the calculation, run the tests, then switch the reader.
+Passo intermediário: afirme contra o cálculo, rode os testes e então troque o leitor.
 
 ```csharp
 public decimal AmountPaid
@@ -73,7 +73,7 @@ public decimal AmountPaid
 private decimal CalculatedAmountPaid => _payments.Sum(p => p.Amount);
 ```
 
-After: the field and its update are gone.
+Depois: o campo e a sua atualização sumiram.
 
 ```csharp
 public class Invoice
@@ -90,12 +90,12 @@ public class Invoice
 }
 ```
 
-If the field had started with a non-zero opening value, the assertion would fail. Split it
-first into `_openingPaid` and an accumulator, and compute only the accumulator part.
+Se o campo tivesse começado com um valor inicial diferente de zero, a asserção falharia. Divida-o
+primeiro em `_openingPaid` e um acumulador, e calcule apenas a parte do acumulador.
 
-## C# notes
-- The calculation fits a computed read-only property (`=> ...`).
-- `Debug.Assert` is removed from Release builds, so run the tests in Debug to exercise it.
+## Notas de C#
+- O cálculo cabe em uma propriedade somente leitura calculada (`=> ...`).
+- `Debug.Assert` é removido dos builds Release, então rode os testes em Debug para exercitá-lo.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

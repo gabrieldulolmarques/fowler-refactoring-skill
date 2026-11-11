@@ -1,32 +1,32 @@
-# Split Phase
+# Dividir em Fases (Split Phase)
 
-Fowler (2018), ch. 6, p. 154. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 6, p. 154. Antes / também: —. Inversa: —.
 
-## When to use
+## Quando usar
 
-Smells: Divergent Change, Shotgun Surgery.
+Smells: Alteração Divergente (Divergent Change), Cirurgia com Espingarda (Shotgun Surgery).
 
-- A fragment does two different things in sequence, and the output of the first is the input of the second: parse then compute, compute then format, validate then execute.
-- The inputs do not match the model the main logic needs, so the logic is cluttered with conversion work.
-- If the first lines and the last lines touch unrelated variables and helper calls, they are probably two phases.
-- Worth it when changes are coming to either concern. If the two parts will never change independently, a plain Extract Function may be enough.
-- The phases can be functions, or larger modules. A phase may also be a small object (for example a transformer) instead of a function.
+- Um trecho faz duas coisas diferentes em sequência, e a saída da primeira é a entrada da segunda: interpretar e depois calcular, calcular e depois formatar, validar e depois executar.
+- As entradas não correspondem ao modelo de que a lógica principal precisa, então a lógica fica atulhada de trabalho de conversão.
+- Se as primeiras linhas e as últimas linhas tocam variáveis e chamadas auxiliares não relacionadas, provavelmente são duas fases.
+- Vale a pena quando mudanças estão a caminho em qualquer uma das preocupações. Se as duas partes nunca vão mudar de forma independente, um simples Extrair Função (Extract Function) pode bastar.
+- As fases podem ser funções, ou módulos maiores. Uma fase também pode ser um pequeno objeto (por exemplo, um transformador) em vez de uma função.
 
-## Mechanics
+## Mecânica
 
-1. Extract the code of the second phase into its own function ([extract-function.md](extract-function.md)). Pass whatever it needs as plain parameters for now, even if the list is long.
-2. Compile and test.
-3. Create the intermediate data structure and pass it to the extracted function as an extra parameter. At this point it can be empty.
-4. Compile and test.
-5. Go through the second-phase parameters one at a time. If the first phase produces or uses a parameter, store it as a field of the intermediate structure, read it from there in the second phase and drop the parameter. Compile and test after each move.
-   - If a parameter should not be known to the second phase at all, compute the value it feeds in the first phase, store the result in a field, and move the line that fills it back to the caller ([move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)).
-   - Parameters used only by the second phase stay as parameters.
-6. What remains in the original function is now the first phase. Turn it into a function of its own whose result is the intermediate structure ([extract-function.md](extract-function.md)), then compile and test. If the first phase grows helpers that share its inputs, it can be an object instead (a transformer) whose method returns the intermediate structure; see the variation below.
-7. Optionally tidy: inline leftover temporaries in the orchestrating function so it reads as "run phase one, feed phase two".
+1. Extraia o código da segunda fase para uma função própria ([extract-function.md](extract-function.md)). Passe o que ela precisar como parâmetros simples por enquanto, mesmo que a lista seja longa.
+2. Compile e teste.
+3. Crie a estrutura de dados intermediária e passe-a para a função extraída como um parâmetro extra. Nesse ponto ela pode estar vazia.
+4. Compile e teste.
+5. Percorra os parâmetros da segunda fase um de cada vez. Se a primeira fase produz ou usa um parâmetro, guarde-o como campo da estrutura intermediária, leia-o de lá na segunda fase e elimine o parâmetro. Compile e teste após cada movimentação.
+   - Se um parâmetro não deve ser conhecido pela segunda fase de forma alguma, calcule na primeira fase o valor que ele alimenta, guarde o resultado em um campo e mova a linha que o preenche de volta para o chamador ([move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)).
+   - Os parâmetros usados apenas pela segunda fase continuam como parâmetros.
+6. O que sobra na função original agora é a primeira fase. Transforme-a em uma função própria cujo resultado é a estrutura intermediária ([extract-function.md](extract-function.md)), depois compile e teste.
+7. Opcionalmente, arrume: internalize variáveis temporárias restantes na função orquestradora para que ela se leia como "execute a fase um, alimente a fase dois".
 
-## Example
+## Exemplo
 
-Before: one method both gathers statistics and renders the text.
+Antes: um método reúne estatísticas e também renderiza o texto.
 
 ```csharp
 using System.Collections.Generic;
@@ -48,15 +48,15 @@ public class ReportService
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine($"Orders: {count}");
+        sb.AppendLine($"Pedidos: {count}");
         sb.AppendLine($"Total: {currencySymbol}{total:F2}");
-        sb.AppendLine($"Largest: {currencySymbol}{largest:F2}");
+        sb.AppendLine($"Maior: {currencySymbol}{largest:F2}");
         return sb.ToString();
     }
 }
 ```
 
-After: statistics and rendering are separate phases, linked by a `record`.
+Depois: estatísticas e renderização são fases separadas, ligadas por um `record`.
 
 ```csharp
 using System.Collections.Generic;
@@ -89,57 +89,22 @@ public class ReportService
     private static string Render(OrderStats stats, string currencySymbol)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"Orders: {stats.Count}");
+        sb.AppendLine($"Pedidos: {stats.Count}");
         sb.AppendLine($"Total: {currencySymbol}{stats.Total:F2}");
-        sb.AppendLine($"Largest: {currencySymbol}{stats.Largest:F2}");
+        sb.AppendLine($"Maior: {currencySymbol}{stats.Largest:F2}");
         return sb.ToString();
     }
 }
 ```
 
-Same output for the same input. Now a new output format touches only `Render`, and a new statistic touches `ComputeStats` plus the fields it feeds.
+A mesma saída para a mesma entrada. Agora um novo formato de saída toca apenas `Render`, e uma nova estatística toca `ComputeStats` mais os campos que ela alimenta.
 
-### Variation: the first phase as a transformer object
+## Notas de C#
 
-When the first phase needs several helpers over the same input, a small class keeps them together. The class takes the raw input, and one method returns the intermediate structure. `Render` does not change.
+- A estrutura de dados intermediária costuma ser um `record` (ou um `readonly record struct` para dados pequenos e muito usados). A imutabilidade impede que as fases mexam no estado uma da outra.
 
-```csharp
-using System.Collections.Generic;
-using System.Linq;
+## Verificação
 
-public class OrderStatsCalculator
-{
-    private readonly IReadOnlyList<Order> _orders;
-
-    public OrderStatsCalculator(IReadOnlyList<Order> orders) => _orders = orders;
-
-    public OrderStats Run() => new(_orders.Count, Total(), Largest());
-
-    private decimal Total() => _orders.Sum(o => o.Amount);
-
-    private decimal Largest() => _orders.Aggregate(0m, (max, o) => o.Amount > max ? o.Amount : max);
-}
-
-public class ReportService
-{
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
-    {
-        var stats = new OrderStatsCalculator(orders).Run();
-        return Render(stats, currencySymbol);
-    }
-
-    // Render as above.
-}
-```
-
-Same output as before, including an empty list and negative amounts (`Largest` still starts at `0`).
-
-## C# notes
-
-- The intermediate data structure is usually a `record` (or a `readonly record struct` for small, hot data). Immutability keeps the phases from reaching into each other's state.
-
-## Verification
-
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Behavior is unchanged: same output for the same input, including edge cases such as empty input.
-- The second phase no longer reads anything that only the first phase should know; its parameters are the intermediate structure plus data it genuinely owns.
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- O comportamento não muda: mesma saída para a mesma entrada, inclusive em casos de borda como entrada vazia.
+- A segunda fase não lê mais nada que só a primeira fase deveria saber; seus parâmetros são a estrutura intermediária mais os dados que ela realmente possui.

@@ -1,24 +1,24 @@
-# Remove Setting Method
+# Remover Método de Escrita (Remove Setting Method)
 
-Fowler (2018), ch. 11, p. 331. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 11, p. 331. Antes / também: —. Inversa: —.
 
-## When to use
-Smells: Mutable Data, Data Class.
+## Quando usar
+Smells: Dados Mutáveis (Mutable Data), Classe de Dados (Data Class).
 
-- A setter says "this value may change". If a value must stay fixed for the lifetime of the object (an id, a creation date, an account number), the setter tells callers something false and lets them break the rule.
-- Typical case 1: the constructor is the only code that still calls the setter, because the class routes even its own initialization through the member.
-- Typical case 2: objects are assembled right after construction by a run of assignments, and nothing changes those values afterwards.
-- Do not use it when callers really update a shared, long-lived object through the setter and cannot be rewritten to create a new object instead. In that case the value is genuinely mutable: keep the setter.
+- Um setter diz "este valor pode mudar". Se um valor deve permanecer fixo durante a vida do objeto (um id, uma data de criação, um número de conta), o setter diz aos chamadores algo falso e os deixa quebrar a regra.
+- Caso típico 1: o construtor é o único código que ainda chama o setter, porque a classe faz até a sua própria inicialização passar pelo membro.
+- Caso típico 2: os objetos são montados logo após a construção por uma sequência de atribuições, e nada altera esses valores depois.
+- Não use quando os chamadores realmente atualizam um objeto compartilhado e de vida longa por meio do setter e não podem ser reescritos para criar um novo objeto. Nesse caso o valor é genuinamente mutável: mantenha o setter.
 
-## Mechanics
-1. If the constructor does not receive the value yet, add it as a parameter (see [change-function-declaration.md](../first-set/change-function-declaration.md)) and call the setter with it from inside the constructor (`Id = id;`). When removing several setters, add all their values at once.
-2. Find every call to the setter outside the constructor. Replace each with the value passed to the constructor at the creation site. Compile and test after each one.
-3. If a call cannot be replaced by creating a new object (it updates an object that other code shares), stop and undo: the value is not really fixed.
-4. Apply Inline Function to the setter (see [inline-function.md](../first-set/inline-function.md)), then delete it and make the member read-only if the language allows.
-5. Compile and run the tests.
+## Mecânica
+1. Se o construtor ainda não recebe o valor, adicione-o como parâmetro (veja [change-function-declaration.md](../first-set/change-function-declaration.md)) e chame o setter com ele de dentro do construtor (`Id = id;`). Ao remover vários setters, adicione todos os seus valores de uma vez.
+2. Encontre toda chamada ao setter fora do construtor. Substitua cada uma pelo valor passado ao construtor no ponto de criação. Compile e teste após cada uma.
+3. Se uma chamada não puder ser substituída pela criação de um novo objeto (ela atualiza um objeto que outro código compartilha), pare e desfaça: o valor não é realmente fixo.
+4. Aplique Internalizar Função ao setter (veja [inline-function.md](../first-set/inline-function.md)), depois apague-o e torne o membro somente leitura se a linguagem permitir.
+5. Compile e rode os testes.
 
-## Example
-Before: `Id` is assigned once at creation, but anyone can reassign it later.
+## Exemplo
+Antes: `Id` é atribuído uma vez na criação, mas qualquer um pode reatribuí-lo depois.
 
 ```csharp
 public class Customer
@@ -39,7 +39,7 @@ public static class Program
 }
 ```
 
-After: the id arrives through the constructor and has no setter. `Name` may still change, so it keeps its setter.
+Depois: o id chega pelo construtor e não tem setter. `Name` ainda pode mudar, então mantém o seu setter.
 
 ```csharp
 public class Customer
@@ -64,9 +64,9 @@ public static class Program
 }
 ```
 
-## C# notes
-- Use `{ get; }` for a value set only in the constructor, or `{ get; init; }` when callers may still set it in an object initializer (`new Customer { Id = "C-1001" }`) but not afterwards.
-- `init` is a lighter first step when many creation sites use initializers: it blocks later assignment without forcing a constructor change at once. Prefer `{ get; }` plus a constructor when the value is mandatory, so the compiler rejects objects built without it.
+## Notas de C#
+- Use `{ get; }` para um valor definido apenas no construtor, ou `{ get; init; }` quando os chamadores ainda podem defini-lo em um inicializador de objeto (`new Customer { Id = "C-1001" }`), mas não depois.
+- `init` é um primeiro passo mais leve quando muitos pontos de criação usam inicializadores: bloqueia a atribuição posterior sem forçar uma mudança de construtor de uma vez. Prefira `{ get; }` mais um construtor quando o valor é obrigatório, para que o compilador rejeite objetos construídos sem ele.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

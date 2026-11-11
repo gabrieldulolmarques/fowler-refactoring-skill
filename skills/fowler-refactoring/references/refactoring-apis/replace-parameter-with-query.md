@@ -1,19 +1,19 @@
-# Replace Parameter with Query
+# Substituir Parâmetro por Consulta (Replace Parameter with Query)
 
-Fowler (2018), ch. 11, p. 324. Formerly / aka: formerly Replace Parameter with Method. Inverse: Replace Query with Parameter ([replace-query-with-parameter.md](replace-query-with-parameter.md)).
+Fowler (2018), cap. 11, p. 324. Antes / também: antes Replace Parameter with Method. Inversa: Substituir Consulta por Parâmetro ([replace-query-with-parameter.md](replace-query-with-parameter.md)).
 
-## When to use
-Smell: Long Parameter List. A caller passes a value that the function could obtain just as easily itself, usually from the receiver or from another parameter. The caller does extra work and the parameter list repeats information it already holds. The safest case is a parameter that is computed purely from another parameter in the same list: passing both adds nothing.
+## Quando usar
+Smell: Lista Longa de Parâmetros (Long Parameter List). Um chamador passa um valor que a função poderia obter com a mesma facilidade por conta própria, normalmente a partir do receptor ou de outro parâmetro. O chamador faz trabalho extra e a lista de parâmetros repete informação que ela já tem. O caso mais seguro é um parâmetro calculado puramente a partir de outro parâmetro da mesma lista: passar os dois não acrescenta nada.
 
-Do not use it when the removal gives the function an unwanted dependency: a call to something it should not know about, or access to something you plan to move out later. Also avoid it when the function is deterministic (same inputs, same result) and the query would read mutable global state, because that loses the property and makes the function harder to test.
+Não use quando a remoção dá à função uma dependência indesejada: uma chamada a algo que ela não deveria conhecer, ou acesso a algo que você planeja tirar dali mais tarde. Evite também quando a função é determinística (mesmas entradas, mesmo resultado) e a consulta leria estado global mutável, porque isso perde a propriedade e torna a função mais difícil de testar.
 
-## Mechanics
-1. If the value is computed by an expression or several statements in the caller, extract that calculation into its own function or property ([extract-function.md](../first-set/extract-function.md)), so there is a single query to call.
-2. Inside the function body, replace each use of the parameter with a call to that query. Compile and test after each replacement.
-3. Remove the now unused parameter from the declaration and from every caller ([change-function-declaration.md](../first-set/change-function-declaration.md)). Compile and test.
+## Mecânica
+1. Se o valor é calculado por uma expressão ou várias instruções no chamador, extraia esse cálculo para a sua própria função ou propriedade ([extract-function.md](../first-set/extract-function.md)), de modo que haja uma única consulta a chamar.
+2. Dentro do corpo da função, substitua cada uso do parâmetro por uma chamada a essa consulta. Compile e teste após cada substituição.
+3. Remova o parâmetro agora sem uso da declaração e de todos os chamadores ([change-function-declaration.md](../first-set/change-function-declaration.md)). Compile e teste.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 public class Customer
@@ -48,7 +48,7 @@ public class Account
 }
 ```
 
-Step 1: turn the local `abroad` into a query ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)), which gives the parameter a single source:
+Passo 1: transforme a variável local `abroad` em uma consulta ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)), o que dá ao parâmetro uma única fonte:
 
 ```csharp
     public decimal MonthlyFee()
@@ -60,9 +60,9 @@ Step 1: turn the local `abroad` into a query ([replace-temp-with-query.md](../en
     private bool IsAbroad => _customer.Country != "BR";
 ```
 
-Step 2: inside `AddSurcharge`, use `IsAbroad` instead of the parameter. Step 3: drop the parameter.
+Passo 2: dentro de `AddSurcharge`, use `IsAbroad` em vez do parâmetro. Passo 3: descarte o parâmetro.
 
-After:
+Depois:
 
 ```csharp
     public decimal MonthlyFee()
@@ -79,5 +79,5 @@ After:
     }
 ```
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

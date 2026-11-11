@@ -1,29 +1,29 @@
-# Parameterize Function
+# Parametrizar Função (Parameterize Function)
 
-Fowler (2018), ch. 11, p. 310. Formerly / aka: Parameterize Method. Inverse: —.
+Fowler (2018), cap. 11, p. 310. Antes / também: Parameterize Method. Inversa: —.
 
-## When to use
-Two or more functions have the same shape and differ only in literal values. Folding them into one function with parameters removes the duplication, and
-the single function can then be reused with values nobody wrote a variant for.
+## Quando usar
+Duas ou mais funções têm a mesma forma e diferem apenas em valores literais. Fundi-las em uma única função com parâmetros remove a duplicação, e
+a função única pode então ser reutilizada com valores para os quais ninguém escreveu uma variante.
 
-Not a fit when the functions differ in structure rather than in values: forcing them into one
-function leads to a pile of parameters and branches. If a parameter would only select which
-logic runs, that is a flag argument, not a value (see [remove-flag-argument.md](remove-flag-argument.md)).
+Não serve quando as funções diferem na estrutura e não nos valores: forçá-las em uma única
+função leva a uma pilha de parâmetros e ramificações. Se um parâmetro apenas selecionaria qual
+lógica executa, isso é um argumento de flag, não um valor (veja [remove-flag-argument.md](remove-flag-argument.md)).
 
-## Mechanics
-1. Pick one of the similar functions as the base. For range-like families, the middle case is
-   often a good choice, since it tends to use every literal that the others use.
-2. Add a parameter for each literal that varies, using [change-function-declaration.md](../first-set/change-function-declaration.md)
-   (rename the function too if the old name no longer fits). Compile.
-3. Update every caller of that function to pass the literal it used to rely on. Test.
-4. In the body, replace each literal with its parameter, one at a time. Test after each one.
-5. For each similar function, replace its callers with a call to the parameterized function,
-   passing that function's values. Test after each one. Then delete the old function.
-6. If the parameterized function cannot express a variant, adjust it for that variant
-   (a sentinel such as an open-ended limit often works) before moving on to the next one.
+## Mecânica
+1. Escolha uma das funções parecidas como base. Para famílias do tipo faixa, o caso do meio
+   costuma ser uma boa escolha, já que tende a usar todos os literais que os outros usam.
+2. Adicione um parâmetro para cada literal que varia, usando [change-function-declaration.md](../first-set/change-function-declaration.md)
+   (renomeie também a função se o nome antigo não servir mais). Compile.
+3. Atualize todo chamador dessa função para passar o literal em que ele antes se apoiava. Teste.
+4. No corpo, substitua cada literal pelo seu parâmetro, um de cada vez. Teste após cada um.
+5. Para cada função parecida, substitua os seus chamadores por uma chamada à função parametrizada,
+   passando os valores daquela função. Teste após cada um. Depois apague a função antiga.
+6. Se a função parametrizada não consegue expressar uma variante, ajuste-a para essa variante
+   (um valor sentinela, como um limite aberto, costuma funcionar) antes de passar para a próxima.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 public class DocumentNumberFormatter
@@ -40,7 +40,7 @@ public class DocumentNumberFormatter
 }
 ```
 
-After:
+Depois:
 
 ```csharp
 public class DocumentNumberFormatter
@@ -51,10 +51,10 @@ public class DocumentNumberFormatter
     }
 }
 
-// callers
-// formatter.FormatDocumentNumber(number, "INV-", 6);  // was FormatInvoiceNumber
-// formatter.FormatDocumentNumber(number, "CN-", 4);   // was FormatCreditNoteNumber
+// chamadores
+// formatter.FormatDocumentNumber(number, "INV-", 6);  // era FormatInvoiceNumber
+// formatter.FormatDocumentNumber(number, "CN-", 4);   // era FormatCreditNoteNumber
 ```
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

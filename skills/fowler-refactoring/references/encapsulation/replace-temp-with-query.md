@@ -1,42 +1,42 @@
-# Replace Temp with Query
+# Substituir Variável Temporária por Consulta (Replace Temp with Query)
 
-Fowler (2018), ch. 7, p. 178. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 7, p. 178. Antes / também: —. Inversa: —.
 
-## When to use
-Smells: Long Function.
+## Quando usar
+Smells: Função Longa (Long Function).
 
-- A temp captures the result of an expression, and later code only reads it. Replacing it with a
-  query gives the calculation a name and lets other methods reuse it.
-- You are breaking up a long method and the temps force every extracted piece to take extra
-  parameters. Once the temps are queries, the pieces can be extracted freely.
-- The same value is computed the same way in several methods of a class.
+- Uma variável temporária captura o resultado de uma expressão, e o código posterior apenas a lê. Substituí-la por uma
+  consulta dá um nome ao cálculo e permite que outros métodos o reutilizem.
+- Você está quebrando um método longo e as temporárias forçam cada trecho extraído a receber parâmetros extras. Quando as temporárias
+  viram consultas, os trechos podem ser extraídos livremente.
+- O mesmo valor é calculado da mesma forma em vários métodos de uma classe.
 
-Do not use it when:
-- The variable is a snapshot of a value that changes later (an "old value" kept on purpose). The
-  query would return a different result at the point of use.
-- The variable is assigned in a way that cannot be gathered into one calculation.
-- The code is outside a class and the query would need many parameters; the gain disappears.
-- The calculation is expensive and used many times in a hot path; measure first or keep the temp.
+Não use quando:
+- A variável é um instantâneo de um valor que muda depois (um "valor antigo" mantido de propósito). A
+  consulta retornaria um resultado diferente no ponto de uso.
+- A variável é atribuída de um jeito que não pode ser reunido em um único cálculo.
+- O código está fora de uma classe e a consulta precisaria de muitos parâmetros; o ganho desaparece.
+- O cálculo é caro e usado muitas vezes em um caminho crítico; meça primeiro ou mantenha a temporária.
 
-## Mechanics
-1. Make sure the value is settled before its first read and cannot differ on a later read of
-   the same calculation.
-2. If the variable is assigned more than once, restructure so it has a single assignment, or
-   confirm that all the assignments will move into the query. C# has no read-only local, so
-   confirm by reading the code or from compiler warnings. Use `const` only for compile-time
-   values. Compile and test.
-3. Extract the calculation of the variable into a new method or property. If the name you want
-   collides with the variable, pick a provisional method name. Where several assignments
-   build the value, the extracted method must contain all of them.
-4. Make sure the new method has no side effects. If it has, apply Separate Query from Modifier
-   ([separate-query-from-modifier.md](../refactoring-apis/separate-query-from-modifier.md)) first.
-5. Compile and test.
-6. Apply Inline Variable ([inline-variable.md](../first-set/inline-variable.md)) to remove the temp, replacing each read with a
-   call to the query. Compile and test.
-7. Repeat for the next temp.
+## Mecânica
+1. Garanta que o valor esteja definido antes da primeira leitura e que não possa ser diferente em uma leitura posterior
+   do mesmo cálculo.
+2. Se a variável for atribuída mais de uma vez, reestruture para que tenha uma única atribuição, ou
+   confirme que todas as atribuições irão para a consulta. C# não tem variável local somente leitura, então
+   confirme lendo o código ou pelos avisos do compilador. Use `const` apenas para valores
+   de tempo de compilação. Compile e teste.
+3. Extraia o cálculo da variável para um novo método ou propriedade. Se o nome que você quer
+   colidir com a variável, escolha um nome provisório para o método. Onde várias atribuições
+   constroem o valor, o método extraído deve conter todas elas.
+4. Garanta que o novo método não tenha efeitos colaterais. Se tiver, aplique antes Separar Consulta de Modificador (Separate Query from Modifier)
+   ([separate-query-from-modifier.md](../refactoring-apis/separate-query-from-modifier.md)).
+5. Compile e teste.
+6. Aplique Internalizar Variável (Inline Variable) ([inline-variable.md](../first-set/inline-variable.md)) para remover a temporária, substituindo cada leitura por uma
+   chamada à consulta. Compile e teste.
+7. Repita para a próxima temporária.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 public class Invoice
@@ -62,11 +62,11 @@ public class Invoice
 public record Consultant(decimal HourlyRate);
 ```
 
-Step by step: `fees` is already assigned once, so extract its
-right-hand side into `Fees`, inline the variable. Then extract `surchargeRate`, keeping both of its
-assignments inside the new method, and inline it.
+Passo a passo: `fees` já é atribuída uma só vez, então extraia seu
+lado direito para `Fees` e internalize a variável. Depois extraia `surchargeRate`, mantendo as duas
+atribuições dentro do novo método, e internalize-a.
 
-After:
+Depois:
 
 ```csharp
 public class Invoice
@@ -90,14 +90,14 @@ public class Invoice
 public record Consultant(decimal HourlyRate);
 ```
 
-Behavior is the same. `Fees` is now reusable by other methods, and `Total` no longer carries
-temps that would block further extraction.
+O comportamento é o mesmo. `Fees` agora é reutilizável por outros métodos, e `Total` não carrega mais
+temporárias que bloqueariam extrações futuras.
 
-## C# notes
-- A read-only property (`private decimal Fees => ...`) fits cheap, side-effect-free calculations.
-- Keep expensive queries as methods (`ComputeFees()`), so the cost is visible at the call site.
+## Notas de C#
+- Uma propriedade somente leitura (`private decimal Fees => ...`) serve para cálculos baratos e sem efeitos colaterais.
+- Mantenha as consultas caras como métodos (`ComputeFees()`), para que o custo fique visível no ponto de chamada.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The query returns the same value at every point where the temp was read (no state changes in
-  between).
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- A consulta retorna o mesmo valor em todos os pontos onde a temporária era lida (sem mudanças de estado
+  entre eles).

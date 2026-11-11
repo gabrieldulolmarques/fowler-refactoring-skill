@@ -1,23 +1,23 @@
-# Replace Exception with Precheck
+# Substituir Exceção por Verificação Prévia (Replace Exception with Precheck)
 
-Fowler (2018), web edition only (not in the print book); summary at https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Formerly / aka: Replace Exception with Test. Inverse: —.
+Fowler, catálogo online: https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Antes / também: Replace Exception with Test. Inversa: —.
 
-## When to use
-A `try`/`catch` exists to handle a condition that is not exceptional: the caller can know in advance that it may happen, and the catch block just supplies a default or takes the alternative path. Exceptions are for unexpected failures; using them as a branch hides the normal flow, costs more at run time and can swallow real errors of the same type.
+## Quando usar
+Existe um `try`/`catch` para tratar uma condição que não é excepcional: o chamador pode saber de antemão que ela pode acontecer, e o bloco catch apenas fornece um valor padrão ou segue o caminho alternativo. Exceções são para falhas inesperadas; usá-las como um desvio esconde o fluxo normal, custa mais em tempo de execução e pode engolir erros reais do mesmo tipo.
 
-Replace the handler with a conditional that tests the condition first, then runs the operation only when it is safe.
+Substitua o tratador por um condicional que testa a condição primeiro e só então executa a operação quando for seguro.
 
-Do not use it when the condition cannot be tested reliably before the call (for example another thread may change it in between, or the only way to know is to attempt the operation, as with many file or network operations, or the precheck would repeat an expensive operation). Then keep the exception, or use a `Try...` method that does check and act in one step. Also keep it when the exception signals a real fault that should not be silently replaced by a default.
+Não use quando a condição não pode ser testada de forma confiável antes da chamada (por exemplo, outra thread pode mudá-la nesse intervalo, ou a única forma de saber é tentar a operação, como em muitas operações de arquivo ou de rede, ou a verificação prévia repetiria uma operação cara). Então mantenha a exceção, ou use um método `Try...` que verifica e age em um único passo. Mantenha-a também quando a exceção sinaliza uma falha real que não deve ser silenciosamente substituída por um valor padrão.
 
-## Mechanics
-1. Identify the exact condition that makes the operation throw, and the value or path the catch block uses in response.
-2. Add the check as a conditional before the operation, with the catch block's behavior in its branch, while leaving the `try`/`catch` in place. Compile and test.
-3. Add an assertion or a temporary log inside the catch block, run the tests, and confirm it is never reached. If it is, the precheck does not cover every case; fix the condition first.
-4. Remove the `try`/`catch`, leaving the operation in the safe branch. Compile and test.
-5. Remove the temporary assertion or log, and tidy the remaining conditional (for example with a guard clause).
+## Mecânica
+1. Identifique a condição exata que faz a operação lançar a exceção, e o valor ou caminho que o bloco catch usa em resposta.
+2. Adicione a verificação como um condicional antes da operação, com o comportamento do bloco catch no seu ramo, deixando o `try`/`catch` no lugar. Compile e teste.
+3. Adicione uma asserção ou um log temporário dentro do bloco catch, rode os testes e confirme que ele nunca é alcançado. Se for, a verificação prévia não cobre todos os casos; corrija a condição primeiro.
+4. Remova o `try`/`catch`, deixando a operação no ramo seguro. Compile e teste.
+5. Remova a asserção ou o log temporário e arrume o condicional restante (por exemplo, com uma cláusula de guarda).
 
-## Example
-Before (`_quantities` is an `int[]` field of an `Order`, one entry per line):
+## Exemplo
+Antes (`_quantities` é um campo `int[]` de um `Order`, uma entrada por linha):
 
 ```csharp
 public int GetLineQuantity(int lineIndex)
@@ -33,7 +33,7 @@ public int GetLineQuantity(int lineIndex)
 }
 ```
 
-After:
+Depois:
 
 ```csharp
 public int GetLineQuantity(int lineIndex)
@@ -45,10 +45,10 @@ public int GetLineQuantity(int lineIndex)
 }
 ```
 
-## C# notes
-- Prefer the framework's `TryParse` / `TryGetValue` pattern where it exists: it performs the check and the operation together, so there is no gap between test and use. Example: `if (_prices.TryGetValue(sku, out var price)) return price; return 0m;` instead of catching `KeyNotFoundException`.
-- A narrow `catch` makes the condition easy to identify. A broad `catch (Exception)` calls for first finding which cause is intended, since it often hides more than one.
+## Notas de C#
+- Prefira o padrão `TryParse` / `TryGetValue` do framework onde ele existir: ele realiza a verificação e a operação juntas, então não há intervalo entre o teste e o uso. Exemplo: `if (_prices.TryGetValue(sku, out var price)) return price; return 0m;` em vez de capturar `KeyNotFoundException`.
+- Um `catch` estreito facilita identificar a condição. Um `catch (Exception)` amplo exige primeiro descobrir qual causa é a pretendida, já que muitas vezes esconde mais de uma.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Behavior is unchanged for every input, including the boundary values (first, last and just outside the valid range) that used to trigger the exception.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- O comportamento não muda para nenhuma entrada, incluindo os valores de fronteira (primeiro, último e logo fora da faixa válida) que antes disparavam a exceção.

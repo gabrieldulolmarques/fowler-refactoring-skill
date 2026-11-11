@@ -1,30 +1,30 @@
-# Hide Delegate
+# Ocultar Delegação (Hide Delegate)
 
-Fowler (2018), ch. 7, p. 189. Formerly / aka: —. Inverse: Remove Middle Man
+Fowler (2018), cap. 7, p. 189. Antes / também: —. Inversa: Remover Intermediário (Remove Middle Man)
 ([remove-middle-man.md](remove-middle-man.md)).
 
-## When to use
-Smells: Message Chains, Insider Trading.
+## Quando usar
+Smells: Cadeias de Mensagens (Message Chains), Troca de Informações Privilegiadas (Insider Trading).
 
-- Client code reaches through a server to an object it holds (`order.Customer.Region.Manager`),
-  so the client knows how the server is built and which object owns the data.
-- If the delegate's interface changes, every client of the server that touches the delegate has
-  to change too. A forwarding method on the server confines that change to one place.
-- Do not keep adding forwarders for every delegate member out of habit. When the server turns
-  into a list of pass-through methods, the hiding costs more than it gives: see Remove Middle
-  Man. How much to hide is a judgment you can revise later.
+- O código cliente alcança, através de um servidor, um objeto que ele guarda (`order.Customer.Region.Manager`),
+  então o cliente conhece como o servidor é construído e qual objeto é dono dos dados.
+- Se a interface do delegado mudar, todo cliente do servidor que toca o delegado
+  também precisa mudar. Um método de encaminhamento no servidor confina essa mudança a um só lugar.
+- Não continue adicionando encaminhadores para todo membro do delegado por hábito. Quando o servidor
+  vira uma lista de métodos de repasse, ocultar custa mais do que rende: veja Remover
+  Intermediário. Quanto ocultar é um julgamento que você pode revisar depois.
 
-## Mechanics
-1. For each delegate member a client uses, add a simple forwarding method on the server.
-2. Compile and test.
-3. Change one client at a time to call the server instead of going through the delegate.
-   Compile and test after each client.
-4. Once the last client has stopped going through the server to the delegate, take away the
-   public getter that exposes it (delete it or lower its visibility).
-5. Compile and test.
+## Mecânica
+1. Para cada membro do delegado que um cliente usa, adicione um método de encaminhamento simples no servidor.
+2. Compile e teste.
+3. Altere um cliente de cada vez para chamar o servidor em vez de passar pelo delegado.
+   Compile e teste após cada cliente.
+4. Quando o último cliente parar de passar pelo servidor até o delegado, remova o
+   getter público que o expõe (apague-o ou reduza sua visibilidade).
+5. Compile e teste.
 
-## Example
-Before: the client navigates through the account to its owner's billing contact.
+## Exemplo
+Antes: o cliente navega pela conta até o contato de cobrança do seu titular.
 
 ```csharp
 public class Customer
@@ -37,28 +37,28 @@ public class Account
     public Customer Owner { get; set; }
 }
 
-// client
+// cliente
 string contact = account.Owner.BillingContact;
 ```
 
-After: `Account` hides `Customer`.
+Depois: `Account` oculta `Customer`.
 
 ```csharp
 public class Account
 {
     private Customer _owner;
 
-    public Customer Owner { get => _owner; set => _owner = value; } // removed in step 4
+    public Customer Owner { get => _owner; set => _owner = value; } // removido no passo 4
     public string BillingContact => _owner.BillingContact;
 }
 
-// client
+// cliente
 string contact = account.BillingContact;
 ```
 
-Once every client uses `BillingContact`, delete the public `Owner` accessor (or make it
-private), so the delegate can no longer be reached from outside.
+Quando todo cliente usar `BillingContact`, apague o acessor público `Owner` (ou torne-o
+privado), para que o delegado não possa mais ser alcançado de fora.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- No client still references the delegate type through the server.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Nenhum cliente ainda referencia o tipo do delegado através do servidor.

@@ -1,30 +1,30 @@
-# Remove Dead Code
+# Remover Código Morto (Remove Dead Code)
 
-Fowler (2018), ch. 8, p. 237. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 8, p. 237. Antes / também: —. Inversa: —.
 
-## When to use
-Smells: Speculative Generality.
-- A function, class, field, parameter or branch that nothing reaches any more. It costs
-  nothing at run time, but every reader still has to work out what it does and why it can be
-  ignored.
-- Code left in comments, or behind a condition that can never be true. Version control
-  already holds the old text, so the comment adds nothing.
-- Do not delete code that is reachable in ways a text search cannot see until you have
-  ruled those out (see C# notes). If you are unsure, find out first, or ask the owner.
-- If you want to remember what was removed, a short note naming the revision is enough.
-  Do not leave the code itself behind.
+## Quando usar
+Smells: Generalidade Especulativa (Speculative Generality).
+- Uma função, classe, campo, parâmetro ou ramo que nada mais alcança. Não custa
+  nada em tempo de execução, mas todo leitor ainda precisa descobrir o que ele faz e por que pode ser
+  ignorado.
+- Código deixado em comentários, ou atrás de uma condição que nunca pode ser verdadeira. O controle de
+  versão já guarda o texto antigo, então o comentário não acrescenta nada.
+- Não apague código que seja alcançável de formas que uma busca textual não enxerga até que você tenha
+  descartado essas possibilidades (veja Notas de C#). Se tiver dúvida, descubra antes, ou pergunte ao responsável.
+- Se quiser lembrar o que foi removido, uma nota curta com o nome da revisão basta.
+  Não deixe o próprio código para trás.
 
-## Mechanics
-1. If the code can be referenced from outside its own body (a whole function, class, field
-   or parameter), search for uses: callers, overrides, implementations, and any place that
-   names it as a string. For a public API, also consider callers outside the repository.
-2. If something still uses it, it is not dead. Stop; this is not the refactoring to apply.
-3. Delete the dead code. Build.
-4. Run the tests.
-5. Commit the removal on its own, so it can be reverted cleanly if a use turns up later.
+## Mecânica
+1. Se o código puder ser referenciado de fora de seu próprio corpo (uma função inteira, classe, campo
+   ou parâmetro), busque os usos: chamadores, overrides, implementações e qualquer lugar que
+   o nomeie como string. Para uma API pública, considere também chamadores fora do repositório.
+2. Se algo ainda o usa, ele não é morto. Pare; esta não é a refatoração a aplicar.
+3. Apague o código morto. Faça o build.
+4. Execute os testes.
+5. Faça o commit da remoção isoladamente, para que possa ser revertida de forma limpa se um uso aparecer depois.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 public class InvoiceService
@@ -48,8 +48,8 @@ public class InvoiceService
 }
 ```
 
-After (a search found no caller of `ApplyLegacyFee`, and `UseLegacyRounding` is a constant
-that is never true):
+Depois (uma busca não encontrou nenhum chamador de `ApplyLegacyFee`, e `UseLegacyRounding` é uma constante
+que nunca é verdadeira):
 
 ```csharp
 public class InvoiceService
@@ -62,18 +62,18 @@ public class InvoiceService
 }
 ```
 
-Behavior is the same: the removed branch never ran, the comment never executed, and the
-private method had no callers.
+O comportamento é o mesmo: o ramo removido nunca rodava, o comentário nunca foi executado e o
+método privado não tinha chamadores.
 
-## C# notes
-- Code with no static callers may still be reached by reflection, dependency injection or
-  serialization. Before deleting a type or member that looks unused, check for: types
-  registered or resolved by a container (including by assembly scanning), members
-  discovered by reflection or by naming convention, properties read or written by a
-  serializer or ORM, event handlers wired by name, and members used only from configuration
-  files or views.
-- A `public` or `protected` member of a library can be used by projects you cannot see.
-  Treat it as dead only if you know every consumer.
+## Notas de C#
+- Código sem chamadores estáticos ainda pode ser alcançado por reflexão, injeção de dependência ou
+  serialização. Antes de apagar um tipo ou membro que parece não usado, verifique: tipos
+  registrados ou resolvidos por um contêiner (inclusive por varredura de assemblies), membros
+  descobertos por reflexão ou por convenção de nomes, propriedades lidas ou escritas por um
+  serializador ou ORM, manipuladores de eventos ligados por nome e membros usados apenas em arquivos de configuração
+  ou views.
+- Um membro `public` ou `protected` de uma biblioteca pode ser usado por projetos que você não vê.
+  Trate-o como morto apenas se conhecer todos os consumidores.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

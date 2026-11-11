@@ -1,58 +1,58 @@
-# Rename Field
+# Renomear Campo (Rename Field)
 
-Fowler (2018), ch. 9, p. 244. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 9, p. 244. Antes / também: —. Inversa: —.
 
-## When to use
-Smell: Mysterious Name. Data structures carry most of a program's meaning, so their field
-names deserve the same care as function names. As you learn the domain, put the better
-understanding into the name. The idea applies to bare records and to classes: the property
-(or getter and setter pair) that callers see is the field, so rename it with the same care.
+## Quando usar
+Smell: Nome Misterioso (Mysterious Name). Estruturas de dados carregam a maior parte do significado de um programa, então os nomes dos seus campos
+merecem o mesmo cuidado que os nomes de funções. À medida que você aprende o domínio, coloque o melhor
+entendimento no nome. A ideia vale para registros simples e para classes: a propriedade
+(ou o par getter e setter) que os chamadores veem é o campo, então renomeie-a com o mesmo cuidado.
 
-The cost depends on reach. A field used in one small scope can be renamed in one pass. A field
-read and written all over a code base needs the gradual route below.
+O custo depende do alcance. Um campo usado em um escopo pequeno pode ser renomeado de uma só vez. Um campo
+lido e escrito por toda a base de código precisa do caminho gradual abaixo.
 
-## Mechanics
-1. If the record is only used in a small scope (one function, one class), rename every access
-   to the field in one pass, run the tests, and stop here.
-2. Otherwise, make sure the data is behind accessors. If it is a bare record that callers touch
-   directly, apply Encapsulate Record first ([encapsulate-record.md](../encapsulation/encapsulate-record.md)).
-3. Rename the private backing field inside the class and fix the internal members that use it.
-   Build and test. If the constructor copied the input straight into the backing field, split
-   them first so the internal name can change on its own.
-4. If a constructor, factory or initializer takes a record or options object keyed by the old
-   field name, let it accept the new name too and prefer the new one when both appear. Move the
-   callers over one at a time, testing as you go, then drop the old name. Use Change Function
-   Declaration ([change-function-declaration.md](../first-set/change-function-declaration.md)) for this step.
-   With plain positional parameters there is nothing to accept twice: renaming the parameter
-   is enough, and only named-argument callers notice.
-5. Rename the accessors (getter and setter) to the new name, again with Change Function
-   Declaration, so callers move over in small steps.
-6. Build and test. Search for string-based uses (reflection, configuration, serialized
-   payloads, query strings) that the compiler cannot see.
+## Mecânica
+1. Se o registro só é usado em um escopo pequeno (uma função, uma classe), renomeie todo acesso
+   ao campo de uma só vez, rode os testes e pare aqui.
+2. Caso contrário, garanta que os dados estejam atrás de acessores. Se for um registro simples que os chamadores tocam
+   diretamente, aplique antes Encapsular Registro (Encapsulate Record) ([encapsulate-record.md](../encapsulation/encapsulate-record.md)).
+3. Renomeie o campo de apoio privado dentro da classe e corrija os membros internos que o usam.
+   Compile e teste. Se o construtor copiava a entrada direto para o campo de apoio, separe
+   os dois primeiro para que o nome interno possa mudar sozinho.
+4. Se um construtor, fábrica ou inicializador recebe um registro ou objeto de opções indexado pelo nome
+   antigo do campo, faça-o aceitar também o novo nome e preferir o novo quando ambos aparecerem. Mova os
+   chamadores um a um, testando ao longo do caminho, e então descarte o nome antigo. Use Mudar Declaração de
+   Função (Change Function Declaration) ([change-function-declaration.md](../first-set/change-function-declaration.md)) para este passo.
+   Com parâmetros posicionais simples não há nada a aceitar duas vezes: renomear o parâmetro
+   basta, e apenas os chamadores com argumentos nomeados percebem.
+5. Renomeie os acessores (getter e setter) para o novo nome, de novo com Mudar Declaração de
+   Função, para que os chamadores migrem em passos pequenos.
+6. Compile e teste. Procure usos baseados em string (reflexão, configuração, payloads serializados,
+   query strings) que o compilador não enxerga.
 
-If the data is immutable, you can skip encapsulation: add the new name holding the same value,
-move the users over gradually, then delete the old name. Never keep two copies of mutable data.
+Se os dados são imutáveis, você pode pular o encapsulamento: adicione o novo nome com o mesmo valor,
+migre os usuários gradualmente e então apague o nome antigo. Nunca mantenha duas cópias de dados mutáveis.
 
-If the tests break during a one-pass rename, undo it and use the gradual route.
+Se os testes quebrarem durante uma renomeação de uma só vez, desfaça e use o caminho gradual.
 
-## Example
-Before: `Customer` exposes a public field named `Tag` that actually holds the billing
-reference, and many callers use it.
+## Exemplo
+Antes: `Customer` expõe um campo público chamado `Tag` que na verdade guarda a referência de
+cobrança, e muitos chamadores o usam.
 
 ```csharp
 public class Customer
 {
-    public string Tag;       // actually the billing reference
+    public string Tag;       // na verdade é a referência de cobrança
     public string Country;
 }
 
-// caller
+// chamador
 var customer = new Customer { Tag = "INV-2041", Country = "BR" };
 Console.WriteLine(customer.Tag);
 ```
 
-Step 1, encapsulate and give the backing field its own name. The object initializer in the
-caller keeps compiling because it goes through the property setters:
+Passo 1, encapsule e dê ao campo de apoio o seu próprio nome. O inicializador de objeto no
+chamador continua compilando porque passa pelos setters das propriedades:
 
 ```csharp
 public class Customer
@@ -74,8 +74,8 @@ public class Customer
 }
 ```
 
-Step 2, rename the property and update the callers. This class has no constructor, so
-mechanics step 4 has nothing to do here:
+Passo 2, renomeie a propriedade e atualize os chamadores. Esta classe não tem construtor, então
+o passo 4 da mecânica não tem o que fazer aqui:
 
 ```csharp
 public class Customer
@@ -96,20 +96,20 @@ public class Customer
     }
 }
 
-// caller
+// chamador
 var customer = new Customer { BillingReference = "INV-2041", Country = "BR" };
 Console.WriteLine(customer.BillingReference);
 ```
 
-Behavior is unchanged; only the name moved.
+O comportamento não muda; só o nome mudou de lugar.
 
-## C# notes
-- A serialized or persisted field keeps its wire name only with a mapping attribute (for
-  example `[JsonPropertyName("oldName")]`) or a migration. Renaming the property without one
-  changes the JSON, the column or the stored data.
-- Turning a public field into a property changes the member itself: reflection and binary
-  consumers break, and serializers may treat the two differently.
-- The compiler finds direct usages, not reflection, data binding by string or configuration keys.
+## Notas de C#
+- Um campo serializado ou persistido só mantém o seu nome externo com um atributo de mapeamento (por
+  exemplo `[JsonPropertyName("oldName")]`) ou uma migração. Renomear a propriedade sem um deles
+  muda o JSON, a coluna ou os dados armazenados.
+- Transformar um campo público em propriedade muda o próprio membro: a reflexão e os consumidores binários
+  quebram, e os serializadores podem tratar os dois de forma diferente.
+- O compilador encontra usos diretos, não reflexão, data binding por string nem chaves de configuração.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

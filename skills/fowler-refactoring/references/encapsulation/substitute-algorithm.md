@@ -1,23 +1,23 @@
-# Substitute Algorithm
+# Substituir Algoritmo (Substitute Algorithm)
 
-Fowler (2018), ch. 7, p. 195. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 7, p. 195. Antes / também: —. Inversa: —.
 
-## When to use
-- You understand the problem better now and see a much simpler way to get the same result.
-- A library, framework or language feature already provides what your own code does by hand.
-- The behavior needs to change slightly, and swapping in a different algorithm first would make that change easy.
+## Quando usar
+- Você entende melhor o problema agora e enxerga um jeito muito mais simples de obter o mesmo resultado.
+- Uma biblioteca, framework ou recurso da linguagem já oferece o que seu código faz à mão.
+- O comportamento precisa mudar um pouco, e trocar antes por um algoritmo diferente tornaria essa mudança fácil.
 
-Do not use it on a big, tangled function as it stands. Break the function down first, so that what you replace is small and its behavior is easy to pin down.
+Não use em uma função grande e emaranhada do jeito que está. Quebre a função antes, de modo que o que você substitui seja pequeno e seu comportamento fácil de fixar.
 
-## Mechanics
-1. Isolate the code to replace so it fills a whole function by itself. Use Extract Function ([extract-function.md](../first-set/extract-function.md)) and simplify further until the function is small.
-2. Write tests that exercise only this function and capture its current behavior, including edge cases (empty input, no match, duplicates, boundary values).
-3. Write the new algorithm next to the old one (for example under a temporary name), without removing the old one yet.
-4. Run the compiler and any static analysis on the new code.
-5. Run the tests against the new algorithm, and compare its output with the old one on the same inputs. If the results match, delete the old algorithm and give the function its final name. If they differ, keep the old version as the reference while you debug the new one.
+## Mecânica
+1. Isole o código a substituir para que ele preencha uma função inteira sozinho. Use Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) e simplifique mais até a função ficar pequena.
+2. Escreva testes que exercitem apenas essa função e capturem seu comportamento atual, incluindo casos extremos (entrada vazia, nenhuma correspondência, duplicatas, valores limite).
+3. Escreva o novo algoritmo ao lado do antigo (por exemplo, com um nome temporário), sem remover o antigo ainda.
+4. Execute o compilador e qualquer análise estática no novo código.
+5. Execute os testes contra o novo algoritmo e compare sua saída com a do antigo nas mesmas entradas. Se os resultados coincidirem, apague o algoritmo antigo e dê à função seu nome final. Se diferirem, mantenha a versão antiga como referência enquanto depura a nova.
 
-## Example
-Before: a hand-written accumulation that totals orders per customer and then scans for the biggest total.
+## Exemplo
+Antes: uma acumulação escrita à mão que soma os pedidos por cliente e depois varre em busca do maior total.
 
 ```csharp
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ public static class OrderStats
 }
 ```
 
-After: the same result, with grouping, summing and picking the maximum delegated to the library.
+Depois: o mesmo resultado, com o agrupamento, a soma e a escolha do máximo delegados à biblioteca.
 
 ```csharp
 using System.Collections.Generic;
@@ -72,8 +72,8 @@ public static class OrderStats
 }
 ```
 
-Tests that pinned the old behavior (largest total wins, the first customer wins a tie, an empty list returns null) pass unchanged against the new body.
+Os testes que fixavam o comportamento antigo (o maior total vence, o primeiro cliente vence um empate, uma lista vazia retorna null) passam sem alteração contra o novo corpo.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The function's tests ran against both algorithms with the same inputs before the old one was deleted.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Os testes da função rodaram contra os dois algoritmos com as mesmas entradas antes de o antigo ser apagado.

@@ -1,22 +1,22 @@
-# Replace Constructor with Factory Function
+# Substituir Construtor por Função de Fábrica (Replace Constructor with Factory Function)
 
-Fowler (2018), ch. 11, p. 334. Formerly / aka: formerly Replace Constructor with Factory Method. Inverse: —.
+Fowler (2018), cap. 11, p. 334. Antes / também: antes Replace Constructor with Factory Method. Inversa: —.
 
-## When to use
-- Constructors have limits: they cannot be renamed per use, so `new Account(id, 'S')` says little about what is created. A named factory (`Account.CreateSavings(id)`) says it.
-- Callers pass a literal type code or flag only to pick a variant. That is a smell in itself, and the factory can hide the code behind a descriptive name.
-- Creation may need to return a subclass, a shared or cached instance, or a special-case object. A constructor always returns a new instance of exactly its own class.
-- Do not bother when the constructor is already clear and has a single obvious way to be called.
+## Quando usar
+- Construtores têm limites: não podem ser renomeados a cada uso, então `new Account(id, 'S')` diz pouco sobre o que é criado. Uma fábrica nomeada (`Account.CreateSavings(id)`) diz.
+- Os chamadores passam um código de tipo literal ou uma flag apenas para escolher uma variante. Isso é um smell em si, e a fábrica pode esconder o código atrás de um nome descritivo.
+- A criação pode precisar retornar uma subclasse, uma instância compartilhada ou em cache, ou um objeto de caso especial. Um construtor sempre retorna uma nova instância exatamente da sua própria classe.
+- Não se incomode quando o construtor já é claro e tem uma única forma óbvia de ser chamado.
 
-## Mechanics
-1. Create a factory function whose body only calls the constructor with the same arguments.
-2. Replace one call to the constructor with a call to the factory. Compile and test.
-3. Repeat step 2 for every caller, one at a time.
-4. Where a caller passes a literal code, add a more specific factory that embeds that choice in its name, and switch the caller to it.
-5. Reduce the constructor's visibility as far as possible (`private` or `protected`), so new code cannot bypass the factory. Compile and test.
+## Mecânica
+1. Crie uma função de fábrica cujo corpo apenas chame o construtor com os mesmos argumentos.
+2. Substitua uma chamada ao construtor por uma chamada à fábrica. Compile e teste.
+3. Repita o passo 2 para cada chamador, um de cada vez.
+4. Onde um chamador passa um código literal, adicione uma fábrica mais específica que embuta essa escolha no seu nome, e mude o chamador para ela.
+5. Reduza a visibilidade do construtor o máximo possível (`private` ou `protected`), para que código novo não possa contornar a fábrica. Compile e teste.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 using System;
@@ -34,18 +34,18 @@ public class Invoice
 
     public string Kind => KindCode switch
     {
-        "R" => "Recurring",
-        "O" => "OneOff",
-        _ => throw new ArgumentException("Unknown kind")
+        "R" => "Recorrente",
+        "O" => "Avulsa",
+        _ => throw new ArgumentException("Tipo desconhecido")
     };
 }
 
-// callers
+// chamadores
 var a = new Invoice(row.Customer, row.KindCode);
 var b = new Invoice("Acme", "R");
 ```
 
-After:
+Depois:
 
 ```csharp
 using System;
@@ -69,22 +69,22 @@ public class Invoice
 
     public string Kind => KindCode switch
     {
-        "R" => "Recurring",
-        "O" => "OneOff",
-        _ => throw new ArgumentException("Unknown kind")
+        "R" => "Recorrente",
+        "O" => "Avulsa",
+        _ => throw new ArgumentException("Tipo desconhecido")
     };
 }
 
-// callers
+// chamadores
 var a = Invoice.Create(row.Customer, row.KindCode);
 var b = Invoice.CreateRecurring("Acme");
 ```
 
-Behavior is the same; the literal code no longer appears in `b`'s call site.
+O comportamento é o mesmo; o código literal não aparece mais no ponto de chamada de `b`.
 
-## C# notes
-- The factory is a static factory method. Make the constructor `private` (or `protected` if subclasses must call it) once every caller has moved.
-- If the factory must return a subclass, a `private` base constructor stops outside subclasses from deriving. Either nest the subclasses in the base class, or make the base constructor `protected` or `private protected`. Keep the subclass constructors `internal` or `private` so only the factory reaches them.
+## Notas de C#
+- A fábrica é um método de fábrica estático. Torne o construtor `private` (ou `protected` se as subclasses precisarem chamá-lo) quando todos os chamadores tiverem migrado.
+- Se a fábrica precisa retornar uma subclasse, um construtor `private` na base impede que subclasses externas derivem dela. Aninhe as subclasses na classe base, ou torne o construtor da base `protected` ou `private protected`. Mantenha os construtores das subclasses `internal` ou `private` para que só a fábrica os alcance.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

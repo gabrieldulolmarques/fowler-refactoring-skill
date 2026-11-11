@@ -1,34 +1,34 @@
-# Replace Nested Conditional with Guard Clauses
+# Substituir Condicional Aninhada por Cláusulas de Guarda (Replace Nested Conditional with Guard Clauses)
 
-Fowler (2018), ch. 10, p. 266. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 10, p. 266. Antes / também: —. Inversa: —.
 
-## When to use
-- A conditional has one leg that is the normal behavior and other legs that are unusual
-  or terminal cases (invalid input, missing data, "nothing to do").
-- Nesting pushes the real work to the right, and the reader must keep every enclosing
-  condition in mind to understand it.
-- A `result` variable is assigned in several branches only to be returned at the end.
+## Quando usar
+- Uma condicional tem um ramo que é o comportamento normal e outros ramos que são casos incomuns
+  ou terminais (entrada inválida, dados ausentes, "nada a fazer").
+- O aninhamento empurra o trabalho real para a direita, e o leitor precisa manter todas as condições
+  envolventes em mente para entendê-lo.
+- Uma variável `result` é atribuída em vários ramos apenas para ser retornada no final.
 
-A guard clause marks a case as a side path: dispatch it and exit. An if/else presents two
-paths as equally ordinary. Choose the shape that matches what the code means.
+Uma cláusula de guarda marca um caso como um caminho lateral: trate-o e saia. Um if/else apresenta dois
+caminhos como igualmente comuns. Escolha o formato que corresponde ao que o código significa.
 
-Do not use it when both legs are normal behavior: keep a plain if/else. Single-exit is a
-style preference, so decide by readability.
+Não use quando os dois ramos são comportamento normal: mantenha um if/else simples. Saída única é uma
+preferência de estilo, então decida pela legibilidade.
 
-## Mechanics
-1. Pick the outermost condition that guards an unusual case and rewrite it as a guard
-   clause: test the unusual case, return its result right away. If the condition guards
-   the normal case instead, invert it first (apply De Morgan if needed, and simplify any
-   leftover `!`) so that the unusual case becomes the early return.
-2. Compile and run the tests.
-3. Repeat for the next condition, working inward, one guard at a time.
-4. When the guards no longer need the result variable, remove it and return values
-   directly.
-5. If several guards return the same value, merge them with
-   Consolidate Conditional Expression ([consolidate-conditional-expression.md](consolidate-conditional-expression.md)).
+## Mecânica
+1. Escolha a condição mais externa que protege um caso incomum e reescreva-a como uma cláusula de
+   guarda: teste o caso incomum e retorne seu resultado imediatamente. Se a condição protege
+   o caso normal, inverta-a primeiro (aplique De Morgan se necessário e simplifique qualquer
+   `!` que sobrar) para que o caso incomum se torne o retorno antecipado.
+2. Compile e execute os testes.
+3. Repita para a próxima condição, avançando para dentro, uma guarda de cada vez.
+4. Quando as guardas não precisarem mais da variável de resultado, remova-a e retorne os valores
+   diretamente.
+5. Se várias guardas retornarem o mesmo valor, una-as com
+   Consolidar Expressão Condicional (Consolidate Conditional Expression) ([consolidate-conditional-expression.md](consolidate-conditional-expression.md)).
 
-## Example
-Before: the fee is only computed when the order is neither cancelled nor empty.
+## Exemplo
+Antes: a taxa só é calculada quando o pedido não está cancelado nem vazio.
 
 ```csharp
 public decimal ShippingFee(Order order)
@@ -60,7 +60,7 @@ public decimal ShippingFee(Order order)
 }
 ```
 
-After the first guard (one step, tests run):
+Depois da primeira guarda (um passo, testes executados):
 
 ```csharp
 public decimal ShippingFee(Order order)
@@ -80,7 +80,7 @@ public decimal ShippingFee(Order order)
 }
 ```
 
-Final, with the variable gone and the equal results consolidated:
+Final, sem a variável e com os resultados iguais consolidados:
 
 ```csharp
 public decimal ShippingFee(Order order)
@@ -90,11 +90,11 @@ public decimal ShippingFee(Order order)
 }
 ```
 
-Reversing a condition: when an `||` test guards the normal path, invert it (De Morgan
-turns the `||` into `&&`).
+Invertendo uma condição: quando um teste com `||` protege o caminho normal, inverta-o (De Morgan
+transforma o `||` em `&&`).
 
 ```csharp
-// before
+// antes
 public decimal AmountDue(Invoice invoice)
 {
     if (invoice.IsOpen || invoice.IsOverdue)
@@ -105,7 +105,7 @@ public decimal AmountDue(Invoice invoice)
     return 0m;
 }
 
-// after
+// depois
 public decimal AmountDue(Invoice invoice)
 {
     if (!invoice.IsOpen && !invoice.IsOverdue) return 0m;
@@ -114,8 +114,8 @@ public decimal AmountDue(Invoice invoice)
 }
 ```
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Each guard keeps the original return value for its case, and the order of the guards
-  matches the original order of evaluation (a guard that calls something with side effects
-  must not move before another).
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Cada guarda mantém o valor de retorno original para o seu caso, e a ordem das guardas
+  corresponde à ordem original de avaliação (uma guarda que chama algo com efeitos colaterais
+  não deve passar para antes de outra).

@@ -1,39 +1,39 @@
-# Combine Functions into Transform
+# Combinar Funções em Transformação (Combine Functions into Transform)
 
-Fowler (2018), ch. 6, p. 149. Formerly / aka: —. Inverse: —. Alternative:
-Combine Functions into Class ([combine-functions-into-class.md](combine-functions-into-class.md)).
+Fowler (2018), cap. 6, p. 149. Antes / também: —. Inversa: —. Alternativa:
+Combinar Funções em Classe (Combine Functions into Class) ([combine-functions-into-class.md](combine-functions-into-class.md)).
 
-## When to use
-Smells: Shotgun Surgery, Mutable Data.
+## Quando usar
+Smells: Cirurgia com Espingarda (Shotgun Surgery), Dados Mutáveis (Mutable Data).
 
-- Several clients derive values (a total, a charge, a status) from the same source record, and
-  the formulas are repeated or live in helpers nobody knows about.
-- You want one place to look at and change every derivation: the transform.
-- The source data is read-only in practice (a report, a view model, an input that is only read).
+- Vários clientes derivam valores (um total, uma cobrança, um status) do mesmo registro de origem, e
+  as fórmulas são repetidas ou ficam em auxiliares que ninguém conhece.
+- Você quer um só lugar para consultar e alterar cada derivação: a transformação.
+- Os dados de origem são somente leitura na prática (um relatório, um view model, uma entrada que só é lida).
 
-Do not use it when clients modify the source after the transform. The derived fields are
-stored in the copy, so a later change to the source leaves them stale. In that case use
-Combine Functions into Class, where the derived values are computed on demand.
+Não use quando os clientes modificam a origem depois da transformação. Os campos derivados são
+armazenados na cópia, então uma mudança posterior na origem os deixa desatualizados. Nesse caso use
+Combinar Funções em Classe, em que os valores derivados são calculados sob demanda.
 
-Choose between transform and class mostly by the style the codebase already uses, with that
-one exception.
+Escolha entre transformação e classe principalmente pelo estilo que a base de código já usa, com essa
+única exceção.
 
-## Mechanics
-1. Create a transform function that takes the source record and returns a copy with the same
-   values. Make the copy deep if the record holds mutable nested data.
-2. Add a test that the transform does not change the record passed in.
-3. Pick one derivation. If its logic is not yet a function, apply Extract Function first.
-4. Move the body into the transform so it fills a new field on the copy. Move any helper the
-   body needs too, or make it reachable from the transform.
-5. Make one client call the transform and read the new field instead of calculating it.
-6. Compile and test.
-7. Repeat steps 3 to 6 for each remaining derivation and each remaining client. A derivation
-   that builds on another one should read the other's field.
-8. When no client calls the old helper any more, delete it or nest it in the transform. Inline
-   the variables that now only copy a field.
+## Mecânica
+1. Crie uma função de transformação que receba o registro de origem e devolva uma cópia com os mesmos
+   valores. Faça a cópia profunda se o registro guardar dados aninhados mutáveis.
+2. Adicione um teste de que a transformação não altera o registro recebido.
+3. Escolha uma derivação. Se a lógica dela ainda não for uma função, aplique antes Extrair Função (Extract Function).
+4. Mova o corpo para a transformação, de modo que ele preencha um novo campo na cópia. Mova também qualquer auxiliar de que o
+   corpo precise, ou torne-o acessível a partir da transformação.
+5. Faça um cliente chamar a transformação e ler o novo campo em vez de calcular.
+6. Compile e teste.
+7. Repita os passos 3 a 6 para cada derivação restante e cada cliente restante. Uma derivação
+   que se apoia em outra deve ler o campo da outra.
+8. Quando nenhum cliente chamar mais o auxiliar antigo, apague-o ou aninhe-o na transformação. Internalize
+   as variáveis que agora só copiam um campo.
 
-## Example
-Before: two places compute the same subtotal.
+## Exemplo
+Antes: dois lugares calculam o mesmo subtotal.
 
 ```csharp
 using System;
@@ -59,7 +59,7 @@ public static class Reports
 }
 ```
 
-After: one transform holds both derivations; clients read fields.
+Depois: uma transformação guarda as duas derivações; os clientes leem campos.
 
 ```csharp
 using System;
@@ -92,21 +92,21 @@ public static class Reports
 }
 ```
 
-Behavior is the same. The formulas now live in `Enrich`; a new derived value is one more
-field there. If the enriched type should extend `Order` instead of repeating its fields, make
-`Order` a non-sealed record and derive from it. The derived record takes the source in a copy
-constructor (`EnrichedOrder(Order o, decimal subtotal, decimal taxable) : base(o)`), because a
-`with` expression on an `Order` returns an `Order`, not an `EnrichedOrder`.
+O comportamento é o mesmo. As fórmulas agora vivem em `Enrich`; um novo valor derivado é mais um
+campo ali. Se o tipo enriquecido deve estender `Order` em vez de repetir seus campos, torne
+`Order` um record não selado e derive dele. O record derivado recebe a origem em um construtor de cópia
+(`EnrichedOrder(Order o, decimal subtotal, decimal taxable) : base(o)`), porque uma
+expressão `with` em um `Order` devolve um `Order`, não um `EnrichedOrder`.
 
-## C# notes
-- This refactoring is idiomatic in JavaScript. In C# the transform is usually a function that
-  returns a new enriched `record` (built with a constructor, or a copy constructor when it
-  derives from the source record; `with` only fits when the enriched type is the same type),
-  so the original is never mutated and no deep copy is needed.
-- Records are shallow: if the source holds mutable collections or objects, copy them too.
-- If the data does get mutated, or the derivations need the object's behavior, prefer
-  Combine Functions into Class.
+## Notas de C#
+- Esta refatoração é idiomática em JavaScript. Em C#, a transformação costuma ser uma função que
+  devolve um novo `record` enriquecido (construído com um construtor, ou um construtor de cópia quando
+  deriva do record de origem; `with` só serve quando o tipo enriquecido é o mesmo tipo),
+  de modo que o original nunca é mutado e nenhuma cópia profunda é necessária.
+- Records são rasos: se a origem guarda coleções ou objetos mutáveis, copie-os também.
+- Se os dados forem mutados, ou as derivações precisarem do comportamento do objeto, prefira
+  Combinar Funções em Classe.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The transform leaves its input unchanged (the test from step 2).
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- A transformação deixa sua entrada inalterada (o teste do passo 2).

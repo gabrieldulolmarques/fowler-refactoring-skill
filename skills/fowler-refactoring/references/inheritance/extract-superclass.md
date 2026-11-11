@@ -1,42 +1,42 @@
-# Extract Superclass
+# Extrair Superclasse (Extract Superclass)
 
-Fowler (2018), ch. 12, p. 375. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 12, p. 375. Antes / também: —. Inversa: —.
 
-## When to use
-Smells: Large Class, Alternative Classes with Different Interfaces.
+## Quando usar
+Smells: Classe Grande (Large Class), Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces).
 
-- Two or more classes carry the same fields or methods, or do the same job under different
-  names, and they are conceptually kinds of one thing.
-- The commonality usually shows up as the code evolves; no up-front classification of the
-  domain is needed.
-- There are two ways to remove the overlap: a shared base class, or a helper the classes
-  delegate to (Extract Class, [extract-class.md](../encapsulation/extract-class.md)). A base class is
-  usually the cheaper first attempt. If the hierarchy proves wrong, Replace Superclass with
-  Delegate ([replace-superclass-with-delegate.md](replace-superclass-with-delegate.md)) moves
-  the code to delegation.
-- Do not use it when the classes only look alike but one is not a kind of the other.
+- Duas ou mais classes carregam os mesmos campos ou métodos, ou fazem o mesmo trabalho com nomes
+  diferentes, e são conceitualmente tipos de uma mesma coisa.
+- A semelhança normalmente aparece conforme o código evolui; não é necessária nenhuma classificação
+  prévia do domínio.
+- Há duas formas de remover a sobreposição: uma classe base compartilhada, ou um auxiliar para o qual as classes
+  delegam (Extrair Classe (Extract Class), [extract-class.md](../encapsulation/extract-class.md)). Uma classe base é
+  normalmente a primeira tentativa mais barata. Se a hierarquia se mostrar errada, Substituir Superclasse por
+  Delegação (Replace Superclass with Delegate) ([replace-superclass-with-delegate.md](replace-superclass-with-delegate.md)) move
+  o código para delegação.
+- Não use quando as classes apenas se parecem, mas uma não é um tipo da outra.
 
-## Mechanics
-1. Add an empty base class and make each of the original classes derive from it. If the
-   constructors need to chain to the base constructor, adjust their signatures with Change
-   Function Declaration ([change-function-declaration.md](../first-set/change-function-declaration.md)).
-2. Compile and test.
-3. Move shared members into the base class, one at a time: constructor bodies with Pull Up
-   Constructor Body ([pull-up-constructor-body.md](pull-up-constructor-body.md)), methods
-   with Pull Up Method ([pull-up-method.md](pull-up-method.md)) and fields with Pull Up Field
-   ([pull-up-field.md](pull-up-field.md)). Compile and test after each move.
-4. When members do the same thing under different names, give them one name with Change
-   Function Declaration, then pull them up.
-5. Inspect what remains in each subclass for near-duplicates. Isolate the common part with
-   Extract Function ([extract-function.md](../first-set/extract-function.md)) and pull that function up.
-6. Review the callers of the original classes. Any caller that uses only the shared members
-   can now depend on the base class instead.
+## Mecânica
+1. Adicione uma classe base vazia e faça cada uma das classes originais derivar dela. Se os
+   construtores precisarem encadear para o construtor da base, ajuste as suas assinaturas com Mudar
+   Declaração de Função (Change Function Declaration) ([change-function-declaration.md](../first-set/change-function-declaration.md)).
+2. Compile e teste.
+3. Mova os membros compartilhados para a classe base, um de cada vez: corpos de construtor com Subir
+   Corpo do Construtor (Pull Up Constructor Body) ([pull-up-constructor-body.md](pull-up-constructor-body.md)), métodos
+   com Subir Método (Pull Up Method) ([pull-up-method.md](pull-up-method.md)) e campos com Subir Campo (Pull Up Field)
+   ([pull-up-field.md](pull-up-field.md)). Compile e teste após cada movimento.
+4. Quando membros fazem a mesma coisa com nomes diferentes, dê a eles um só nome com Mudar
+   Declaração de Função, depois suba-os.
+5. Inspecione o que resta em cada subclasse em busca de quase-duplicatas. Isole a parte comum com
+   Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) e suba essa função.
+6. Revise os chamadores das classes originais. Qualquer chamador que usa apenas os membros compartilhados
+   agora pode depender da classe base.
 
-## Example
-Two classes each have an identifier and report a total that adds the same tax rate, but they
-name and compute it differently.
+## Exemplo
+Duas classes têm cada uma um identificador e informam um total que soma a mesma taxa de imposto, mas elas
+o nomeiam e calculam de formas diferentes.
 
-Before:
+Antes:
 
 ```csharp
 using System.Collections.Generic;
@@ -75,11 +75,11 @@ public class Refund
 }
 ```
 
-Steps: add `Document` as a base class of both, pull the number up through the constructor,
-rename `Amount` to `Subtotal` and `GrossAmount` to `TotalWithTax` in `Refund`, then pull
-`TotalWithTax` up.
+Passos: adicione `Document` como classe base de ambas, suba o número pelo construtor,
+renomeie `Amount` para `Subtotal` e `GrossAmount` para `TotalWithTax` em `Refund`, depois suba
+`TotalWithTax`.
 
-After:
+Depois:
 
 ```csharp
 using System.Collections.Generic;
@@ -122,17 +122,17 @@ public class Refund : Document
 }
 ```
 
-A ledger export that only needs numbers and totals can now accept a `Document`.
+Uma exportação de livro-razão que só precisa de números e totais agora pode aceitar um `Document`.
 
-## C# notes
-- Make the superclass `abstract` when it is not meant to be instantiated; members that
-  subclasses must supply become `abstract`.
-- If only the signatures are shared and there is no common state or behavior, extract an
-  interface instead of a base class.
-- C# has single inheritance: a class that already has a base class cannot take a second one.
-  Consider the interface or delegation route in that case.
+## Notas de C#
+- Torne a superclasse `abstract` quando ela não se destina a ser instanciada; membros que
+  as subclasses devem fornecer se tornam `abstract`.
+- Se apenas as assinaturas são compartilhadas e não há estado ou comportamento comum, extraia uma
+  interface em vez de uma classe base.
+- C# tem herança simples: uma classe que já tem uma classe base não pode receber uma segunda.
+  Considere o caminho da interface ou da delegação nesse caso.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Behavior is unchanged: each original class returns the same values as before, and any
-  renamed member has no remaining callers under the old name.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- O comportamento não muda: cada classe original retorna os mesmos valores de antes, e qualquer
+  membro renomeado não tem chamadores restantes sob o nome antigo.

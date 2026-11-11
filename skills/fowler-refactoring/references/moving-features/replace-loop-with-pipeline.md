@@ -1,32 +1,32 @@
-# Replace Loop with Pipeline
+# Substituir Laço por Pipeline (Replace Loop with Pipeline)
 
-Fowler (2018), ch. 8, p. 231. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 8, p. 231. Antes / também: —. Inversa: —.
 
-## When to use
-Smell: Loops. A loop that selects some items, converts them and gathers the results
-reads better as a sequence of steps, each taking a collection and producing another, read
-from top to bottom. Use it when the loop body mixes skipping, filtering, converting and
-accumulating, or when it keeps flags only to skip or select elements.
+## Quando usar
+Smell: Laços (Loops). Um laço que seleciona alguns itens, os converte e reúne os resultados
+lê melhor como uma sequência de passos, cada um recebendo uma coleção e produzindo outra, lida
+de cima para baixo. Use quando o corpo do laço mistura pular, filtrar, converter e
+acumular, ou quando ele mantém flags apenas para pular ou selecionar elementos.
 
-Do not use it when the loop has real side effects per item that must happen in order, when
-it exits early in a way no pipeline step expresses cleanly, or on a measured hot path where
-the extra allocations matter.
+Não use quando o laço tiver efeitos colaterais reais por item que precisam acontecer em ordem, quando
+ele sair antecipadamente de um jeito que nenhum passo do pipeline expresse bem, ou em um caminho crítico medido em que
+as alocações extras importem.
 
-## Mechanics
-1. Introduce a new variable that holds the collection the loop iterates over (it can be a
-   plain copy of the existing source) and make the loop iterate over it. Compile and test.
-2. Take the first piece of behavior at the top of the loop (skipping items, a filter
-   condition, a conversion) and remove it from the loop body. Add the matching operation to
-   the expression that builds the new variable. Compile and test.
-3. Repeat step 2 for each following piece of behavior, in order, testing after each one.
-   Delete control variables that are no longer needed as they become dead.
-4. When the loop does nothing but add items to an accumulator, remove the loop and assign
-   the pipeline result to the accumulator instead. Compile and test.
-5. Tidy up: inline the accumulator and the intermediate variable if that reads better,
-   rename lambda parameters to say what they hold, and put one operation per line.
+## Mecânica
+1. Introduza uma nova variável que guarde a coleção sobre a qual o laço itera (pode ser uma
+   cópia simples da origem existente) e faça o laço iterar sobre ela. Compile e teste.
+2. Pegue o primeiro pedaço de comportamento no topo do laço (pular itens, uma condição de
+   filtro, uma conversão) e remova-o do corpo do laço. Adicione a operação correspondente à
+   expressão que constrói a nova variável. Compile e teste.
+3. Repita o passo 2 para cada pedaço de comportamento seguinte, em ordem, testando após cada um.
+   Apague as variáveis de controle que não são mais necessárias à medida que ficam mortas.
+4. Quando o laço não fizer nada além de adicionar itens a um acumulador, remova o laço e atribua
+   o resultado do pipeline ao acumulador. Compile e teste.
+5. Arrume: internalize o acumulador e a variável intermediária se ficar mais legível,
+   renomeie os parâmetros das lambdas para dizerem o que guardam e ponha uma operação por linha.
 
-## Example
-Before: the numbers of the first overdue invoices, up to a limit.
+## Exemplo
+Antes: os números das primeiras faturas vencidas, até um limite.
 
 ```csharp
 using System;
@@ -51,7 +51,7 @@ public class InvoiceReport
 }
 ```
 
-After: the counter check and the `continue`s are gone, and each step is one line.
+Depois: a verificação do contador e os `continue`s sumiram, e cada passo é uma linha.
 
 ```csharp
 using System;
@@ -74,15 +74,15 @@ public class InvoiceReport
 }
 ```
 
-The limit counts results, not items read, so `Take` goes after the filters.
+O limite conta resultados, não itens lidos, então `Take` vem depois dos filtros.
 
-## C# notes
-- Use LINQ: `Where` for filter, `Select` for map, `Skip`/`Take` for slice, `ToList()` or
-  `ToArray()` to produce the final collection.
-- LINQ is lazy. Enumerate once, at the end of the pipeline, and do not hold a deferred query
-  that is enumerated again later against changed or expensive-to-read data.
-- Each step may allocate (delegates, iterators, intermediate arrays). On hot paths, measure
-  before and after, and keep the loop if the cost shows up.
+## Notas de C#
+- Use LINQ: `Where` para filtrar, `Select` para mapear, `Skip`/`Take` para fatiar, `ToList()` ou
+  `ToArray()` para produzir a coleção final.
+- LINQ é preguiçoso. Enumere uma vez, no fim do pipeline, e não guarde uma consulta adiada
+  que seja enumerada de novo mais tarde sobre dados alterados ou caros de ler.
+- Cada passo pode alocar (delegados, iteradores, arrays intermediários). Em caminhos críticos, meça
+  antes e depois, e mantenha o laço se o custo aparecer.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

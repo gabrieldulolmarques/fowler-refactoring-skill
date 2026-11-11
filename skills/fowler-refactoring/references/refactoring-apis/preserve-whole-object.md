@@ -1,31 +1,31 @@
-# Preserve Whole Object
+# Preservar Objeto Inteiro (Preserve Whole Object)
 
-Fowler (2018), ch. 11, p. 319. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 11, p. 319. Antes / também: —. Inversa: —.
 
-## When to use
-Smells: Long Function, Long Parameter List, Data Clumps.
+## Quando usar
+Smells: Função Longa (Long Function), Lista Longa de Parâmetros (Long Parameter List), Agrupamentos de Dados (Data Clumps).
 
-- Callers read two or more values from one object and pass them on. Pass the object instead.
-- The signature stops changing when the function later needs another field of that object.
-- Several callers repeat the same logic over the unpacked parts. That logic often belongs on the whole object (Feature Envy; see [move-function.md](../moving-features/move-function.md)).
-- Common right after Introduce Parameter Object ([introduce-parameter-object.md](../first-set/introduce-parameter-object.md)): hunt down the remaining call sites that still unpack the data.
-- If several callers only ever use the same subset of the object's members, consider [extract-class.md](../encapsulation/extract-class.md).
-- An object calling another object with several of its own values can pass `this` instead.
+- Os chamadores leem dois ou mais valores de um objeto e os repassam. Passe o objeto no lugar.
+- A assinatura deixa de mudar quando a função mais tarde precisa de outro campo desse objeto.
+- Vários chamadores repetem a mesma lógica sobre as partes desempacotadas. Essa lógica muitas vezes pertence ao objeto inteiro (Inveja de Recursos (Feature Envy); veja [move-function.md](../moving-features/move-function.md)).
+- Comum logo depois de Introduzir Objeto de Parâmetros (Introduce Parameter Object) ([introduce-parameter-object.md](../first-set/introduce-parameter-object.md)): procure os pontos de chamada restantes que ainda desempacotam os dados.
+- Se vários chamadores só usam sempre o mesmo subconjunto dos membros do objeto, considere [extract-class.md](../encapsulation/extract-class.md).
+- Um objeto que chama outro objeto com vários dos seus próprios valores pode passar `this`.
 
-Do not use it when the callee must not depend on the whole object's type, typically because they live in different modules or layers. Then keep the primitive parameters, or pass a smaller object.
+Não use quando a função chamada não deve depender do tipo do objeto inteiro, tipicamente porque elas vivem em módulos ou camadas diferentes. Então mantenha os parâmetros primitivos, ou passe um objeto menor.
 
-## Mechanics
-1. Declare a new, empty method with the signature you want (the whole object as parameter). Give it a unique, easy-to-search temporary name.
-2. Make its body call the old method, mapping from the whole object to the old parameters.
-3. Compile (static checks).
-4. Change callers one at a time to use the new method, compiling and testing after each. Locals that only fed the old arguments may become dead; remove them ([remove-dead-code.md](../moving-features/remove-dead-code.md)).
-5. When no caller of the old method is left, inline the old method into the new one ([inline-function.md](../first-set/inline-function.md)).
-6. Rename the new method to the original name, and update its callers (the unique temporary name lets a plain text search find every call site to update).
+## Mecânica
+1. Declare um novo método vazio com a assinatura que você quer (o objeto inteiro como parâmetro). Dê a ele um nome temporário único e fácil de buscar.
+2. Faça o seu corpo chamar o método antigo, mapeando do objeto inteiro para os parâmetros antigos.
+3. Compile (verificações estáticas).
+4. Mude os chamadores um por vez para usar o novo método, compilando e testando após cada um. Variáveis locais que só alimentavam os argumentos antigos podem ficar mortas; remova-as ([remove-dead-code.md](../moving-features/remove-dead-code.md)).
+5. Quando não restar nenhum chamador do método antigo, internalize o método antigo no novo ([inline-function.md](../first-set/inline-function.md)).
+6. Renomeie o novo método para o nome original e atualize os seus chamadores (o nome temporário único permite que uma busca de texto simples encontre todos os pontos de chamada a atualizar).
 
-Variation: if you prefer to build the new method from other refactorings, use [extract-variable.md](../first-set/extract-variable.md) on the call and on the object expression at one caller, then [extract-function.md](../first-set/extract-function.md) on the call, and [move-function.md](../moving-features/move-function.md) if it belongs on the callee's class. Continue from step 4.
+Variação: se você preferir construir o novo método a partir de outras refatorações, use [extract-variable.md](../first-set/extract-variable.md) na chamada e na expressão do objeto em um chamador, depois [extract-function.md](../first-set/extract-function.md) na chamada, e [move-function.md](../moving-features/move-function.md) se ele pertencer à classe da função chamada. Continue a partir do passo 4.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 public record DateRange(DateOnly Start, DateOnly End);
@@ -50,18 +50,18 @@ public class InvoiceAuditor
         var from = invoice.Period.Start;
         var to = invoice.Period.End;
         if (!calendar.Covers(from, to))
-            findings.Add("billing period is not covered by the calendar");
+            findings.Add("o período de cobrança não é coberto pelo calendário");
     }
 }
 ```
 
-Intermediate (steps 1 to 2; the new method delegates to the old one):
+Intermediário (passos 1 a 2; o novo método delega ao antigo):
 
 ```csharp
 public bool xxNewCovers(DateRange period) => Covers(period.Start, period.End);
 ```
 
-After (callers migrated, old method inlined, temporary name removed):
+Depois (chamadores migrados, método antigo internalizado, nome temporário removido):
 
 ```csharp
 public class BillingCalendar
@@ -77,13 +77,13 @@ public class InvoiceAuditor
     public void Audit(Invoice invoice, BillingCalendar calendar, List<string> findings)
     {
         if (!calendar.Covers(invoice.Period))
-            findings.Add("billing period is not covered by the calendar");
+            findings.Add("o período de cobrança não é coberto pelo calendário");
     }
 }
 ```
 
-Behavior is the same; the `from` and `to` locals are gone.
+O comportamento é o mesmo; as variáveis locais `from` e `to` sumiram.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- After step 5, a search for the old method's name finds no remaining caller. After step 6, a search for the temporary prefix (`xx`) finds nothing.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Depois do passo 5, uma busca pelo nome do método antigo não encontra nenhum chamador restante. Depois do passo 6, uma busca pelo prefixo temporário (`xx`) não encontra nada.

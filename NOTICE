@@ -1,27 +1,27 @@
 fowler-refactoring-skill
 Copyright 2026 Gabriel R. Marques
 
-This package is licensed under the Creative Commons Attribution 4.0 International
-License (CC BY 4.0); see LICENSE. You may share and adapt it for any purpose, including
-academic and commercial use, as long as you give appropriate credit, as described below.
+Este pacote é licenciado sob a Creative Commons Atribuição 4.0 Internacional
+(CC BY 4.0); veja LICENSE. Você pode compartilhá-lo e adaptá-lo para qualquer finalidade, inclusive
+acadêmica e comercial, desde que dê o crédito apropriado, conforme descrito abaixo.
 
-Credit
-------
-The refactoring catalog, the refactoring and code smell names, and the method these skills
-teach are the work of Martin Fowler, published in:
+Crédito
+-------
+O catálogo de refatorações, os nomes das refatorações e dos code smells, e o método que estas skills
+ensinam são obra de Martin Fowler, publicados em:
 
   Martin Fowler. Refactoring: Improving the Design of Existing Code. 2nd ed.
   Boston: Addison-Wesley (Pearson Education), 2018. ISBN 978-0-13-475759-9.
 
-  Online catalog: https://refactoring.com/catalog/
+  Catálogo online: https://refactoring.com/catalog/
 
-When you reuse or adapt this package, credit both this package and the book above.
+Ao reutilizar ou adaptar este pacote, dê crédito a este pacote e ao livro acima.
 
-What the license covers
------------------------
-CC BY 4.0 covers only this package's own content: the paraphrased descriptions, the
-skill structure, the C# examples and the agents. It does not cover the book, which remains
-copyright of Martin Fowler and Pearson Education, Inc. This package contains no text, code
-or figures from the book; refactoring names, former names and inverses are cited as they
-appear in the book's section headers (and in the public online catalog for the five
-web-only refactorings), and page numbers refer to the printed 2nd edition.
+O que a licença cobre
+---------------------
+A CC BY 4.0 cobre apenas o conteúdo próprio deste pacote: as descrições parafraseadas, a
+estrutura das skills, os exemplos em C# e os agentes. Ela não cobre o livro, que permanece
+sob copyright de Martin Fowler e da Pearson Education, Inc. Este pacote não contém texto, código
+nem figuras do livro; os nomes das refatorações, os nomes antigos e as inversas são citados como
+aparecem nos cabeçalhos de seção do livro (e no catálogo online público para as cinco
+refatorações só da web), e os números de página se referem à 2ª edição impressa.

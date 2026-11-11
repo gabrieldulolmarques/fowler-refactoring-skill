@@ -1,38 +1,38 @@
-# Pull Up Constructor Body
+# Subir Corpo do Construtor (Pull Up Constructor Body)
 
-Fowler (2018), ch. 12, p. 355. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 12, p. 355. Antes / também: —. Inversa: —.
 
-## When to use
-Smell: none specific in the book (related: Duplicated Code). Two or more subclasses assign the same fields, or
-run the same setup, at the start of their constructors. A constructor cannot be treated
-like a regular method: the superclass part must be initialized first and the subclass
-constructor calls it explicitly, so the usual "extract, then Pull Up Method" route does not
-work directly for the shared initialization. Pull the code into a superclass constructor and
-pass what it needs through the call.
+## Quando usar
+Smell: nenhum específico no livro (relacionado: Código Duplicado (Duplicated Code)). Duas ou mais subclasses atribuem os mesmos campos, ou
+executam a mesma configuração, no início dos seus construtores. Um construtor não pode ser tratado
+como um método comum: a parte da superclasse deve ser inicializada primeiro e o construtor da
+subclasse a chama explicitamente, então o caminho usual "extrair, depois Subir Método" não
+funciona diretamente para a inicialização compartilhada. Puxe o código para um construtor da superclasse e
+passe o que ele precisa pela chamada.
 
-If part of the shared code needs values that only the subclass has set by then, it cannot be
-hoisted into the base constructor. Handle that part separately, as in step 4. If the whole
-thing gets messy, consider Replace Constructor with Factory Function
+Se parte do código compartilhado precisa de valores que só a subclasse terá definido até então, ela não pode ser
+içada para o construtor da base. Trate essa parte separadamente, como no passo 4. Se o conjunto todo
+ficar confuso, considere Substituir Construtor por Função de Fábrica (Replace Constructor with Factory Function)
 ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)).
 
-## Mechanics
-1. Make sure the superclass has a constructor (create one if needed) and that every subclass
-   constructor calls it.
-2. In each subclass constructor, use Slide Statements ([slide-statements.md](../moving-features/slide-statements.md)) to reorder
-   the shared assignments so they sit immediately after the base call. Test.
-3. Move the shared statements into the superclass constructor, delete them from each subclass,
-   add a superclass constructor parameter for every value the moved code uses, and pass those
-   values from each subclass call. These edits only compile together, so test once at the end.
-4. If some common code cannot go at the start (it needs state the subclass sets first),
-   Extract Function on it ([extract-function.md](../first-set/extract-function.md)), then Pull Up Method
-   ([pull-up-method.md](pull-up-method.md)), and call it at the end of each subclass constructor.
-   If the copies differ only in values, turn those values into parameters of the extracted
-   method before pulling it up (Change Function Declaration,
-   [change-function-declaration.md](../first-set/change-function-declaration.md)). Test.
+## Mecânica
+1. Garanta que a superclasse tenha um construtor (crie um se necessário) e que todo construtor de subclasse
+   o chame.
+2. Em cada construtor de subclasse, use Deslocar Instruções (Slide Statements) ([slide-statements.md](../moving-features/slide-statements.md)) para reordenar
+   as atribuições compartilhadas de modo que fiquem imediatamente após a chamada à base. Teste.
+3. Mova as instruções compartilhadas para o construtor da superclasse, apague-as de cada subclasse,
+   adicione um parâmetro de construtor da superclasse para cada valor que o código movido usa e passe esses
+   valores a partir de cada chamada da subclasse. Essas edições só compilam juntas, então teste uma vez no final.
+4. Se algum código comum não puder ir para o início (ele precisa de estado que a subclasse define primeiro),
+   aplique Extrair Função nele ([extract-function.md](../first-set/extract-function.md)), depois Subir Método
+   ([pull-up-method.md](pull-up-method.md)), e chame-o no final de cada construtor de subclasse.
+   Se as cópias diferem apenas nos valores, transforme esses valores em parâmetros do método
+   extraído antes de subi-lo (Mudar Declaração de Função,
+   [change-function-declaration.md](../first-set/change-function-declaration.md)). Teste.
 
-## Example
-Before: two kinds of document share a customer and a creation date, each assigned in its own
-constructor.
+## Exemplo
+Antes: dois tipos de documento compartilham um cliente e uma data de criação, cada um atribuído no seu próprio
+construtor.
 
 ```csharp
 using System;
@@ -70,8 +70,8 @@ public class Quote : Document
 }
 ```
 
-After: the shared fields and their assignments live in `Document`. `Invoice` first slid its
-assignments next to the base call, then both were moved up.
+Depois: os campos compartilhados e as suas atribuições vivem em `Document`. `Invoice` primeiro deslocou as suas
+atribuições para perto da chamada à base, e então ambas foram movidas para cima.
 
 ```csharp
 using System;
@@ -111,9 +111,9 @@ public class Quote : Document
 }
 ```
 
-Common behavior that must run after subclass data is set is extracted into a method, pulled
-up, and called as the last line of each subclass constructor. Before, each subclass ended its
-constructor with a similar label-building statement:
+O comportamento comum que deve rodar depois que os dados da subclasse são definidos é extraído para um método, subido
+e chamado como a última linha de cada construtor de subclasse. Antes, cada subclasse terminava o seu
+construtor com uma instrução semelhante de construção de rótulo:
 
 ```csharp
 using System;
@@ -153,8 +153,8 @@ public class Quote : Document
 }
 ```
 
-After: the label-building step is a method in `Document` that reads a subclass-supplied
-prefix and detail, and each constructor calls it once its own field is set.
+Depois: a etapa de construção do rótulo é um método em `Document` que lê um prefixo e um detalhe
+fornecidos pela subclasse, e cada construtor o chama assim que o seu próprio campo é definido.
 
 ```csharp
 using System;
@@ -198,18 +198,18 @@ public class Quote : Document
 }
 ```
 
-## C# notes
-- The superclass constructor is reached with `: base(...)` constructor chaining. The base
-  constructor runs before the subclass body and before the subclass's own field assignments in
-  the constructor body (field initializers of the subclass run even earlier).
-- Do not call a `virtual` member from the base constructor to finish construction: it can run
-  on a subclass whose fields are not yet set. That is why the late common code goes to a
-  method each subclass calls at the end of its own constructor.
-- Pulled-up fields are usually `private readonly` plus a `protected`/`public` property, or
-  `protected readonly`, depending on who needs them.
+## Notas de C#
+- O construtor da superclasse é alcançado com o encadeamento de construtores `: base(...)`. O construtor
+  da base roda antes do corpo da subclasse e antes das atribuições de campo da própria subclasse no
+  corpo do construtor (os inicializadores de campo da subclasse rodam ainda mais cedo).
+- Não chame um membro `virtual` a partir do construtor da base para terminar a construção: ele pode rodar
+  em uma subclasse cujos campos ainda não foram definidos. É por isso que o código comum tardio vai para um
+  método que cada subclasse chama no final do seu próprio construtor.
+- Campos que subiram costumam ser `private readonly` mais uma propriedade `protected`/`public`, ou
+  `protected readonly`, dependendo de quem precisa deles.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The shared assignments no longer appear in any subclass constructor, each subclass passes
-  the values through `: base(...)`, and the order of observable side effects during
-  construction is unchanged.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- As atribuições compartilhadas não aparecem mais em nenhum construtor de subclasse, cada subclasse passa
+  os valores por `: base(...)`, e a ordem dos efeitos colaterais observáveis durante a
+  construção não mudou.

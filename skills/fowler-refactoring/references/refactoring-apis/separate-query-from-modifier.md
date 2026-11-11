@@ -1,34 +1,34 @@
-# Separate Query from Modifier
+# Separar Consulta de Modificador (Separate Query from Modifier)
 
-Fowler (2018), ch. 11, p. 306. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 11, p. 306. Antes / também: —. Inversa: —.
 
-## When to use
-Smell: Mutable Data. A function that returns a value and also has observable side effects
-is hard to trust: a caller cannot call it freely, repeat it, move it, or test it without
-triggering the effect. A function with no observable side effects can be called any number
-of times and in any order.
+## Quando usar
+Smell: Dados Mutáveis (Mutable Data). Uma função que retorna um valor e também tem efeitos colaterais observáveis
+é difícil de confiar: um chamador não pode chamá-la livremente, repeti-la, movê-la ou testá-la sem
+disparar o efeito. Uma função sem efeitos colaterais observáveis pode ser chamada qualquer número
+de vezes e em qualquer ordem.
 
-Follow command-query separation: a method that returns a value should not change
-observable state, and a method that changes state should not return a computed answer. Split
-any method that does both.
+Siga a separação comando-consulta: um método que retorna um valor não deve alterar
+o estado observável, e um método que altera estado não deve retornar uma resposta calculada. Divida
+qualquer método que faça as duas coisas.
 
-Not a violation: a query that updates a private cache for speed. The change is not
-observable, since every sequence of calls returns the same results. Leave those alone.
+Não é uma violação: uma consulta que atualiza um cache privado por velocidade. A mudança não é
+observável, já que toda sequência de chamadas retorna os mesmos resultados. Deixe esses casos em paz.
 
-## Mechanics
-1. Copy the function and name the copy after what it returns (the query). If its result
-   fills a variable at a call site, that variable's name is a good hint.
-2. Remove every side effect from the copy, so it only computes and returns the value.
-3. Run the compiler or static checks.
-4. Find each caller of the original that uses the returned value. Replace the call with a
-   call to the query, then add a call to the original below it. Test after each caller.
-5. Remove the return value from the original, so it is now a pure command.
-6. Test.
-7. The query and the command usually duplicate logic now. Remove the duplication, often by
-   making the command call the query.
+## Mecânica
+1. Copie a função e nomeie a cópia pelo que ela retorna (a consulta). Se o seu resultado
+   preenche uma variável em um ponto de chamada, o nome dessa variável é uma boa dica.
+2. Remova todo efeito colateral da cópia, para que ela apenas calcule e retorne o valor.
+3. Rode o compilador ou as verificações estáticas.
+4. Encontre cada chamador do original que usa o valor retornado. Substitua a chamada por uma
+   chamada à consulta, depois adicione uma chamada ao original logo abaixo. Teste após cada chamador.
+5. Remova o valor de retorno do original, para que ele agora seja um comando puro.
+6. Teste.
+7. A consulta e o comando agora normalmente duplicam lógica. Remova a duplicação, muitas vezes
+   fazendo o comando chamar a consulta.
 
-## Example
-Before: one method finds the overdue account and suspends it.
+## Exemplo
+Antes: um método encontra a conta em atraso e a suspende.
 
 ```csharp
 public record Account(string Id, int DaysOverdue);
@@ -51,12 +51,12 @@ public class CollectionsService
     }
 }
 
-// caller
+// chamador
 var id = service.SuspendFirstOverdue(accounts);
-Console.WriteLine($"First overdue: {id}");
+Console.WriteLine($"Primeira em atraso: {id}");
 ```
 
-After: a query and a command, with the command reusing the query.
+Depois: uma consulta e um comando, com o comando reutilizando a consulta.
 
 ```csharp
 public class CollectionsService
@@ -79,15 +79,15 @@ public class CollectionsService
     }
 }
 
-// caller
+// chamador
 var id = service.FindFirstOverdue(accounts);
 service.SuspendFirstOverdue(accounts);
-Console.WriteLine($"First overdue: {id}");
+Console.WriteLine($"Primeira em atraso: {id}");
 ```
 
-Note that the command now runs the search again. That is the usual cost of the split; if
-the query is expensive, accept it, cache it invisibly, or pass the found value to the
-command instead.
+Note que o comando agora executa a busca de novo. Esse é o custo usual da divisão; se
+a consulta for cara, aceite-o, faça cache de forma invisível, ou passe o valor encontrado ao
+comando em vez disso.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

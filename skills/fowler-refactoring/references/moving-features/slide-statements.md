@@ -1,32 +1,32 @@
-# Slide Statements
+# Deslocar Instruções (Slide Statements)
 
-Fowler (2018), ch. 8, p. 223. Formerly / aka: formerly Consolidate Duplicate Conditional Fragments. Inverse: —.
+Fowler (2018), cap. 8, p. 223. Antes / também: formerly Consolidate Duplicate Conditional Fragments. Inversa: —.
 
-## When to use
-Smells: Duplicated Code, Mutable Data (and as a step inside Long Function).
-- Lines that touch the same data are separated by lines that touch something else.
-- A variable is declared far above its first use (declare it just before it is needed).
-- You want to extract a group of lines but they are interleaved with other code. Sliding them together first makes the extraction possible.
-- The same statements appear at the start or end of every branch of a conditional.
+## Quando usar
+Smells: Código Duplicado (Duplicated Code), Dados Mutáveis (Mutable Data) (e como passo dentro de Função Longa (Long Function)).
+- Linhas que tocam os mesmos dados estão separadas por linhas que tocam outra coisa.
+- Uma variável é declarada bem acima do seu primeiro uso (declare-a logo antes de ser necessária).
+- Você quer extrair um grupo de linhas, mas elas estão intercaladas com outro código. Deslocá-las para junto antes torna a extração possível.
+- As mesmas instruções aparecem no início ou no fim de todos os ramos de uma condicional.
 
-Not worth it if the slide cannot be made safe in small steps: do other preparation first (for example Split Variable on a reused variable) and come back.
+Não vale a pena se o deslocamento não puder ser feito com segurança em passos pequenos: faça outra preparação antes (por exemplo, Dividir Variável (Split Variable) em uma variável reutilizada) e volte.
 
-## Mechanics
-1. Choose the target position for the fragment (the statement or block you will move).
-2. Check every statement between the fragment and the target for interference. Give up on this slide if any of these holds:
-   - Moving up: the fragment would pass the declaration or assignment of something it reads.
-   - Moving down: the fragment would pass a statement that reads something the fragment defines or changes.
-   - The fragment would pass a statement that modifies something the fragment reads or writes.
-   - The fragment modifies something that a statement in between reads.
-   Statements without side effects can be reordered freely. Be careful with calls: only treat a call as side-effect free if you know it is.
-3. Cut the fragment and paste it at the target.
-4. Compile and run the tests.
-5. If a test fails, undo and retry with a smaller step: slide over fewer statements, or move a smaller fragment. If that still fails, the slide may not be worth it yet.
+## Mecânica
+1. Escolha a posição de destino para o fragmento (a instrução ou o bloco que você vai mover).
+2. Verifique se há interferência em cada instrução entre o fragmento e o destino. Desista deste deslocamento se qualquer uma destas condições valer:
+   - Subindo: o fragmento passaria pela declaração ou atribuição de algo que ele lê.
+   - Descendo: o fragmento passaria por uma instrução que lê algo que o fragmento define ou altera.
+   - O fragmento passaria por uma instrução que modifica algo que o fragmento lê ou escreve.
+   - O fragmento modifica algo que uma instrução intermediária lê.
+   Instruções sem efeitos colaterais podem ser reordenadas livremente. Cuidado com chamadas: só trate uma chamada como livre de efeitos colaterais se você souber que é.
+3. Recorte o fragmento e cole-o no destino.
+4. Compile e execute os testes.
+5. Se um teste falhar, desfaça e tente de novo com um passo menor: desloque por cima de menos instruções ou mova um fragmento menor. Se ainda falhar, o deslocamento talvez ainda não valha a pena.
 
-Sliding out of a conditional: when the same statements end (or begin) every branch, and they do not depend on which branch ran in a way that changes behavior, remove them from each branch and put one copy after (or before) the conditional. Sliding into a conditional is the reverse and repeats the fragment in every branch.
+Deslocando para fora de uma condicional: quando as mesmas instruções terminam (ou começam) todos os ramos e não dependem de qual ramo rodou de um jeito que mude o comportamento, remova-as de cada ramo e ponha uma cópia depois (ou antes) da condicional. Deslocar para dentro de uma condicional é o inverso e repete o fragmento em cada ramo.
 
-## Example
-Before: the discount lines are mixed with the shipping lines, and `shippingCost` is declared early.
+## Exemplo
+Antes: as linhas do desconto estão misturadas com as do frete, e `shippingCost` é declarada cedo.
 
 ```csharp
 public decimal Total(Invoice invoice)
@@ -42,7 +42,7 @@ public decimal Total(Invoice invoice)
 }
 ```
 
-After: each declaration sits next to its use, and the discount lines are adjacent, ready for Extract Function.
+Depois: cada declaração fica ao lado do seu uso, e as linhas do desconto estão adjacentes, prontas para Extrair Função (Extract Function).
 
 ```csharp
 public decimal Total(Invoice invoice)
@@ -60,12 +60,12 @@ public decimal Total(Invoice invoice)
 }
 ```
 
-Why it was safe: `subtotal` is declared before everything that reads it, and the shipping lines read and write only `shippingCost`, `invoice` and `subtotal`, none of which the discount lines change.
+Por que foi seguro: `subtotal` é declarado antes de tudo que o lê, e as linhas do frete leem e escrevem apenas `shippingCost`, `invoice` e `subtotal`, nenhum dos quais as linhas do desconto alteram.
 
-Conditional case, before and after (same behavior):
+Caso da condicional, antes e depois (mesmo comportamento):
 
 ```csharp
-// before
+// antes
 if (account.Balance >= amount)
 {
     account.Debit(amount);
@@ -77,7 +77,7 @@ else
     auditLog.Add(account.Id);
 }
 
-// after
+// depois
 if (account.Balance >= amount)
     account.Debit(amount);
 else
@@ -85,8 +85,8 @@ else
 auditLog.Add(account.Id);
 ```
 
-This is only valid because the branches do not change what `auditLog.Add(account.Id)` observes.
+Isso só é válido porque os ramos não mudam o que `auditLog.Add(account.Id)` observa.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- If coverage of the moved code is weak, add tests first: a slide that passes through shared mutable state is the kind of change tests catch best.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Se a cobertura do código movido for fraca, adicione testes antes: um deslocamento que passa por estado mutável compartilhado é o tipo de mudança que os testes capturam melhor.

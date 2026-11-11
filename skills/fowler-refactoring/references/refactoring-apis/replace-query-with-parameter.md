@@ -1,35 +1,35 @@
-# Replace Query with Parameter
+# Substituir Consulta por Parâmetro (Replace Query with Parameter)
 
-Fowler (2018), ch. 11, p. 327. Formerly / aka: —. Inverse: Replace Parameter with Query
+Fowler (2018), cap. 11, p. 327. Antes / também: —. Inversa: Substituir Parâmetro por Consulta
 ([replace-parameter-with-query.md](replace-parameter-with-query.md)).
 
-## When to use
-- A function reads something from outside its own scope (a global, a singleton, a static member, an
-  element of a module you plan to move away) and you want the function to stop depending on it.
-- The function is hard to test or reason about because its result changes with hidden state. Moving
-  the lookup to a parameter makes it return the same result for the same arguments (referential
-  transparency), so the logic can sit in a pure core wrapped by code that handles I/O and shared
-  state.
-- Trade-off: the caller now has to find and pass the value, so call sites get heavier and
-  parameter lists longer. If many callers repeat the same lookup, or the dependency is harmless,
-  keep the query inside (the inverse refactoring). Decide by where the responsibility belongs; the
-  choice is reversible.
+## Quando usar
+- Uma função lê algo de fora do seu próprio escopo (um global, um singleton, um membro estático, um
+  elemento de um módulo que você planeja afastar) e você quer que a função deixe de depender disso.
+- A função é difícil de testar ou de raciocinar sobre porque o seu resultado muda com estado oculto. Mover
+  a busca para um parâmetro faz com que ela retorne o mesmo resultado para os mesmos argumentos (transparência
+  referencial), de modo que a lógica pode ficar em um núcleo puro envolvido por código que trata de E/S e estado
+  compartilhado.
+- Contrapartida: o chamador agora precisa encontrar e passar o valor, então os pontos de chamada ficam mais pesados e
+  as listas de parâmetros mais longas. Se muitos chamadores repetem a mesma busca, ou a dependência é inofensiva,
+  mantenha a consulta dentro (a refatoração inversa). Decida por onde a responsabilidade pertence; a
+  escolha é reversível.
 
-## Mechanics
-1. Apply Extract Variable ([extract-variable.md](../first-set/extract-variable.md)) to the query expression, so it sits in one
-   local variable apart from the rest of the body. Compile and test.
-2. Apply Extract Function ([extract-function.md](../first-set/extract-function.md)) to everything except the line that performs
-   the query. The new function takes the variable as a parameter. Give it a temporary, easily
-   searchable name. Compile and test.
-3. Apply Inline Variable ([inline-variable.md](../first-set/inline-variable.md)) to the variable from step 1, so the original
-   function just calls the new one with the query expression as the argument. Compile and test.
-4. Apply Inline Function ([inline-function.md](../first-set/inline-function.md)) to the original function, so every caller now
-   calls the new function and passes the query itself. Compile and test.
-5. Rename the new function to the original name, using the searchable temporary name to find
-   every use. Compile and test.
+## Mecânica
+1. Aplique Extrair Variável (Extract Variable) ([extract-variable.md](../first-set/extract-variable.md)) à expressão da consulta, para que ela fique em uma
+   variável local separada do resto do corpo. Compile e teste.
+2. Aplique Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) a tudo, exceto a linha que realiza
+   a consulta. A nova função recebe a variável como parâmetro. Dê a ela um nome temporário e fácil de
+   buscar. Compile e teste.
+3. Aplique Internalizar Variável (Inline Variable) ([inline-variable.md](../first-set/inline-variable.md)) à variável do passo 1, para que a função
+   original apenas chame a nova com a expressão da consulta como argumento. Compile e teste.
+4. Aplique Internalizar Função (Inline Function) ([inline-function.md](../first-set/inline-function.md)) à função original, para que todo chamador agora
+   chame a nova função e passe a própria consulta. Compile e teste.
+5. Renomeie a nova função para o nome original, usando o nome temporário pesquisável para encontrar
+   todo uso. Compile e teste.
 
-## Example
-Before: the method reads a static clock.
+## Exemplo
+Antes: o método lê um relógio estático.
 
 ```csharp
 public class Invoice
@@ -52,12 +52,12 @@ public class Invoice
     }
 }
 
-// caller
+// chamador
 var penalty = invoice.Penalty();
 ```
 
-After: the caller supplies the date, and `Penalty` depends only on its arguments and the
-immutable fields.
+Depois: o chamador fornece a data, e `Penalty` depende apenas dos seus argumentos e dos
+campos imutáveis.
 
 ```csharp
 public class Invoice
@@ -80,16 +80,16 @@ public class Invoice
     }
 }
 
-// caller
+// chamador
 var penalty = invoice.Penalty(DateTime.Today);
 ```
 
-A test can now pass any date and get a repeatable result.
+Um teste agora pode passar qualquer data e obter um resultado repetível.
 
-## C# notes
-- Useful to remove a dependency on a static or singleton (`DateTime.Today`, a static configuration
-  class, a service locator) and make the code testable.
+## Notas de C#
+- Útil para remover uma dependência de um estático ou singleton (`DateTime.Today`, uma classe estática de
+  configuração, um service locator) e tornar o código testável.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Every caller passes the value the old internal query returned, so behavior is unchanged.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Todo chamador passa o valor que a antiga consulta interna retornava, então o comportamento não muda.

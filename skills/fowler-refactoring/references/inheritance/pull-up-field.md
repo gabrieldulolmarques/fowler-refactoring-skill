@@ -1,33 +1,33 @@
-# Pull Up Field
+# Subir Campo (Pull Up Field)
 
-Fowler (2018), ch. 12, p. 353. Formerly / aka: —. Inverse: Push Down Field
+Fowler (2018), cap. 12, p. 353. Antes / também: —. Inversa: Descer Campo
 ([push-down-field.md](push-down-field.md)).
 
-## When to use
-It removes duplicate data declarations in sibling subclasses. No smell in the catalog links
-to it directly.
+## Quando usar
+Remove declarações de dados duplicadas em subclasses irmãs. Nenhum smell do catálogo se liga
+diretamente a ela.
 
-- Start by reading how sibling subclasses use their fields. If two of them hold the same
-  data for the same purpose, the field is a candidate, whatever each one is called.
-- Once it sits in the superclass, the duplicate declaration is gone and the code that uses
-  it can follow (see [pull-up-method.md](pull-up-method.md)).
-- Do not use it when the fields only look alike but mean different things, or when only some
-  of the subclasses need the data. Then the field belongs where it is, or in a new
-  intermediate class.
-- In languages where fields appear on first assignment, with no declaration in the class,
-  the same effect comes from [pull-up-constructor-body.md](pull-up-constructor-body.md).
+- Comece lendo como as subclasses irmãs usam os seus campos. Se duas delas guardam os mesmos
+  dados para o mesmo propósito, o campo é um candidato, qualquer que seja o nome de cada um.
+- Uma vez na superclasse, a declaração duplicada some e o código que a usa
+  pode acompanhar (veja [pull-up-method.md](pull-up-method.md)).
+- Não use quando os campos apenas se parecem mas significam coisas diferentes, ou quando apenas algumas
+  das subclasses precisam dos dados. Então o campo pertence ao lugar onde está, ou a uma nova
+  classe intermediária.
+- Em linguagens em que os campos aparecem na primeira atribuição, sem declaração na classe,
+  o mesmo efeito vem de [pull-up-constructor-body.md](pull-up-constructor-body.md).
 
-## Mechanics
-1. Inspect every use of each candidate field and confirm they all play the same role
-   (same meaning, same unit, same lifetime).
-2. If the names differ, rename them to one name with [rename-field.md](../organizing-data/rename-field.md). Compile and test.
-3. Declare the field in the superclass, with visibility that subclasses can reach
-   (`protected`, or private with a property if you prefer to encapsulate it).
-4. Delete the field from the subclasses, one at a time if there are many.
-5. Compile and run the tests.
+## Mecânica
+1. Inspecione todo uso de cada campo candidato e confirme que todos desempenham o mesmo papel
+   (mesmo significado, mesma unidade, mesmo tempo de vida).
+2. Se os nomes diferem, renomeie-os para um só nome com [rename-field.md](../organizing-data/rename-field.md). Compile e teste.
+3. Declare o campo na superclasse, com uma visibilidade que as subclasses possam alcançar
+   (`protected`, ou privado com uma propriedade se você preferir encapsulá-lo).
+4. Apague o campo das subclasses, um de cada vez se forem muitas.
+5. Compile e rode os testes.
 
-## Example
-Before: two kinds of invoice each keep their own `customerName`.
+## Exemplo
+Antes: dois tipos de fatura mantêm cada um o seu próprio `customerName`.
 
 ```csharp
 public abstract class Invoice
@@ -48,7 +48,7 @@ public class ServiceInvoice : Invoice
         this.rate = rate;
     }
 
-    public string Describe() => $"Service for {customerName}";
+    public string Describe() => $"Serviço para {customerName}";
     public override decimal Total() => hours * rate;
 }
 
@@ -65,15 +65,15 @@ public class ProductInvoice : Invoice
         this.quantity = quantity;
     }
 
-    public string Describe() => $"Products for {customerName}";
+    public string Describe() => $"Produtos para {customerName}";
     public override decimal Total() => unitPrice * quantity;
 }
 ```
 
-After: the field is declared once in `Invoice`. The subclass constructors still assign it,
-which [pull-up-constructor-body.md](pull-up-constructor-body.md) can then tidy. The `= ""`
-initializer avoids warning CS8618 when nullable reference types are enabled; it can go once
-the assignment moves into an `Invoice` constructor.
+Depois: o campo é declarado uma só vez em `Invoice`. Os construtores das subclasses ainda o atribuem,
+o que [pull-up-constructor-body.md](pull-up-constructor-body.md) pode então arrumar. O inicializador `= ""`
+evita o aviso CS8618 quando os tipos de referência anuláveis estão habilitados; ele pode sair quando
+a atribuição for para dentro de um construtor de `Invoice`.
 
 ```csharp
 public abstract class Invoice
@@ -95,7 +95,7 @@ public class ServiceInvoice : Invoice
         this.rate = rate;
     }
 
-    public string Describe() => $"Service for {customerName}";
+    public string Describe() => $"Serviço para {customerName}";
     public override decimal Total() => hours * rate;
 }
 
@@ -111,12 +111,12 @@ public class ProductInvoice : Invoice
         this.quantity = quantity;
     }
 
-    public string Describe() => $"Products for {customerName}";
+    public string Describe() => $"Produtos para {customerName}";
     public override decimal Total() => unitPrice * quantity;
 }
 ```
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Every subclass constructor still compiles after its own field is deleted, and the output of
-  `Describe()` and `Total()` is unchanged.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Todo construtor de subclasse ainda compila depois que o seu próprio campo é apagado, e a saída de
+  `Describe()` e `Total()` não muda.

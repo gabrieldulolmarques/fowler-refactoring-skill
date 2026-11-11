@@ -1,30 +1,30 @@
-# Replace Superclass with Delegate
+# Substituir Superclasse por Delegação (Replace Superclass with Delegate)
 
-Fowler (2018), ch. 12, p. 399. Formerly / aka: Replace Inheritance with Delegation. Inverse: —.
+Fowler (2018), cap. 12, p. 399. Antes / também: Replace Inheritance with Delegation. Inversa: —.
 
-## When to use
+## Quando usar
 
-Smells: Refused Bequest, Insider Trading, Middle Man.
+Smells: Herança Recusada (Refused Bequest), Troca de Informações Privilegiadas (Insider Trading), Intermediário (Middle Man).
 
-- Inheritance was used only to reuse code, and the subclass exposes superclass members that do not apply to it (a stack that is a list and so allows inserting in the middle).
-- "Every instance of the subclass is a valid superclass instance" is false. A typical case is a type and its instance mixed up: a product description class reused as the base of a physical item that has a serial number.
-- The subclass breaks whenever the superclass changes, because the coupling is tight.
+- A herança foi usada apenas para reutilizar código, e a subclasse expõe membros da superclasse que não se aplicam a ela (uma pilha que é uma lista e assim permite inserir no meio).
+- "Toda instância da subclasse é uma instância válida da superclasse" é falso. Um caso típico é um tipo e a sua instância misturados: uma classe de descrição de produto reutilizada como base de um item físico que tem número de série.
+- A subclasse quebra sempre que a superclasse muda, porque o acoplamento é forte.
 
-When not to use it: if every superclass member applies to the subclass and every subclass instance is a legitimate superclass instance, inheritance is simple and effective. Inheritance is a fine default; switch when it starts to hurt. The cost is a forwarding method for each member you keep.
+Quando não usar: se todo membro da superclasse se aplica à subclasse e toda instância da subclasse é uma instância legítima da superclasse, a herança é simples e eficaz. A herança é um bom padrão; troque quando ela começar a doer. O custo é um método encaminhador para cada membro que você mantém.
 
-## Mechanics
+## Mecânica
 
-1. In the subclass, add a field of the superclass type and initialize it with a new instance (usually built with the same constructor arguments).
-2. For each member of the superclass, add a forwarding member in the subclass that calls the same member on the field. Compile and test after each consistent group (a getter and its setter go together).
-3. When every superclass member has a forwarder, remove the inheritance link (drop the `: Superclass` and the base constructor call). Compile and test.
-4. Delete, one at a time, the forwarders for members that do not apply to the subclass, changing any caller the compiler reports. Compile and test after each.
+1. Na subclasse, adicione um campo do tipo da superclasse e inicialize-o com uma nova instância (normalmente construída com os mesmos argumentos de construtor).
+2. Para cada membro da superclasse, adicione um membro encaminhador na subclasse que chama o mesmo membro no campo. Compile e teste após cada grupo coerente (um getter e o seu setter andam juntos).
+3. Quando todo membro da superclasse tiver um encaminhador, remova o vínculo de herança (descarte o `: Superclass` e a chamada ao construtor da base). Compile e teste.
+4. Apague, um de cada vez, os encaminhadores dos membros que não se aplicam à subclasse, mudando qualquer chamador que o compilador apontar. Compile e teste após cada um.
 
-With a very large superclass, such as a framework collection, forwarding every member is impractical. Forward the ones callers use, remove the link and let the compiler report the rest, as the example below does.
-5. Check the model. The delegate is now a private component owned by one subclass instance. If instances should share the delegate, continue with Change Value to Reference ([change-value-to-reference.md](../organizing-data/change-value-to-reference.md)). Keep host-owned fields such as the id on the host.
+Com uma superclasse muito grande, como uma coleção de framework, repassar todo membro é impraticável. Repasse os que os chamadores usam, remova o vínculo e deixe o compilador apontar o resto, como faz o exemplo abaixo.
+5. Verifique o modelo. O delegado agora é um componente privado pertencente a uma instância da subclasse. Se as instâncias devem compartilhar o delegado, continue com Mudar Valor para Referência (Change Value to Reference) ([change-value-to-reference.md](../organizing-data/change-value-to-reference.md)). Mantenha no hospedeiro os campos que pertencem a ele, como o id.
 
-## Example
+## Exemplo
 
-Before: a statement reuses `List<Transaction>` by inheritance, so callers can also insert, sort and clear it.
+Antes: um extrato reutiliza `List<Transaction>` por herança, então os chamadores também podem inserir, ordenar e limpar a lista.
 
 ```csharp
 public record Transaction(DateOnly Date, decimal Amount);
@@ -34,13 +34,13 @@ public class Statement : List<Transaction>
     public decimal Balance() => this.Sum(t => t.Amount);
 }
 
-// caller
+// chamador
 var statement = new Statement();
 statement.Add(new Transaction(new DateOnly(2026, 1, 5), 120m));
-statement.Clear(); // makes no sense for a statement
+statement.Clear(); // não faz sentido para um extrato
 ```
 
-After step 1 and 2 (still inheriting, `new` hides the inherited members while both coexist):
+Depois dos passos 1 e 2 (ainda herdando, `new` oculta os membros herdados enquanto os dois coexistem):
 
 ```csharp
 public class Statement : List<Transaction>
@@ -55,9 +55,9 @@ public class Statement : List<Transaction>
 }
 ```
 
-`new` only hides members for callers that use the `Statement` type. A caller that reaches the object through `IEnumerable<Transaction>` (LINQ, or a `foreach` over an interface-typed variable) still hits the inherited, now empty, list until step 3, so check for such callers before relying on the tests after this stage.
+`new` só oculta membros para os chamadores que usam o tipo `Statement`. Um chamador que alcança o objeto por `IEnumerable<Transaction>` (LINQ, ou um `foreach` sobre uma variável de tipo interface) ainda atinge a lista herdada, agora vazia, até o passo 3, então verifique se há tais chamadores antes de confiar nos testes nesta etapa.
 
-After steps 3 and 4 (link removed; the compiler now rejects `Clear`):
+Depois dos passos 3 e 4 (vínculo removido; o compilador agora rejeita `Clear`):
 
 ```csharp
 using System.Collections;
@@ -75,10 +75,10 @@ public class Statement : IEnumerable<Transaction>
 }
 ```
 
-Behavior is the same for every remaining caller; only the members that did not apply are gone.
+O comportamento é o mesmo para todo chamador restante; apenas os membros que não se aplicavam sumiram.
 
-## Verification
+## Verificação
 
-- Compiles and the tests pass after every step; one commit per refactoring.
-- No caller depended on a member that was dropped, or it was forwarded on purpose.
-- Anything that treated the subclass as the superclass (casts, `is` checks, polymorphic parameters, collections of the base type) was found and changed.
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Nenhum chamador dependia de um membro que foi descartado, ou ele foi repassado de propósito.
+- Tudo que tratava a subclasse como a superclasse (conversões, verificações `is`, parâmetros polimórficos, coleções do tipo base) foi encontrado e mudado.

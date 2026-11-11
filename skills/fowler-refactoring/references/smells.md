@@ -1,190 +1,190 @@
-# The 24 smells
+# Os 24 smells (cheiros de código)
 
-Fowler (2018), ch. 3, pp. 71-84 (each smell's page is in its heading). Symptoms are paraphrased; the refactoring lists follow the chapter's text. Each refactoring links to its file in this folder (`<slug>.md`).
+Fowler (2018), cap. 3, pp. 71-84 (a página de cada smell está no título). Os sintomas são parafraseados; as listas de refatorações seguem o texto do capítulo. Cada refatoração tem link para o seu arquivo nesta pasta (`<slug>.md`).
 
-A smell is a hint, not a verdict. Decide by reading the code; no metric replaces judgment.
+Um smell é uma pista, não um veredito. Decida lendo o código; nenhuma métrica substitui o julgamento.
 
 ---
 
-## Mysterious Name (p. 72)
-**Symptoms:** you must read the body to learn what a function, variable, field or class is for; no good name comes to mind (often a sign the design is muddled).
-**Try:**
-- Change Function Declaration ([change-function-declaration.md](first-set/change-function-declaration.md)), to rename a function
-- Rename Variable ([rename-variable.md](first-set/rename-variable.md))
-- Rename Field ([rename-field.md](organizing-data/rename-field.md))
+## Nome Misterioso (Mysterious Name, p. 72)
+**Sintomas:** você precisa ler o corpo para saber para que serve uma função, variável, campo ou classe; nenhum bom nome vem à mente (muitas vezes um sinal de que o design está confuso).
+**Tente:**
+- Mudar Declaração de Função ([change-function-declaration.md](first-set/change-function-declaration.md)), para renomear uma função
+- Renomear Variável ([rename-variable.md](first-set/rename-variable.md))
+- Renomear Campo ([rename-field.md](organizing-data/rename-field.md))
 
-## Duplicated Code (p. 72)
-**Symptoms:** the same structure in more than one place, so each reader must compare the copies and each change must hit them all.
-**Try:**
-- Extract Function ([extract-function.md](first-set/extract-function.md)), for identical code in the same class
-- Slide Statements ([slide-statements.md](moving-features/slide-statements.md)), to group similar-but-not-identical fragments before extracting
-- Pull Up Method ([pull-up-method.md](inheritance/pull-up-method.md)), for copies in sibling subclasses
+## Código Duplicado (Duplicated Code, p. 72)
+**Sintomas:** a mesma estrutura em mais de um lugar, então cada leitor precisa comparar as cópias e cada mudança precisa atingir todas.
+**Tente:**
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), para código idêntico na mesma classe
+- Deslocar Instruções ([slide-statements.md](moving-features/slide-statements.md)), para agrupar fragmentos parecidos, mas não idênticos, antes de extrair
+- Subir Método ([pull-up-method.md](inheritance/pull-up-method.md)), para cópias em subclasses irmãs
 
-## Long Function (p. 73)
-**Symptoms:** a function you need to scroll through; blocks that need a comment to say what they do; many temps and parameters; loops or conditionals doing several jobs.
-**Try:**
-- Extract Function ([extract-function.md](first-set/extract-function.md)), the usual answer, driven by the intent behind a comment
-- Extract Function on each branch of a large `switch`, so every branch becomes a single call
-- Extract a loop together with its body, as one function, before considering whether to split it
-- Replace Temp with Query ([replace-temp-with-query.md](encapsulation/replace-temp-with-query.md)), when temps block extraction
-- Introduce Parameter Object ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)) and Preserve Whole Object ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), when parameters block extraction
-- Replace Function with Command ([replace-function-with-command.md](refactoring-apis/replace-function-with-command.md)), when temps and parameters still get in the way
-- Decompose Conditional ([decompose-conditional.md](conditional-logic/decompose-conditional.md)), for big conditionals
-- Replace Conditional with Polymorphism ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md)), for the same switch repeated
-- Split Loop ([split-loop.md](moving-features/split-loop.md)), when a loop does two things and the extracted piece has no good name
+## Função Longa (Long Function, p. 73)
+**Sintomas:** uma função em que você precisa rolar a tela; blocos que precisam de um comentário para dizer o que fazem; muitas variáveis temporárias e parâmetros; laços ou condicionais que fazem vários trabalhos.
+**Tente:**
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), a resposta habitual, guiada pela intenção por trás de um comentário
+- Extrair Função em cada ramo de um `switch` grande, de modo que cada ramo vire uma única chamada
+- Extrair um laço junto com o seu corpo, como uma função, antes de considerar se ele deve ser dividido
+- Substituir Variável Temporária por Consulta ([replace-temp-with-query.md](encapsulation/replace-temp-with-query.md)), quando variáveis temporárias impedem a extração
+- Introduzir Objeto de Parâmetros ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)) e Preservar Objeto Inteiro ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), quando os parâmetros impedem a extração
+- Substituir Função por Comando ([replace-function-with-command.md](refactoring-apis/replace-function-with-command.md)), quando variáveis temporárias e parâmetros ainda atrapalham
+- Decompor Condicional ([decompose-conditional.md](conditional-logic/decompose-conditional.md)), para condicionais grandes
+- Substituir Condicional por Polimorfismo ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md)), para o mesmo switch repetido
+- Dividir Laço ([split-loop.md](moving-features/split-loop.md)), quando um laço faz duas coisas e o pedaço extraído não tem um bom nome
 
-## Long Parameter List (p. 74)
-**Symptoms:** a signature that is hard to read or call correctly.
-**Try:**
-- Replace Parameter with Query ([replace-parameter-with-query.md](refactoring-apis/replace-parameter-with-query.md)), if one argument can be derived from another
-- Preserve Whole Object ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), instead of unpacking a structure into many arguments
-- Introduce Parameter Object ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), for arguments that always travel together
-- Remove Flag Argument ([remove-flag-argument.md](refactoring-apis/remove-flag-argument.md)), when a parameter selects the behavior
-- Combine Functions into Class ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)), when several functions share the same arguments
+## Lista Longa de Parâmetros (Long Parameter List, p. 74)
+**Sintomas:** uma assinatura difícil de ler ou de chamar corretamente.
+**Tente:**
+- Substituir Parâmetro por Consulta ([replace-parameter-with-query.md](refactoring-apis/replace-parameter-with-query.md)), se um argumento puder ser derivado de outro
+- Preservar Objeto Inteiro ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), em vez de desempacotar uma estrutura em vários argumentos
+- Introduzir Objeto de Parâmetros ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), para argumentos que sempre viajam juntos
+- Remover Argumento de Flag ([remove-flag-argument.md](refactoring-apis/remove-flag-argument.md)), quando um parâmetro seleciona o comportamento
+- Combinar Funções em Classe ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)), quando várias funções compartilham os mesmos argumentos
 
-## Global Data (p. 74)
-**Symptoms:** data that any code can change and nobody can trace (global variables, class-level statics, singletons).
-**Try:**
-- Encapsulate Variable ([encapsulate-variable.md](first-set/encapsulate-variable.md)), first, so access goes through a function; then shrink the scope into a class or module
+## Dados Globais (Global Data, p. 74)
+**Sintomas:** dados que qualquer código pode alterar e que ninguém consegue rastrear (variáveis globais, estáticos no nível da classe, singletons).
+**Tente:**
+- Encapsular Variável ([encapsulate-variable.md](first-set/encapsulate-variable.md)), primeiro, para que o acesso passe por uma função; depois reduza o escopo para uma classe ou módulo
 
-## Mutable Data (p. 75)
-**Symptoms:** values that change in surprising ways far from where they are read; variables that hold different things at different times; data that could be computed but is stored and updated.
-Scope drives severity: a variable mutated within a couple of lines is harmless; the wider its reach, the more urgent the fix.
-**Try:**
-- Encapsulate Variable ([encapsulate-variable.md](first-set/encapsulate-variable.md)), so updates pass through narrow functions
-- Split Variable ([split-variable.md](organizing-data/split-variable.md)), when one variable stores different things
-- Slide Statements ([slide-statements.md](moving-features/slide-statements.md)) and Extract Function ([extract-function.md](first-set/extract-function.md)), to separate side-effect-free code from the code that updates
-- Separate Query from Modifier ([separate-query-from-modifier.md](refactoring-apis/separate-query-from-modifier.md)), so callers do not trigger side effects by reading
-- Remove Setting Method ([remove-setting-method.md](refactoring-apis/remove-setting-method.md)), once no caller needs to assign the field
-- Replace Derived Variable with Query ([replace-derived-variable-with-query.md](organizing-data/replace-derived-variable-with-query.md)), for stored data that can be computed
-- Combine Functions into Class ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)) or Combine Functions into Transform ([combine-functions-into-transform.md](first-set/combine-functions-into-transform.md)), to limit how much code can update the data
-- Change Reference to Value ([change-reference-to-value.md](organizing-data/change-reference-to-value.md)), to replace a structure instead of editing it in place
+## Dados Mutáveis (Mutable Data, p. 75)
+**Sintomas:** valores que mudam de formas surpreendentes, longe de onde são lidos; variáveis que guardam coisas diferentes em momentos diferentes; dados que poderiam ser calculados, mas são armazenados e atualizados.
+O escopo determina a gravidade: uma variável alterada dentro de duas linhas é inofensiva; quanto maior o alcance, mais urgente a correção.
+**Tente:**
+- Encapsular Variável ([encapsulate-variable.md](first-set/encapsulate-variable.md)), para que as atualizações passem por funções estreitas
+- Dividir Variável ([split-variable.md](organizing-data/split-variable.md)), quando uma variável armazena coisas diferentes
+- Deslocar Instruções ([slide-statements.md](moving-features/slide-statements.md)) e Extrair Função ([extract-function.md](first-set/extract-function.md)), para separar o código sem efeitos colaterais do código que atualiza
+- Separar Consulta de Modificador ([separate-query-from-modifier.md](refactoring-apis/separate-query-from-modifier.md)), para que os chamadores não disparem efeitos colaterais ao ler
+- Remover Método de Escrita ([remove-setting-method.md](refactoring-apis/remove-setting-method.md)), quando nenhum chamador precisar atribuir o campo
+- Substituir Variável Derivada por Consulta ([replace-derived-variable-with-query.md](organizing-data/replace-derived-variable-with-query.md)), para dados armazenados que podem ser calculados
+- Combinar Funções em Classe ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)) ou Combinar Funções em Transformação ([combine-functions-into-transform.md](first-set/combine-functions-into-transform.md)), para limitar quanto código pode atualizar os dados
+- Mudar Referência para Valor ([change-reference-to-value.md](organizing-data/change-reference-to-value.md)), para substituir uma estrutura em vez de editá-la no lugar
 
-## Divergent Change (p. 76)
-**Symptoms:** one module keeps changing for unrelated reasons (one set of edits for a new database, another for a new report format).
-**Try:**
-- Split Phase ([split-phase.md](first-set/split-phase.md)), if the two concerns form a sequence
-- Move Function ([move-function.md](moving-features/move-function.md)), to separate modules when calls go back and forth
-- Extract Function ([extract-function.md](first-set/extract-function.md)), to split functions that mix both concerns before moving them
-- Extract Class ([extract-class.md](encapsulation/extract-class.md)), when the modules are classes
+## Alteração Divergente (Divergent Change, p. 76)
+**Sintomas:** um módulo muda o tempo todo por motivos não relacionados (um conjunto de edições para um novo banco de dados, outro para um novo formato de relatório).
+**Tente:**
+- Dividir em Fases ([split-phase.md](first-set/split-phase.md)), se as duas preocupações formarem uma sequência
+- Mover Função ([move-function.md](moving-features/move-function.md)), para módulos separados quando as chamadas vão e voltam
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), para dividir funções que misturam as duas preocupações antes de movê-las
+- Extrair Classe ([extract-class.md](encapsulation/extract-class.md)), quando os módulos são classes
 
-## Shotgun Surgery (p. 76)
-**Symptoms:** a single change forces small edits in many classes; easy to miss one. The opposite of Divergent Change.
-**Try:**
-- Move Function ([move-function.md](moving-features/move-function.md)) and Move Field ([move-field.md](moving-features/move-field.md)), to gather the edits in one module
-- Combine Functions into Class ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)), for functions working on the same data
-- Combine Functions into Transform ([combine-functions-into-transform.md](first-set/combine-functions-into-transform.md)), for functions enriching a structure
-- Split Phase ([split-phase.md](first-set/split-phase.md)), when the shared functions can feed a consuming phase
-- Inline Function ([inline-function.md](first-set/inline-function.md)) and Inline Class ([inline-class.md](encapsulation/inline-class.md)), to pull badly split logic together first, then re-extract (a temporary big function or class is acceptable)
+## Cirurgia com Espingarda (Shotgun Surgery, p. 76)
+**Sintomas:** uma única mudança força pequenas edições em muitas classes; é fácil esquecer uma. O oposto de Alteração Divergente.
+**Tente:**
+- Mover Função ([move-function.md](moving-features/move-function.md)) e Mover Campo ([move-field.md](moving-features/move-field.md)), para reunir as edições em um módulo
+- Combinar Funções em Classe ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)), para funções que trabalham sobre os mesmos dados
+- Combinar Funções em Transformação ([combine-functions-into-transform.md](first-set/combine-functions-into-transform.md)), para funções que enriquecem uma estrutura
+- Dividir em Fases ([split-phase.md](first-set/split-phase.md)), quando as funções compartilhadas podem alimentar uma fase consumidora
+- Internalizar Função ([inline-function.md](first-set/inline-function.md)) e Internalizar Classe ([inline-class.md](encapsulation/inline-class.md)), para reunir primeiro a lógica mal dividida e depois extrair de novo (uma função ou classe grande temporária é aceitável)
 
-## Feature Envy (p. 77)
-**Symptoms:** a function talks to another module's data or getters more than to its own.
-**Try:**
-- Move Function ([move-function.md](moving-features/move-function.md)), to put it with the data
-- Extract Function ([extract-function.md](first-set/extract-function.md)), when only part of the function is envious, then move that part
-- When the function touches several modules, put it with the one holding most of the data. Some patterns deliberately keep behavior apart from data so each can vary on its own (Strategy, Visitor, and Self Delegation from Kent Beck); treat them as legitimate exceptions, and as remedies for Divergent Change.
+## Inveja de Recursos (Feature Envy, p. 77)
+**Sintomas:** uma função conversa mais com os dados ou getters de outro módulo do que com os seus próprios.
+**Tente:**
+- Mover Função ([move-function.md](moving-features/move-function.md)), para colocá-la junto dos dados
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), quando só parte da função tem inveja, e então mover essa parte
+- Quando a função toca vários módulos, coloque-a junto do que guarda mais dados. Alguns padrões mantêm de propósito o comportamento separado dos dados, para que cada um possa variar por conta própria (Strategy, Visitor e Self Delegation, de Kent Beck); trate-os como exceções legítimas, e como remédios para Alteração Divergente.
 
-## Data Clumps (p. 78)
-**Symptoms:** the same few values appear together as fields in several classes and as parameters in many signatures. Quick check: if a value loses its meaning when taken alone, the group is one concept waiting to become an object.
-**Try:**
-- Extract Class ([extract-class.md](encapsulation/extract-class.md)), on the fields first
-- Introduce Parameter Object ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), then on signatures
-- Preserve Whole Object ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), then on signatures
-- Prefer a class (or record) that can later gain behavior, not a bare data holder or tuple
-- Still worth extracting when a caller needs only part of the new object, provided the object absorbs two or more of that caller's fields or arguments
+## Agrupamentos de Dados (Data Clumps, p. 78)
+**Sintomas:** os mesmos poucos valores aparecem juntos como campos em várias classes e como parâmetros em muitas assinaturas. Verificação rápida: se um valor perde o significado quando tomado sozinho, o grupo é um conceito esperando para virar objeto.
+**Tente:**
+- Extrair Classe ([extract-class.md](encapsulation/extract-class.md)), primeiro nos campos
+- Introduzir Objeto de Parâmetros ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), depois nas assinaturas
+- Preservar Objeto Inteiro ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), depois nas assinaturas
+- Prefira uma classe (ou record) que possa ganhar comportamento depois, não um simples recipiente de dados ou tupla
+- Ainda vale extrair quando um chamador precisa de apenas parte do novo objeto, desde que o objeto absorva dois ou mais dos campos ou argumentos desse chamador
 
-## Primitive Obsession (p. 78)
-**Symptoms:** domain concepts held as plain numbers or strings (quantities without units, ranges as paired comparisons, "stringly typed" codes).
-**Try:**
-- Replace Primitive with Object ([replace-primitive-with-object.md](encapsulation/replace-primitive-with-object.md))
-- Replace Type Code with Subclasses ([replace-type-code-with-subclasses.md](inheritance/replace-type-code-with-subclasses.md)), then Replace Conditional with Polymorphism ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md)), when the primitive is a type code driving conditionals
-- Extract Class ([extract-class.md](encapsulation/extract-class.md)) and Introduce Parameter Object ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), for primitives that travel in groups
+## Obsessão por Primitivos (Primitive Obsession, p. 78)
+**Sintomas:** conceitos do domínio guardados como números ou strings simples (quantidades sem unidades, intervalos como comparações em pares, códigos "stringly typed").
+**Tente:**
+- Substituir Primitivo por Objeto ([replace-primitive-with-object.md](encapsulation/replace-primitive-with-object.md))
+- Substituir Código de Tipo por Subclasses ([replace-type-code-with-subclasses.md](inheritance/replace-type-code-with-subclasses.md)), depois Substituir Condicional por Polimorfismo ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md)), quando o primitivo é um código de tipo que dirige condicionais
+- Extrair Classe ([extract-class.md](encapsulation/extract-class.md)) e Introduzir Objeto de Parâmetros ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), para primitivos que viajam em grupos
 
-## Repeated Switches (p. 79)
-**Symptoms:** the same switch or if/else cascade on the same condition appears in several places, so each new case means a hunt.
-**Try:**
-- Replace Conditional with Polymorphism ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md))
+## Switches Repetidos (Repeated Switches, p. 79)
+**Sintomas:** o mesmo switch ou cascata de if/else sobre a mesma condição aparece em vários lugares, então cada novo caso exige uma caçada.
+**Tente:**
+- Substituir Condicional por Polimorfismo ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md))
 
-## Loops (p. 79)
-**Symptoms:** loops where a filter/map pipeline would show what is selected and what is done to it.
-**Try:**
-- Replace Loop with Pipeline ([replace-loop-with-pipeline.md](moving-features/replace-loop-with-pipeline.md))
+## Laços (Loops, p. 79)
+**Sintomas:** laços em que um pipeline de filtro/mapeamento mostraria o que é selecionado e o que é feito com isso.
+**Tente:**
+- Substituir Laço por Pipeline ([replace-loop-with-pipeline.md](moving-features/replace-loop-with-pipeline.md))
 
-## Lazy Element (p. 80)
-**Symptoms:** a function, class or hierarchy level that no longer earns its structure (a name that restates its body, a class that is one trivial function).
-**Try:**
-- Inline Function ([inline-function.md](first-set/inline-function.md))
-- Inline Class ([inline-class.md](encapsulation/inline-class.md))
-- Collapse Hierarchy ([collapse-hierarchy.md](inheritance/collapse-hierarchy.md))
+## Elemento Ocioso (Lazy Element, p. 80)
+**Sintomas:** uma função, classe ou nível de hierarquia que já não justifica a sua estrutura (um nome que repete o corpo, uma classe que é uma única função trivial).
+**Tente:**
+- Internalizar Função ([inline-function.md](first-set/inline-function.md))
+- Internalizar Classe ([inline-class.md](encapsulation/inline-class.md))
+- Colapsar Hierarquia ([collapse-hierarchy.md](inheritance/collapse-hierarchy.md))
 
-## Speculative Generality (p. 80)
-**Symptoms:** hooks, abstractions and parameters added for needs that never came; sometimes only tests use them.
-**Try:**
-- Collapse Hierarchy ([collapse-hierarchy.md](inheritance/collapse-hierarchy.md)), for abstract classes doing little
-- Inline Function ([inline-function.md](first-set/inline-function.md)) and Inline Class ([inline-class.md](encapsulation/inline-class.md)), for needless delegation
-- Change Function Declaration ([change-function-declaration.md](first-set/change-function-declaration.md)), to drop unused parameters
-- Remove Dead Code ([remove-dead-code.md](moving-features/remove-dead-code.md)), including code only tests call (delete those tests too)
+## Generalidade Especulativa (Speculative Generality, p. 80)
+**Sintomas:** ganchos, abstrações e parâmetros adicionados para necessidades que nunca vieram; às vezes só os testes os usam.
+**Tente:**
+- Colapsar Hierarquia ([collapse-hierarchy.md](inheritance/collapse-hierarchy.md)), para classes abstratas que fazem pouco
+- Internalizar Função ([inline-function.md](first-set/inline-function.md)) e Internalizar Classe ([inline-class.md](encapsulation/inline-class.md)), para delegação desnecessária
+- Mudar Declaração de Função ([change-function-declaration.md](first-set/change-function-declaration.md)), para eliminar parâmetros não usados
+- Remover Código Morto ([remove-dead-code.md](moving-features/remove-dead-code.md)), inclusive código que só os testes chamam (apague esses testes também)
 
-## Temporary Field (p. 80)
-**Symptoms:** a field set only in some circumstances, so readers wonder why it exists when it is empty.
-**Try:**
-- Extract Class ([extract-class.md](encapsulation/extract-class.md)), to give those fields a home
-- Move Function ([move-function.md](moving-features/move-function.md)), to move the code that uses them into that class
-- Introduce Special Case ([introduce-special-case.md](conditional-logic/introduce-special-case.md)), to replace the checks for "fields not valid" with an alternative class
+## Campo Temporário (Temporary Field, p. 80)
+**Sintomas:** um campo definido só em algumas circunstâncias, então os leitores se perguntam por que ele existe quando está vazio.
+**Tente:**
+- Extrair Classe ([extract-class.md](encapsulation/extract-class.md)), para dar um lar a esses campos
+- Mover Função ([move-function.md](moving-features/move-function.md)), para mover o código que os usa para essa classe
+- Introduzir Caso Especial ([introduce-special-case.md](conditional-logic/introduce-special-case.md)), para substituir as verificações de "campos não válidos" por uma classe alternativa
 
-## Message Chains (p. 81)
-**Symptoms:** a client navigates object after object (`a.b().c().d()`), so it is coupled to the structure of the path.
-**Try:**
-- Hide Delegate ([hide-delegate.md](encapsulation/hide-delegate.md)), at one or more points in the chain
-- Extract Function ([extract-function.md](first-set/extract-function.md)) on the code using the end of the chain, then Move Function ([move-function.md](moving-features/move-function.md)) down the chain; often better than hiding every link, which creates middle men
-- Add a method on the intermediate object that does the whole navigation, when several clients want to walk the rest of the chain
+## Cadeias de Mensagens (Message Chains, p. 81)
+**Sintomas:** um cliente navega objeto após objeto (`a.b().c().d()`), ficando acoplado à estrutura do caminho.
+**Tente:**
+- Ocultar Delegação ([hide-delegate.md](encapsulation/hide-delegate.md)), em um ou mais pontos da cadeia
+- Extrair Função ([extract-function.md](first-set/extract-function.md)) no código que usa o fim da cadeia, depois Mover Função ([move-function.md](moving-features/move-function.md)) pela cadeia abaixo; muitas vezes melhor que ocultar cada elo, o que cria intermediários
+- Adicione um método no objeto intermediário que faça toda a navegação, quando vários clientes quiserem percorrer o resto da cadeia
 
-## Middle Man (p. 81)
-**Symptoms:** about half of a class's methods just forward to another class.
-**Try:**
-- Remove Middle Man ([remove-middle-man.md](encapsulation/remove-middle-man.md))
-- Inline Function ([inline-function.md](first-set/inline-function.md)), if only a few methods merely delegate
-- Replace Superclass with Delegate ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)) or Replace Subclass with Delegate ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)), when the middle man also has behavior of its own, to turn it into the real collaborator
+## Intermediário (Middle Man, p. 81)
+**Sintomas:** cerca de metade dos métodos de uma classe apenas repassa para outra classe.
+**Tente:**
+- Remover Intermediário ([remove-middle-man.md](encapsulation/remove-middle-man.md))
+- Internalizar Função ([inline-function.md](first-set/inline-function.md)), se apenas alguns métodos só delegam
+- Substituir Superclasse por Delegação ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)) ou Substituir Subclasse por Delegação ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)), quando o intermediário também tem comportamento próprio, para transformá-lo no colaborador de verdade
 
-## Insider Trading (p. 82)
-**Symptoms:** modules that swap data too freely; subclasses that know too much about their parents.
-**Try:**
-- Move Function ([move-function.md](moving-features/move-function.md)) and Move Field ([move-field.md](moving-features/move-field.md)), to cut the chatter
-- Hide Delegate ([hide-delegate.md](encapsulation/hide-delegate.md)), to use an intermediary
-- Create a third module for shared interests
-- Replace Subclass with Delegate ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)) or Replace Superclass with Delegate ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)), for inheritance collusion
+## Troca de Informações Privilegiadas (Insider Trading, p. 82)
+**Sintomas:** módulos que trocam dados livremente demais; subclasses que sabem demais sobre os pais.
+**Tente:**
+- Mover Função ([move-function.md](moving-features/move-function.md)) e Mover Campo ([move-field.md](moving-features/move-field.md)), para reduzir a conversa
+- Ocultar Delegação ([hide-delegate.md](encapsulation/hide-delegate.md)), para usar um intermediário
+- Crie um terceiro módulo para os interesses compartilhados
+- Substituir Subclasse por Delegação ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)) ou Substituir Superclasse por Delegação ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)), para conluio por herança
 
-## Large Class (p. 82)
-**Symptoms:** too many fields (often with common prefixes or suffixes) or too much code; duplication grows inside. Clients using only a subset of the features hint at the split.
-**Try:**
-- Extract Class ([extract-class.md](encapsulation/extract-class.md)), to bundle related fields or a client-used subset; a class that does not use all its fields all the time can be split more than once
-- Extract Superclass ([extract-superclass.md](inheritance/extract-superclass.md)), when the component makes sense as inheritance
-- Replace Type Code with Subclasses ([replace-type-code-with-subclasses.md](inheritance/replace-type-code-with-subclasses.md)), which is in effect extracting a subclass
+## Classe Grande (Large Class, p. 82)
+**Sintomas:** campos demais (muitas vezes com prefixos ou sufixos comuns) ou código demais; a duplicação cresce lá dentro. Clientes que usam só um subconjunto dos recursos sugerem a divisão.
+**Tente:**
+- Extrair Classe ([extract-class.md](encapsulation/extract-class.md)), para agrupar campos relacionados ou um subconjunto usado por clientes; uma classe que não usa todos os seus campos o tempo todo pode ser dividida mais de uma vez
+- Extrair Superclasse ([extract-superclass.md](inheritance/extract-superclass.md)), quando o componente faz sentido como herança
+- Substituir Código de Tipo por Subclasses ([replace-type-code-with-subclasses.md](inheritance/replace-type-code-with-subclasses.md)), que na prática é extrair uma subclasse
 
-## Alternative Classes with Different Interfaces (p. 83)
-**Symptoms:** two classes do the same job but cannot be swapped because their method names and signatures differ.
-**Try:**
-- Change Function Declaration ([change-function-declaration.md](first-set/change-function-declaration.md)), to make signatures match
-- Move Function ([move-function.md](moving-features/move-function.md)), until the protocols match
-- Extract Superclass ([extract-superclass.md](inheritance/extract-superclass.md)), if the alignment leaves duplication
+## Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces, p. 83)
+**Sintomas:** duas classes fazem o mesmo trabalho, mas não podem ser trocadas porque os nomes e assinaturas dos métodos diferem.
+**Tente:**
+- Mudar Declaração de Função ([change-function-declaration.md](first-set/change-function-declaration.md)), para fazer as assinaturas coincidirem
+- Mover Função ([move-function.md](moving-features/move-function.md)), até que os protocolos coincidam
+- Extrair Superclasse ([extract-superclass.md](inheritance/extract-superclass.md)), se o alinhamento deixar duplicação
 
-## Data Class (p. 83)
-**Symptoms:** a class with fields and accessors and nothing else, manipulated in detail by others (often with public fields). Exception: an immutable result record, such as the one between two phases after a Split Phase.
-**Try:**
-- Encapsulate Record ([encapsulate-record.md](encapsulation/encapsulate-record.md)), at once, for public fields
-- Remove Setting Method ([remove-setting-method.md](refactoring-apis/remove-setting-method.md)), for fields that must not change
-- Move Function ([move-function.md](moving-features/move-function.md)), to bring client behavior into the class
-- Extract Function ([extract-function.md](first-set/extract-function.md)), to isolate a movable piece first
+## Classe de Dados (Data Class, p. 83)
+**Sintomas:** uma classe com campos e acessores e nada mais, manipulada em detalhe por outras (muitas vezes com campos públicos). Exceção: um record de resultado imutável, como o que fica entre duas fases após um Dividir em Fases.
+**Tente:**
+- Encapsular Registro ([encapsulate-record.md](encapsulation/encapsulate-record.md)), de imediato, para campos públicos
+- Remover Método de Escrita ([remove-setting-method.md](refactoring-apis/remove-setting-method.md)), para campos que não devem mudar
+- Mover Função ([move-function.md](moving-features/move-function.md)), para trazer o comportamento dos clientes para dentro da classe
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), para isolar primeiro um trecho movível
 
-## Refused Bequest (p. 83)
-**Symptoms:** a subclass uses little of what it inherits. Usually a faint smell; strong when the subclass refuses the parent's interface and not just its implementation.
-**Try:**
-- Push Down Method ([push-down-method.md](inheritance/push-down-method.md)) and Push Down Field ([push-down-field.md](inheritance/push-down-field.md)), moving unused members to a new sibling (the traditional advice; worth doing only when it causes real confusion)
-- Replace Subclass with Delegate ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)) or Replace Superclass with Delegate ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)), when the interface is refused
+## Herança Recusada (Refused Bequest, p. 83)
+**Sintomas:** uma subclasse usa pouco do que herda. Costuma ser um smell fraco; forte quando a subclasse recusa a interface do pai e não só a implementação.
+**Tente:**
+- Descer Método ([push-down-method.md](inheritance/push-down-method.md)) e Descer Campo ([push-down-field.md](inheritance/push-down-field.md)), movendo os membros não usados para uma nova irmã (o conselho tradicional; só vale a pena quando causa confusão real)
+- Substituir Subclasse por Delegação ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)) ou Substituir Superclasse por Delegação ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)), quando a interface é recusada
 
-## Comments (p. 84)
-**Symptoms:** comments that exist because the code is unclear. Comments that explain why, or admit doubt, are fine.
-**Try:**
-- Extract Function ([extract-function.md](first-set/extract-function.md)), when a comment explains a block
-- Change Function Declaration ([change-function-declaration.md](first-set/change-function-declaration.md)), to rename a function that still needs a comment
-- Introduce Assertion ([introduce-assertion.md](conditional-logic/introduce-assertion.md)), to state a rule about required state
+## Comentários (Comments, p. 84)
+**Sintomas:** comentários que existem porque o código não é claro. Comentários que explicam o porquê, ou admitem dúvida, são bons.
+**Tente:**
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), quando um comentário explica um bloco
+- Mudar Declaração de Função ([change-function-declaration.md](first-set/change-function-declaration.md)), para renomear uma função que ainda precisa de um comentário
+- Introduzir Asserção ([introduce-assertion.md](conditional-logic/introduce-assertion.md)), para declarar uma regra sobre o estado necessário

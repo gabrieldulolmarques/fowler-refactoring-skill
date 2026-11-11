@@ -1,45 +1,45 @@
-# Change Function Declaration
+# Mudar Declaração de Função (Change Function Declaration)
 
-Fowler (2018), ch. 6, p. 124. Formerly / aka: Rename Function, Change Signature; formerly Rename Method, Add Parameter, Remove Parameter. Inverse: —.
+Fowler (2018), cap. 6, p. 124. Antes / também: Rename Function, Change Signature; antes Rename Method, Add Parameter, Remove Parameter. Inversa: —.
 
-## When to use
-Smells: Mysterious Name, Alternative Classes with Different Interfaces, Speculative Generality (unused parameters), Comments (a comment explaining the function is often a better name).
+## Quando usar
+Smells: Nome Misterioso (Mysterious Name), Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces), Generalidade Especulativa (Speculative Generality) (parâmetros não usados), Comentários (Comments) (um comentário que explica a função costuma ser um nome melhor).
 
-- The name does not tell a reader what the function does. Rename as soon as you know a better name; a good trick is to write a comment describing the purpose and turn it into the name.
-- A parameter ties the function to a type it does not really need (pass the value, not the whole object) so it can be reused elsewhere and the coupling drops.
-- The opposite case: a function needs more of an object than one value, and passing the object keeps callers stable when the logic grows.
-- A parameter is unused, or a new one is needed.
+- O nome não diz ao leitor o que a função faz. Renomeie assim que souber um nome melhor; um bom truque é escrever um comentário descrevendo a finalidade e transformá-lo no nome.
+- Um parâmetro prende a função a um tipo de que ela não precisa de fato (passe o valor, não o objeto inteiro), para que possa ser reutilizada em outro lugar e o acoplamento diminua.
+- O caso oposto: uma função precisa de mais de um valor de um objeto, e passar o objeto mantém os chamadores estáveis quando a lógica crescer.
+- Um parâmetro não é usado, ou é preciso um novo.
 
-There is no permanently right choice of parameters; the declaration should follow your current understanding, so expect to change it again.
+Não existe uma escolha de parâmetros permanentemente certa; a declaração deve acompanhar o seu entendimento atual, então espere mudá-la de novo.
 
-## Mechanics
-Pick one of two routes. Use the simple one when you can change the declaration and every caller at once. Use the migration one when there are many callers, some are hard to reach, the function is polymorphic, the change is complex, or it is a published API.
+## Mecânica
+Escolha uma de duas rotas. Use a simples quando puder alterar a declaração e todos os chamadores de uma vez. Use a de migração quando houver muitos chamadores, alguns forem difíceis de alcançar, a função for polimórfica, a mudança for complexa, ou for uma API publicada.
 
-Change one thing at a time: if you need to rename and add a parameter, do the rename, test, then the parameter, test.
+Mude uma coisa de cada vez: se precisar renomear e adicionar um parâmetro, faça a renomeação, teste, depois o parâmetro, teste.
 
-**Simple route**
-1. If removing a parameter, confirm the body no longer uses it.
-2. Change the declaration to the new name or parameter list.
-3. Find every reference to the old declaration and update it.
-4. Compile and test. If it goes wrong, revert and use the migration route.
+**Rota simples**
+1. Se for remover um parâmetro, confirme que o corpo não o usa mais.
+2. Mude a declaração para o novo nome ou lista de parâmetros.
+3. Encontre toda referência à declaração antiga e atualize-a.
+4. Compile e teste. Se der errado, reverta e use a rota de migração.
 
-**Migration route**
-1. If needed, reshape the body so the next step is easy (for example, Extract Variable on the value that will become the new parameter, [extract-variable.md](extract-variable.md)).
-2. Apply Extract Function ([extract-function.md](extract-function.md)) to the whole body to create the new function. While both functions exist, the new one needs a unique, easy-to-search placeholder name; you will swap it for the final name (possibly the old one) at the end.
-3. If the new function needs extra parameters, add them with the simple route.
-4. Test.
-5. Apply Inline Function ([inline-function.md](inline-function.md)) to the old function, which moves callers to the new one, one at a time if you like, testing as you go.
-6. If you used a temporary name, rename it to the final name with the simple route.
-7. Test.
+**Rota de migração**
+1. Se necessário, remodele o corpo para que o próximo passo fique fácil (por exemplo, Extrair Variável (Extract Variable) no valor que virará o novo parâmetro, [extract-variable.md](extract-variable.md)).
+2. Aplique Extrair Função (Extract Function) ([extract-function.md](extract-function.md)) ao corpo inteiro para criar a nova função. Enquanto as duas funções existirem, a nova precisa de um nome provisório único e fácil de buscar; você o trocará pelo nome final (possivelmente o antigo) no fim.
+3. Se a nova função precisar de parâmetros extras, adicione-os com a rota simples.
+4. Teste.
+5. Aplique Internalizar Função (Inline Function) ([inline-function.md](inline-function.md)) à função antiga, o que move os chamadores para a nova, um de cada vez se quiser, testando a cada passo.
+6. Se usou um nome provisório, renomeie-o para o nome final com a rota simples.
+7. Teste.
 
-Polymorphism: each binding that callers can reach needs the forwarding function. Within one hierarchy, a forwarder on the base type is enough; for unrelated implementations, add one on each.
+Polimorfismo: cada vínculo que os chamadores podem alcançar precisa da função de encaminhamento. Dentro de uma hierarquia, um encaminhador no tipo base basta; para implementações não relacionadas, adicione um em cada.
 
-Published API: stop after creating the new function, mark the old one deprecated and keep it forwarding to the new one until clients have moved; delete it only when you are confident (or never, if you cannot reach them).
+API publicada: pare depois de criar a nova função, marque a antiga como obsoleta e mantenha-a encaminhando para a nova até que os clientes tenham migrado; apague-a só quando tiver confiança (ou nunca, se não conseguir alcançá-los).
 
-## Example
-Goal: `Overdue(Invoice)` should take only the due date, so it also works for anything with a due date. Migration route, with a temporary name.
+## Exemplo
+Objetivo: `Overdue(Invoice)` deve receber apenas a data de vencimento, para também funcionar com qualquer coisa que tenha uma data de vencimento. Rota de migração, com um nome provisório.
 
-Before:
+Antes:
 
 ```csharp
 using System;
@@ -55,11 +55,11 @@ public static class Billing
         invoice.DueDate < DateTime.Today;
 }
 
-// caller
+// chamador
 // var late = invoices.Where(i => Billing.Overdue(i));
 ```
 
-Step 1, extract the body into a new function with a temporary name and the wanted parameter:
+Passo 1, extraia o corpo para uma nova função com um nome provisório e o parâmetro desejado:
 
 ```csharp
 public static bool Overdue(Invoice invoice) =>
@@ -69,13 +69,13 @@ public static bool Overdue_new(DateTime dueDate) =>
     dueDate < DateTime.Today;
 ```
 
-Step 2, inline `Overdue` into each caller (test after each one), then delete it:
+Passo 2, internalize `Overdue` em cada chamador (teste após cada um) e depois apague-a:
 
 ```csharp
 // var late = invoices.Where(i => Billing.Overdue_new(i.DueDate));
 ```
 
-Step 3, rename `Overdue_new` back to `Overdue`:
+Passo 3, renomeie `Overdue_new` de volta para `Overdue`:
 
 ```csharp
 public static bool Overdue(DateTime dueDate) =>
@@ -84,12 +84,12 @@ public static bool Overdue(DateTime dueDate) =>
 // var late = invoices.Where(i => Billing.Overdue(i.DueDate));
 ```
 
-Same behavior throughout; the build stays green after every step.
+Mesmo comportamento o tempo todo; o build continua verde após cada passo.
 
-## C# notes
-- The compiler finds direct callers, but not reflection, string-based lookups (`nameof` aside), or serialized names; search for those separately.
-- On a public API, keep the old signature as an `[Obsolete]` forwarder to the new one during the migration.
-- Changing an `override`, a `virtual` member or an interface member affects every implementation; update them together or forward from each.
+## Notas de C#
+- O compilador encontra os chamadores diretos, mas não reflexão, buscas baseadas em string (exceto `nameof`) nem nomes serializados; procure por eles separadamente.
+- Em uma API pública, mantenha a assinatura antiga como um encaminhador `[Obsolete]` para a nova durante a migração.
+- Alterar um `override`, um membro `virtual` ou um membro de interface afeta todas as implementações; atualize-as juntas ou encaminhe a partir de cada uma.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

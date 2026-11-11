@@ -1,30 +1,30 @@
-# Extract Class
+# Extrair Classe (Extract Class)
 
-Fowler (2018), ch. 7, p. 182. Formerly / aka: —. Inverse: Inline Class
+Fowler (2018), cap. 7, p. 182. Antes / também: —. Inversa: Internalizar Classe (Inline Class)
 ([inline-class.md](inline-class.md)).
 
-## When to use
-Smells: Large Class, Divergent Change, Data Clumps, Primitive Obsession, Temporary Field.
+## Quando usar
+Smells: Classe Grande (Large Class), Alteração Divergente (Divergent Change), Agrupamentos de Dados (Data Clumps), Obsessão por Primitivos (Primitive Obsession), Campo Temporário (Temporary Field).
 
-- A class has grown into many fields and methods, and part of it can be understood on its own.
-- A subset of the fields and methods belongs together: the fields change together or depend on each other.
-- Test: remove one field or method in your head. If other members become meaningless, they belong in the same extracted class.
-- Subtyping or variation affects only some of the class's features, or different features vary in different ways.
+- Uma classe cresceu até ter muitos campos e métodos, e parte dela pode ser entendida isoladamente.
+- Um subconjunto dos campos e métodos pertence junto: os campos mudam juntos ou dependem uns dos outros.
+- Teste: remova mentalmente um campo ou método. Se outros membros perderem o sentido, eles pertencem à mesma classe extraída.
+- Subtipagem ou variação afeta apenas alguns recursos da classe, ou recursos diferentes variam de maneiras diferentes.
 
-Do not use it when the pieces are tightly entangled with the rest and there is no clear
-responsibility to name. Also skip it for a class that is small and cohesive.
+Não use quando as partes estiverem muito emaranhadas com o resto e não houver uma
+responsabilidade clara para nomear. Também pule para uma classe que seja pequena e coesa.
 
-## Mechanics
-1. Decide which responsibility to split off and name it.
-2. Create the new, empty class. If the original's name no longer describes what is left, rename it.
-3. Give the original an instance of the new class, created in its constructor, and keep it in a private field.
-4. Move the fields one at a time ([move-field.md](../moving-features/move-field.md)). The original's members now delegate to the new class. Compile and test after each field.
-5. Move the methods one at a time ([move-function.md](../moving-features/move-function.md)), starting with the lowest-level ones (those that are called rather than those that call). Compile and test after each method.
-6. Review both public interfaces: remove methods that are no longer needed and rename members to fit their new context (the new class does not need the old prefixes or qualifiers).
-7. Decide whether to expose the new object to clients. If so, consider making it a value object ([change-reference-to-value.md](../organizing-data/change-reference-to-value.md)) first.
+## Mecânica
+1. Decida qual responsabilidade separar e dê um nome a ela.
+2. Crie a nova classe, vazia. Se o nome da original não descrever mais o que sobrou, renomeie-a.
+3. Dê à original uma instância da nova classe, criada em seu construtor, e guarde-a em um campo privado.
+4. Mova os campos um de cada vez ([move-field.md](../moving-features/move-field.md)). Os membros da original agora delegam para a nova classe. Compile e teste após cada campo.
+5. Mova os métodos um de cada vez ([move-function.md](../moving-features/move-function.md)), começando pelos de nível mais baixo (os que são chamados, e não os que chamam). Compile e teste após cada método.
+6. Revise as duas interfaces públicas: remova métodos que não são mais necessários e renomeie membros para se adequarem ao novo contexto (a nova classe não precisa dos prefixos ou qualificadores antigos).
+7. Decida se vai expor o novo objeto aos clientes. Se sim, considere torná-lo antes um objeto de valor ([change-reference-to-value.md](../organizing-data/change-reference-to-value.md)).
 
-## Example
-Before: an invoice class that also holds the billing address data.
+## Exemplo
+Antes: uma classe de fatura que também guarda os dados do endereço de cobrança.
 
 ```csharp
 public class Invoice
@@ -51,8 +51,8 @@ public class Invoice
 }
 ```
 
-After: the address data and behavior live in `Address`; `Invoice` keeps its public members
-as delegates, so callers do not change.
+Depois: os dados e o comportamento do endereço vivem em `Address`; `Invoice` mantém seus membros públicos
+como delegadores, então os chamadores não mudam.
 
 ```csharp
 public class Address
@@ -91,8 +91,8 @@ public class Invoice
 }
 ```
 
-A later step can expose `Address` to clients and drop the `Billing*` delegates.
+Um passo posterior pode expor `Address` aos clientes e eliminar os delegadores `Billing*`.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Behavior is unchanged: the original class's public members return the same values as before.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- O comportamento não muda: os membros públicos da classe original retornam os mesmos valores de antes.

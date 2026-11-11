@@ -1,29 +1,29 @@
-# Inline Function
+# Internalizar Função (Inline Function)
 
-Fowler (2018), ch. 6, p. 115. Formerly / aka: Inline Method. Inverse: Extract Function
+Fowler (2018), cap. 6, p. 115. Antes / também: Inline Method. Inversa: Extrair Função (Extract Function)
 ([extract-function.md](extract-function.md)).
 
-## When to use
-Smells: Lazy Element, Middle Man, Speculative Generality, Shotgun Surgery.
+## Quando usar
+Smells: Elemento Ocioso (Lazy Element), Intermediário (Middle Man), Generalidade Especulativa (Speculative Generality), Cirurgia com Espingarda (Shotgun Surgery).
 
-- The body says everything the name says, so the function adds a hop and no meaning.
-- A chain of functions where each one just forwards to the next, and you lose track of where the work happens. Inline them, keep the hops that earn their place, drop the rest.
-- One concern is spread over many small functions (Shotgun Surgery). Inline them, then re-extract along better lines.
-- A set of functions split along the wrong lines. Inline them all into one function, then extract again with better boundaries.
+- O corpo diz tudo o que o nome diz, então a função acrescenta um salto e nenhum significado.
+- Uma cadeia de funções em que cada uma apenas encaminha para a próxima, e você perde de vista onde o trabalho acontece. Internalize-as, mantenha os saltos que se justificam, descarte o resto.
+- Uma preocupação espalhada por muitas funções pequenas (Cirurgia com Espingarda). Internalize-as e depois extraia de novo por linhas melhores.
+- Um conjunto de funções dividido pelas linhas erradas. Internalize todas em uma função e depois extraia de novo com fronteiras melhores.
 
-Do not use it when the function is polymorphic (overridden), is recursive, has several return points that do not fit the caller, or when fitting the body into the caller is a large job. In those cases the cost is higher than the gain: leave the function alone.
+Não use quando a função é polimórfica (sobrescrita), é recursiva, tem vários pontos de retorno que não se encaixam no chamador, ou quando encaixar o corpo no chamador dá muito trabalho. Nesses casos o custo é maior que o ganho: deixe a função em paz.
 
-## Mechanics
-1. Check the function is not polymorphic: no subclass overrides it and it does not implement an interface member that other types also implement.
-2. Find every caller (search the whole code base, not only the file).
-3. Replace one call with the body, renaming parameters to the arguments in use and fitting local variables so they do not clash with the caller's.
-4. Compile and run the tests after each replacement. The inlining need not be done all at once.
-5. If the body is tricky to fit, move it one statement at a time (see [move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)) until the function is empty.
-6. When no caller is left, delete the function.
-7. If a step breaks the tests and the cause is not obvious, revert to the last green state and redo it in smaller steps.
+## Mecânica
+1. Verifique se a função não é polimórfica: nenhuma subclasse a sobrescreve e ela não implementa um membro de interface que outros tipos também implementam.
+2. Encontre todos os chamadores (busque na base de código inteira, não só no arquivo).
+3. Substitua uma chamada pelo corpo, renomeando os parâmetros para os argumentos em uso e ajustando as variáveis locais para que não colidam com as do chamador.
+4. Compile e execute os testes após cada substituição. A internalização não precisa ser feita toda de uma vez.
+5. Se o corpo for difícil de encaixar, mova-o uma instrução por vez (veja [move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)) até que a função fique vazia.
+6. Quando não restar nenhum chamador, apague a função.
+7. Se um passo quebrar os testes e a causa não for óbvia, reverta ao último estado verde e refaça em passos menores.
 
-## Example
-Before: `IsLargeOrder` only wraps one comparison.
+## Exemplo
+Antes: `IsLargeOrder` apenas embrulha uma comparação.
 
 ```csharp
 public record Order(int Id, decimal Total);
@@ -42,7 +42,7 @@ public class Shipping
 }
 ```
 
-After: the call is replaced (parameter `o` becomes the argument `order`) and the helper is removed.
+Depois: a chamada é substituída (o parâmetro `o` vira o argumento `order`) e o auxiliar é removido.
 
 ```csharp
 public record Order(int Id, decimal Total);
@@ -56,7 +56,7 @@ public class Shipping
 }
 ```
 
-A case that needs more fitting: the helper writes into an object the caller owns.
+Um caso que exige mais ajuste: o auxiliar escreve em um objeto que pertence ao chamador.
 
 ```csharp
 using System.Linq;
@@ -66,7 +66,7 @@ public record Cart(int[] ItemPrices);
 
 public class CartSummary
 {
-    // Before
+    // Antes
     public string BuildSummary(Cart cart)
     {
         var sb = new StringBuilder();
@@ -76,27 +76,27 @@ public class CartSummary
 
     private void AppendTotals(StringBuilder target, Cart source)
     {
-        target.Append($"items: {source.ItemPrices.Length}; ");
+        target.Append($"itens: {source.ItemPrices.Length}; ");
         target.Append($"total: {source.ItemPrices.Sum()}");
     }
 }
 
 public class CartSummaryAfter
 {
-    // After
+    // Depois
     public string BuildSummary(Cart cart)
     {
         var sb = new StringBuilder();
-        sb.Append($"items: {cart.ItemPrices.Length}; ");
+        sb.Append($"itens: {cart.ItemPrices.Length}; ");
         sb.Append($"total: {cart.ItemPrices.Sum()}");
         return sb.ToString();
     }
 }
 ```
 
-## C# notes
-- Do not inline a `virtual` or `override` method, or an interface implementation, without checking the other implementations: callers that go through the base type or interface still need the method.
-- A method reached by reflection, dependency injection, serialization or an event subscription has callers that a text search will not find.
+## Notas de C#
+- Não internalize um método `virtual` ou `override`, nem uma implementação de interface, sem verificar as outras implementações: os chamadores que passam pelo tipo base ou pela interface ainda precisam do método.
+- Um método alcançado por reflexão, injeção de dependência, serialização ou assinatura de evento tem chamadores que uma busca textual não encontra.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

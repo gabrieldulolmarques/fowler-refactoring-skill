@@ -1,31 +1,31 @@
-# Decompose Conditional
+# Decompor Condicional (Decompose Conditional)
 
-Fowler (2018), ch. 10, p. 260. Formerly / aka: —. Inverse: —. It is Extract Function
-([extract-function.md](../first-set/extract-function.md)) applied to the parts of a conditional.
+Fowler (2018), cap. 10, p. 260. Antes / também: —. Inversa: —. É Extrair Função (Extract Function)
+([extract-function.md](../first-set/extract-function.md)) aplicada às partes de uma condicional.
 
-## When to use
-Smells: Long Function (conditional logic that hides the intent).
+## Quando usar
+Smells: Função Longa (Long Function) (lógica condicional que esconde a intenção).
 
-- The condition is a compound boolean expression and the reader must work out what it means.
-- The branches hold calculations or sequences of statements whose purpose is not obvious.
-- A comment above the `if` explains the condition, or comments label each branch.
+- A condição é uma expressão booleana composta e o leitor precisa descobrir o que ela significa.
+- Os ramos guardam cálculos ou sequências de instruções cujo propósito não é óbvio.
+- Um comentário acima do `if` explica a condição, ou comentários rotulam cada ramo.
 
-Naming is the point: the condition gets a name for the business question it asks, and each
-branch gets a name for what it produces. Skip it when the condition and branches are already
-one-liners that read like the intent.
+O ponto é dar nomes: a condição ganha um nome para a pergunta de negócio que faz, e cada
+ramo ganha um nome para o que produz. Pule quando a condição e os ramos já forem
+de uma linha e lerem como a intenção.
 
-## Mechanics
-1. Extract the condition into its own function (or property) named for the question it asks.
-   Compile and test.
-2. Extract the body of the `then` branch into a function named for its result. Compile and
-   test.
-3. Extract the body of the `else` branch the same way. Compile and test.
-4. For an `else if` chain, treat each further condition and branch the same way, one at a time.
-5. Optionally, when each branch only assigns or returns a value, rewrite the statement as a
-   ternary expression (`x = Condition() ? A() : B();`). Compile and test.
+## Mecânica
+1. Extraia a condição para sua própria função (ou propriedade) com o nome da pergunta que ela faz.
+   Compile e teste.
+2. Extraia o corpo do ramo `then` para uma função com o nome do seu resultado. Compile e
+   teste.
+3. Extraia o corpo do ramo `else` da mesma forma. Compile e teste.
+4. Para uma cadeia de `else if`, trate cada condição e ramo seguintes do mesmo jeito, um de cada vez.
+5. Opcionalmente, quando cada ramo apenas atribui ou retorna um valor, reescreva a instrução como uma
+   expressão ternária (`x = Condition() ? A() : B();`). Compile e teste.
 
-## Example
-Before:
+## Exemplo
+Antes:
 
 ```csharp
 public decimal ShippingCost(Order order, DateTime today)
@@ -39,7 +39,7 @@ public decimal ShippingCost(Order order, DateTime today)
 }
 ```
 
-After:
+Depois:
 
 ```csharp
 public decimal ShippingCost(Order order, DateTime today)
@@ -61,5 +61,5 @@ private static decimal StandardShipping(Order order) =>
     order.Weight * order.StandardRatePerKg + order.HandlingFee;
 ```
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

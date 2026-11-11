@@ -1,42 +1,42 @@
-# Pull Up Method
+# Subir Método (Pull Up Method)
 
-Fowler (2018), ch. 12, p. 350. Formerly / aka: —. Inverse: Push Down Method
+Fowler (2018), cap. 12, p. 350. Antes / também: —. Inversa: Descer Método
 ([push-down-method.md](push-down-method.md)).
 
-## When to use
-Smell: Duplicated Code. Two or more subclasses hold methods that do the same thing. Each copy
-is a place where a future change can be applied to one sibling and forgotten in another, and
-the copies are hard to find later.
+## Quando usar
+Smell: Código Duplicado (Duplicated Code). Duas ou mais subclasses têm métodos que fazem a mesma coisa. Cada cópia
+é um lugar em que uma mudança futura pode ser aplicada a um irmão e esquecida em outro, e
+as cópias são difíceis de encontrar depois.
 
-- The easy case is a byte-for-byte copy. When the bodies only look alike, compare them line by
-  line before moving: the differences often reveal behavior no test covers.
-- If the methods differ only by a value or a small detail, first apply Parameterize Function
-  ([parameterize-function.md](../refactoring-apis/parameterize-function.md)) in each subclass so the bodies become identical, then pull up.
-- If the body uses members that exist only in the subclasses, pull those members up first
-  ([pull-up-field.md](pull-up-field.md), or this refactoring again for helper methods).
-- If the methods share an overall flow but differ in some steps, the right tool is a template
-  method in the superclass, with the varying steps left as overridable members.
+- O caso fácil é uma cópia byte a byte. Quando os corpos apenas se parecem, compare-os linha a
+  linha antes de mover: as diferenças muitas vezes revelam comportamento que nenhum teste cobre.
+- Se os métodos diferem apenas por um valor ou um pequeno detalhe, primeiro aplique Parametrizar Função (Parameterize Function)
+  ([parameterize-function.md](../refactoring-apis/parameterize-function.md)) em cada subclasse para que os corpos se tornem idênticos, depois suba.
+- Se o corpo usa membros que existem apenas nas subclasses, suba esses membros primeiro
+  ([pull-up-field.md](pull-up-field.md), ou esta refatoração de novo para métodos auxiliares).
+- Se os métodos compartilham um fluxo geral mas diferem em alguns passos, a ferramenta certa é um método
+  template na superclasse, com os passos variáveis deixados como membros sobrescrevíveis.
 
-Do not use it when the behavior is genuinely different per subclass, or when the superclass
-should not know the concept (the method would then be a Refused Bequest for other siblings).
+Não use quando o comportamento é genuinamente diferente por subclasse, ou quando a superclasse
+não deveria conhecer o conceito (o método seria então uma Herança Recusada (Refused Bequest) para outros irmãos).
 
-## Mechanics
-1. Put the candidate methods side by side. If they achieve the same result but their bodies
-   differ, edit them step by step until the bodies are identical.
-2. Check that every member the body uses is visible from the superclass. If one is not, move
-   it up first, or declare it on the superclass as abstract.
-3. If names or signatures differ between the copies, apply Change Function Declaration
-   ([change-function-declaration.md](../first-set/change-function-declaration.md)) until all copies match
-   the signature wanted on the superclass. Compile and test.
-4. Add the method to the superclass, with the body taken from one of the subclass copies.
-5. Compile, to catch anything the superclass cannot resolve.
-6. Remove one subclass copy and run the tests.
-7. Remove the other copies the same way, one at a time, running the tests after each.
+## Mecânica
+1. Ponha os métodos candidatos lado a lado. Se eles alcançam o mesmo resultado mas os seus corpos
+   diferem, edite-os passo a passo até que os corpos fiquem idênticos.
+2. Verifique que todo membro que o corpo usa é visível a partir da superclasse. Se algum não for, mova-o
+   para cima primeiro, ou declare-o na superclasse como abstrato.
+3. Se os nomes ou assinaturas diferem entre as cópias, aplique Mudar Declaração de Função (Change Function Declaration)
+   ([change-function-declaration.md](../first-set/change-function-declaration.md)) até que todas as cópias coincidam com
+   a assinatura desejada na superclasse. Compile e teste.
+4. Adicione o método à superclasse, com o corpo tirado de uma das cópias das subclasses.
+5. Compile, para pegar qualquer coisa que a superclasse não consiga resolver.
+6. Remova uma cópia de subclasse e rode os testes.
+7. Remova as outras cópias da mesma forma, uma de cada vez, rodando os testes após cada uma.
 
-## Example
-Two subclasses build the same heading text under different names.
+## Exemplo
+Duas subclasses constroem o mesmo texto de título com nomes diferentes.
 
-Before:
+Antes:
 
 ```csharp
 public abstract class Document
@@ -48,19 +48,19 @@ public class Invoice : Document
 {
     public string Number { get; init; } = "";
 
-    public string Heading() => $"{Number} for {Customer}";
+    public string Heading() => $"{Number} para {Customer}";
 }
 
 public class CreditNote : Document
 {
     public string Number { get; init; } = "";
 
-    public string Caption() => $"{Number} for {Customer}";
+    public string Caption() => $"{Number} para {Customer}";
 }
 ```
 
-Steps 2 and 3: both bodies are equal and use `Number`, which the superclass lacks. Declare it
-there as abstract, keeping the `init` usage in the subclasses, and rename `Caption` to
+Passos 2 e 3: os dois corpos são iguais e usam `Number`, que a superclasse não tem. Declare-o
+lá como abstrato, mantendo o uso de `init` nas subclasses, e renomeie `Caption` para
 `Heading`.
 
 ```csharp
@@ -74,21 +74,21 @@ public class Invoice : Document
 {
     public override string Number { get; init; } = "";
 
-    public string Heading() => $"{Number} for {Customer}";
+    public string Heading() => $"{Number} para {Customer}";
 }
 
 public class CreditNote : Document
 {
     public override string Number { get; init; } = "";
 
-    public string Heading() => $"{Number} for {Customer}";
+    public string Heading() => $"{Number} para {Customer}";
 }
 ```
 
-Steps 4 to 7: add the method to the superclass, then delete the copies one by one, testing
-each time.
+Passos 4 a 7: adicione o método à superclasse, depois apague as cópias uma a uma, testando
+a cada vez.
 
-After:
+Depois:
 
 ```csharp
 public abstract class Document
@@ -96,7 +96,7 @@ public abstract class Document
     public string Customer { get; init; } = "";
     public abstract string Number { get; init; }
 
-    public string Heading() => $"{Number} for {Customer}";
+    public string Heading() => $"{Number} para {Customer}";
 }
 
 public class Invoice : Document
@@ -110,10 +110,10 @@ public class CreditNote : Document
 }
 ```
 
-Callers such as `new Invoice { Number = "A-1", Customer = "Acme" }` compile unchanged.
+Chamadores como `new Invoice { Number = "A-1", Customer = "Acme" }` compilam sem mudança.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- No subclass still defines a copy of the pulled-up method (unless it deliberately overrides it).
-- Every subclass of the superclass, including ones outside the original pair, still behaves
-  correctly with the inherited method.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Nenhuma subclasse ainda define uma cópia do método que subiu (a menos que o sobrescreva de propósito).
+- Toda subclasse da superclasse, inclusive as de fora do par original, ainda se comporta
+  corretamente com o método herdado.

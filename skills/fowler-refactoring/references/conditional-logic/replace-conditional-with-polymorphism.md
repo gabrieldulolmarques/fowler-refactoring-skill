@@ -1,28 +1,28 @@
-# Replace Conditional with Polymorphism
+# Substituir Condicional por Polimorfismo (Replace Conditional with Polymorphism)
 
-Fowler (2018), ch. 10, p. 272. Formerly / aka: —. Inverse: —.
+Fowler (2018), cap. 10, p. 272. Antes / também: —. Inversa: —.
 
-## When to use
-Smells: Repeated Switches, Primitive Obsession, Long Function.
+## Quando usar
+Smells: Switches Repetidos (Repeated Switches), Obsessão por Primitivos (Primitive Obsession), Função Longa (Long Function).
 
-- Several functions switch on the same type code (account kind, document type, plan). Each new kind forces you to edit every switch. Moving each kind into a class puts all of its behavior in one place and removes the duplication.
-- One case is the normal path and a few others tweak it. Keep the normal path in the base class and give each tweak its own subclass.
+- Várias funções fazem switch sobre o mesmo código de tipo (tipo de conta, tipo de documento, plano). Cada novo tipo força você a editar todos os switches. Mover cada tipo para uma classe põe todo o seu comportamento em um só lugar e remove a duplicação.
+- Um caso é o caminho normal e alguns outros o ajustam. Mantenha o caminho normal na classe base e dê a cada ajuste sua própria subclasse.
 
-A plain `if`/`switch` is usually enough. Use this when the same conditional is repeated or hard to follow and the cases are real kinds.
+Um `if`/`switch` simples costuma bastar. Use isto quando a mesma condicional é repetida ou difícil de acompanhar e os casos são tipos de verdade.
 
-## Mechanics
-1. Optional first step: if the logic is spread over free functions, group them first with [combine-functions-into-class.md](../first-set/combine-functions-into-class.md).
-2. If no classes exist for the cases, create them: a base class (or interface) with one subclass per case, plus a factory function that returns the right instance.
-3. Change callers to get the object from the factory instead of constructing it or passing the type code around. Compile and test.
-4. If the conditional is not already a self-contained method, isolate it with [extract-function.md](../first-set/extract-function.md), then place that method on the base class.
-5. Pick one case. Add an override in its subclass containing that branch's logic, adjusted to use the subclass's own members. Optionally make the matching branch in the base method throw, so a test fails if it is still reached. Compile and test.
-6. Repeat step 5 for every branch, testing after each.
-7. Decide what the base method does. Keep the default branch as the base implementation, or, if the base class should never be used alone, make the method `abstract`. If the base stays concrete, the factory must return the base class for unknown values; if it is abstract, the factory must reject them.
-8. Remove the now-empty `switch` and, if nothing else uses it, the type code. Keep the code as a property until its last reader is gone.
-9. For a base-and-variant case, you may need to extract the varying part of a large method first, so the subclass can override only that part and call `base` for the rest. Name the extracted pieces after what they mean, not after the case.
+## Mecânica
+1. Primeiro passo opcional: se a lógica estiver espalhada em funções livres, agrupe-as antes com [combine-functions-into-class.md](../first-set/combine-functions-into-class.md).
+2. Se não existirem classes para os casos, crie-as: uma classe base (ou interface) com uma subclasse por caso, mais uma função de fábrica que retorne a instância correta.
+3. Altere os chamadores para obter o objeto da fábrica em vez de construí-lo ou de passar o código de tipo adiante. Compile e teste.
+4. Se a condicional ainda não for um método autocontido, isole-a com [extract-function.md](../first-set/extract-function.md) e depois coloque esse método na classe base.
+5. Escolha um caso. Adicione um override em sua subclasse contendo a lógica desse ramo, ajustada para usar os membros da própria subclasse. Opcionalmente, faça o ramo correspondente no método base lançar exceção, para que um teste falhe se ele ainda for alcançado. Compile e teste.
+6. Repita o passo 5 para cada ramo, testando após cada um.
+7. Decida o que o método base faz. Mantenha o ramo padrão como a implementação base ou, se a classe base nunca deve ser usada sozinha, torne o método `abstract`. Se a base continuar concreta, a fábrica deve retornar a classe base para valores desconhecidos; se for abstrata, a fábrica deve rejeitá-los.
+8. Remova o `switch` agora vazio e, se nada mais o usar, o código de tipo. Mantenha o código como propriedade até que seu último leitor desapareça.
+9. Para um caso de base e variante, talvez seja preciso extrair antes a parte variável de um método grande, para que a subclasse sobrescreva apenas essa parte e chame `base` para o resto. Dê às partes extraídas nomes pelo que significam, não pelo caso.
 
-## Example
-Before: two methods switch on the same account kind.
+## Exemplo
+Antes: dois métodos fazem switch sobre o mesmo tipo de conta.
 
 ```csharp
 using System;
@@ -64,7 +64,7 @@ public class Account
 }
 ```
 
-After: one class per kind, created by a factory; the switches are gone. An unknown kind now fails when the object is created instead of when a method is called (same exception type). In this example nothing reads `Kind` any more, so it was removed. In real code keep it until its last reader is gone.
+Depois: uma classe por tipo, criada por uma fábrica; os switches sumiram. Um tipo desconhecido agora falha quando o objeto é criado, e não quando um método é chamado (mesmo tipo de exceção). Neste exemplo nada mais lê `Kind`, então ele foi removido. Em código real, mantenha-o até que seu último leitor desapareça.
 
 ```csharp
 using System;
@@ -111,7 +111,7 @@ public class StudentAccount : Account
 }
 ```
 
-Variant of the same idea, base plus one variant: `ShippingQuote` holds the normal rules, and `ExpressShippingQuote` overrides only the part that differs. The factory picks the subclass. Before, it was a single method: `Total(weight, express) => weight * 2m + (express ? 15m : 0m)`.
+Variante da mesma ideia, base mais uma variante: `ShippingQuote` guarda as regras normais, e `ExpressShippingQuote` sobrescreve apenas a parte que difere. A fábrica escolhe a subclasse. Antes, era um único método: `Total(weight, express) => weight * 2m + (express ? 15m : 0m)`.
 
 ```csharp
 public class ShippingQuote
@@ -133,11 +133,11 @@ public class ExpressShippingQuote : ShippingQuote
 }
 ```
 
-## C# notes
-- A `switch` on a type code becomes `abstract` or `virtual` members, or an interface, depending on whether the cases share code.
-- The factory is the one place that still switches on the code. Keep it small and cover it with a test for every value, including the unknown one.
-- If the type code is persisted or serialized, keep it as data and map it in the factory.
+## Notas de C#
+- Um `switch` sobre um código de tipo vira membros `abstract` ou `virtual`, ou uma interface, conforme os casos compartilhem código ou não.
+- A fábrica é o único lugar que ainda faz switch sobre o código. Mantenha-a pequena e cubra-a com um teste para cada valor, inclusive o desconhecido.
+- Se o código de tipo for persistido ou serializado, mantenha-o como dado e mapeie-o na fábrica.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Each moved branch has a test that fails if the override is removed (if you used the optional throw in step 5, the base method throws until the last branch is moved).
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Cada ramo movido tem um teste que falha se o override for removido (se você usou o lançamento de exceção opcional no passo 5, o método base lança exceção até que o último ramo seja movido).

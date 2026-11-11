@@ -1,37 +1,37 @@
-# Inline Class
+# Internalizar Classe (Inline Class)
 
-Fowler (2018), ch. 7, p. 186. Formerly / aka: —. Inverse: Extract Class
+Fowler (2018), cap. 7, p. 186. Antes / também: —. Inversa: Extrair Classe (Extract Class)
 ([extract-class.md](extract-class.md)).
 
-## When to use
-Smells: Lazy Element, Speculative Generality, Shotgun Surgery.
+## Quando usar
+Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative Generality), Cirurgia com Espingarda (Shotgun Surgery).
 
-- A class has so little left (often after other refactorings moved its members out) that it
-  adds a name and an indirection but no meaning. Fold it into the class that uses it most.
-- Two classes split their responsibilities badly. It can be easier to merge them first and
-  then apply Extract Class ([extract-class.md](extract-class.md)) along the right line than to shuffle
-  members one by one.
-- Do not use it when the class has several unrelated clients that would each need the same
-  members copied or re-exposed, or when it carries a real responsibility that just happens to
-  be small.
+- Uma classe tem tão pouco sobrando (muitas vezes depois que outras refatorações moveram seus membros para fora) que
+  adiciona um nome e uma indireção, mas nenhum significado. Incorpore-a à classe que mais a usa.
+- Duas classes dividem mal suas responsabilidades. Pode ser mais fácil fundi-las primeiro e
+  depois aplicar Extrair Classe (Extract Class) ([extract-class.md](extract-class.md)) pela linha certa do que mover
+  membros um por um.
+- Não use quando a classe tiver vários clientes sem relação entre si que precisariam, cada um, dos mesmos
+  membros copiados ou reexpostos, ou quando ela carregar uma responsabilidade real que apenas
+  é pequena.
 
-## Mechanics
-1. Pick the target: the class that uses the source class most.
-2. In the target, add a delegating member for every public member of the source that clients
-   use. Each one just forwards to the source object.
-3. Compile and test.
-4. Redirect clients one at a time so they call the target's delegators instead of reaching
-   through to the source. Compile and test after each change.
-5. Inline any source method that only makes sense as a whole (see [inline-function.md](../first-set/inline-function.md))
-   so its body lives in the target.
-6. Move the source's fields and methods into the target one at a time, replacing each
-   delegator with the real member. Compile and test after each move.
-7. Move any construction or initialization of the source's data into the target's
-   constructor.
-8. When the source class is empty and nothing references it, delete it. Compile and test.
+## Mecânica
+1. Escolha o alvo: a classe que mais usa a classe de origem.
+2. No alvo, adicione um membro delegador para cada membro público da origem que os clientes
+   usam. Cada um apenas encaminha para o objeto de origem.
+3. Compile e teste.
+4. Redirecione os clientes um de cada vez para que chamem os delegadores do alvo em vez de alcançar
+   a origem. Compile e teste após cada alteração.
+5. Internalize qualquer método da origem que só faça sentido como um todo (veja [inline-function.md](../first-set/inline-function.md))
+   para que seu corpo viva no alvo.
+6. Mova os campos e métodos da origem para o alvo um de cada vez, substituindo cada
+   delegador pelo membro real. Compile e teste após cada movimentação.
+7. Mova qualquer construção ou inicialização dos dados da origem para o construtor
+   do alvo.
+8. Quando a classe de origem estiver vazia e nada a referenciar, apague-a. Compile e teste.
 
-## Example
-Before: `PaymentTerms` holds little and is only used by `Invoice`.
+## Exemplo
+Antes: `PaymentTerms` guarda pouco e só é usada por `Invoice`.
 
 ```csharp
 public class PaymentTerms
@@ -51,12 +51,12 @@ public class Invoice
     public string TermsSummary => Terms.Describe();
 }
 
-// client
+// cliente
 invoice.Terms.NetDays = 30;
 invoice.Terms.Label = "Standard";
 ```
 
-Step 2 and 4: add delegators to `Invoice`, then change clients to use them.
+Passos 2 e 4: adicione delegadores a `Invoice` e depois altere os clientes para usá-los.
 
 ```csharp
 public int NetDays
@@ -71,12 +71,12 @@ public string TermsLabel
     set => Terms.Label = value;
 }
 
-// client
+// cliente
 invoice.NetDays = 30;
 invoice.TermsLabel = "Standard";
 ```
 
-Steps 5 to 8: move the data and the behavior, then delete `PaymentTerms`.
+Passos 5 a 8: mova os dados e o comportamento e depois apague `PaymentTerms`.
 
 ```csharp
 public class Invoice
@@ -90,8 +90,8 @@ public class Invoice
 }
 ```
 
-Behavior is unchanged. Only the client code that reached through `Terms` changed shape, and
-that happened before the class disappeared.
+O comportamento não muda. Só o código cliente que passava por `Terms` mudou de forma, e
+isso aconteceu antes de a classe desaparecer.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

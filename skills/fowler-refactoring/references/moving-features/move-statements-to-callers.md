@@ -1,23 +1,23 @@
-# Move Statements to Callers
+# Mover Instruções para os Chamadores (Move Statements to Callers)
 
-Fowler (2018), ch. 8, p. 217. Formerly / aka: —. Inverse: Move Statements into Function ([move-statements-into-function.md](move-statements-into-function.md)).
+Fowler (2018), cap. 8, p. 217. Antes / também: —. Inversa: Mover Instruções para Função (Move Statements into Function) ([move-statements-into-function.md](move-statements-into-function.md)).
 
-## When to use
-- A function that was one cohesive unit now bundles two different things, and the abstraction boundary is in the wrong place.
-- Behavior shared by several callers must now differ in one or more of them. Move the varying part out so each caller can change it freely.
-- Typical preparation: use [slide-statements.md](slide-statements.md) to bring the varying statements to the start or end of the function, then move them to the callers.
-- Not a fit when the boundary needs a complete redesign. In that case, inline the function ([inline-function.md](../first-set/inline-function.md)), then slide and extract new functions to draw better boundaries.
+## Quando usar
+- Uma função que era uma unidade coesa agora agrupa duas coisas diferentes, e a fronteira da abstração está no lugar errado.
+- O comportamento compartilhado por vários chamadores agora precisa diferir em um ou mais deles. Mova a parte variável para fora para que cada chamador possa alterá-la livremente.
+- Preparação típica: use [slide-statements.md](slide-statements.md) para levar as instruções variáveis ao início ou ao fim da função e depois movê-las para os chamadores.
+- Não serve quando a fronteira precisa de um redesenho completo. Nesse caso, internalize a função ([inline-function.md](../first-set/inline-function.md)) e depois desloque e extraia novas funções para traçar fronteiras melhores.
 
-## Mechanics
-1. Simple case (one or two callers, a small function): cut the first or last statement from the function, paste it into each caller, adjust names or arguments as needed, build and test. You are done.
-2. Otherwise, use [extract-function.md](../first-set/extract-function.md) on the statements that are staying in the function. Give the extracted function a temporary name that is easy to search for. Build and test.
-3. If the function is overridden in subclasses, extract the same remainder in every override until the remaining methods are identical, then delete the overrides and keep one.
-4. Inline the original function ([inline-function.md](../first-set/inline-function.md)) into one caller. Build and test. Repeat for each caller.
-5. Delete the original function once no caller is left.
-6. Give the extracted function its final name: the old name of the deleted function, or a clearer one if you have it ([change-function-declaration.md](../first-set/change-function-declaration.md)). Build and test.
+## Mecânica
+1. Caso simples (um ou dois chamadores, uma função pequena): recorte a primeira ou a última instrução da função, cole em cada chamador, ajuste nomes ou argumentos conforme necessário, faça o build e teste. Pronto.
+2. Caso contrário, use [extract-function.md](../first-set/extract-function.md) nas instruções que permanecem na função. Dê à função extraída um nome temporário fácil de buscar. Faça o build e teste.
+3. Se a função for sobrescrita em subclasses, extraia o mesmo restante em cada override até que os métodos restantes sejam idênticos, então apague os overrides e mantenha um.
+4. Internalize a função original ([inline-function.md](../first-set/inline-function.md)) em um chamador. Faça o build e teste. Repita para cada chamador.
+5. Apague a função original quando não restar nenhum chamador.
+6. Dê à função extraída seu nome final: o nome antigo da função apagada, ou um mais claro se você tiver ([change-function-declaration.md](../first-set/change-function-declaration.md)). Faça o build e teste.
 
-## Example
-Before: `PrintInvoice` and `PrintReminder` both call `WriteSummary`, which ends with the due date. Reminders must show the due date differently.
+## Exemplo
+Antes: `PrintInvoice` e `PrintReminder` chamam ambos `WriteSummary`, que termina com a data de vencimento. Os lembretes precisam mostrar a data de vencimento de outro jeito.
 
 ```csharp
 using System;
@@ -48,9 +48,9 @@ public static class InvoicePrinter
 }
 ```
 
-Step 2: extract what stays (temporary name `ZzTmp`), then inline `WriteSummary` into each caller and delete it. Step 6: rename `ZzTmp` back to `WriteSummary`.
+Passo 2: extraia o que fica (nome temporário `ZzTmp`), depois internalize `WriteSummary` em cada chamador e apague-a. Passo 6: renomeie `ZzTmp` de volta para `WriteSummary`.
 
-After: the due-date line now lives in the callers, and the reminder can change it.
+Depois: a linha da data de vencimento agora vive nos chamadores, e o lembrete pode alterá-la.
 
 ```csharp
 using System;
@@ -82,7 +82,7 @@ public static class InvoicePrinter
 }
 ```
 
-Behavior is unchanged at this point. The next change (a different due-date format in the reminder) now touches only `PrintReminder`.
+O comportamento não muda neste ponto. A próxima mudança (um formato diferente de data de vencimento no lembrete) agora toca apenas `PrintReminder`.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

@@ -1,38 +1,34 @@
-# Replace Error Code with Exception
+# Substituir Código de Erro por Exceção (Replace Error Code with Exception)
 
-Fowler (2018), web edition only (not in the print book); summary at https://refactoring.com/catalog/replaceErrorCodeWithException.html. Formerly / aka: —. Inverse: —.
-Related: Replace Exception with Precheck ([replace-exception-with-precheck.md](replace-exception-with-precheck.md)).
+https://refactoring.com/catalog/replaceErrorCodeWithException.html. Antes / também: —. Inversa: —.
+Relacionada: Substituir Exceção por Verificação Prévia (Replace Exception with Precheck) ([replace-exception-with-precheck.md](replace-exception-with-precheck.md)).
 
-## When to use
-A function reports failure through its return value: a magic number, `null`, `false` or a
-status object. Callers must check it after every call, and one that forgets lets the program
-continue with bad state. Throwing moves the signal out of the normal return path and lets it
-reach whichever layer can handle it.
+## Quando usar
+Uma função reporta falha pelo seu valor de retorno: um número mágico, `null`, `false` ou um objeto de
+status. Os chamadores precisam verificá-lo após cada chamada, e quem esquece deixa o programa
+continuar com estado ruim. Lançar uma exceção tira o sinal do caminho normal de retorno e o deixa
+chegar à camada que souber tratá-lo.
 
-Use it only for failures that are truly exceptional. If the condition is routine and callers
-are expected to branch on it (a lookup that often finds nothing, input that is often invalid),
-keep a return-based result or offer a precheck instead; see [replace-exception-with-precheck.md](replace-exception-with-precheck.md).
+Use apenas para falhas que sejam realmente excepcionais. Se a condição é rotineira e se espera
+que os chamadores ramifiquem por ela (uma busca que muitas vezes não encontra nada, uma entrada frequentemente inválida),
+mantenha um resultado baseado em retorno ou ofereça uma verificação prévia; veja [replace-exception-with-precheck.md](replace-exception-with-precheck.md).
 
-## Mechanics
-1. Add an exception handler higher up the call chain, at the layer that should deal with the
-   failure. At first it catches and rethrows everything (`catch { throw; }`), so behavior does
-   not change. If a suitable handler already exists, widen it to cover the new path. Compile
-   and test.
-2. Choose a way to tell the new exceptions apart from all others. In C#, a dedicated exception
-   class that carries what the error code carried (a reason, the offending value). Compile.
-3. Change the handler so it performs the error action for that exception type and lets every
-   other exception propagate. Compile and test.
-4. Replace each place that returns the error code with a `throw` of the new exception, one at a
-   time. Compile and test after each.
-5. When no place returns the code any more, remove the code that checked it and passed it up
-   the call stack, testing after each change. A safe way is to first turn each check into a
-   trap (`Debug.Fail` or a throw) and delete it once the tests show it never fires. Clear the
-   leftovers with [remove-dead-code.md](../moving-features/remove-dead-code.md).
-6. If the function's return type existed only to carry the code (an `int` status, a `bool`),
-   simplify it, for example to `void`, as a separate step with [change-function-declaration.md](../first-set/change-function-declaration.md).
+## Mecânica
+1. Escolha ou crie um tipo de exceção para a falha. Dê a ele a informação que o código de erro
+   carregava (o código, um motivo, o valor problemático).
+2. Encontre todo chamador da função e, em cada ponto de chamada, envolva a chamada de modo que a
+   exceção lançada seja tratada onde o código antigo tratava o código de erro. Faça isso antes de
+   mudar a função, mantendo o ramo antigo funcionando. Compile e teste.
+3. Na função, substitua o `return <código de erro>` por `throw new <Exception>(...)`.
+   Compile e teste.
+4. Em cada chamador, remova a verificação agora morta do código de erro. Compile e teste.
+5. Se alguns chamadores não conseguem tratar a exceção, deixe-a propagar até uma camada que consiga; não
+   a capture apenas para transformá-la de volta em um código.
+6. Se o tipo de retorno da função existia apenas para carregar o código (um status `int`, um `bool`),
+   simplifique-o, por exemplo para `void`, como um passo separado com [change-function-declaration.md](../first-set/change-function-declaration.md).
 
-## Example
-Before: `Reserve` returns a code, and the caller must interpret it.
+## Exemplo
+Antes: `Reserve` retorna um código, e o chamador precisa interpretá-lo.
 
 ```csharp
 using System;
@@ -44,8 +40,8 @@ public class Inventory
 
     public int Reserve(string sku, int quantity)
     {
-        if (!_stock.TryGetValue(sku, out var available)) return -1; // unknown sku
-        if (available < quantity) return -2;                        // not enough stock
+        if (!_stock.TryGetValue(sku, out var available)) return -1; // sku desconhecido
+        if (available < quantity) return -2;                        // estoque insuficiente
         _stock[sku] = available - quantity;
         return 0;
     }
@@ -58,14 +54,14 @@ public class OrderService
     public string Place(string sku, int quantity)
     {
         var result = _inventory.Reserve(sku, quantity);
-        if (result == -1) return "unknown product";
-        if (result == -2) return "out of stock";
-        return "placed";
+        if (result == -1) return "produto desconhecido";
+        if (result == -2) return "sem estoque";
+        return "realizado";
     }
 }
 ```
 
-After: failures are exceptions and the caller handles them where it chooses.
+Depois: as falhas são exceções e o chamador as trata onde escolher.
 
 ```csharp
 using System;
@@ -83,9 +79,9 @@ public class Inventory
     public void Reserve(string sku, int quantity)
     {
         if (!_stock.TryGetValue(sku, out var available))
-            throw new ReservationException("unknown product");
+            throw new ReservationException("produto desconhecido");
         if (available < quantity)
-            throw new ReservationException("out of stock");
+            throw new ReservationException("sem estoque");
         _stock[sku] = available - quantity;
     }
 }
@@ -99,7 +95,7 @@ public class OrderService
         try
         {
             _inventory.Reserve(sku, quantity);
-            return "placed";
+            return "realizado";
         }
         catch (ReservationException e)
         {
@@ -109,14 +105,14 @@ public class OrderService
 }
 ```
 
-## C# notes
-- Do not use exceptions for expected control flow: they are slow compared with a branch and
-  hide the normal paths of the program. Reserve them for failures the caller cannot reasonably
-  avoid by checking first.
-- Prefer a specific exception type (or a built-in one such as `ArgumentException` or
-  `InvalidOperationException` where it fits) over a bare `Exception`, and catch the narrowest type.
+## Notas de C#
+- Não use exceções para fluxo de controle esperado: elas são lentas em comparação com um desvio e
+  escondem os caminhos normais do programa. Reserve-as para falhas que o chamador não consiga razoavelmente
+  evitar verificando antes.
+- Prefira um tipo de exceção específico (ou um embutido como `ArgumentException` ou
+  `InvalidOperationException` onde couber) a um `Exception` genérico, e capture o tipo mais estreito.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Add a test per former error code that asserts the exception is thrown with the right data.
-- Search for callers outside the solution (reflection, other assemblies) that still expect the code.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Adicione um teste por antigo código de erro que afirme que a exceção é lançada com os dados certos.
+- Procure chamadores fora da solução (reflexão, outros assemblies) que ainda esperem o código.

@@ -1,56 +1,56 @@
-# Encapsulate Record
+# Encapsular Registro (Encapsulate Record)
 
-Fowler (2018), ch. 7, p. 162. Formerly / aka: Replace Record with Data Class.
-Inverse: —.
+Fowler (2018), cap. 7, p. 162. Antes / também: Replace Record with Data Class.
+Inversa: —.
 
-## When to use
-Smells: Data Class.
+## Quando usar
+Smells: Classe de Dados (Data Class).
 
-- Mutable data lives in a bare record and many places read and write its fields directly.
-  A class can serve a derived value through the same property as a stored one, and can keep
-  a deprecated alias while callers migrate to a new name.
-- The record is a free-form map with implicit fields: to know whether it holds
-  `price`/`currency` or just `amount`, you have to read every place that builds or uses it.
-  This costs more as the scope grows. A class makes the fields explicit.
-- The data is a nested structure of lists and maps, often from JSON or XML. It can be
-  encapsulated too, which protects you from format changes and from updates that are hard to
-  trace.
+- Dados mutáveis vivem em um registro simples e muitos lugares leem e escrevem seus campos diretamente.
+  Uma classe pode servir um valor derivado pela mesma propriedade que um valor armazenado e pode manter
+  um alias obsoleto enquanto os chamadores migram para um novo nome.
+- O registro é um mapa livre com campos implícitos: para saber se ele contém
+  `price`/`currency` ou apenas `amount`, você precisa ler todos os lugares que o constroem ou usam.
+  Isso custa mais conforme o escopo cresce. Uma classe torna os campos explícitos.
+- Os dados são uma estrutura aninhada de listas e mapas, muitas vezes vinda de JSON ou XML. Ela também pode ser
+  encapsulada, o que protege você de mudanças de formato e de atualizações difíceis de
+  rastrear.
 
-Not needed for an immutable value used in a small scope: there, adding or copying a field
-is cheap and a plain record is fine.
+Desnecessário para um valor imutável usado em um escopo pequeno: ali, adicionar ou copiar um campo
+é barato e um registro simples serve.
 
-## Mechanics
-1. Apply Encapsulate Variable ([encapsulate-variable.md](../first-set/encapsulate-variable.md)) to the variable that holds the
-   record. Give the getter a temporary, grep-friendly name such as `GetRawContact`; it is
-   removed in step 5.
-2. Introduce a small class that holds the record, and store an instance of it in the variable.
-   Give it a property that exposes the underlying record (a `RawData` property in the C#
-   example) and point the encapsulating functions at that property. Compile and test.
-3. Add new functions that return the class instance instead of the raw record.
-4. Move the callers one at a time from the raw-record function to the object-returning
-   function. For each use, call an accessor on the object, creating it if it does not exist
-   yet (a setter for a write, a getter for a read; for a deep access, first apply Extract
-   Function and Move Function so the digging happens inside the class). Compile and test
-   after each caller.
-   - For a nested record, convert the writers first: gathering all updates in one place is
-     the most valuable part. Readers can then get a copy or a read-only view.
-   - To check that no writer was missed, temporarily make the raw accessor return a deep copy
-     (or a frozen copy): a test fails if some code still updates the original.
-5. When no caller uses them any more, delete the raw accessor and the searchable functions.
-   Compile and test.
-6. Optionally, fold the wrapped record into individual fields of the class. This breaks the
-   link to the input data, so a stray reference elsewhere cannot bypass the class. If you
-   keep the record inside, copy it when you assign it.
-7. If a field is itself a structure, apply Encapsulate Record or Encapsulate Collection
-   ([encapsulate-collection.md](encapsulate-collection.md)) to it, recursively, when the control is worth the effort.
+## Mecânica
+1. Aplique Encapsular Variável (Encapsulate Variable) ([encapsulate-variable.md](../first-set/encapsulate-variable.md)) à variável que guarda o
+   registro. Dê ao getter um nome temporário e fácil de buscar com grep, como `GetRawContact`; ele é
+   removido no passo 5.
+2. Introduza uma classe pequena que guarde o registro e armazene uma instância dela na variável.
+   Dê a ela uma propriedade que exponha o registro subjacente (uma propriedade `RawData` no exemplo
+   em C#) e aponte as funções de encapsulamento para essa propriedade. Compile e teste.
+3. Adicione novas funções que retornem a instância da classe em vez do registro bruto.
+4. Mova os chamadores um de cada vez da função do registro bruto para a função que retorna o
+   objeto. Em cada uso, chame um acessor no objeto, criando-o se ainda não existir
+   (um setter para uma escrita, um getter para uma leitura; para um acesso profundo, aplique antes Extrair
+   Função (Extract Function) e Mover Função (Move Function) para que a escavação aconteça dentro da classe). Compile e teste
+   após cada chamador.
+   - Para um registro aninhado, converta primeiro os escritores: reunir todas as atualizações em um só lugar é
+     a parte mais valiosa. Os leitores podem então receber uma cópia ou uma visão somente leitura.
+   - Para verificar que nenhum escritor foi esquecido, faça temporariamente o acessor bruto retornar uma cópia profunda
+     (ou uma cópia congelada): um teste falha se algum código ainda atualizar o original.
+5. Quando nenhum chamador os usar mais, apague o acessor bruto e as funções fáceis de buscar.
+   Compile e teste.
+6. Opcionalmente, incorpore o registro encapsulado em campos individuais da classe. Isso quebra o
+   vínculo com os dados de entrada, de modo que uma referência perdida em outro lugar não possa contornar a classe. Se você
+   mantiver o registro dentro, copie-o ao atribuí-lo.
+7. Se um campo for ele mesmo uma estrutura, aplique Encapsular Registro ou Encapsular Coleção (Encapsulate Collection)
+   ([encapsulate-collection.md](encapsulate-collection.md)) a ele, recursivamente, quando o controle valer o esforço.
 
-For readers of a large nested structure there are three options: extract each read into a
-method on the class (an explicit API, but possibly a lot of special cases); hand out a copy of
-the data (simple, but costs time and surprises callers who expect to modify the original, so
-measure first); or recurse into smaller classes (most control, most work). A mix is fine.
+Para leitores de uma estrutura aninhada grande há três opções: extrair cada leitura para um
+método da classe (uma API explícita, mas possivelmente com muitos casos especiais); entregar uma cópia dos
+dados (simples, mas custa tempo e surpreende chamadores que esperam modificar o original, então
+meça primeiro); ou recorrer a classes menores (mais controle, mais trabalho). Uma mistura serve.
 
-## Example
-Before: a shared contact record kept as a dictionary.
+## Exemplo
+Antes: um registro de contato compartilhado mantido como dicionário.
 
 ```csharp
 using System.Collections.Generic;
@@ -72,8 +72,8 @@ public static class ContactForm
 }
 ```
 
-Intermediate state (steps 1 to 3): wrapper class, raw accessor, object accessor. Step 1 also
-makes `InvoiceHeader` and `ContactForm` call the raw accessor.
+Estado intermediário (passos 1 a 3): classe wrapper, acessor bruto, acessor de objeto. O passo 1 também
+faz `InvoiceHeader` e `ContactForm` chamarem o acessor bruto.
 
 ```csharp
 using System.Collections.Generic;
@@ -105,8 +105,8 @@ public static class ContactForm
 }
 ```
 
-After (steps 4 to 6): callers use the object, the raw accessors are gone, the dictionary is
-folded into properties.
+Depois (passos 4 a 6): os chamadores usam o objeto, os acessores brutos sumiram, o dicionário é
+incorporado em propriedades.
 
 ```csharp
 using System.Collections.Generic;
@@ -142,12 +142,12 @@ public static class ContactForm
 }
 ```
 
-## C# notes
-- Dictionary, tuple, anonymous or `dynamic` data becomes a class or `record` with properties.
-  Anonymous types cannot cross method boundaries as a typed value, which is a good reason to
-  convert them.
+## Notas de C#
+- Dados em dicionário, tupla, tipo anônimo ou `dynamic` viram uma classe ou `record` com propriedades.
+  Tipos anônimos não podem cruzar fronteiras de método como valor tipado, o que é um bom motivo para
+  convertê-los.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- After step 5, grep for the raw accessor names and for direct indexing of the old variable.
-  Expect zero hits.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Após o passo 5, faça grep pelos nomes dos acessores brutos e pela indexação direta da variável antiga.
+  Espere zero ocorrências.

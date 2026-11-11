@@ -1,24 +1,29 @@
-# Return Modified Value
+# Retornar Valor Modificado (Return Modified Value)
 
-Fowler (2018), web edition only (not in the print book); summary at https://refactoring.com/catalog/returnModifiedValue.html. Formerly / aka: —. Inverse: —.
+Fowler, catálogo online: https://refactoring.com/catalog/returnModifiedValue.html (só na edição web, sem seção no livro). Antes / também: —. Inversa: —.
 
-## When to use
-Smell: none specific (web edition only; related: Mutable Data, Long Function).
-- A function reads some inputs, computes a value and stores it in a variable declared outside it (a field, a local captured by the caller, a shared accumulator), returning nothing.
-- A reader of the calling code cannot tell that the call produces a value, or which variable it feeds.
-- You want to extract, move or reorder such code and the hidden write makes that risky.
+## Quando usar
+Smell: nenhum específico (apenas catálogo web; relacionados: Dados Mutáveis (Mutable Data), Função Longa (Long Function)).
+- Uma função lê algumas entradas, calcula um valor e o armazena em uma variável declarada fora dela (um campo, uma variável local capturada pelo chamador, um acumulador compartilhado), sem retornar nada.
+- Quem lê o código chamador não consegue saber que a chamada produz um valor, nem qual variável ela alimenta.
+- Você quer extrair, mover ou reordenar esse código e a escrita oculta torna isso arriscado.
 
-Skip it when the function updates several variables at once (return a small record, or split the function first) or when mutating shared state is the whole point of the operation.
+Pule quando a função atualiza várias variáveis de uma vez (retorne um pequeno registro, ou divida a função primeiro) ou quando alterar estado compartilhado é o objetivo inteiro da operação.
 
-## Mechanics
-1. Make the function return the variable it modifies, and at the call site assign the returned value to that variable. Compile and test.
-2. Inside the function, declare a local for the value it returns, starting where the caller used to start it, and update the local instead of the outside variable. The caller's initialization is now ignored; changing it temporarily is a quick way to confirm that. Compile and test.
-   - If the function accumulates onto a value left by earlier calls, start the local at the identity value (`0` for a sum, an empty list) and have the caller combine the result with its variable.
-3. Combine the declaration with the calculation where you can, and make the receiving variable read-only if nothing else changes it. Compile and test.
-4. Rename the variable inside the function to reflect its new role (often `result`), and remove the outside variable if nothing else needs it. Compile and test.
+## Mecânica
+A página de origem mostra apenas um par de código antes/depois, então os smells, a condição para pular e estes passos são derivados desse par, não de passos publicados.
 
-## Example
-Before:
+1. Identifique a única variável externa que a função atualiza, e todo lugar que a lê ou escreve antes e depois da chamada.
+2. Declare uma variável local dentro da função. Escolha o seu valor inicial conforme o caso:
+   - A função parte de um valor fixo (o caso usual, e o do exemplo): inicie a variável local nesse valor.
+   - A função acumula sobre um valor deixado por chamadas anteriores: inicie a variável local no valor identidade (`0` para uma soma, uma coleção vazia para uma lista), e depois faça o chamador combinar o valor retornado com a variável externa.
+3. Substitua toda escrita na variável externa no corpo da função por uma escrita na variável local, e ao final da função atribua a variável local à variável externa (combinando-a com o valor existente no caso de acumulação), para que o comportamento permaneça o mesmo. Compile e teste.
+4. Faça a função retornar a variável local (mude o tipo de retorno de `void`). Compile e teste.
+5. Em cada ponto de chamada, use o valor retornado no lugar de ler a variável externa (idealmente atribuindo-o a uma variável declarada ali, somente leitura se nada mais a altera). Compile e teste.
+6. Remova da função a atribuição final à variável externa, e remova a variável externa se nada mais precisar dela. Renomeie a função se o seu nome descrevia uma ação em vez do valor. Compile e teste.
+
+## Exemplo
+Antes:
 
 ```csharp
 public class InvoiceReport
@@ -45,7 +50,7 @@ public class InvoiceReport
 public record InvoiceLine(decimal Price, decimal Discount);
 ```
 
-After:
+Depois:
 
 ```csharp
 public class InvoiceReport
@@ -70,7 +75,7 @@ public class InvoiceReport
 public record InvoiceLine(decimal Price, decimal Discount);
 ```
 
-Same behavior, including repeated calls (the "before" resets the field at the start of `Summarize`), with the field gone and the data flow visible at the call.
+Mesmo comportamento, inclusive em chamadas repetidas (o "antes" reinicia o campo no começo de `Summarize`), com o campo eliminado e o fluxo de dados visível na chamada.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

@@ -1,28 +1,28 @@
-# Split Variable
+# Dividir Variável (Split Variable)
 
-Fowler (2018), ch. 9, p. 240. Formerly / aka: formerly Remove Assignments to Parameters, formerly Split Temp. Inverse: —.
+Fowler (2018), cap. 9, p. 240. Antes / também: antes Remove Assignments to Parameters, antes Split Temp. Inversa: —.
 
-## When to use
-Smell: Mutable Data.
+## Quando usar
+Smell: Dados Mutáveis (Mutable Data).
 
-A variable that holds the result of some computation for later reference should be assigned once. If it is assigned a second time with a value that means something else, it has two jobs, and the reader must track which one it has at each line. Give each job its own variable and its own name.
+Uma variável que guarda o resultado de alguma computação para referência posterior deve ser atribuída uma só vez. Se ela é atribuída uma segunda vez com um valor que significa outra coisa, ela tem dois trabalhos, e o leitor precisa acompanhar qual deles ela tem em cada linha. Dê a cada trabalho a sua própria variável e o seu próprio nome.
 
-Leave alone:
-- Loop variables, which change on every iteration by design.
-- Collecting variables, which accumulate a value (`total = total + x`, string building, adding to a collection). Their later assignments depend on the earlier value, so they are one responsibility.
+Deixe em paz:
+- Variáveis de laço, que mudam a cada iteração por projeto.
+- Variáveis de coleta, que acumulam um valor (`total = total + x`, construção de string, adição a uma coleção). As atribuições posteriores dependem do valor anterior, então elas têm uma única responsabilidade.
 
-Assigning to an input parameter is a common case: the parameter is both the input and the working result. Splitting it separates "what the caller gave me" from "what I am computing".
+Atribuir a um parâmetro de entrada é um caso comum: o parâmetro é ao mesmo tempo a entrada e o resultado de trabalho. Dividi-lo separa "o que o chamador me deu" de "o que estou calculando".
 
-## Mechanics
-1. Pick the first value the variable holds. At its declaration and first assignment, rename the variable to a name that describes only that first use.
-2. Update every reference that reads this first value, stopping before the second assignment.
-3. Compile and test.
-4. At the second assignment, declare a new variable and name it for that second use.
-5. Repeat steps 2 to 4 for each later assignment, testing after each stage. At the final assignment the original name has no references left.
-6. For a parameter: declare a local initialized from the parameter at the top of the function, rename the parameter to say it is the original input, and point the reads that mean the original input at the parameter. Then continue with the steps above on the local, renaming it to say what it holds.
+## Mecânica
+1. Escolha o primeiro valor que a variável guarda. Na sua declaração e primeira atribuição, renomeie a variável para um nome que descreva apenas esse primeiro uso.
+2. Atualize toda referência que lê esse primeiro valor, parando antes da segunda atribuição.
+3. Compile e teste.
+4. Na segunda atribuição, declare uma nova variável e nomeie-a para esse segundo uso.
+5. Repita os passos 2 a 4 para cada atribuição posterior, testando após cada etapa. Na atribuição final o nome original não tem mais referências.
+6. Para um parâmetro: declare uma variável local inicializada a partir do parâmetro no início da função, renomeie o parâmetro para dizer que é a entrada original e aponte para o parâmetro as leituras que significam a entrada original. Depois continue com os passos acima na variável local, renomeando-a para dizer o que ela guarda.
 
-## Example
-Before: `amount` first holds the order subtotal and is then reused for the amount after the discount, which is a different quantity.
+## Exemplo
+Antes: `amount` primeiro guarda o subtotal do pedido e depois é reutilizada para o valor após o desconto, que é uma grandeza diferente.
 
 ```csharp
 public decimal InvoiceTotal(Order order, Customer customer)
@@ -35,7 +35,7 @@ public decimal InvoiceTotal(Order order, Customer customer)
 }
 ```
 
-After: one variable per responsibility, each named for what it holds.
+Depois: uma variável por responsabilidade, cada uma nomeada pelo que guarda.
 
 ```csharp
 public decimal InvoiceTotal(Order order, Customer customer)
@@ -48,7 +48,7 @@ public decimal InvoiceTotal(Order order, Customer customer)
 }
 ```
 
-Parameter case. Before, `weight` is both the input and the shipping cost:
+Caso do parâmetro. Antes, `weight` é ao mesmo tempo a entrada e o custo de envio:
 
 ```csharp
 public decimal ShippingCost(decimal weight, bool express)
@@ -59,7 +59,7 @@ public decimal ShippingCost(decimal weight, bool express)
 }
 ```
 
-Intermediate: the parameter is renamed to say it is the input, and a local takes over as the working value.
+Intermediário: o parâmetro é renomeado para dizer que é a entrada, e uma variável local assume como valor de trabalho.
 
 ```csharp
 public decimal ShippingCost(decimal weightKg, bool express)
@@ -71,7 +71,7 @@ public decimal ShippingCost(decimal weightKg, bool express)
 }
 ```
 
-After: the local is renamed for what it holds.
+Depois: a variável local é renomeada pelo que guarda.
 
 ```csharp
 public decimal ShippingCost(decimal weightKg, bool express)
@@ -82,10 +82,10 @@ public decimal ShippingCost(decimal weightKg, bool express)
 }
 ```
 
-## C# notes
-- C# has no immutable local variables (`const` only fits compile-time constants), so keep each new variable assigned exactly once.
-- Renaming a parameter on a public method breaks callers that pass it by name (named arguments).
+## Notas de C#
+- C# não tem variáveis locais imutáveis (`const` só serve para constantes de tempo de compilação), então mantenha cada nova variável atribuída exatamente uma vez.
+- Renomear um parâmetro de um método público quebra os chamadores que o passam por nome (argumentos nomeados).
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- No variable is assigned twice for different purposes; the only repeated assignments left are loop counters and collecting variables.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Nenhuma variável é atribuída duas vezes para propósitos diferentes; as únicas atribuições repetidas que restam são contadores de laço e variáveis de coleta.

@@ -1,34 +1,34 @@
-# Replace Type Code with Subclasses
+# Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses)
 
-Fowler (2018), ch. 12, p. 362. Formerly / aka: subsumes Replace Type Code with State/Strategy and Extract Subclass. Inverse: Remove Subclass ([remove-subclass.md](remove-subclass.md)).
+Fowler (2018), cap. 12, p. 362. Antes / também: engloba Replace Type Code with State/Strategy e Extract Subclass. Inversa: Remover Subclasse ([remove-subclass.md](remove-subclass.md)).
 
-## When to use
-Smells: Primitive Obsession, Large Class.
+## Quando usar
+Smells: Obsessão por Primitivos (Primitive Obsession), Classe Grande (Large Class).
 
-- Several methods branch on the same type code. Subclasses let you finish with Replace Conditional with Polymorphism ([replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md)).
-- Some fields or methods only apply to certain values of the code. A subclass holds them explicitly, instead of relying on checks that the code has the right value ([push-down-field.md](push-down-field.md), [push-down-method.md](push-down-method.md)).
+- Vários métodos ramificam pelo mesmo código de tipo. As subclasses permitem terminar com Substituir Condicional por Polimorfismo (Replace Conditional with Polymorphism) ([replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md)).
+- Alguns campos ou métodos só se aplicam a certos valores do código. Uma subclasse os guarda de forma explícita, em vez de depender de verificações de que o código tem o valor certo ([push-down-field.md](push-down-field.md), [push-down-method.md](push-down-method.md)).
 
-Choose where the subclasses go:
+Escolha onde as subclasses ficam:
 
-- **Direct inheritance:** subclass the class itself (`Engineer : Employee`). Simplest, but it does not work if that class already needs subclasses for another axis, or if an object must change its kind during its life.
-- **Indirect inheritance:** first apply Replace Primitive with Object ([replace-primitive-with-object.md](../encapsulation/replace-primitive-with-object.md)) to the code, producing a small type class, then subclass that class. The owner holds a reference to it, so the kind can change at runtime. This is what the old State/Strategy refactoring amounts to.
+- **Herança direta:** crie subclasses da própria classe (`Engineer : Employee`). É o mais simples, mas não funciona se essa classe já precisa de subclasses para outro eixo, ou se um objeto deve mudar de tipo durante a sua vida.
+- **Herança indireta:** aplique primeiro Substituir Primitivo por Objeto (Replace Primitive with Object) ([replace-primitive-with-object.md](../encapsulation/replace-primitive-with-object.md)) ao código, produzindo uma pequena classe de tipo, e então crie subclasses dessa classe. O dono guarda uma referência a ela, então o tipo pode mudar em tempo de execução. É nisso que a antiga refatoração State/Strategy se resume.
 
-Do not use it when the code is only data that no behavior depends on; a plain enum is enough there.
+Não use quando o código é apenas dado do qual nenhum comportamento depende; um enum simples basta ali.
 
-## Mechanics
-1. Self-encapsulate the type code: all reads go through one getter.
-2. Pick one code value. Create a subclass for it whose getter returns that literal value.
-3. Add selection logic that maps the incoming code to the subclass. With direct inheritance, make construction a factory ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)) and put the selection there. With indirect inheritance, the selection can stay in the owner's constructor or setter. While some codes still lack a subclass, keep the base class concrete and let the selection fall back to it.
-4. Build and test. To be sure the tests exercise the new subclass, change its returned value for a moment and check that a test fails, then restore it.
-5. Repeat steps 2 to 4 for each remaining code value, testing after each. The base class stays concrete until the last one is done.
-6. Once every value has a subclass, remove the stored type code field and the base getter. Make unknown codes fail in the selection logic (default branch throws), then drop any separate validation. Build and test.
-7. Remove the now unused code parameter from the constructor ([change-function-declaration.md](../first-set/change-function-declaration.md)).
-8. For each method that uses the type getter, push it down into the subclasses and replace the conditional with polymorphism. When nothing reads the getter any more, delete it ([remove-dead-code.md](../moving-features/remove-dead-code.md)). Test after each method.
+## Mecânica
+1. Autoencapsule o código de tipo: todas as leituras passam por um único getter.
+2. Escolha um valor de código. Crie uma subclasse para ele cujo getter retorne esse valor literal.
+3. Adicione lógica de seleção que mapeie o código recebido para a subclasse. Com herança direta, faça da construção uma fábrica ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)) e ponha a seleção ali. Com herança indireta, a seleção pode ficar no construtor ou no setter do dono. Enquanto alguns códigos ainda não têm subclasse, mantenha a classe base concreta e deixe a seleção recorrer a ela.
+4. Compile e teste. Para ter certeza de que os testes exercitam a nova subclasse, mude por um instante o valor que ela retorna e verifique que um teste falha, depois restaure-o.
+5. Repita os passos 2 a 4 para cada valor de código restante, testando após cada um. A classe base permanece concreta até que o último esteja feito.
+6. Quando todo valor tiver uma subclasse, remova o campo armazenado do código de tipo e o getter da base. Faça os códigos desconhecidos falharem na lógica de seleção (o ramo padrão lança uma exceção), depois descarte qualquer validação separada. Compile e teste.
+7. Remova o parâmetro de código agora sem uso do construtor ([change-function-declaration.md](../first-set/change-function-declaration.md)).
+8. Para cada método que usa o getter de tipo, desça-o para as subclasses e substitua o condicional por polimorfismo. Quando nada mais ler o getter, apague-o ([remove-dead-code.md](../moving-features/remove-dead-code.md)). Teste após cada método.
 
-With indirect inheritance, a mutable kind means a setter that re-runs the selection and swaps the type object. With it, the empty type base class may stay: it documents the family and is a natural home for logic shared by the kinds.
+Com herança indireta, um tipo mutável significa um setter que reexecuta a seleção e troca o objeto de tipo. Com isso, a classe base vazia do tipo pode permanecer: ela documenta a família e é um lugar natural para a lógica compartilhada entre os tipos.
 
-## Example
-Before: an account whose behavior depends on a string kind.
+## Exemplo
+Antes: uma conta cujo comportamento depende de um tipo em string.
 
 ```csharp
 using System;
@@ -40,21 +40,21 @@ public class Account
 
     public Account(string owner, string kind)
     {
-        if (kind != "checking" && kind != "savings")
-            throw new ArgumentException($"Unknown account kind: {kind}");
+        if (kind != "corrente" && kind != "poupança")
+            throw new ArgumentException($"Tipo de conta desconhecido: {kind}");
         _owner = owner;
         _kind = kind;
     }
 
     public string Kind => _kind;
 
-    public decimal MonthlyFee() => _kind == "checking" ? 5m : 0m;
+    public decimal MonthlyFee() => _kind == "corrente" ? 5m : 0m;
 
     public override string ToString() => $"{_owner} ({_kind})";
 }
 ```
 
-After steps 1 to 8 (`MonthlyFee` pushed down and made polymorphic; `Kind` kept only for `ToString`):
+Depois dos passos 1 a 8 (`MonthlyFee` descido e tornado polimórfico; `Kind` mantido apenas para `ToString`):
 
 ```csharp
 using System;
@@ -67,9 +67,9 @@ public abstract class Account
 
     public static Account Create(string owner, string kind) => kind switch
     {
-        "checking" => new CheckingAccount(owner),
-        "savings" => new SavingsAccount(owner),
-        _ => throw new ArgumentException($"Unknown account kind: {kind}")
+        "corrente" => new CheckingAccount(owner),
+        "poupança" => new SavingsAccount(owner),
+        _ => throw new ArgumentException($"Tipo de conta desconhecido: {kind}")
     };
 
     public abstract string Kind { get; }
@@ -82,20 +82,20 @@ public abstract class Account
 public class CheckingAccount : Account
 {
     public CheckingAccount(string owner) : base(owner) { }
-    public override string Kind => "checking";
+    public override string Kind => "corrente";
     public override decimal MonthlyFee() => 5m;
 }
 
 public class SavingsAccount : Account
 {
     public SavingsAccount(string owner) : base(owner) { }
-    public override string Kind => "savings";
+    public override string Kind => "poupança";
     public override decimal MonthlyFee() => 0m;
 }
 ```
 
-Behavior is unchanged: callers now use `Account.Create(owner, kind)`, and `MonthlyFee` no longer branches on the code. `Kind` stays only because `ToString` and possibly outside callers read it; delete it (step 8) once nothing does.
+O comportamento não muda: os chamadores agora usam `Account.Create(owner, kind)`, e `MonthlyFee` não ramifica mais pelo código. `Kind` permanece apenas porque `ToString` e possivelmente chamadores externos o leem; apague-o (passo 8) quando nada mais o fizer.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Every code value that existed before maps to a subclass, and unknown values still fail the way they did.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Todo valor de código que existia antes mapeia para uma subclasse, e valores desconhecidos ainda falham do mesmo modo que antes.

@@ -1,31 +1,31 @@
-# Push Down Method
+# Descer Método (Push Down Method)
 
-Fowler (2018), ch. 12, p. 359. Formerly / aka: —. Inverse: Pull Up Method
+Fowler (2018), cap. 12, p. 359. Antes / também: —. Inversa: Subir Método
 ([pull-up-method.md](pull-up-method.md)).
 
-## When to use
-Smell: Refused Bequest. A method defined on a base class is relevant to just one subclass,
-or to a small share of them. Leaving it on the base class suggests every subclass supports it
-and makes the hierarchy harder to read. Moving it down puts the behavior where it belongs.
+## Quando usar
+Smell: Herança Recusada (Refused Bequest). Um método definido em uma classe base é relevante para apenas uma subclasse,
+ou para uma pequena parte delas. Deixá-lo na classe base sugere que toda subclasse o suporta
+e torna a hierarquia mais difícil de ler. Descê-lo coloca o comportamento onde ele pertence.
 
-Precondition: the code that calls the method must already hold a reference typed as that
-specific subclass. If callers use the base type and rely on the method being available on all
-subclasses, pushing it down breaks them. In that case, keep it on the base class and use
-Replace Conditional with Polymorphism ([replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md)), with a
-neutral default implementation on the base class.
+Pré-condição: o código que chama o método já deve ter uma referência tipada como essa
+subclasse específica. Se os chamadores usam o tipo base e contam com o método disponível em todas as
+subclasses, descê-lo os quebra. Nesse caso, mantenha-o na classe base e use
+Substituir Condicional por Polimorfismo (Replace Conditional with Polymorphism) ([replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md)), com uma
+implementação padrão neutra na classe base.
 
-## Mechanics
-1. Find every caller of the method and confirm each one works with the specific subclass type
-   (or can be changed to).
-2. Copy the method into each subclass that needs it.
-3. Remove the method from the superclass.
-4. Compile and run the tests. Fix any caller the compiler flags by giving it the subclass type.
-5. If a subclass that does not need the method still ends up with a copy (or an override),
-   remove it there.
-6. Compile and run the tests again.
+## Mecânica
+1. Encontre todo chamador do método e confirme que cada um funciona com o tipo da subclasse específica
+   (ou pode ser mudado para isso).
+2. Copie o método para cada subclasse que o precisa.
+3. Remova o método da superclasse.
+4. Compile e rode os testes. Corrija qualquer chamador que o compilador apontar dando a ele o tipo da subclasse.
+5. Se uma subclasse que não precisa do método ainda acabar com uma cópia (ou uma sobrescrita),
+   remova-a ali.
+6. Compile e rode os testes de novo.
 
-## Example
-Before: `Customer` offers a loyalty discount, but only retail customers have loyalty points.
+## Exemplo
+Antes: `Customer` oferece um desconto de fidelidade, mas apenas clientes de varejo têm pontos de fidelidade.
 
 ```csharp
 public abstract class Customer
@@ -51,8 +51,8 @@ public class Checkout
 }
 ```
 
-After: the method lives only on `RetailCustomer`. `Checkout` already used that type, so it
-needs no change.
+Depois: o método vive apenas em `RetailCustomer`. `Checkout` já usava esse tipo, então
+não precisa de mudança.
 
 ```csharp
 public abstract class Customer
@@ -79,5 +79,5 @@ public class Checkout
 }
 ```
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.

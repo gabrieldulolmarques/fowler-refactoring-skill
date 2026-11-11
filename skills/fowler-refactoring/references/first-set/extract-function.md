@@ -1,63 +1,63 @@
-# Extract Function
+# Extrair Função (Extract Function)
 
-Fowler (2018), ch. 6, p. 106. Formerly / aka: Extract Method. Inverse: Inline Function
+Fowler (2018), cap. 6, p. 106. Antes / também: Extract Method. Inversa: Internalizar Função (Inline Function)
 ([inline-function.md](inline-function.md)).
 
-## When to use
+## Quando usar
 
-Smells: Long Function, Duplicated Code, Comments, Mutable Data, Divergent Change, Feature
-Envy, Message Chains, Data Class.
+Smells: Função Longa (Long Function), Código Duplicado (Duplicated Code), Comentários (Comments), Dados Mutáveis (Mutable Data), Alteração Divergente (Divergent Change), Inveja de
+Recursos (Feature Envy), Cadeias de Mensagens (Message Chains), Classe de Dados (Data Class).
 
-- Reading a fragment forces you to work out what it does. A function named for the purpose
-  lets the reader skip the implementation.
-- A comment sits above a block to describe it. That comment usually already holds the words
-  for the function's name.
-- The same or similar logic appears in several places (Duplicated Code).
-- Mutable Data: code that writes to shared state is mixed into a longer body. Extracting it
-  isolates the update, so it can be found, guarded or replaced.
-- Divergent Change: one function serves two different reasons to change. Extract each part so
-  they can be separated or moved apart.
-- Feature Envy and Message Chains: the fragment mostly works with another object's data.
-  Extract it first, then move it to that object.
-- Data Class: callers manipulate a record's fields. Extract that behavior, then move it onto
-  the class.
-- Size is not the test. A single line deserves its own function when the name says more than
-  the code does. When the best name you find only repeats the code, keep it inline.
-- Do not avoid extraction for fear of call overhead. Measure first.
+- Ler um trecho obriga você a descobrir o que ele faz. Uma função com nome de finalidade
+  permite que o leitor pule a implementação.
+- Há um comentário acima de um bloco para descrevê-lo. Esse comentário geralmente já contém as palavras
+  para o nome da função.
+- A mesma lógica, ou uma parecida, aparece em vários lugares (Código Duplicado).
+- Dados Mutáveis: código que escreve em estado compartilhado está misturado em um corpo mais longo. Extraí-lo
+  isola a atualização, para que possa ser encontrada, protegida ou substituída.
+- Alteração Divergente: uma função atende a dois motivos diferentes de mudança. Extraia cada parte para que
+  possam ser separadas ou movidas para longe uma da outra.
+- Inveja de Recursos e Cadeias de Mensagens: o trecho trabalha principalmente com os dados de outro objeto.
+  Extraia-o primeiro, depois mova-o para esse objeto.
+- Classe de Dados: os chamadores manipulam os campos de um registro. Extraia esse comportamento e depois mova-o para
+  a classe.
+- O tamanho não é o critério. Uma única linha merece a própria função quando o nome diz mais que
+  o código. Quando o melhor nome que você encontra só repete o código, deixe-o inline.
+- Não evite a extração por medo do custo da chamada. Meça primeiro.
 
-## Mechanics
+## Mecânica
 
-1. Pick a name that states the fragment's purpose, not its implementation. If none comes,
-   reconsider extracting. The name can be refined later.
-2. Create the new function and copy the fragment into it. Leave the original in place for now.
-   If the language has nested functions, you may declare the new one inside the source
-   function (see the C# notes on local functions).
-3. Sort the variables the fragment touches that belong to the source function (parameters and
-   temporaries), by what the fragment does with them:
-   - Only read, or an object/collection you modify through the reference: pass them in as
-     arguments; no return is needed.
-   - Declared outside but used only by the fragment: move the declaration into the new
-     function. If the declaration sits far from the fragment, Slide Statements
-     ([slide-statements.md](../moving-features/slide-statements.md)) brings it next to its use first.
-   - Written by the fragment and needed after it: if there is exactly one, make the new
-     function return it, as a query.
-   - Several written values: do not extract yet. Simplify first with Split Variable
-     ([split-variable.md](../organizing-data/split-variable.md)) or Replace Temp with Query ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)),
-     or choose another fragment. As a last resort, return a tuple or a small record.
-   - A parameter that the fragment reassigns: apply Split Variable first, so it becomes a
-     temporary.
-4. Compile. This reveals any variable you missed.
-5. Replace the original fragment with a call. If the function returns a value, assign it to
-   the variable the fragment used to set.
-6. Run the tests.
-7. Search for the same or similar code elsewhere and replace it with a call
+1. Escolha um nome que declare a finalidade do trecho, não a implementação. Se nenhum vier,
+   reconsidere extrair. O nome pode ser refinado depois.
+2. Crie a nova função e copie o trecho para dentro dela. Deixe o original no lugar por enquanto.
+   Se a linguagem tiver funções aninhadas, você pode declarar a nova dentro da função de
+   origem (veja as notas de C# sobre funções locais).
+3. Classifique as variáveis que o trecho toca e que pertencem à função de origem (parâmetros e
+   temporárias), conforme o que o trecho faz com elas:
+   - Apenas lidas, ou um objeto/coleção que você modifica pela referência: passe-as como
+     argumentos; nenhum retorno é necessário.
+   - Declaradas fora, mas usadas apenas pelo trecho: mova a declaração para dentro da nova
+     função. Se a declaração estiver longe do trecho, Deslocar Instruções (Slide Statements)
+     ([slide-statements.md](../moving-features/slide-statements.md)) a traz primeiro para perto do uso.
+   - Escritas pelo trecho e necessárias depois dele: se houver exatamente uma, faça a nova
+     função devolvê-la, como uma consulta.
+   - Vários valores escritos: não extraia ainda. Simplifique primeiro com Dividir Variável (Split Variable)
+     ([split-variable.md](../organizing-data/split-variable.md)) ou Substituir Variável Temporária por Consulta (Replace Temp with Query) ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)),
+     ou escolha outro trecho. Como último recurso, devolva uma tupla ou um record pequeno.
+   - Um parâmetro que o trecho reatribui: aplique Dividir Variável primeiro, para que ele vire uma
+     temporária.
+4. Compile. Isso revela qualquer variável que você tenha deixado passar.
+5. Substitua o trecho original por uma chamada. Se a função devolve um valor, atribua-o à
+   variável que o trecho costumava definir.
+6. Execute os testes.
+7. Procure o mesmo código, ou um parecido, em outros lugares e substitua-o por uma chamada
    ([replace-inline-code-with-function-call.md](../moving-features/replace-inline-code-with-function-call.md)).
-8. Optional closing touch: with the call in context, check the name again and tidy the
-   extracted function's local names.
+8. Toque final opcional: com a chamada em contexto, confira o nome de novo e arrume os nomes
+   locais da função extraída.
 
-## Example
+## Exemplo
 
-Before: one method mixes a calculation, a mutation and output.
+Antes: um método mistura um cálculo, uma mutação e uma saída.
 
 ```csharp
 using System;
@@ -98,15 +98,15 @@ public class CheckoutService
             warehouse.Stock[line.Sku] -= line.Quantity;
         }
 
-        Console.WriteLine($"items: {cart.Lines.Count}");
-        Console.WriteLine($"pay: {payable:F2}");
+        Console.WriteLine($"itens: {cart.Lines.Count}");
+        Console.WriteLine($"pagar: {payable:F2}");
     }
 }
 ```
 
-After: each fragment has a name for its purpose. The pricing fragment writes one variable
-the rest of the method needs, so the new function returns it. The stock fragment changes the
-warehouse through the object it receives, so it returns nothing.
+Depois: cada trecho tem um nome para a sua finalidade. O trecho de preço escreve uma variável
+de que o resto do método precisa, então a nova função a devolve. O trecho de estoque altera o
+depósito pelo objeto que recebe, então não devolve nada.
 
 ```csharp
 public class CheckoutService
@@ -139,31 +139,31 @@ public class CheckoutService
 
     private static void PrintReceipt(Cart cart, decimal payable)
     {
-        Console.WriteLine($"items: {cart.Lines.Count}");
-        Console.WriteLine($"pay: {payable:F2}");
+        Console.WriteLine($"itens: {cart.Lines.Count}");
+        Console.WriteLine($"pagar: {payable:F2}");
     }
 }
 ```
 
-Same behavior, and each fragment now has a name and a clear input and output. Extract one
-fragment at a time and run the tests between extractions.
+Mesmo comportamento, e cada trecho agora tem um nome e uma entrada e saída claras. Extraia um
+trecho de cada vez e execute os testes entre as extrações.
 
-## C# notes
+## Notas de C#
 
-- A local function (declared inside the method) is an option for a helper used in one place.
-  It can read the enclosing variables without parameters, which removes the out-of-scope
-  problem from step 3. Move it to a method later if other code needs it.
-- Local functions that capture variables can hide how much state the fragment depends on. For a
-  helper you expect to move, extract to a sibling method first so the dependencies show.
-- A `static` local function (C# 8+) cannot capture, so its dependencies stay explicit as
-  parameters.
-- A struct passed by value is not modified through the reference: a fragment that changes
-  one changes only a copy. Return the new value, or pass it with `ref`. Prefer returning a
-  value or a record/tuple; use `out`/`ref` as a last resort.
+- Uma função local (declarada dentro do método) é uma opção para um auxiliar usado em um só lugar.
+  Ela pode ler as variáveis do escopo externo sem parâmetros, o que elimina o problema de
+  variáveis fora de escopo do passo 3. Mova-a para um método depois, se outro código precisar dela.
+- Funções locais que capturam variáveis podem esconder de quanto estado o trecho depende. Para um
+  auxiliar que você espera mover, extraia primeiro para um método irmão, para que as dependências apareçam.
+- Uma função local `static` (C# 8+) não pode capturar, então suas dependências continuam explícitas como
+  parâmetros.
+- Um struct passado por valor não é modificado pela referência: um trecho que altera
+  um altera apenas uma cópia. Devolva o novo valor, ou passe-o com `ref`. Prefira devolver um
+  valor ou um record/tupla; use `out`/`ref` como último recurso.
 
-## Verification
+## Verificação
 
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Observable behavior and side effects are unchanged, including the order in which they
-  happen.
-- The new function's name reveals its purpose, and any duplicates found in step 7 now call it.
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- O comportamento observável e os efeitos colaterais não mudam, inclusive a ordem em que
+  acontecem.
+- O nome da nova função revela a sua finalidade, e quaisquer duplicatas encontradas no passo 7 agora a chamam.

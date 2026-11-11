@@ -1,54 +1,54 @@
-# Replace Subclass with Delegate
+# Substituir Subclasse por Delegação (Replace Subclass with Delegate)
 
-Fowler (2018), ch. 12, p. 381. Formerly / aka: —. Inverse: —.
-Remove Subclass and Collapse Hierarchy go the other way for simple cases.
+Fowler (2018), cap. 12, p. 381. Antes / também: —. Inversa: —.
+Remover Subclasse (Remove Subclass) e Colapsar Hierarquia (Collapse Hierarchy) vão no sentido oposto para casos simples.
 
-## When to use
-Smells: Insider Trading, Refused Bequest, Middle Man.
+## Quando usar
+Smells: Troca de Informações Privilegiadas (Insider Trading), Herança Recusada (Refused Bequest), Intermediário (Middle Man).
 
-- Inheritance gives one axis of variation only. If the same class must also vary by a second
-  criterion, one of the two must become a delegate.
-- The variant must change during the object's life (a regular order becomes a priority order),
-  and replacing the object is not practical because many places hold a reference to it.
-- The subclass and superclass are so entangled that changing the parent keeps breaking the
-  child, especially across modules or teams.
+- A herança dá apenas um eixo de variação. Se a mesma classe também precisa variar por um segundo
+  critério, um dos dois precisa se tornar uma delegação.
+- A variante precisa mudar durante a vida do objeto (um pedido comum se torna um pedido prioritário),
+  e substituir o objeto não é prático porque muitos lugares guardam uma referência a ele.
+- A subclasse e a superclasse estão tão emaranhadas que mudar a pai continua quebrando a
+  filha, especialmente entre módulos ou equipes.
 
-When not to use: if inheritance fits well and none of the above applies, keep it. The result
-has dispatch logic and a two-way reference, so the refactoring alone rarely makes the code
-simpler; the payoff is the freedom it buys. Prefer inheritance first and move to a delegate
-when it starts to hurt.
+Quando não usar: se a herança se encaixa bem e nada do acima se aplica, mantenha-a. O resultado
+tem lógica de despacho e uma referência de mão dupla, então a refatoração sozinha raramente torna o código
+mais simples; o ganho é a liberdade que ela compra. Prefira a herança primeiro e passe para uma delegação
+quando ela começar a doer.
 
-## Mechanics
-1. If many callers construct the subclass, wrap construction first with Replace Constructor
-   with Factory Function ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)).
-2. Create an empty delegate class. Its constructor takes the data only the subclass uses and,
-   usually, a back-reference to the host (the superclass instance).
-3. Add a field to the superclass that holds the delegate (null when there is none).
-4. Make the creation code (factory or constructor) build the delegate and store it in that
-   field.
-5. Pick one method of the subclass and move it to the delegate with Move Function
-   ([move-function.md](../moving-features/move-function.md)). Reach host data through the back-reference; move data that only
-   the subclass uses into the delegate. Leave a forwarding method in the subclass for now.
-   Test.
-6. If the superclass method has callers outside the hierarchy, give the superclass method
-   dispatch logic: use the delegate when present, otherwise the original behavior. If the
-   subclass method called the base implementation, either extract the base calculation into
-   its own method that the delegate can call, or turn the delegate method into an extension of
-   the base result (the host passes its result in). Do not call the host's own virtual
-   method from the delegate: that recurses forever. If the method exists only in the subclass,
-   dispatch with a sensible default for the no-delegate case. Test.
-7. If the method has no outside callers, just remove the subclass method (Remove Dead Code,
-   [remove-dead-code.md](../moving-features/remove-dead-code.md)). Test.
-8. Repeat steps 5 to 7 for every member of the subclass.
-9. When several subclasses become delegates and defaults get duplicated, apply Extract
-   Superclass ([extract-superclass.md](extract-superclass.md)) on the delegates and always create some delegate,
-   so the host's dispatch needs no null check and delegates keep the default behavior.
-   Never branch on the delegate's concrete type.
-10. Change every construction of the subclass to build the superclass. Test.
-11. Delete the now empty subclass.
+## Mecânica
+1. Se muitos chamadores constroem a subclasse, envolva primeiro a construção com Substituir Construtor
+   por Função de Fábrica (Replace Constructor with Factory Function) ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)).
+2. Crie uma classe delegada vazia. O seu construtor recebe os dados que só a subclasse usa e,
+   normalmente, uma referência de volta ao hospedeiro (a instância da superclasse).
+3. Adicione à superclasse um campo que guarde o delegado (nulo quando não houver nenhum).
+4. Faça o código de criação (fábrica ou construtor) construir o delegado e armazená-lo nesse
+   campo.
+5. Escolha um método da subclasse e mova-o para o delegado com Mover Função (Move Function)
+   ([move-function.md](../moving-features/move-function.md)). Alcance os dados do hospedeiro pela referência de volta; mova para o delegado os dados que só
+   a subclasse usa. Deixe por ora um método encaminhador na subclasse.
+   Teste.
+6. Se o método da superclasse tem chamadores fora da hierarquia, dê ao método da superclasse
+   lógica de despacho: use o delegado quando presente, caso contrário o comportamento original. Se o
+   método da subclasse chamava a implementação da base, ou extraia o cálculo da base para
+   um método próprio que o delegado possa chamar, ou transforme o método do delegado em uma extensão do
+   resultado da base (o hospedeiro passa o seu resultado). Não chame o método virtual do próprio hospedeiro
+   a partir do delegado: isso recursa para sempre. Se o método existe apenas na subclasse,
+   despache com um padrão sensato para o caso sem delegado. Teste.
+7. Se o método não tem chamadores externos, apenas remova o método da subclasse (Remover Código Morto (Remove Dead Code),
+   [remove-dead-code.md](../moving-features/remove-dead-code.md)). Teste.
+8. Repita os passos 5 a 7 para cada membro da subclasse.
+9. Quando várias subclasses se tornam delegados e os padrões ficam duplicados, aplique Extrair
+   Superclasse (Extract Superclass) ([extract-superclass.md](extract-superclass.md)) nos delegados e crie sempre algum delegado,
+   para que o despacho do hospedeiro não precise de verificação de nulo e os delegados mantenham o comportamento padrão.
+   Nunca ramifique pelo tipo concreto do delegado.
+10. Mude toda construção da subclasse para construir a superclasse. Teste.
+11. Apague a subclasse agora vazia.
 
-## Example
-Before: wholesale invoices are a subclass.
+## Exemplo
+Antes: faturas de atacado são uma subclasse.
 
 ```csharp
 public class Invoice
@@ -74,8 +74,8 @@ public class WholesaleInvoice : Invoice
 }
 ```
 
-After: the wholesale behavior lives in a delegate, so an invoice can become wholesale at
-runtime and the base class stays free for another use of inheritance.
+Depois: o comportamento de atacado vive em um delegado, então uma fatura pode se tornar de atacado em
+tempo de execução e a classe base fica livre para outro uso da herança.
 
 ```csharp
 public class Invoice
@@ -130,11 +130,11 @@ internal class WholesaleDelegate
 }
 ```
 
-Behavior is unchanged for callers that go through `Invoice.Create` and
-`Invoice.CreateWholesale`; the `WholesaleInvoice` class is gone.
+O comportamento não muda para os chamadores que passam por `Invoice.Create` e
+`Invoice.CreateWholesale`; a classe `WholesaleInvoice` sumiu.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Tests cover both variants of every moved method, including the base-call case and a switch
-  of variant at runtime if the delegate is meant to be replaceable.
-- No caller still constructs the removed subclass or checks the delegate's concrete type.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Os testes cobrem as duas variantes de todo método movido, incluindo o caso de chamada à base e uma troca
+  de variante em tempo de execução se o delegado deve ser substituível.
+- Nenhum chamador ainda constrói a subclasse removida ou verifica o tipo concreto do delegado.

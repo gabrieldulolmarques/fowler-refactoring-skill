@@ -1,34 +1,34 @@
-# Change Reference to Value
+# Mudar Referência para Valor (Change Reference to Value)
 
-Fowler (2018), ch. 9, p. 252. Formerly / aka: —. Inverse: Change Value to Reference
+Fowler (2018), cap. 9, p. 252. Antes / também: —. Inversa: Mudar Valor para Referência
 ([change-value-to-reference.md](change-value-to-reference.md)).
 
-## When to use
-Smell: Mutable Data. An object nested inside another is changed by assigning to its
-properties, so the same instance is updated in place. If the inner object has no identity of
-its own (two with the same contents are interchangeable), treat it as a value instead:
-immutable, replaced as a whole when something changes, and equal when its fields are equal.
-Immutable values are safe to share and to read from several threads, since nobody can mutate
-them.
+## Quando usar
+Smell: Dados Mutáveis (Mutable Data). Um objeto aninhado em outro é alterado por atribuição às suas
+propriedades, de modo que a mesma instância é atualizada no lugar. Se o objeto interno não tem
+identidade própria (dois com o mesmo conteúdo são intercambiáveis), trate-o como um valor:
+imutável, substituído por inteiro quando algo muda e igual quando seus campos são iguais.
+Valores imutáveis podem ser compartilhados e lidos por várias threads com segurança, já que ninguém pode
+modificá-los.
 
-Do not apply it when several owners must share one object and see each other's changes. That
-object is a real reference, and the right move may be the inverse refactoring.
+Não aplique quando vários donos precisam compartilhar um mesmo objeto e ver as mudanças uns dos outros. Esse
+objeto é uma referência de verdade, e o movimento certo pode ser a refatoração inversa.
 
-## Mechanics
-1. Check that the class is immutable or can become so: no outside code needs to mutate the
-   same instance and observe the change elsewhere.
-2. Remove the mutability one setter at a time, using
-   [remove-setting-method.md](../refactoring-apis/remove-setting-method.md). First move the fields into the
-   constructor, then rewrite each caller of a setter so it builds a new instance and assigns
-   it to the owner's field. Test after each setter.
-3. Add value-based equality over all the fields, and the matching hash code. Write tests that
-   compare two independently built instances with the same contents, instances that differ in
-   each field, `null`, and an object of another type.
-4. Check the callers that compared the old instances by identity, or used them as keys, and
-   update them to the new equality.
+## Mecânica
+1. Verifique que a classe é imutável ou pode se tornar imutável: nenhum código externo precisa modificar
+   a mesma instância e observar a mudança em outro lugar.
+2. Remova a mutabilidade um setter por vez, usando
+   [remove-setting-method.md](../refactoring-apis/remove-setting-method.md). Primeiro mova os campos para o
+   construtor, depois reescreva cada chamador de um setter para que ele construa uma nova instância e a atribua
+   ao campo do dono. Teste após cada setter.
+3. Adicione igualdade por valor sobre todos os campos, e o hash code correspondente. Escreva testes que
+   comparem duas instâncias construídas independentemente com o mesmo conteúdo, instâncias que difiram em
+   cada campo, `null` e um objeto de outro tipo.
+4. Verifique os chamadores que comparavam as instâncias antigas por identidade, ou as usavam como chaves, e
+   atualize-os para a nova igualdade.
 
-## Example
-Before: an order owns a mutable address, and its properties update that address in place.
+## Exemplo
+Antes: um pedido possui um endereço mutável, e suas propriedades atualizam esse endereço no lugar.
 
 ```csharp
 public class PostalAddress
@@ -55,8 +55,8 @@ public class Order
 }
 ```
 
-Step 1, remove the setters one at a time. The constructor takes the fields, and each setter
-on `Order` replaces the whole address:
+Passo 1, remova os setters um por vez. O construtor recebe os campos, e cada setter
+de `Order` substitui o endereço inteiro:
 
 ```csharp
 public class PostalAddress
@@ -89,7 +89,7 @@ public class Order
 }
 ```
 
-Step 2, give it value equality (here by hand; see the C# notes for the shorter form):
+Passo 2, dê a ele igualdade por valor (aqui à mão; veja as Notas de C# para a forma mais curta):
 
 ```csharp
 using System;
@@ -114,19 +114,19 @@ public sealed class PostalAddress : IEquatable<PostalAddress>
 }
 ```
 
-Behavior seen from outside `Order` is the same; `new PostalAddress("A", "B")` now equals
-another instance built from the same arguments.
+O comportamento visto de fora de `Order` é o mesmo; `new PostalAddress("A", "B")` agora é igual a
+outra instância construída com os mesmos argumentos.
 
-## C# notes
-- A `record`, `readonly record struct` or an immutable class with value equality
-  (`Equals`/`GetHashCode`) all fit. With a `record PostalAddress(string Street, string City)`,
-  equality and hash code are generated, and the owner's setter can be
+## Notas de C#
+- Um `record`, um `readonly record struct` ou uma classe imutável com igualdade por valor
+  (`Equals`/`GetHashCode`) servem. Com um `record PostalAddress(string Street, string City)`,
+  a igualdade e o hash code são gerados, e o setter do dono pode ser
   `_shippingAddress = _shippingAddress with { City = value };`.
-- Whenever `Equals` is overridden, override `GetHashCode` with the same fields, or hash-based
-  collections misbehave. Consider `==`/`!=` operators too if callers use them.
-- Keep the value's fields themselves immutable (or compared by value), otherwise the value can
-  still be changed from inside.
+- Sempre que `Equals` for sobrescrito, sobrescreva `GetHashCode` com os mesmos campos, ou as coleções baseadas
+  em hash se comportam mal. Considere também os operadores `==`/`!=` se os chamadores os usam.
+- Mantenha os próprios campos do valor imutáveis (ou comparados por valor); caso contrário, o valor ainda pode
+  ser alterado por dentro.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The equality tests from step 3 pass, including `null` and other types.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Os testes de igualdade do passo 3 passam, incluindo `null` e outros tipos.
