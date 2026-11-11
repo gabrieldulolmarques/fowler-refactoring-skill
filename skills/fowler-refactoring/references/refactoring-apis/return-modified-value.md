@@ -1,6 +1,6 @@
 # Return Modified Value
 
-Fowler, online catalog: https://refactoring.com/catalog/returnModifiedValue.html (🌐 web edition only, no book section). Formerly / aka: —. Inverse: —.
+Fowler, online catalog: https://refactoring.com/catalog/returnModifiedValue.html (web edition only, no book section). Formerly / aka: —. Inverse: —.
 
 ## When to use
 Smell: none specific (web catalog only; related: Mutable Data, Long Function).

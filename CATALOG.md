@@ -7,7 +7,7 @@ and the file format.
 Sources: Fowler, *Refactoring*, 2nd ed. (2018), chapters 2–4 and 6–12, and the online catalog
 ([refactoring.com/catalog](https://refactoring.com/catalog/), checked on 2026-10-31), which
 lists **66 refactorings**: the **61 from the book** plus **5 that only exist in the web
-edition** (marked 🌐).
+edition** (marked "web" in the Page column).
 
 The skill is generic: it teaches the refactorings, not any project's process. The examples
 are plain C# with a neutral domain (orders, customers, invoices, accounts), and nothing refers
@@ -28,12 +28,12 @@ descriptions.
 | `SKILL.md` | this spec | the flow smell → refactoring → file, a smell quick index and a table of the 66 refactorings (name, when, file), grouped by chapter (section 4.1) |
 | `references/smells.md` | ch. 3 | the 24 smells, symptoms and suggested refactorings (section 3) |
 | `references/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
-| `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or refactoring.com for 🌐 | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
+| `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or refactoring.com for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
 `references/first-set/extract-function.md`. The files are grouped in one folder per chapter:
 `first-set` (ch. 6), `encapsulation` (7), `moving-features` (8), `organizing-data` (9),
-`conditional-logic` (10), `refactoring-apis` (11) and `inheritance` (12); a 🌐 refactoring goes
+`conditional-logic` (10), `refactoring-apis` (11) and `inheritance` (12); a web-only refactoring goes
 in the chapter section 2 lists it under. The refactoring.com page uses the name in camelCase
 instead: `https://refactoring.com/catalog/extractFunction.html`.
 
@@ -59,7 +59,7 @@ Checked against the book on 2026-10-31, mechanically from the PDF's text: each o
 refactorings starts on the **Page** shown (printed edition), the **Formerly / aka** and
 **Inverse** columns are the book's own section header (`formerly:`, `aka:`, `subsumes:`,
 `inverse of:`), and all 575 "Name (page)" cross-references in ch. 3–12 agree with the Page
-column. For the 5 🌐 refactorings, names and aliases come from refactoring.com.
+column. For the 5 web-only refactorings, names and aliases come from refactoring.com.
 
 **C# note** is what the reference file must add because the book's examples are JavaScript:
 only generic C# points. Where it says "—", the file has no C# notes section.
@@ -117,7 +117,7 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 | 32 | Replace Derived Variable with Query | 248 | — | — | a computed read-only property |
 | 33 | Change Reference to Value | 252 | — | Change Value to Reference | `record`, `readonly record struct` or an immutable class with value equality (`Equals`/`GetHashCode`) |
 | 34 | Change Value to Reference | 256 | — | Change Reference to Value | a repository or registry that hands out the shared instance |
-| 35 | 🌐 Replace Magic Literal | web | Replace Magic Number with Symbolic Constant | — | `const` for compile-time values, `static readonly` for the rest |
+| 35 | Replace Magic Literal | web | Replace Magic Number with Symbolic Constant | — | `const` for compile-time values, `static readonly` for the rest |
 
 ### Chapter 10: Simplifying Conditional Logic
 
@@ -129,7 +129,7 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 | 39 | Replace Conditional with Polymorphism | 272 | — | — | a `switch` on a type code → `abstract`/`virtual` members or an interface |
 | 40 | Introduce Special Case | 289 | formerly Introduce Null Object | — | with nullable reference types enabled, the special case removes `?`/null checks at the call sites |
 | 41 | Introduce Assertion | 302 | — | — | `Debug.Assert` (removed from Release builds) |
-| 42 | 🌐 Replace Control Flag with Break | web | Remove Control Flag | — | — |
+| 42 | Replace Control Flag with Break | web | Remove Control Flag | — | — |
 
 ### Chapter 11: Refactoring APIs
 
@@ -145,9 +145,9 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 | 50 | Replace Constructor with Factory Function | 334 | formerly Replace Constructor with Factory Method | — | a static factory method; make the constructor `private` or `protected` |
 | 51 | Replace Function with Command | 337 | formerly Replace Method with Method Object | Replace Command with Function | — |
 | 52 | Replace Command with Function | 344 | — | Replace Function with Command | — |
-| 53 | 🌐 Return Modified Value | web | — | — | — |
-| 54 | 🌐 Replace Error Code with Exception | web | — | — | do not use exceptions for expected control flow |
-| 55 | 🌐 Replace Exception with Precheck | web | Replace Exception with Test | — | the `TryParse`/`TryGetValue` pattern |
+| 53 | Return Modified Value | web | — | — | — |
+| 54 | Replace Error Code with Exception | web | — | — | do not use exceptions for expected control flow |
+| 55 | Replace Exception with Precheck | web | Replace Exception with Test | — | the `TryParse`/`TryGetValue` pattern |
 
 ### Chapter 12: Dealing with Inheritance
 
@@ -252,15 +252,15 @@ Before / after in C#, written for this package (not copied from the book).
 
 No frontmatter and no Source line: the credit is in `SKILL.md` and the NOTICE. A link to
 another refactoring is relative: `[inline-class.md](inline-class.md)` in the same chapter folder,
-`[move-function.md](../moving-features/move-function.md)` in another. For a 🌐
+`[move-function.md](../moving-features/move-function.md)` in another. For a web-only
 refactoring, the citation line is the refactoring.com URL instead of chapter and page.
 
 ### 4.3 What goes in each part
 
 | Part | Comes from | Note |
 |---|---|---|
-| Name, formerly / aka, inverse | the book's section header (section 2); refactoring.com for 🌐 | short: may be literal |
-| When to use, mechanics | the book (refactoring.com for 🌐) | **paraphrase**, with chapter and page; nothing copied |
+| Name, formerly / aka, inverse | the book's section header (section 2); refactoring.com for the web-only ones | short: may be literal |
+| When to use, mechanics | the book (refactoring.com for the web-only ones) | **paraphrase**, with chapter and page; nothing copied |
 | Example | written for this package in C# | neutral domain (orders, customers, invoices, accounts); not the book's example or domain |
 | C# notes | section 2, "C# note" column | only where there is something to say |
 | Verification | ch. 4 + `references/discipline.md` | the same in every file |
