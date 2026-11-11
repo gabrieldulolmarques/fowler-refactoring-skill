@@ -7,19 +7,31 @@ docs_dir: _docs
 theme:
   name: material
   language: en
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
   features:
+    - navigation.instant
+    - navigation.tracking
     - navigation.top
+    - toc.follow
     - navigation.footer
     - search.highlight
     - content.code.copy
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: indigo
+      accent: amber
       toggle:
         icon: material/weather-night
         name: Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: indigo
+      accent: amber
       toggle:
         icon: material/weather-sunny
         name: Light mode
