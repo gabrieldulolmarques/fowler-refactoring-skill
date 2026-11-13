@@ -44,100 +44,123 @@ The book gives three sets, depending on where the accumulation code lives. The a
 8. Extract that loop into a method that takes the visitor and move it where other clients can reach it. Compile and test.
 
 ## Example
-Before: a calculator walks charges of different kinds and tests the type of each, reading different data from each.
+Before: a summary builder walks export records of different kinds and tests the type of each, reading different data from each.
 
 ```csharp
-public abstract class Charge { }
+using System.Collections.Generic;
 
-public class ProductCharge : Charge
-{
-    public int Qty { get; init; }
-    public decimal UnitPrice { get; init; }
-}
+public abstract class ExportRecord { }
 
-public class ShippingCharge : Charge
+public class SaleRecord : ExportRecord
 {
-    public decimal Weight { get; init; }
-    public decimal RatePerKg { get; init; }
-}
+    public int Quantity { get; }
+    public decimal UnitPrice { get; }
 
-public class DiscountCharge : Charge
-{
-    public decimal Percent { get; init; }
-}
-
-public class TotalCalculator
-{
-    public decimal Total(IEnumerable<Charge> charges)
+    public SaleRecord(int quantity, decimal unitPrice)
     {
-        decimal subtotal = 0m, shipping = 0m, percent = 0m;
-        foreach (var charge in charges)
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+    }
+}
+
+public class RefundRecord : ExportRecord
+{
+    public decimal Amount { get; }
+
+    public RefundRecord(decimal amount) => Amount = amount;
+}
+
+public class AdjustmentRecord : ExportRecord
+{
+    public decimal Percent { get; }
+
+    public AdjustmentRecord(decimal percent) => Percent = percent;
+}
+
+public class SummaryBuilder
+{
+    public decimal Net(IEnumerable<ExportRecord> records)
+    {
+        decimal sales = 0m, refunds = 0m, percent = 0m;
+        foreach (var record in records)
         {
-            if (charge is ProductCharge p) subtotal += p.Qty * p.UnitPrice;
-            else if (charge is ShippingCharge s) shipping += s.Weight * s.RatePerKg;
-            else if (charge is DiscountCharge d) percent += d.Percent;
+            if (record is SaleRecord s) sales += s.Quantity * s.UnitPrice;
+            else if (record is RefundRecord r) refunds += r.Amount;
+            else if (record is AdjustmentRecord a) percent += a.Percent;
         }
-        return subtotal * (1m - percent / 100m) + shipping;
+        return sales * (1m - percent / 100m) - refunds;
     }
 }
 ```
 
-After (external accumulation method): the calculator is the visitor; each charge accepts it and calls back the method for its own type.
+After (external accumulation method): the summary builder is the visitor; each record accepts it and calls back the method for its own type.
 
 ```csharp
-public interface IChargeVisitor
+public interface IRecordVisitor
 {
-    void VisitProduct(ProductCharge charge);
-    void VisitShipping(ShippingCharge charge);
-    void VisitDiscount(DiscountCharge charge);
+    void VisitSale(SaleRecord record);
+    void VisitRefund(RefundRecord record);
+    void VisitAdjustment(AdjustmentRecord record);
 }
 
-public abstract class Charge
+public abstract class ExportRecord
 {
-    public abstract void Accept(IChargeVisitor visitor);
+    public abstract void Accept(IRecordVisitor visitor);
 }
 
-public class ProductCharge : Charge
+public class SaleRecord : ExportRecord
 {
-    public int Qty { get; init; }
-    public decimal UnitPrice { get; init; }
-    public override void Accept(IChargeVisitor visitor) => visitor.VisitProduct(this);
-}
+    public int Quantity { get; }
+    public decimal UnitPrice { get; }
 
-public class ShippingCharge : Charge
-{
-    public decimal Weight { get; init; }
-    public decimal RatePerKg { get; init; }
-    public override void Accept(IChargeVisitor visitor) => visitor.VisitShipping(this);
-}
-
-public class DiscountCharge : Charge
-{
-    public decimal Percent { get; init; }
-    public override void Accept(IChargeVisitor visitor) => visitor.VisitDiscount(this);
-}
-
-public class TotalCalculator : IChargeVisitor
-{
-    private decimal _subtotal, _shipping, _percent;
-
-    public void VisitProduct(ProductCharge charge) => _subtotal += charge.Qty * charge.UnitPrice;
-    public void VisitShipping(ShippingCharge charge) => _shipping += charge.Weight * charge.RatePerKg;
-    public void VisitDiscount(DiscountCharge charge) => _percent += charge.Percent;
-
-    public decimal Total(IEnumerable<Charge> charges)
+    public SaleRecord(int quantity, decimal unitPrice)
     {
-        _subtotal = _shipping = _percent = 0m;
-        foreach (var charge in charges)
-            charge.Accept(this);
-        return _subtotal * (1m - _percent / 100m) + _shipping;
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+    }
+
+    public override void Accept(IRecordVisitor visitor) => visitor.VisitSale(this);
+}
+
+public class RefundRecord : ExportRecord
+{
+    public decimal Amount { get; }
+
+    public RefundRecord(decimal amount) => Amount = amount;
+
+    public override void Accept(IRecordVisitor visitor) => visitor.VisitRefund(this);
+}
+
+public class AdjustmentRecord : ExportRecord
+{
+    public decimal Percent { get; }
+
+    public AdjustmentRecord(decimal percent) => Percent = percent;
+
+    public override void Accept(IRecordVisitor visitor) => visitor.VisitAdjustment(this);
+}
+
+public class SummaryBuilder : IRecordVisitor
+{
+    private decimal _sales, _refunds, _percent;
+
+    public void VisitSale(SaleRecord record) => _sales += record.Quantity * record.UnitPrice;
+    public void VisitRefund(RefundRecord record) => _refunds += record.Amount;
+    public void VisitAdjustment(AdjustmentRecord record) => _percent += record.Percent;
+
+    public decimal Net(IEnumerable<ExportRecord> records)
+    {
+        _sales = _refunds = _percent = 0m;
+        foreach (var record in records)
+            record.Accept(this);
+        return _sales * (1m - _percent / 100m) - _refunds;
     }
 }
 ```
 
 ## C# notes
 - On C# 9 and later, a `switch` expression with type patterns often solves the same problem with much less code. Use a Visitor only when several algorithms need the same structure, or when the type set is open to extension by other assemblies.
-- A generic `IChargeVisitor<TResult>` with return values avoids mutable fields, at the cost of a more elaborate interface.
+- A generic `IRecordVisitor<TResult>` with return values avoids mutable fields, at the cost of a more elaborate interface.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Results equal the old method for every kind of source, including a collection that mixes kinds, and a collection with an unknown or empty case.
