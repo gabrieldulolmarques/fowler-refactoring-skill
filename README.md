@@ -20,7 +20,7 @@ agents/
 └── refactoring-implementer.md # aplica uma refatoração, testando após cada passo
 skills/refactoring/
 ├── SKILL.md # fluxo smell → refatoração → arquivo, índice de smells, tabelas das 66 + 27
-└── references/ # smells.md, discipline.md e um <slug>.md por refatoração, em fowler/ e kerievsky/, uma pasta por capítulo
+└── references/ # fowler/ e kerievsky/, cada um com seu smells.md, seu discipline.md e uma pasta por capítulo
 ```
 
 Só a descrição da skill fica no contexto do agente. O corpo é carregado quando a skill é

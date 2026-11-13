@@ -10,7 +10,7 @@ não altera nada.
 
 - Leia o código no escopo, e seus chamadores quando um smell depender de como o código é usado.
 - Nomeie cada smell com a skill `refactoring`: o índice rápido em `SKILL.md`, e
-  `references/smells.md` em caso de dúvida. Se a skill não estiver carregada, encontre-a com
+  os dois `smells.md` (`references/fowler/` e `references/kerievsky/`) em caso de dúvida. Se a skill não estiver carregada, encontre-a com
   `**/refactoring/SKILL.md`.
 - Mantenha um achado apenas se você puder apontar as linhas. Ignore código que ninguém precisa alterar,
   a menos que a chamada peça uma varredura completa.

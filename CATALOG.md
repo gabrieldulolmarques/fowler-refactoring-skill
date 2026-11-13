@@ -27,10 +27,11 @@ descrições concorrentes.
 | Arquivo | Fonte | Conteúdo |
 |---|---|---|
 | `SKILL.md` | esta especificação | o fluxo smell → refatoração → arquivo, um índice rápido de smells e uma tabela das 66 refatorações (nome, quando, arquivo), agrupadas por capítulo (seção 4.1) |
-| `references/smells.md` | cap. 3; Kerievsky, cap. 4 | os 29 smells, sintomas e refatorações sugeridas (seções 3 e 5.2) |
-| `references/discipline.md` | cap. 2 e 4 | testes primeiro, passos pequenos, commit após cada refatoração verde |
+| `references/fowler/smells.md` | cap. 3 | os 24 smells, sintomas e refatorações sugeridas (seção 3) |
+| `references/fowler/discipline.md` | cap. 2 e 4 | testes primeiro, passos pequenos, commit após cada refatoração verde |
 | `references/fowler/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou a edição web para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
 | `references/kerievsky/<chapter>/<slug>.md` (27 arquivos) | Kerievsky, cap. 6–11 | uma refatoração para padrão em cada, no mesmo formato, mais padrão e direção (seção 5) |
+| `references/kerievsky/smells.md` | Kerievsky, cap. 4 | os 12 smells e as refatorações para padrões a que levam (seção 5.2) |
 
 O slug é o nome da refatoração em kebab-case. Exemplo: Extrair Função (Extract Function) →
 `references/fowler/first-set/extract-function.md`. Os arquivos são agrupados por livro (`fowler/`, `kerievsky/`) e, dentro dele, em uma pasta por capítulo. Os de Fowler:
@@ -44,16 +45,17 @@ skills/
 └── refactoring/
     ├── SKILL.md
     └── references/
-        ├── smells.md
-        ├── discipline.md
-        ├── fowler/ # 7 pastas de capítulo, 66 arquivos
+        ├── fowler/
+        │   ├── smells.md
+        │   ├── discipline.md
         │   ├── first-set/
         │   │   ├── extract-function.md
         │   │   └── ...
-        │   └── ...
-        └── kerievsky/ # 6 pastas de capítulo, 27 arquivos
+        │   └── ... # 7 pastas de capítulo, 66 arquivos
+        └── kerievsky/
+            ├── smells.md
             ├── creation/
-            └── ...
+            └── ... # 6 pastas de capítulo, 27 arquivos
 ```
 
 ---
@@ -172,7 +174,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ---
 
-## 3. `references/smells.md`: os 24 smells e para onde levam
+## 3. `references/fowler/smells.md`: os 24 smells e para onde levam
 
 Resumo do cap. 3: o índice que o agente consulta antes de escolher uma refatoração. Cada refatoração
 citada aqui é o arquivo `references/fowler/<chapter>/<slug>.md`.
@@ -268,7 +270,7 @@ exclusiva da web, a linha de citação diz "só na edição web" e aponta o resu
 | Quando usar, mecânica | o livro (a edição web para as exclusivas da web) | **paráfrase**, com capítulo e página; nada copiado |
 | Exemplo | escrito para este pacote em C# | domínio neutro (pedidos, clientes, faturas, contas); não o exemplo nem o domínio do livro |
 | Notas (C#) | seção 2, coluna "Nota de C#" | só onde houver algo a dizer |
-| Verificação | cap. 4 + `references/discipline.md` | igual em todos os arquivos |
+| Verificação | cap. 4 + `references/fowler/discipline.md` | igual em todos os arquivos |
 | Linha de Fonte | esta especificação (4.1) | uma vez, no fim de `SKILL.md`; credita o autor e a editora |
 
 Nada na skill nomeia um projeto, framework, engine ou processo de equipe específico.
@@ -358,8 +360,8 @@ Especial, seu novo nome).
 
 ### 5.2 Os 12 smells
 
-Do cap. 4 e da terceira capa. Sete correspondem a um smell de Fowler e aparecem nele no
-`smells.md`; cinco são novos e estão no fim.
+Do cap. 4 e da terceira capa, em `references/kerievsky/smells.md`. A coluna "Smell de Fowler" é a
+ponte que o índice rápido do `SKILL.md` usa; os dois `smells.md` não citam um ao outro.
 
 | Smell | Página | Smell de Fowler | Refatorações |
 |---|---|---|---|

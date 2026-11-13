@@ -55,9 +55,9 @@ markdown_extensions:
 nav:
   - Início: index.md
   - Catálogo:
-      - Smells: skills/refactoring/references/smells.md
-      - Disciplina: skills/refactoring/references/discipline.md
       - "Fowler (2018)":
+          - Smells: skills/refactoring/references/fowler/smells.md
+          - Disciplina: skills/refactoring/references/fowler/discipline.md
           - "Um primeiro conjunto (cap. 6)":
               - skills/refactoring/references/fowler/first-set/extract-function.md
               - skills/refactoring/references/fowler/first-set/inline-function.md
@@ -132,6 +132,7 @@ nav:
               - skills/refactoring/references/fowler/inheritance/replace-subclass-with-delegate.md
               - skills/refactoring/references/fowler/inheritance/replace-superclass-with-delegate.md
       - "Kerievsky (2004)":
+          - Smells: skills/refactoring/references/kerievsky/smells.md
           - "Criação (cap. 6)":
               - skills/refactoring/references/kerievsky/creation/replace-constructors-with-creation-methods.md
               - skills/refactoring/references/kerievsky/creation/move-creation-knowledge-to-factory.md

@@ -6,7 +6,7 @@ Fowler (2018), cap. 8, p. 222. Antes / também: —. Inversa: —.
 - O código inline faz o mesmo trabalho de uma função que já existe na base de código ou na
   biblioteca padrão (um laço manual que busca, soma, junta ou testa pertinência).
 - A mesma lógica está copiada em vários lugares e uma das cópias já vive em uma função nomeada.
-- Duplicação é o sintoma usual (veja Código Duplicado (Duplicated Code) em [smells.md](../../smells.md)).
+- Duplicação é o sintoma usual (veja Código Duplicado (Duplicated Code) em [smells.md](../smells.md)).
 
 Antes de substituir, leia o nome da função no lugar do código inline. Se o nome soar
 natural ali, substitua. Se não soar, ou o nome é ruim (corrija com

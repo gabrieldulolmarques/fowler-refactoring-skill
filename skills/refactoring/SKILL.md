@@ -12,12 +12,13 @@ cap. 6-11 (refatorações para padrões), que se apoiam nas refatorações de Fo
 Fluxo: **smell -> refatoração -> seu arquivo em `references/`.**
 
 1. Nomeie o smell. Use o índice rápido abaixo, ou os sintomas em
-   [references/smells.md](references/smells.md) para a lista completa dos 29.
+   [references/fowler/smells.md](references/fowler/smells.md) (Fowler, 24) e
+   [references/kerievsky/smells.md](references/kerievsky/smells.md) (Kerievsky, 12).
 2. Escolha uma refatoração para esse smell e abra o arquivo dela nas tabelas mais adiante.
    Comece pela mais simples. Só recorra a uma refatoração para padrão quando o smell pedir, e
    pare assim que o smell sumir: ir *rumo a* um padrão muitas vezes basta.
 3. Antes de alterar qualquer coisa, confira a rede de segurança em
-   [references/discipline.md](references/discipline.md): testes passando, passos pequenos, um commit
+   [references/fowler/discipline.md](references/fowler/discipline.md): testes passando, passos pequenos, um commit
    após cada refatoração verde. Se o código não tem testes, escreva-os primeiro.
 4. Siga a mecânica um passo de cada vez. Compile e execute os testes após cada passo; se
    algo falhar, desfaça o passo.
@@ -26,40 +27,41 @@ Se o pedido nomear uma refatoração, pule para o passo 3 e abra o arquivo dela 
 
 ## Índice rápido de smells
 
-| Smell | Primeira coisa a tentar |
-|---|---|
-| Nome Misterioso (Mysterious Name) | [change-function-declaration](references/fowler/first-set/change-function-declaration.md), [rename-variable](references/fowler/first-set/rename-variable.md), [rename-field](references/fowler/organizing-data/rename-field.md) |
-| Código Duplicado (Duplicated Code) | [extract-function](references/fowler/first-set/extract-function.md), [pull-up-method](references/fowler/inheritance/pull-up-method.md) (mesmo código em subclasses irmãs) |
-| Função Longa (Long Function) | [extract-function](references/fowler/first-set/extract-function.md) |
-| Lista Longa de Parâmetros (Long Parameter List) | [introduce-parameter-object](references/fowler/first-set/introduce-parameter-object.md), [preserve-whole-object](references/fowler/refactoring-apis/preserve-whole-object.md) |
-| Dados Globais (Global Data) | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md) |
-| Dados Mutáveis (Mutable Data) | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md), [split-variable](references/fowler/organizing-data/split-variable.md) |
-| Alteração Divergente (Divergent Change) | [split-phase](references/fowler/first-set/split-phase.md), [extract-class](references/fowler/encapsulation/extract-class.md) |
-| Cirurgia com Espingarda (Shotgun Surgery) | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) |
-| Inveja de Recursos (Feature Envy) | [move-function](references/fowler/moving-features/move-function.md) |
-| Agrupamentos de Dados (Data Clumps) | [extract-class](references/fowler/encapsulation/extract-class.md) |
-| Obsessão por Primitivos (Primitive Obsession) | [replace-primitive-with-object](references/fowler/encapsulation/replace-primitive-with-object.md) |
-| Switches Repetidos (Repeated Switches) | [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md) |
-| Laços (Loops) | [replace-loop-with-pipeline](references/fowler/moving-features/replace-loop-with-pipeline.md) |
-| Elemento Ocioso (Lazy Element) | [inline-function](references/fowler/first-set/inline-function.md), [inline-class](references/fowler/encapsulation/inline-class.md) |
-| Generalidade Especulativa (Speculative Generality) | [collapse-hierarchy](references/fowler/inheritance/collapse-hierarchy.md), [remove-dead-code](references/fowler/moving-features/remove-dead-code.md) |
-| Campo Temporário (Temporary Field) | [extract-class](references/fowler/encapsulation/extract-class.md) |
-| Cadeias de Mensagens (Message Chains) | [hide-delegate](references/fowler/encapsulation/hide-delegate.md) |
-| Intermediário (Middle Man) | [remove-middle-man](references/fowler/encapsulation/remove-middle-man.md) |
-| Troca de Informações Privilegiadas (Insider Trading) | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) |
-| Classe Grande (Large Class) | [extract-class](references/fowler/encapsulation/extract-class.md) |
-| Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces) | [change-function-declaration](references/fowler/first-set/change-function-declaration.md) |
-| Classe de Dados (Data Class) | [encapsulate-record](references/fowler/encapsulation/encapsulate-record.md), [move-function](references/fowler/moving-features/move-function.md) |
-| Herança Recusada (Refused Bequest) | [push-down-method](references/fowler/inheritance/push-down-method.md), [push-down-field](references/fowler/inheritance/push-down-field.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md), [replace-superclass-with-delegate](references/fowler/inheritance/replace-superclass-with-delegate.md) |
-| Comentários (Comments) | [extract-function](references/fowler/first-set/extract-function.md) |
-| Complexidade Condicional (Conditional Complexity) | [replace-conditional-logic-with-strategy](references/kerievsky/simplification/replace-conditional-logic-with-strategy.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md), [move-embellishment-to-decorator](references/kerievsky/simplification/move-embellishment-to-decorator.md), [introduce-null-object](references/kerievsky/protection/introduce-null-object.md) |
-| Exposição Indecente (Indecent Exposure) | [encapsulate-classes-with-factory](references/kerievsky/creation/encapsulate-classes-with-factory.md) |
-| Solução Espalhada (Solution Sprawl) | [move-creation-knowledge-to-factory](references/kerievsky/creation/move-creation-knowledge-to-factory.md) |
-| Explosão Combinatória (Combinatorial Explosion) | [replace-implicit-language-with-interpreter](references/kerievsky/generalization/replace-implicit-language-with-interpreter.md) |
-| Solução Destoante (Oddball Solution) | [substitute-algorithm](references/fowler/encapsulation/substitute-algorithm.md), [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
+| Smell | Fowler | Kerievsky |
+|---|---|---|
+| Nome Misterioso (Mysterious Name) | [change-function-declaration](references/fowler/first-set/change-function-declaration.md), [rename-variable](references/fowler/first-set/rename-variable.md), [rename-field](references/fowler/organizing-data/rename-field.md) | — |
+| Código Duplicado (Duplicated Code) | [extract-function](references/fowler/first-set/extract-function.md), [pull-up-method](references/fowler/inheritance/pull-up-method.md) (mesmo código em subclasses irmãs) | [form-template-method](references/kerievsky/generalization/form-template-method.md), [chain-constructors](references/kerievsky/utilities/chain-constructors.md) |
+| Função Longa (Long Function; Kerievsky: Método Longo) | [extract-function](references/fowler/first-set/extract-function.md) | [compose-method](references/kerievsky/simplification/compose-method.md), [move-accumulation-to-collecting-parameter](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) |
+| Lista Longa de Parâmetros (Long Parameter List) | [introduce-parameter-object](references/fowler/first-set/introduce-parameter-object.md), [preserve-whole-object](references/fowler/refactoring-apis/preserve-whole-object.md) | — |
+| Dados Globais (Global Data) | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md) | — |
+| Dados Mutáveis (Mutable Data) | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md), [split-variable](references/fowler/organizing-data/split-variable.md) | — |
+| Alteração Divergente (Divergent Change) | [split-phase](references/fowler/first-set/split-phase.md), [extract-class](references/fowler/encapsulation/extract-class.md) | — |
+| Cirurgia com Espingarda (Shotgun Surgery) | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) | — |
+| Inveja de Recursos (Feature Envy) | [move-function](references/fowler/moving-features/move-function.md) | — |
+| Agrupamentos de Dados (Data Clumps) | [extract-class](references/fowler/encapsulation/extract-class.md) | — |
+| Obsessão por Primitivos (Primitive Obsession) | [replace-primitive-with-object](references/fowler/encapsulation/replace-primitive-with-object.md) | [replace-type-code-with-class](references/kerievsky/protection/replace-type-code-with-class.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) |
+| Switches Repetidos (Repeated Switches; Kerievsky: Comandos Switch) | [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md), [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
+| Laços (Loops) | [replace-loop-with-pipeline](references/fowler/moving-features/replace-loop-with-pipeline.md) | — |
+| Elemento Ocioso (Lazy Element; Kerievsky: Classe Preguiçosa) | [inline-function](references/fowler/first-set/inline-function.md), [inline-class](references/fowler/encapsulation/inline-class.md) | [inline-singleton](references/kerievsky/creation/inline-singleton.md) |
+| Generalidade Especulativa (Speculative Generality) | [collapse-hierarchy](references/fowler/inheritance/collapse-hierarchy.md), [remove-dead-code](references/fowler/moving-features/remove-dead-code.md) | — |
+| Campo Temporário (Temporary Field) | [extract-class](references/fowler/encapsulation/extract-class.md) | — |
+| Cadeias de Mensagens (Message Chains) | [hide-delegate](references/fowler/encapsulation/hide-delegate.md) | — |
+| Intermediário (Middle Man) | [remove-middle-man](references/fowler/encapsulation/remove-middle-man.md) | — |
+| Troca de Informações Privilegiadas (Insider Trading) | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) | — |
+| Classe Grande (Large Class) | [extract-class](references/fowler/encapsulation/extract-class.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) |
+| Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces) | [change-function-declaration](references/fowler/first-set/change-function-declaration.md) | [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
+| Classe de Dados (Data Class) | [encapsulate-record](references/fowler/encapsulation/encapsulate-record.md), [move-function](references/fowler/moving-features/move-function.md) | — |
+| Herança Recusada (Refused Bequest) | [push-down-method](references/fowler/inheritance/push-down-method.md), [push-down-field](references/fowler/inheritance/push-down-field.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md), [replace-superclass-with-delegate](references/fowler/inheritance/replace-superclass-with-delegate.md) | — |
+| Comentários (Comments) | [extract-function](references/fowler/first-set/extract-function.md) | — |
+| Complexidade Condicional (Conditional Complexity) | — | [replace-conditional-logic-with-strategy](references/kerievsky/simplification/replace-conditional-logic-with-strategy.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md), [move-embellishment-to-decorator](references/kerievsky/simplification/move-embellishment-to-decorator.md), [introduce-null-object](references/kerievsky/protection/introduce-null-object.md) |
+| Exposição Indecente (Indecent Exposure) | — | [encapsulate-classes-with-factory](references/kerievsky/creation/encapsulate-classes-with-factory.md) |
+| Solução Espalhada (Solution Sprawl) | — | [move-creation-knowledge-to-factory](references/kerievsky/creation/move-creation-knowledge-to-factory.md) |
+| Explosão Combinatória (Combinatorial Explosion) | — | [replace-implicit-language-with-interpreter](references/kerievsky/generalization/replace-implicit-language-with-interpreter.md) |
+| Solução Destoante (Oddball Solution) | [substitute-algorithm](references/fowler/encapsulation/substitute-algorithm.md) | [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
 
-Os cinco últimos são de Kerievsky. Para os demais smells, o `smells.md` também lista as
-refatorações para padrões que Kerievsky acrescenta.
+Os 24 primeiros smells são de Fowler e os cinco últimos, de Kerievsky. Sete dos doze de
+Kerievsky correspondem a um smell de Fowler; onde o nome dele é outro, está entre parênteses. O
+`smells.md` de cada livro lista todas as opções.
 
 ## Fowler: as refatorações
 
