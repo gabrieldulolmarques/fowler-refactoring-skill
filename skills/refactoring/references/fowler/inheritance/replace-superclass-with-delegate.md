@@ -24,54 +24,80 @@ Com uma superclasse muito grande, como uma coleção de framework, repassar todo
 
 ## Exemplo
 
-Antes: um extrato reutiliza `List<Transaction>` por herança, então os chamadores também podem inserir, ordenar e limpar a lista.
+Antes: um histórico de audições reutiliza `List<Play>` por herança, então os chamadores também podem
+inserir, ordenar e limpar a lista.
 
 ```csharp
-public record Transaction(DateOnly Date, decimal Amount);
+using System.Collections.Generic;
+using System.Linq;
 
-public class Statement : List<Transaction>
+public class Play
 {
-    public decimal Balance() => this.Sum(t => t.Amount);
+    public Play(string title, int seconds)
+    {
+        Title = title;
+        Seconds = seconds;
+    }
+
+    public string Title { get; }
+    public int Seconds { get; }
+}
+
+public class ListeningHistory : List<Play>
+{
+    public int TotalSeconds() => this.Sum(p => p.Seconds);
 }
 
 // chamador
-var statement = new Statement();
-statement.Add(new Transaction(new DateOnly(2026, 1, 5), 120m));
-statement.Clear(); // não faz sentido para um extrato
+public class Caller
+{
+    public void Run()
+    {
+        var history = new ListeningHistory();
+        history.Add(new Play("Blue Hour", 212));
+        history.Clear(); // não faz sentido para um histórico
+    }
+}
 ```
 
 Depois dos passos 1 e 2 (ainda herdando, `new` oculta os membros herdados enquanto os dois coexistem):
 
 ```csharp
-public class Statement : List<Transaction>
+public class ListeningHistory : List<Play>
 {
-    private readonly List<Transaction> _transactions = new();
+    private readonly List<Play> _plays = new();
 
-    public new void Add(Transaction t) => _transactions.Add(t);
-    public new int Count => _transactions.Count;
-    public new IEnumerator<Transaction> GetEnumerator() => _transactions.GetEnumerator();
+    public new void Add(Play p) => _plays.Add(p);
+    public new int Count => _plays.Count;
+    public new IEnumerator<Play> GetEnumerator() => _plays.GetEnumerator();
 
-    public decimal Balance() => _transactions.Sum(t => t.Amount);
+    public int TotalSeconds() => _plays.Sum(p => p.Seconds);
 }
 ```
 
-`new` só oculta membros para os chamadores que usam o tipo `Statement`. Um chamador que alcança o objeto por `IEnumerable<Transaction>` (LINQ, ou um `foreach` sobre uma variável de tipo interface) ainda atinge a lista herdada, agora vazia, até o passo 3, então verifique se há tais chamadores antes de confiar nos testes nesta etapa.
+`new` só oculta membros para os chamadores que usam o tipo `ListeningHistory`. Um chamador que alcança o
+objeto por `IEnumerable<Play>` (LINQ, ou um `foreach` sobre uma variável de tipo interface) ainda atinge a
+lista herdada, agora vazia, até o passo 3; então verifique se há tais chamadores antes de confiar nos
+testes nesta etapa.
 
 Depois dos passos 3 e 4 (vínculo removido; o compilador agora rejeita `Clear`):
 
 ```csharp
+// fragment
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
-public class Statement : IEnumerable<Transaction>
+public class ListeningHistory : IEnumerable<Play>
 {
-    private readonly List<Transaction> _transactions = new();
+    private readonly List<Play> _plays = new();
 
-    public void Add(Transaction t) => _transactions.Add(t);
-    public int Count => _transactions.Count;
-    public IEnumerator<Transaction> GetEnumerator() => _transactions.GetEnumerator();
+    public void Add(Play p) => _plays.Add(p);
+    public int Count => _plays.Count;
+    public IEnumerator<Play> GetEnumerator() => _plays.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public decimal Balance() => _transactions.Sum(t => t.Amount);
+    public int TotalSeconds() => _plays.Sum(p => p.Seconds);
 }
 ```
 
@@ -81,4 +107,5 @@ O comportamento é o mesmo para todo chamador restante; apenas os membros que n�
 
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhum chamador dependia de um membro que foi descartado, ou ele foi repassado de propósito.
-- Tudo que tratava a subclasse como a superclasse (conversões, verificações `is`, parâmetros polimórficos, coleções do tipo base) foi encontrado e mudado.
+- Tudo que tratava a subclasse como a superclasse (conversões, verificações `is`, parâmetros polimórficos,
+  coleções do tipo base) foi encontrado e mudado.

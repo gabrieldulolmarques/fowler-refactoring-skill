@@ -33,8 +33,8 @@ Smells: Classe Grande (Large Class), Classes Alternativas com Interfaces Diferen
    agora pode depender da classe base.
 
 ## Exemplo
-Duas classes têm cada uma um identificador e informam um total que soma a mesma taxa de imposto, mas elas
-o nomeiam e calculam de formas diferentes.
+Duas classes têm, cada uma, um título e informam uma duração em minutos arredondada para cima, mas
+nomeiam e calculam essa duração de formas diferentes.
 
 Antes:
 
@@ -42,42 +42,42 @@ Antes:
 using System.Collections.Generic;
 using System.Linq;
 
-public class Invoice
+public class Episode
 {
-    private readonly string _number;
-    private readonly List<decimal> _lineAmounts;
+    private readonly string _title;
+    private readonly List<int> _segmentSeconds;
 
-    public Invoice(string number, List<decimal> lineAmounts)
+    public Episode(string title, List<int> segmentSeconds)
     {
-        _number = number;
-        _lineAmounts = lineAmounts;
+        _title = title;
+        _segmentSeconds = segmentSeconds;
     }
 
-    public string Number => _number;
-    public decimal Subtotal => _lineAmounts.Sum();
-    public decimal TotalWithTax => Subtotal * 1.2m;
+    public string Title => _title;
+    public int TotalSeconds => _segmentSeconds.Sum();
+    public string MinutesLabel => $"{(TotalSeconds + 59) / 60} min";
 }
 
-public class Refund
+public class Clip
 {
-    private readonly string _number;
-    private readonly decimal _amount;
+    private readonly string _title;
+    private readonly int _seconds;
 
-    public Refund(string number, decimal amount)
+    public Clip(string title, int seconds)
     {
-        _number = number;
-        _amount = amount;
+        _title = title;
+        _seconds = seconds;
     }
 
-    public string Number => _number;
-    public decimal Amount => _amount;
-    public decimal GrossAmount => Amount * 1.2m;
+    public string Title => _title;
+    public int Seconds => _seconds;
+    public string DurationLabel => $"{(Seconds + 59) / 60} min";
 }
 ```
 
-Passos: adicione `Document` como classe base de ambas, suba o número pelo construtor,
-renomeie `Amount` para `Subtotal` e `GrossAmount` para `TotalWithTax` em `Refund`, depois suba
-`TotalWithTax`.
+Passos: adicione `MediaItem` como classe base das duas, suba o título pelo construtor, renomeie
+`Seconds` para `TotalSeconds` e `DurationLabel` para `MinutesLabel` em `Clip`, depois suba
+`MinutesLabel`.
 
 Depois:
 
@@ -85,48 +85,48 @@ Depois:
 using System.Collections.Generic;
 using System.Linq;
 
-public abstract class Document
+public abstract class MediaItem
 {
-    protected Document(string number)
+    protected MediaItem(string title)
     {
-        Number = number;
+        Title = title;
     }
 
-    public string Number { get; }
-    public abstract decimal Subtotal { get; }
-    public decimal TotalWithTax => Subtotal * 1.2m;
+    public string Title { get; }
+    public abstract int TotalSeconds { get; }
+    public string MinutesLabel => $"{(TotalSeconds + 59) / 60} min";
 }
 
-public class Invoice : Document
+public class Episode : MediaItem
 {
-    private readonly List<decimal> _lineAmounts;
+    private readonly List<int> _segmentSeconds;
 
-    public Invoice(string number, List<decimal> lineAmounts) : base(number)
+    public Episode(string title, List<int> segmentSeconds) : base(title)
     {
-        _lineAmounts = lineAmounts;
+        _segmentSeconds = segmentSeconds;
     }
 
-    public override decimal Subtotal => _lineAmounts.Sum();
+    public override int TotalSeconds => _segmentSeconds.Sum();
 }
 
-public class Refund : Document
+public class Clip : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _seconds;
 
-    public Refund(string number, decimal amount) : base(number)
+    public Clip(string title, int seconds) : base(title)
     {
-        _amount = amount;
+        _seconds = seconds;
     }
 
-    public override decimal Subtotal => _amount;
+    public override int TotalSeconds => _seconds;
 }
 ```
 
-Uma exportação de livro-razão que só precisa de números e totais agora pode aceitar um `Document`.
+Uma fila de reprodução que só precisa de títulos e durações agora pode aceitar um `MediaItem`.
 
 ## Notas (C#)
-- Torne a superclasse `abstract` quando ela não se destina a ser instanciada; membros que
-  as subclasses devem fornecer se tornam `abstract`.
+- Torne a superclasse `abstract` quando ela não se destina a ser instanciada; membros que as
+  subclasses devem fornecer se tornam `abstract`.
 - Se apenas as assinaturas são compartilhadas e não há estado ou comportamento comum, extraia uma
   interface em vez de uma classe base.
 - C# tem herança simples: uma classe que já tem uma classe base não pode receber uma segunda.
@@ -135,4 +135,4 @@ Uma exportação de livro-razão que só precisa de números e totais agora pode
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - O comportamento não muda: cada classe original retorna os mesmos valores de antes, e qualquer
-  membro renomeado não tem chamadores restantes sob o nome antigo.
+  membro renomeado não tem mais chamadores com o nome antigo.

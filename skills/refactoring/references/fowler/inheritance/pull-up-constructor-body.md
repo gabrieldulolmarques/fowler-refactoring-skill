@@ -31,169 +31,161 @@ ficar confuso, considere Substituir Construtor por Função de Fábrica (Replace
    [change-function-declaration.md](../first-set/change-function-declaration.md)). Teste.
 
 ## Exemplo
-Antes: dois tipos de documento compartilham um cliente e uma data de criação, cada um atribuído no seu próprio
-construtor.
+Antes: dois tipos de item de mídia compartilham um título e um idioma, cada um atribuído no seu
+próprio construtor.
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly string _customer;
-    private readonly DateTime _createdOn;
-    private readonly decimal _amount;
+    private readonly string _title;
+    private readonly string _language;
+    private readonly int _bitrateKbps;
 
-    public Invoice(string customer, DateTime createdOn, decimal amount)
+    public Track(string title, string language, int bitrateKbps)
     {
-        _amount = amount;
-        _customer = customer;
-        _createdOn = createdOn;
+        _bitrateKbps = bitrateKbps;
+        _title = title;
+        _language = language;
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly string _customer;
-    private readonly DateTime _createdOn;
-    private readonly int _validDays;
+    private readonly string _title;
+    private readonly string _language;
+    private readonly int _episodeNumber;
 
-    public Quote(string customer, DateTime createdOn, int validDays)
+    public Podcast(string title, string language, int episodeNumber)
     {
-        _customer = customer;
-        _createdOn = createdOn;
-        _validDays = validDays;
+        _title = title;
+        _language = language;
+        _episodeNumber = episodeNumber;
     }
 }
 ```
 
-Depois: os campos compartilhados e as suas atribuições vivem em `Document`. `Invoice` primeiro deslocou as suas
-atribuições para perto da chamada à base, e então ambas foram movidas para cima.
+Depois: os campos compartilhados e as suas atribuições vivem em `MediaItem`. `Track` primeiro deslocou
+as suas atribuições para perto da chamada à base, e então ambas foram movidas para cima.
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
-    protected readonly string Customer;
-    protected readonly DateTime CreatedOn;
+    protected readonly string Title;
+    protected readonly string Language;
 
-    protected Document(string customer, DateTime createdOn)
+    protected MediaItem(string title, string language)
     {
-        Customer = customer;
-        CreatedOn = createdOn;
+        Title = title;
+        Language = language;
     }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _bitrateKbps;
 
-    public Invoice(string customer, DateTime createdOn, decimal amount)
-        : base(customer, createdOn)
+    public Track(string title, string language, int bitrateKbps)
+        : base(title, language)
     {
-        _amount = amount;
+        _bitrateKbps = bitrateKbps;
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly int _validDays;
+    private readonly int _episodeNumber;
 
-    public Quote(string customer, DateTime createdOn, int validDays)
-        : base(customer, createdOn)
+    public Podcast(string title, string language, int episodeNumber)
+        : base(title, language)
     {
-        _validDays = validDays;
+        _episodeNumber = episodeNumber;
     }
 }
 ```
 
-O comportamento comum que deve rodar depois que os dados da subclasse são definidos é extraído para um método, subido
-e chamado como a última linha de cada construtor de subclasse. Antes, cada subclasse terminava o seu
-construtor com uma instrução semelhante de construção de rótulo:
+O comportamento comum que deve rodar depois que os dados da subclasse são definidos é extraído para
+um método, subido e chamado como a última linha de cada construtor de subclasse. Antes, cada subclasse
+terminava o seu construtor com uma instrução semelhante de montagem de rótulo:
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
-    protected readonly string Customer;
+    protected readonly string Title;
 
-    protected Document(string customer)
+    protected MediaItem(string title)
     {
-        Customer = customer;
+        Title = title;
     }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _bitrateKbps;
     public string Label { get; private set; }
 
-    public Invoice(string customer, decimal amount) : base(customer)
+    public Track(string title, int bitrateKbps) : base(title)
     {
-        _amount = amount;
-        Label = "INV " + Customer + " " + _amount;
+        _bitrateKbps = bitrateKbps;
+        Label = "TRK " + Title + " " + _bitrateKbps;
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly int _validDays;
+    private readonly int _episodeNumber;
     public string Label { get; private set; }
 
-    public Quote(string customer, int validDays) : base(customer)
+    public Podcast(string title, int episodeNumber) : base(title)
     {
-        _validDays = validDays;
-        Label = "QUO " + Customer + " " + _validDays;
+        _episodeNumber = episodeNumber;
+        Label = "POD " + Title + " " + _episodeNumber;
     }
 }
 ```
 
-Depois: a etapa de construção do rótulo é um método em `Document` que lê um prefixo e um detalhe
+Depois: a etapa de montagem do rótulo é um método em `MediaItem` que lê um prefixo e um detalhe
 fornecidos pela subclasse, e cada construtor o chama assim que o seu próprio campo é definido.
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
-    protected readonly string Customer;
+    protected readonly string Title;
     public string Label { get; private set; }
 
-    protected Document(string customer)
+    protected MediaItem(string title)
     {
-        Customer = customer;
+        Title = title;
     }
 
     protected void Finish(string prefix, object detail)
     {
-        Label = prefix + " " + Customer + " " + detail;
+        Label = prefix + " " + Title + " " + detail;
     }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _bitrateKbps;
 
-    public Invoice(string customer, decimal amount) : base(customer)
+    public Track(string title, int bitrateKbps) : base(title)
     {
-        _amount = amount;
-        Finish("INV", _amount);
+        _bitrateKbps = bitrateKbps;
+        Finish("TRK", _bitrateKbps);
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly int _validDays;
+    private readonly int _episodeNumber;
 
-    public Quote(string customer, int validDays) : base(customer)
+    public Podcast(string title, int episodeNumber) : base(title)
     {
-        _validDays = validDays;
-        Finish("QUO", _validDays);
+        _episodeNumber = episodeNumber;
+        Finish("POD", _episodeNumber);
     }
 }
 ```
@@ -211,5 +203,4 @@ public class Quote : Document
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - As atribuições compartilhadas não aparecem mais em nenhum construtor de subclasse, cada subclasse passa
-  os valores por `: base(...)`, e a ordem dos efeitos colaterais observáveis durante a
-  construção não mudou.
+  os valores por `: base(...)`, e a ordem dos efeitos colaterais observáveis durante a construção não muda.

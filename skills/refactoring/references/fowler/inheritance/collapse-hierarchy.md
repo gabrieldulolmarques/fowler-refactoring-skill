@@ -24,54 +24,61 @@ Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative G
 5. Compile e rode os testes.
 
 ## Exemplo
-Antes: `RegularInvoice` não acrescenta nada que a base precise manter separado, e é a única
+Antes: `CuratedPlaylist` não acrescenta nada que a base precise manter separado, e é a única
 subclasse.
 
 ```csharp
-public class Invoice
+public class Playlist
 {
-    protected decimal Subtotal;
+    protected string Name;
 
-    public Invoice(decimal subtotal) => Subtotal = subtotal;
+    public Playlist(string name) => Name = name;
 
-    public virtual decimal Total() => Subtotal;
+    public virtual string Summary() => Name;
 }
 
-public class RegularInvoice : Invoice
+public class CuratedPlaylist : Playlist
 {
-    private readonly decimal _tax;
+    private readonly string _curator;
 
-    public RegularInvoice(decimal subtotal, decimal tax) : base(subtotal) => _tax = tax;
+    public CuratedPlaylist(string name, string curator) : base(name) => _curator = curator;
 
-    public override decimal Total() => Subtotal + _tax;
+    public override string Summary() => Name + " by " + _curator;
 }
 
 // chamador
-Invoice invoice = new RegularInvoice(100m, 18m);
+public class Caller
+{
+    public Playlist Build() => new CuratedPlaylist("Morning Focus", "Ana");
+}
 ```
 
-Depois: `Invoice` sobrevive e absorve o campo, o parâmetro do construtor e o comportamento.
+Depois: `Playlist` sobrevive e absorve o campo, o parâmetro do construtor e o comportamento.
 
 ```csharp
-public class Invoice
+// fragment
+public class Playlist
 {
-    private readonly decimal _subtotal;
-    private readonly decimal _tax;
+    private readonly string _name;
+    private readonly string _curator;
 
-    public Invoice(decimal subtotal, decimal tax)
+    public Playlist(string name, string curator)
     {
-        _subtotal = subtotal;
-        _tax = tax;
+        _name = name;
+        _curator = curator;
     }
 
-    public decimal Total() => _subtotal + _tax;
+    public string Summary() => _name + " by " + _curator;
 }
 
 // chamador
-Invoice invoice = new Invoice(100m, 18m);
+public class Caller
+{
+    public Playlist Build() => new Playlist("Morning Focus", "Ana");
+}
 ```
 
-Mesmo comportamento: `Total()` retorna 118 para as mesmas entradas.
+Mesmo comportamento: `Summary()` retorna "Morning Focus by Ana" para as mesmas entradas.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

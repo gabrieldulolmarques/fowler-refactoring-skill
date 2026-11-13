@@ -34,86 +34,102 @@ não deveria conhecer o conceito (o método seria então uma Herança Recusada (
 7. Remova as outras cópias da mesma forma, uma de cada vez, rodando os testes após cada uma.
 
 ## Exemplo
-Duas subclasses constroem o mesmo texto de título com nomes diferentes.
+Duas subclasses constroem o mesmo texto de crédito com nomes diferentes.
 
 Antes:
 
 ```csharp
-public abstract class Document
+public abstract class MediaItem
 {
-    public string Customer { get; init; } = "";
+    public MediaItem(string title) => Title = title;
+
+    public string Title { get; }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    public string Number { get; init; } = "";
+    public Track(string title, string creator) : base(title) => Creator = creator;
 
-    public string Heading() => $"{Number} para {Customer}";
+    public string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 
-public class CreditNote : Document
+public class Podcast : MediaItem
 {
-    public string Number { get; init; } = "";
+    public Podcast(string title, string creator) : base(title) => Creator = creator;
 
-    public string Caption() => $"{Number} para {Customer}";
+    public string Creator { get; }
+
+    public string Byline() => $"{Title} by {Creator}";
 }
 ```
 
-Passos 2 e 3: os dois corpos são iguais e usam `Number`, que a superclasse não tem. Declare-o
-lá como abstrato, mantendo o uso de `init` nas subclasses, e renomeie `Caption` para
-`Heading`.
+Passos 2 e 3: os dois corpos são iguais e usam `Creator`, que a superclasse não tem. Declare-o lá
+como abstrato, e renomeie `Byline` para `Credit`.
 
 ```csharp
-public abstract class Document
+public abstract class MediaItem
 {
-    public string Customer { get; init; } = "";
-    public abstract string Number { get; init; }
+    public MediaItem(string title) => Title = title;
+
+    public string Title { get; }
+    public abstract string Creator { get; }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Track(string title, string creator) : base(title) => Creator = creator;
 
-    public string Heading() => $"{Number} para {Customer}";
+    public override string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 
-public class CreditNote : Document
+public class Podcast : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Podcast(string title, string creator) : base(title) => Creator = creator;
 
-    public string Heading() => $"{Number} para {Customer}";
+    public override string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 ```
 
-Passos 4 a 7: adicione o método à superclasse, depois apague as cópias uma a uma, testando
-a cada vez.
+Passos 4 a 7: adicione o método à superclasse, depois apague as cópias uma a uma, testando a cada vez.
 
 Depois:
 
 ```csharp
-public abstract class Document
+public abstract class MediaItem
 {
-    public string Customer { get; init; } = "";
-    public abstract string Number { get; init; }
+    public MediaItem(string title) => Title = title;
 
-    public string Heading() => $"{Number} para {Customer}";
+    public string Title { get; }
+    public abstract string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Track(string title, string creator) : base(title) => Creator = creator;
+
+    public override string Creator { get; }
 }
 
-public class CreditNote : Document
+public class Podcast : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Podcast(string title, string creator) : base(title) => Creator = creator;
+
+    public override string Creator { get; }
 }
 ```
 
-Chamadores como `new Invoice { Number = "A-1", Customer = "Acme" }` compilam sem mudança.
+Chamadores como `new Track("Blue Hour", "Lena")` compilam sem mudança.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhuma subclasse ainda define uma cópia do método que subiu (a menos que o sobrescreva de propósito).
-- Toda subclasse da superclasse, inclusive as de fora do par original, ainda se comporta
-  corretamente com o método herdado.
+- Toda subclasse da superclasse, inclusive as de fora do par original, ainda se comporta corretamente com o
+  método herdado.

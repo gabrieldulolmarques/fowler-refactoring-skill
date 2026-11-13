@@ -17,43 +17,41 @@ Não vale a pena quando a maioria das subclasses usa o campo, ou quando código 
 7. Compile e rode os testes.
 
 ## Exemplo
-Antes: `Radius` é declarado na classe base, mas apenas `Circle` o usa.
+Antes: `SubtitleLanguage` é declarado na classe base, mas apenas `Video` o usa.
 
 ```csharp
-public abstract class Shape
+public abstract class MediaItem
 {
-    public string Label { get; init; } = "";
-    protected double Radius;
+    public string Title { get; set; } = "";
+    protected string SubtitleLanguage = "";
 }
 
-public class Square : Shape { }
+public class Song : MediaItem { }
 
-public class Circle : Shape
+public class Video : MediaItem
 {
-    public double Area() => Math.PI * Radius * Radius;
-    public void SetRadius(double value) => Radius = value;
+    public string Label() => $"{Title} [{SubtitleLanguage}]";
+    public void SetSubtitles(string language) => SubtitleLanguage = language;
 }
 ```
 
 Depois: o campo vive apenas onde é usado.
 
 ```csharp
-public abstract class Shape
+public abstract class MediaItem
 {
-    public string Label { get; init; } = "";
+    public string Title { get; set; } = "";
 }
 
-public class Square : Shape { }
+public class Song : MediaItem { }
 
-public class Circle : Shape
+public class Video : MediaItem
 {
-    private double _radius;
-    public double Area() => Math.PI * _radius * _radius;
-    public void SetRadius(double value) => _radius = value;
+    private string _subtitleLanguage = "";
+    public string Label() => $"{Title} [{_subtitleLanguage}]";
+    public void SetSubtitles(string language) => _subtitleLanguage = language;
 }
 ```
-
-O comportamento é o mesmo.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

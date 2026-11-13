@@ -28,74 +28,77 @@ Não use quando o código é apenas dado do qual nenhum comportamento depende; u
 Com herança indireta, um tipo mutável significa um setter que reexecuta a seleção e troca o objeto de tipo. Com isso, a classe base vazia do tipo pode permanecer: ela documenta a família e é um lugar natural para a lógica compartilhada entre os tipos.
 
 ## Exemplo
-Antes: uma conta cujo comportamento depende de um tipo em string.
+Antes: um arquivo de mídia cujo comportamento depende de um tipo em string.
 
 ```csharp
 using System;
 
-public class Account
+public class MediaFile
 {
-    private readonly string _owner;
+    private readonly string _title;
     private readonly string _kind;
 
-    public Account(string owner, string kind)
+    public MediaFile(string title, string kind)
     {
-        if (kind != "corrente" && kind != "poupança")
-            throw new ArgumentException($"Tipo de conta desconhecido: {kind}");
-        _owner = owner;
+        if (kind != "audio" && kind != "video")
+            throw new ArgumentException($"Unknown media kind: {kind}");
+        _title = title;
         _kind = kind;
     }
 
     public string Kind => _kind;
 
-    public decimal MonthlyFee() => _kind == "corrente" ? 5m : 0m;
+    public int MegabytesPerMinute() => _kind == "video" ? 8 : 1;
 
-    public override string ToString() => $"{_owner} ({_kind})";
+    public override string ToString() => $"{_title} ({_kind})";
 }
 ```
 
-Depois dos passos 1 a 8 (`MonthlyFee` descido e tornado polimórfico; `Kind` mantido apenas para `ToString`):
+Depois dos passos 1 a 8 (`MegabytesPerMinute` descido e tornado polimórfico; `Kind` mantido apenas para `ToString`):
 
 ```csharp
 using System;
 
-public abstract class Account
+public abstract class MediaFile
 {
-    private readonly string _owner;
+    private readonly string _title;
 
-    protected Account(string owner) => _owner = owner;
+    protected MediaFile(string title) => _title = title;
 
-    public static Account Create(string owner, string kind) => kind switch
+    public static MediaFile Create(string title, string kind) => kind switch
     {
-        "corrente" => new CheckingAccount(owner),
-        "poupança" => new SavingsAccount(owner),
-        _ => throw new ArgumentException($"Tipo de conta desconhecido: {kind}")
+        "audio" => new AudioFile(title),
+        "video" => new VideoFile(title),
+        _ => throw new ArgumentException($"Unknown media kind: {kind}")
     };
 
     public abstract string Kind { get; }
 
-    public abstract decimal MonthlyFee();
+    public abstract int MegabytesPerMinute();
 
-    public override string ToString() => $"{_owner} ({Kind})";
+    public override string ToString() => $"{_title} ({Kind})";
 }
 
-public class CheckingAccount : Account
+public class AudioFile : MediaFile
 {
-    public CheckingAccount(string owner) : base(owner) { }
-    public override string Kind => "corrente";
-    public override decimal MonthlyFee() => 5m;
+    public AudioFile(string title) : base(title) { }
+    public override string Kind => "audio";
+    public override int MegabytesPerMinute() => 1;
 }
 
-public class SavingsAccount : Account
+public class VideoFile : MediaFile
 {
-    public SavingsAccount(string owner) : base(owner) { }
-    public override string Kind => "poupança";
-    public override decimal MonthlyFee() => 0m;
+    public VideoFile(string title) : base(title) { }
+    public override string Kind => "video";
+    public override int MegabytesPerMinute() => 8;
 }
 ```
 
-O comportamento não muda: os chamadores agora usam `Account.Create(owner, kind)`, e `MonthlyFee` não ramifica mais pelo código. `Kind` permanece apenas porque `ToString` e possivelmente chamadores externos o leem; apague-o (passo 8) quando nada mais o fizer.
+O comportamento não muda: os chamadores agora usam `MediaFile.Create(title, kind)`, e `MegabytesPerMinute`
+não ramifica mais pelo código. `Kind` permanece apenas porque `ToString` e possivelmente chamadores externos
+o leem; apague-o (passo 8) quando nada mais o fizer.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Todo valor de código que existia antes mapeia para uma subclasse, e valores desconhecidos ainda falham do mesmo modo que antes.
+- Todo valor de código que existia antes mapeia para uma subclasse, e valores desconhecidos ainda falham do
+  mesmo modo que antes.

@@ -27,96 +27,96 @@ diretamente a ela.
 5. Compile e rode os testes.
 
 ## Exemplo
-Antes: dois tipos de fatura mantêm cada um o seu próprio `customerName`.
+Antes: dois tipos de assinatura guardam cada um o seu próprio `subscriberName`.
 
 ```csharp
-public abstract class Invoice
+public abstract class Subscription
 {
-    public abstract decimal Total();
+    public abstract decimal MonthlyCost();
 }
 
-public class ServiceInvoice : Invoice
+public class FamilyPlan : Subscription
 {
-    private string customerName;
-    private decimal hours;
-    private decimal rate;
+    private string subscriberName;
+    private int seats;
+    private decimal pricePerSeat;
 
-    public ServiceInvoice(string customerName, decimal hours, decimal rate)
+    public FamilyPlan(string subscriberName, int seats, decimal pricePerSeat)
     {
-        this.customerName = customerName;
-        this.hours = hours;
-        this.rate = rate;
+        this.subscriberName = subscriberName;
+        this.seats = seats;
+        this.pricePerSeat = pricePerSeat;
     }
 
-    public string Describe() => $"Serviço para {customerName}";
-    public override decimal Total() => hours * rate;
+    public string Describe() => $"Family plan for {subscriberName}";
+    public override decimal MonthlyCost() => seats * pricePerSeat;
 }
 
-public class ProductInvoice : Invoice
+public class StudentPlan : Subscription
 {
-    private string customerName;
-    private decimal unitPrice;
-    private int quantity;
+    private string subscriberName;
+    private decimal fee;
+    private decimal discount;
 
-    public ProductInvoice(string customerName, decimal unitPrice, int quantity)
+    public StudentPlan(string subscriberName, decimal fee, decimal discount)
     {
-        this.customerName = customerName;
-        this.unitPrice = unitPrice;
-        this.quantity = quantity;
+        this.subscriberName = subscriberName;
+        this.fee = fee;
+        this.discount = discount;
     }
 
-    public string Describe() => $"Produtos para {customerName}";
-    public override decimal Total() => unitPrice * quantity;
+    public string Describe() => $"Student plan for {subscriberName}";
+    public override decimal MonthlyCost() => fee - discount;
 }
 ```
 
-Depois: o campo é declarado uma só vez em `Invoice`. Os construtores das subclasses ainda o atribuem,
-o que [pull-up-constructor-body.md](pull-up-constructor-body.md) pode então arrumar. O inicializador `= ""`
-evita o aviso CS8618 quando os tipos de referência anuláveis estão habilitados; ele pode sair quando
-a atribuição for para dentro de um construtor de `Invoice`.
+Depois: o campo é declarado uma só vez em `Subscription`. Os construtores das subclasses ainda o
+atribuem, o que [pull-up-constructor-body.md](pull-up-constructor-body.md) pode então arrumar. O
+inicializador `= ""` evita o aviso CS8618 quando os tipos de referência anuláveis estão habilitados;
+ele pode sair quando a atribuição passar para um construtor de `Subscription`.
 
 ```csharp
-public abstract class Invoice
+public abstract class Subscription
 {
-    protected string customerName = "";
+    protected string subscriberName = "";
 
-    public abstract decimal Total();
+    public abstract decimal MonthlyCost();
 }
 
-public class ServiceInvoice : Invoice
+public class FamilyPlan : Subscription
 {
-    private decimal hours;
-    private decimal rate;
+    private int seats;
+    private decimal pricePerSeat;
 
-    public ServiceInvoice(string customerName, decimal hours, decimal rate)
+    public FamilyPlan(string subscriberName, int seats, decimal pricePerSeat)
     {
-        this.customerName = customerName;
-        this.hours = hours;
-        this.rate = rate;
+        this.subscriberName = subscriberName;
+        this.seats = seats;
+        this.pricePerSeat = pricePerSeat;
     }
 
-    public string Describe() => $"Serviço para {customerName}";
-    public override decimal Total() => hours * rate;
+    public string Describe() => $"Family plan for {subscriberName}";
+    public override decimal MonthlyCost() => seats * pricePerSeat;
 }
 
-public class ProductInvoice : Invoice
+public class StudentPlan : Subscription
 {
-    private decimal unitPrice;
-    private int quantity;
+    private decimal fee;
+    private decimal discount;
 
-    public ProductInvoice(string customerName, decimal unitPrice, int quantity)
+    public StudentPlan(string subscriberName, decimal fee, decimal discount)
     {
-        this.customerName = customerName;
-        this.unitPrice = unitPrice;
-        this.quantity = quantity;
+        this.subscriberName = subscriberName;
+        this.fee = fee;
+        this.discount = discount;
     }
 
-    public string Describe() => $"Produtos para {customerName}";
-    public override decimal Total() => unitPrice * quantity;
+    public string Describe() => $"Student plan for {subscriberName}";
+    public override decimal MonthlyCost() => fee - discount;
 }
 ```
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Todo construtor de subclasse ainda compila depois que o seu próprio campo é apagado, e a saída de
-  `Describe()` e `Total()` não muda.
+  `Describe()` e `MonthlyCost()` não muda.

@@ -40,90 +40,114 @@ Smell: nenhum específico no livro (relacionados: Elemento Ocioso (Lazy Element)
 Antes: duas subclasses que apenas retornam uma constante, criadas a partir de registros armazenados.
 
 ```csharp
-public record AccountRecord(string Owner, string Kind);
+using System.Collections.Generic;
+using System.Linq;
 
-public class Account
+public class StoredPlaylist
 {
-    public Account(string owner) => Owner = owner;
-
-    public string Owner { get; }
-    public virtual string Kind => "básica";
-}
-
-public class SavingsAccount : Account
-{
-    public SavingsAccount(string owner) : base(owner) { }
-    public override string Kind => "poupança";
-}
-
-public class CheckingAccount : Account
-{
-    public CheckingAccount(string owner) : base(owner) { }
-    public override string Kind => "corrente";
-}
-
-// cliente
-var accounts = new List<Account>();
-foreach (var record in records)
-{
-    switch (record.Kind)
+    public StoredPlaylist(string name, string kind)
     {
-        case "S": accounts.Add(new SavingsAccount(record.Owner)); break;
-        case "C": accounts.Add(new CheckingAccount(record.Owner)); break;
-        default: accounts.Add(new Account(record.Owner)); break;
-    }
-}
-int savingsCount = accounts.Count(a => a is SavingsAccount);
-```
-
-Passos 1 e 2: encapsule a criação em uma fábrica e o teste de tipo em um membro da
-superclasse.
-
-```csharp
-public class Account
-{
-    // ...
-    public bool IsSavings => this is SavingsAccount;
-
-    public static Account Create(AccountRecord record) => record.Kind switch
-    {
-        "S" => new SavingsAccount(record.Owner),
-        "C" => new CheckingAccount(record.Owner),
-        _ => new Account(record.Owner),
-    };
-}
-
-// cliente
-var accounts = records.Select(Account.Create).ToList();
-int savingsCount = accounts.Count(a => a.IsSavings);
-```
-
-Passos 3 a 7: adicione o campo, incorpore cada subclasse na fábrica e depois apague as subclasses.
-
-```csharp
-public class Account
-{
-    private Account(string owner, string kind)
-    {
-        Owner = owner;
+        Name = name;
         Kind = kind;
     }
 
-    public string Owner { get; }
+    public string Name { get; }
     public string Kind { get; }
-    public bool IsSavings => Kind == "poupança";
+}
 
-    public static Account Create(AccountRecord record) => record.Kind switch
+public class Playlist
+{
+    public Playlist(string name) => Name = name;
+
+    public string Name { get; }
+    public virtual string Kind => "standard";
+}
+
+public class SmartPlaylist : Playlist
+{
+    public SmartPlaylist(string name) : base(name) { }
+    public override string Kind => "smart";
+}
+
+public class CollaborativePlaylist : Playlist
+{
+    public CollaborativePlaylist(string name) : base(name) { }
+    public override string Kind => "collaborative";
+}
+
+public class Library
+{
+    public int CountSmart(List<StoredPlaylist> records)
     {
-        "S" => new Account(record.Owner, "poupança"),
-        "C" => new Account(record.Owner, "corrente"),
-        _ => new Account(record.Owner, "básica"),
+        var playlists = new List<Playlist>();
+        foreach (var record in records)
+        {
+            switch (record.Kind)
+            {
+                case "S": playlists.Add(new SmartPlaylist(record.Name)); break;
+                case "C": playlists.Add(new CollaborativePlaylist(record.Name)); break;
+                default: playlists.Add(new Playlist(record.Name)); break;
+            }
+        }
+        return playlists.Count(p => p is SmartPlaylist);
+    }
+}
+```
+
+Passos 1 e 2: encapsule a criação em uma fábrica e o teste de tipo em um membro da superclasse.
+
+```csharp
+// fragment
+public class Playlist
+{
+    // ...
+    public bool IsSmart => this is SmartPlaylist;
+
+    public static Playlist Create(StoredPlaylist record) => record.Kind switch
+    {
+        "S" => new SmartPlaylist(record.Name),
+        "C" => new CollaborativePlaylist(record.Name),
+        _ => new Playlist(record.Name),
+    };
+}
+
+public class Library
+{
+    public int CountSmart(List<StoredPlaylist> records)
+    {
+        var playlists = records.Select(Playlist.Create).ToList();
+        return playlists.Count(p => p.IsSmart);
+    }
+}
+```
+
+Passos 3 a 7: adicione o campo, incorpore cada subclasse na fábrica, depois apague as subclasses.
+
+```csharp
+// fragment
+public class Playlist
+{
+    private Playlist(string name, string kind)
+    {
+        Name = name;
+        Kind = kind;
+    }
+
+    public string Name { get; }
+    public string Kind { get; }
+    public bool IsSmart => Kind == "smart";
+
+    public static Playlist Create(StoredPlaylist record) => record.Kind switch
+    {
+        "S" => new Playlist(record.Name, "smart"),
+        "C" => new Playlist(record.Name, "collaborative"),
+        _ => new Playlist(record.Name, "standard"),
     };
 }
 ```
 
-O comportamento não muda: `Kind` retorna os mesmos valores, e o código do cliente só mudou nos
-dois primeiros passos, antes de qualquer subclasse desaparecer.
+O comportamento não muda: `Kind` retorna os mesmos valores, e o código do cliente só mudou nos dois
+primeiros passos, antes de qualquer subclasse desaparecer.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

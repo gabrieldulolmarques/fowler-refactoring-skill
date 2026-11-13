@@ -48,93 +48,94 @@ quando ela começar a doer.
 11. Apague a subclasse agora vazia.
 
 ## Exemplo
-Antes: faturas de atacado são uma subclasse.
+Antes: assinaturas de estudante são uma subclasse.
 
 ```csharp
-public class Invoice
+public class Subscription
 {
-    protected readonly decimal Subtotal;
+    protected readonly decimal BasePrice;
 
-    public Invoice(decimal subtotal) => Subtotal = subtotal;
+    public Subscription(decimal basePrice) => BasePrice = basePrice;
 
-    public virtual decimal Total => Subtotal;
-    public virtual bool AllowsInstallments => Subtotal > 1000m;
+    public virtual decimal MonthlyPrice => BasePrice;
+    public virtual bool AllowsOfflineDownloads => BasePrice >= 10m;
 }
 
-public class WholesaleInvoice : Invoice
+public class StudentSubscription : Subscription
 {
     private readonly decimal _discountRate;
 
-    public WholesaleInvoice(decimal subtotal, decimal discountRate) : base(subtotal)
+    public StudentSubscription(decimal basePrice, decimal discountRate) : base(basePrice)
         => _discountRate = discountRate;
 
-    public override decimal Total => decimal.Round(base.Total * (1 - _discountRate), 2);
-    public override bool AllowsInstallments => true;
-    public decimal SavedAmount => Subtotal - Total;
+    public override decimal MonthlyPrice => decimal.Round(base.MonthlyPrice * (1 - _discountRate), 2);
+    public override bool AllowsOfflineDownloads => true;
+    public decimal SavedAmount => BasePrice - MonthlyPrice;
 }
 ```
 
-Depois: o comportamento de atacado vive em um delegado, então uma fatura pode se tornar de atacado em
-tempo de execução e a classe base fica livre para outro uso da herança.
+Depois: o comportamento de estudante vive em um delegado, então uma assinatura pode virar uma de
+estudante em tempo de execução e a classe base fica livre para outro uso da herança.
 
 ```csharp
-public class Invoice
+// fragment
+public class Subscription
 {
-    private WholesaleDelegate? _wholesale;
+    private StudentDelegate? _student;
 
-    internal decimal Subtotal { get; }
+    internal decimal BasePrice { get; }
 
-    private Invoice(decimal subtotal) => Subtotal = subtotal;
+    private Subscription(decimal basePrice) => BasePrice = basePrice;
 
-    public static Invoice Create(decimal subtotal) => new Invoice(subtotal);
+    public static Subscription Create(decimal basePrice) => new Subscription(basePrice);
 
-    public static Invoice CreateWholesale(decimal subtotal, decimal discountRate)
+    public static Subscription CreateStudent(decimal basePrice, decimal discountRate)
     {
-        var invoice = new Invoice(subtotal);
-        invoice.BecomeWholesale(discountRate);
-        return invoice;
+        var subscription = new Subscription(basePrice);
+        subscription.BecomeStudent(discountRate);
+        return subscription;
     }
 
-    public void BecomeWholesale(decimal discountRate)
-        => _wholesale = new WholesaleDelegate(this, discountRate);
+    public void BecomeStudent(decimal discountRate)
+        => _student = new StudentDelegate(this, discountRate);
 
-    public decimal Total
+    public decimal MonthlyPrice
     {
         get
         {
-            var result = Subtotal;
-            return _wholesale is null ? result : _wholesale.ExtendTotal(result);
+            var result = BasePrice;
+            return _student is null ? result : _student.ExtendPrice(result);
         }
     }
 
-    public bool AllowsInstallments
-        => _wholesale is null ? Subtotal > 1000m : _wholesale.AllowsInstallments;
+    public bool AllowsOfflineDownloads
+        => _student is null ? BasePrice >= 10m : _student.AllowsOfflineDownloads;
 
-    public decimal? SavedAmount => _wholesale?.SavedAmount;
+    public decimal? SavedAmount => _student?.SavedAmount;
 }
 
-internal class WholesaleDelegate
+internal class StudentDelegate
 {
-    private readonly Invoice _host;
+    private readonly Subscription _host;
     private readonly decimal _discountRate;
 
-    public WholesaleDelegate(Invoice host, decimal discountRate)
+    public StudentDelegate(Subscription host, decimal discountRate)
     {
         _host = host;
         _discountRate = discountRate;
     }
 
-    public decimal ExtendTotal(decimal baseTotal) => decimal.Round(baseTotal * (1 - _discountRate), 2);
-    public bool AllowsInstallments => true;
-    public decimal SavedAmount => _host.Subtotal - _host.Total;
+    public decimal ExtendPrice(decimal basePrice) => decimal.Round(basePrice * (1 - _discountRate), 2);
+    public bool AllowsOfflineDownloads => true;
+    public decimal SavedAmount => _host.BasePrice - _host.MonthlyPrice;
 }
 ```
 
-O comportamento não muda para os chamadores que passam por `Invoice.Create` e
-`Invoice.CreateWholesale`; a classe `WholesaleInvoice` sumiu.
+O comportamento não muda para os chamadores que passam por `Subscription.Create` e
+`Subscription.CreateStudent`; a classe `StudentSubscription` sumiu.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Os testes cobrem as duas variantes de todo método movido, incluindo o caso de chamada à base e uma troca
   de variante em tempo de execução se o delegado deve ser substituível.
-- Nenhum chamador ainda constrói a subclasse removida ou verifica o tipo concreto do delegado.
+- Nenhum chamador ainda constrói a subclasse removida nem verifica o tipo concreto do delegado.
