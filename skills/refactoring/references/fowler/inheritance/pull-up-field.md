@@ -27,96 +27,96 @@ to it directly.
 5. Compile and run the tests.
 
 ## Example
-Before: two kinds of invoice each keep their own `customerName`.
+Before: two kinds of subscription each keep their own `subscriberName`.
 
 ```csharp
-public abstract class Invoice
+public abstract class Subscription
 {
-    public abstract decimal Total();
+    public abstract decimal MonthlyCost();
 }
 
-public class ServiceInvoice : Invoice
+public class FamilyPlan : Subscription
 {
-    private string customerName;
-    private decimal hours;
-    private decimal rate;
+    private string subscriberName;
+    private int seats;
+    private decimal pricePerSeat;
 
-    public ServiceInvoice(string customerName, decimal hours, decimal rate)
+    public FamilyPlan(string subscriberName, int seats, decimal pricePerSeat)
     {
-        this.customerName = customerName;
-        this.hours = hours;
-        this.rate = rate;
+        this.subscriberName = subscriberName;
+        this.seats = seats;
+        this.pricePerSeat = pricePerSeat;
     }
 
-    public string Describe() => $"Service for {customerName}";
-    public override decimal Total() => hours * rate;
+    public string Describe() => $"Family plan for {subscriberName}";
+    public override decimal MonthlyCost() => seats * pricePerSeat;
 }
 
-public class ProductInvoice : Invoice
+public class StudentPlan : Subscription
 {
-    private string customerName;
-    private decimal unitPrice;
-    private int quantity;
+    private string subscriberName;
+    private decimal fee;
+    private decimal discount;
 
-    public ProductInvoice(string customerName, decimal unitPrice, int quantity)
+    public StudentPlan(string subscriberName, decimal fee, decimal discount)
     {
-        this.customerName = customerName;
-        this.unitPrice = unitPrice;
-        this.quantity = quantity;
+        this.subscriberName = subscriberName;
+        this.fee = fee;
+        this.discount = discount;
     }
 
-    public string Describe() => $"Products for {customerName}";
-    public override decimal Total() => unitPrice * quantity;
+    public string Describe() => $"Student plan for {subscriberName}";
+    public override decimal MonthlyCost() => fee - discount;
 }
 ```
 
-After: the field is declared once in `Invoice`. The subclass constructors still assign it,
+After: the field is declared once in `Subscription`. The subclass constructors still assign it,
 which [pull-up-constructor-body.md](pull-up-constructor-body.md) can then tidy. The `= ""`
 initializer avoids warning CS8618 when nullable reference types are enabled; it can go once
-the assignment moves into an `Invoice` constructor.
+the assignment moves into a `Subscription` constructor.
 
 ```csharp
-public abstract class Invoice
+public abstract class Subscription
 {
-    protected string customerName = "";
+    protected string subscriberName = "";
 
-    public abstract decimal Total();
+    public abstract decimal MonthlyCost();
 }
 
-public class ServiceInvoice : Invoice
+public class FamilyPlan : Subscription
 {
-    private decimal hours;
-    private decimal rate;
+    private int seats;
+    private decimal pricePerSeat;
 
-    public ServiceInvoice(string customerName, decimal hours, decimal rate)
+    public FamilyPlan(string subscriberName, int seats, decimal pricePerSeat)
     {
-        this.customerName = customerName;
-        this.hours = hours;
-        this.rate = rate;
+        this.subscriberName = subscriberName;
+        this.seats = seats;
+        this.pricePerSeat = pricePerSeat;
     }
 
-    public string Describe() => $"Service for {customerName}";
-    public override decimal Total() => hours * rate;
+    public string Describe() => $"Family plan for {subscriberName}";
+    public override decimal MonthlyCost() => seats * pricePerSeat;
 }
 
-public class ProductInvoice : Invoice
+public class StudentPlan : Subscription
 {
-    private decimal unitPrice;
-    private int quantity;
+    private decimal fee;
+    private decimal discount;
 
-    public ProductInvoice(string customerName, decimal unitPrice, int quantity)
+    public StudentPlan(string subscriberName, decimal fee, decimal discount)
     {
-        this.customerName = customerName;
-        this.unitPrice = unitPrice;
-        this.quantity = quantity;
+        this.subscriberName = subscriberName;
+        this.fee = fee;
+        this.discount = discount;
     }
 
-    public string Describe() => $"Products for {customerName}";
-    public override decimal Total() => unitPrice * quantity;
+    public string Describe() => $"Student plan for {subscriberName}";
+    public override decimal MonthlyCost() => fee - discount;
 }
 ```
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Every subclass constructor still compiles after its own field is deleted, and the output of
-  `Describe()` and `Total()` is unchanged.
+  `Describe()` and `MonthlyCost()` is unchanged.

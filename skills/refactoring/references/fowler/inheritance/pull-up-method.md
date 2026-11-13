@@ -34,54 +34,65 @@ should not know the concept (the method would then be a Refused Bequest for othe
 7. Remove the other copies the same way, one at a time, running the tests after each.
 
 ## Example
-Two subclasses build the same heading text under different names.
+Two subclasses build the same credit text under different names.
 
 Before:
 
 ```csharp
-public abstract class Document
+public abstract class MediaItem
 {
-    public string Customer { get; init; } = "";
+    public MediaItem(string title) => Title = title;
+
+    public string Title { get; }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    public string Number { get; init; } = "";
+    public Track(string title, string creator) : base(title) => Creator = creator;
 
-    public string Heading() => $"{Number} for {Customer}";
+    public string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 
-public class CreditNote : Document
+public class Podcast : MediaItem
 {
-    public string Number { get; init; } = "";
+    public Podcast(string title, string creator) : base(title) => Creator = creator;
 
-    public string Caption() => $"{Number} for {Customer}";
+    public string Creator { get; }
+
+    public string Byline() => $"{Title} by {Creator}";
 }
 ```
 
-Steps 2 and 3: both bodies are equal and use `Number`, which the superclass lacks. Declare it
-there as abstract, keeping the `init` usage in the subclasses, and rename `Caption` to
-`Heading`.
+Steps 2 and 3: both bodies are equal and use `Creator`, which the superclass lacks. Declare it
+there as abstract and rename `Byline` to `Credit`.
 
 ```csharp
-public abstract class Document
+public abstract class MediaItem
 {
-    public string Customer { get; init; } = "";
-    public abstract string Number { get; init; }
+    public MediaItem(string title) => Title = title;
+
+    public string Title { get; }
+    public abstract string Creator { get; }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Track(string title, string creator) : base(title) => Creator = creator;
 
-    public string Heading() => $"{Number} for {Customer}";
+    public override string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 
-public class CreditNote : Document
+public class Podcast : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Podcast(string title, string creator) : base(title) => Creator = creator;
 
-    public string Heading() => $"{Number} for {Customer}";
+    public override string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 ```
 
@@ -91,26 +102,32 @@ each time.
 After:
 
 ```csharp
-public abstract class Document
+public abstract class MediaItem
 {
-    public string Customer { get; init; } = "";
-    public abstract string Number { get; init; }
+    public MediaItem(string title) => Title = title;
 
-    public string Heading() => $"{Number} for {Customer}";
+    public string Title { get; }
+    public abstract string Creator { get; }
+
+    public string Credit() => $"{Title} by {Creator}";
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Track(string title, string creator) : base(title) => Creator = creator;
+
+    public override string Creator { get; }
 }
 
-public class CreditNote : Document
+public class Podcast : MediaItem
 {
-    public override string Number { get; init; } = "";
+    public Podcast(string title, string creator) : base(title) => Creator = creator;
+
+    public override string Creator { get; }
 }
 ```
 
-Callers such as `new Invoice { Number = "A-1", Customer = "Acme" }` compile unchanged.
+Callers such as `new Track("Blue Hour", "Lena")` compile unchanged.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

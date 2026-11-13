@@ -31,82 +31,78 @@ thing gets messy, consider Replace Constructor with Factory Function
    [change-function-declaration.md](../first-set/change-function-declaration.md)). Test.
 
 ## Example
-Before: two kinds of document share a customer and a creation date, each assigned in its own
+Before: two kinds of media item share a title and a language, each assigned in its own
 constructor.
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly string _customer;
-    private readonly DateTime _createdOn;
-    private readonly decimal _amount;
+    private readonly string _title;
+    private readonly string _language;
+    private readonly int _bitrateKbps;
 
-    public Invoice(string customer, DateTime createdOn, decimal amount)
+    public Track(string title, string language, int bitrateKbps)
     {
-        _amount = amount;
-        _customer = customer;
-        _createdOn = createdOn;
+        _bitrateKbps = bitrateKbps;
+        _title = title;
+        _language = language;
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly string _customer;
-    private readonly DateTime _createdOn;
-    private readonly int _validDays;
+    private readonly string _title;
+    private readonly string _language;
+    private readonly int _episodeNumber;
 
-    public Quote(string customer, DateTime createdOn, int validDays)
+    public Podcast(string title, string language, int episodeNumber)
     {
-        _customer = customer;
-        _createdOn = createdOn;
-        _validDays = validDays;
+        _title = title;
+        _language = language;
+        _episodeNumber = episodeNumber;
     }
 }
 ```
 
-After: the shared fields and their assignments live in `Document`. `Invoice` first slid its
+After: the shared fields and their assignments live in `MediaItem`. `Track` first slid its
 assignments next to the base call, then both were moved up.
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
-    protected readonly string Customer;
-    protected readonly DateTime CreatedOn;
+    protected readonly string Title;
+    protected readonly string Language;
 
-    protected Document(string customer, DateTime createdOn)
+    protected MediaItem(string title, string language)
     {
-        Customer = customer;
-        CreatedOn = createdOn;
+        Title = title;
+        Language = language;
     }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _bitrateKbps;
 
-    public Invoice(string customer, DateTime createdOn, decimal amount)
-        : base(customer, createdOn)
+    public Track(string title, string language, int bitrateKbps)
+        : base(title, language)
     {
-        _amount = amount;
+        _bitrateKbps = bitrateKbps;
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly int _validDays;
+    private readonly int _episodeNumber;
 
-    public Quote(string customer, DateTime createdOn, int validDays)
-        : base(customer, createdOn)
+    public Podcast(string title, string language, int episodeNumber)
+        : base(title, language)
     {
-        _validDays = validDays;
+        _episodeNumber = episodeNumber;
     }
 }
 ```
@@ -116,84 +112,80 @@ up, and called as the last line of each subclass constructor. Before, each subcl
 constructor with a similar label-building statement:
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
-    protected readonly string Customer;
+    protected readonly string Title;
 
-    protected Document(string customer)
+    protected MediaItem(string title)
     {
-        Customer = customer;
+        Title = title;
     }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _bitrateKbps;
     public string Label { get; private set; }
 
-    public Invoice(string customer, decimal amount) : base(customer)
+    public Track(string title, int bitrateKbps) : base(title)
     {
-        _amount = amount;
-        Label = "INV " + Customer + " " + _amount;
+        _bitrateKbps = bitrateKbps;
+        Label = "TRK " + Title + " " + _bitrateKbps;
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly int _validDays;
+    private readonly int _episodeNumber;
     public string Label { get; private set; }
 
-    public Quote(string customer, int validDays) : base(customer)
+    public Podcast(string title, int episodeNumber) : base(title)
     {
-        _validDays = validDays;
-        Label = "QUO " + Customer + " " + _validDays;
+        _episodeNumber = episodeNumber;
+        Label = "POD " + Title + " " + _episodeNumber;
     }
 }
 ```
 
-After: the label-building step is a method in `Document` that reads a subclass-supplied
+After: the label-building step is a method in `MediaItem` that reads a subclass-supplied
 prefix and detail, and each constructor calls it once its own field is set.
 
 ```csharp
-using System;
-
-public abstract class Document
+public abstract class MediaItem
 {
-    protected readonly string Customer;
+    protected readonly string Title;
     public string Label { get; private set; }
 
-    protected Document(string customer)
+    protected MediaItem(string title)
     {
-        Customer = customer;
+        Title = title;
     }
 
     protected void Finish(string prefix, object detail)
     {
-        Label = prefix + " " + Customer + " " + detail;
+        Label = prefix + " " + Title + " " + detail;
     }
 }
 
-public class Invoice : Document
+public class Track : MediaItem
 {
-    private readonly decimal _amount;
+    private readonly int _bitrateKbps;
 
-    public Invoice(string customer, decimal amount) : base(customer)
+    public Track(string title, int bitrateKbps) : base(title)
     {
-        _amount = amount;
-        Finish("INV", _amount);
+        _bitrateKbps = bitrateKbps;
+        Finish("TRK", _bitrateKbps);
     }
 }
 
-public class Quote : Document
+public class Podcast : MediaItem
 {
-    private readonly int _validDays;
+    private readonly int _episodeNumber;
 
-    public Quote(string customer, int validDays) : base(customer)
+    public Podcast(string title, int episodeNumber) : base(title)
     {
-        _validDays = validDays;
-        Finish("QUO", _validDays);
+        _episodeNumber = episodeNumber;
+        Finish("POD", _episodeNumber);
     }
 }
 ```

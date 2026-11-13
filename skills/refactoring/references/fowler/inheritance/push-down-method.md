@@ -25,56 +25,56 @@ neutral default implementation on the base class.
 6. Compile and run the tests again.
 
 ## Example
-Before: `Customer` offers a loyalty discount, but only retail customers have loyalty points.
+Before: `Subscriber` offers a download allowance, but only premium subscribers can download.
 
 ```csharp
-public abstract class Customer
+public abstract class Subscriber
 {
-    public string Name { get; init; } = "";
+    public string Name { get; set; } = "";
 
-    public decimal GetLoyaltyDiscount(decimal orderTotal, int points)
+    public int RemainingDownloads(int used)
     {
-        return points >= 100 ? orderTotal * 0.05m : 0m;
+        return used >= 50 ? 0 : 50 - used;
     }
 }
 
-public class RetailCustomer : Customer { }
+public class PremiumSubscriber : Subscriber { }
 
-public class WholesaleCustomer : Customer { }
+public class FreeSubscriber : Subscriber { }
 
-public class Checkout
+public class OfflineLibrary
 {
-    public decimal Total(RetailCustomer customer, decimal orderTotal, int points)
+    public bool CanDownload(PremiumSubscriber subscriber, int used)
     {
-        return orderTotal - customer.GetLoyaltyDiscount(orderTotal, points);
+        return subscriber.RemainingDownloads(used) > 0;
     }
 }
 ```
 
-After: the method lives only on `RetailCustomer`. `Checkout` already used that type, so it
-needs no change.
+After: the method lives only on `PremiumSubscriber`. `OfflineLibrary` already used that type,
+so it needs no change.
 
 ```csharp
-public abstract class Customer
+public abstract class Subscriber
 {
-    public string Name { get; init; } = "";
+    public string Name { get; set; } = "";
 }
 
-public class RetailCustomer : Customer
+public class PremiumSubscriber : Subscriber
 {
-    public decimal GetLoyaltyDiscount(decimal orderTotal, int points)
+    public int RemainingDownloads(int used)
     {
-        return points >= 100 ? orderTotal * 0.05m : 0m;
+        return used >= 50 ? 0 : 50 - used;
     }
 }
 
-public class WholesaleCustomer : Customer { }
+public class FreeSubscriber : Subscriber { }
 
-public class Checkout
+public class OfflineLibrary
 {
-    public decimal Total(RetailCustomer customer, decimal orderTotal, int points)
+    public bool CanDownload(PremiumSubscriber subscriber, int used)
     {
-        return orderTotal - customer.GetLoyaltyDiscount(orderTotal, points);
+        return subscriber.RemainingDownloads(used) > 0;
     }
 }
 ```

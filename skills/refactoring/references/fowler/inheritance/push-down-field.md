@@ -17,43 +17,41 @@ Not worth it when most subclasses use the field, or when code that works through
 7. Compile and run the tests.
 
 ## Example
-Before: `Radius` is declared in the base class, but only `Circle` uses it.
+Before: `SubtitleLanguage` is declared in the base class, but only `Video` uses it.
 
 ```csharp
-public abstract class Shape
+public abstract class MediaItem
 {
-    public string Label { get; init; } = "";
-    protected double Radius;
+    public string Title { get; set; } = "";
+    protected string SubtitleLanguage = "";
 }
 
-public class Square : Shape { }
+public class Song : MediaItem { }
 
-public class Circle : Shape
+public class Video : MediaItem
 {
-    public double Area() => Math.PI * Radius * Radius;
-    public void SetRadius(double value) => Radius = value;
+    public string Label() => $"{Title} [{SubtitleLanguage}]";
+    public void SetSubtitles(string language) => SubtitleLanguage = language;
 }
 ```
 
 After: the field lives only where it is used.
 
 ```csharp
-public abstract class Shape
+public abstract class MediaItem
 {
-    public string Label { get; init; } = "";
+    public string Title { get; set; } = "";
 }
 
-public class Square : Shape { }
+public class Song : MediaItem { }
 
-public class Circle : Shape
+public class Video : MediaItem
 {
-    private double _radius;
-    public double Area() => Math.PI * _radius * _radius;
-    public void SetRadius(double value) => _radius = value;
+    private string _subtitleLanguage = "";
+    public string Label() => $"{Title} [{_subtitleLanguage}]";
+    public void SetSubtitles(string language) => _subtitleLanguage = language;
 }
 ```
-
-Behavior is the same.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

@@ -28,73 +28,73 @@ Do not use it when the code is only data that no behavior depends on; a plain en
 With indirect inheritance, a mutable kind means a setter that re-runs the selection and swaps the type object. With it, the empty type base class may stay: it documents the family and is a natural home for logic shared by the kinds.
 
 ## Example
-Before: an account whose behavior depends on a string kind.
+Before: a media file whose behavior depends on a string kind.
 
 ```csharp
 using System;
 
-public class Account
+public class MediaFile
 {
-    private readonly string _owner;
+    private readonly string _title;
     private readonly string _kind;
 
-    public Account(string owner, string kind)
+    public MediaFile(string title, string kind)
     {
-        if (kind != "checking" && kind != "savings")
-            throw new ArgumentException($"Unknown account kind: {kind}");
-        _owner = owner;
+        if (kind != "audio" && kind != "video")
+            throw new ArgumentException($"Unknown media kind: {kind}");
+        _title = title;
         _kind = kind;
     }
 
     public string Kind => _kind;
 
-    public decimal MonthlyFee() => _kind == "checking" ? 5m : 0m;
+    public int MegabytesPerMinute() => _kind == "video" ? 8 : 1;
 
-    public override string ToString() => $"{_owner} ({_kind})";
+    public override string ToString() => $"{_title} ({_kind})";
 }
 ```
 
-After steps 1 to 8 (`MonthlyFee` pushed down and made polymorphic; `Kind` kept only for `ToString`):
+After steps 1 to 8 (`MegabytesPerMinute` pushed down and made polymorphic; `Kind` kept only for `ToString`):
 
 ```csharp
 using System;
 
-public abstract class Account
+public abstract class MediaFile
 {
-    private readonly string _owner;
+    private readonly string _title;
 
-    protected Account(string owner) => _owner = owner;
+    protected MediaFile(string title) => _title = title;
 
-    public static Account Create(string owner, string kind) => kind switch
+    public static MediaFile Create(string title, string kind) => kind switch
     {
-        "checking" => new CheckingAccount(owner),
-        "savings" => new SavingsAccount(owner),
-        _ => throw new ArgumentException($"Unknown account kind: {kind}")
+        "audio" => new AudioFile(title),
+        "video" => new VideoFile(title),
+        _ => throw new ArgumentException($"Unknown media kind: {kind}")
     };
 
     public abstract string Kind { get; }
 
-    public abstract decimal MonthlyFee();
+    public abstract int MegabytesPerMinute();
 
-    public override string ToString() => $"{_owner} ({Kind})";
+    public override string ToString() => $"{_title} ({Kind})";
 }
 
-public class CheckingAccount : Account
+public class AudioFile : MediaFile
 {
-    public CheckingAccount(string owner) : base(owner) { }
-    public override string Kind => "checking";
-    public override decimal MonthlyFee() => 5m;
+    public AudioFile(string title) : base(title) { }
+    public override string Kind => "audio";
+    public override int MegabytesPerMinute() => 1;
 }
 
-public class SavingsAccount : Account
+public class VideoFile : MediaFile
 {
-    public SavingsAccount(string owner) : base(owner) { }
-    public override string Kind => "savings";
-    public override decimal MonthlyFee() => 0m;
+    public VideoFile(string title) : base(title) { }
+    public override string Kind => "video";
+    public override int MegabytesPerMinute() => 8;
 }
 ```
 
-Behavior is unchanged: callers now use `Account.Create(owner, kind)`, and `MonthlyFee` no longer branches on the code. `Kind` stays only because `ToString` and possibly outside callers read it; delete it (step 8) once nothing does.
+Behavior is unchanged: callers now use `MediaFile.Create(title, kind)`, and `MegabytesPerMinute` no longer branches on the code. `Kind` stays only because `ToString` and possibly outside callers read it; delete it (step 8) once nothing does.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

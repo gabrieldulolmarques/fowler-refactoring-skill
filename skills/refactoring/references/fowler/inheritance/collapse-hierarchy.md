@@ -24,54 +24,61 @@ Smells: Lazy Element, Speculative Generality.
 5. Compile and run the tests.
 
 ## Example
-Before: `RegularInvoice` adds nothing the base needs to keep separate, and is the only
+Before: `CuratedPlaylist` adds nothing the base needs to keep separate, and is the only
 subclass.
 
 ```csharp
-public class Invoice
+public class Playlist
 {
-    protected decimal Subtotal;
+    protected string Name;
 
-    public Invoice(decimal subtotal) => Subtotal = subtotal;
+    public Playlist(string name) => Name = name;
 
-    public virtual decimal Total() => Subtotal;
+    public virtual string Summary() => Name;
 }
 
-public class RegularInvoice : Invoice
+public class CuratedPlaylist : Playlist
 {
-    private readonly decimal _tax;
+    private readonly string _curator;
 
-    public RegularInvoice(decimal subtotal, decimal tax) : base(subtotal) => _tax = tax;
+    public CuratedPlaylist(string name, string curator) : base(name) => _curator = curator;
 
-    public override decimal Total() => Subtotal + _tax;
+    public override string Summary() => Name + " by " + _curator;
 }
 
 // caller
-Invoice invoice = new RegularInvoice(100m, 18m);
+public class Caller
+{
+    public Playlist Build() => new CuratedPlaylist("Morning Focus", "Ana");
+}
 ```
 
-After: `Invoice` survives and absorbs the field, constructor parameter and behavior.
+After: `Playlist` survives and absorbs the field, constructor parameter and behavior.
 
 ```csharp
-public class Invoice
+// fragment
+public class Playlist
 {
-    private readonly decimal _subtotal;
-    private readonly decimal _tax;
+    private readonly string _name;
+    private readonly string _curator;
 
-    public Invoice(decimal subtotal, decimal tax)
+    public Playlist(string name, string curator)
     {
-        _subtotal = subtotal;
-        _tax = tax;
+        _name = name;
+        _curator = curator;
     }
 
-    public decimal Total() => _subtotal + _tax;
+    public string Summary() => _name + " by " + _curator;
 }
 
 // caller
-Invoice invoice = new Invoice(100m, 18m);
+public class Caller
+{
+    public Playlist Build() => new Playlist("Morning Focus", "Ana");
+}
 ```
 
-Same behavior: `Total()` returns 118 for the same inputs.
+Same behavior: `Summary()` returns "Morning Focus by Ana" for the same inputs.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

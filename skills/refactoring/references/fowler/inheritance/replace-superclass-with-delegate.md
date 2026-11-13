@@ -24,54 +24,76 @@ With a very large superclass, such as a framework collection, forwarding every m
 
 ## Example
 
-Before: a statement reuses `List<Transaction>` by inheritance, so callers can also insert, sort and clear it.
+Before: a listening history reuses `List<Play>` by inheritance, so callers can also insert, sort and clear it.
 
 ```csharp
-public record Transaction(DateOnly Date, decimal Amount);
+using System.Collections.Generic;
+using System.Linq;
 
-public class Statement : List<Transaction>
+public class Play
 {
-    public decimal Balance() => this.Sum(t => t.Amount);
+    public Play(string title, int seconds)
+    {
+        Title = title;
+        Seconds = seconds;
+    }
+
+    public string Title { get; }
+    public int Seconds { get; }
+}
+
+public class ListeningHistory : List<Play>
+{
+    public int TotalSeconds() => this.Sum(p => p.Seconds);
 }
 
 // caller
-var statement = new Statement();
-statement.Add(new Transaction(new DateOnly(2026, 1, 5), 120m));
-statement.Clear(); // makes no sense for a statement
+public class Caller
+{
+    public void Run()
+    {
+        var history = new ListeningHistory();
+        history.Add(new Play("Blue Hour", 212));
+        history.Clear(); // makes no sense for a history
+    }
+}
 ```
 
 After step 1 and 2 (still inheriting, `new` hides the inherited members while both coexist):
 
 ```csharp
-public class Statement : List<Transaction>
+public class ListeningHistory : List<Play>
 {
-    private readonly List<Transaction> _transactions = new();
+    private readonly List<Play> _plays = new();
 
-    public new void Add(Transaction t) => _transactions.Add(t);
-    public new int Count => _transactions.Count;
-    public new IEnumerator<Transaction> GetEnumerator() => _transactions.GetEnumerator();
+    public new void Add(Play p) => _plays.Add(p);
+    public new int Count => _plays.Count;
+    public new IEnumerator<Play> GetEnumerator() => _plays.GetEnumerator();
 
-    public decimal Balance() => _transactions.Sum(t => t.Amount);
+    public int TotalSeconds() => _plays.Sum(p => p.Seconds);
 }
 ```
 
-`new` only hides members for callers that use the `Statement` type. A caller that reaches the object through `IEnumerable<Transaction>` (LINQ, or a `foreach` over an interface-typed variable) still hits the inherited, now empty, list until step 3, so check for such callers before relying on the tests after this stage.
+`new` only hides members for callers that use the `ListeningHistory` type. A caller that reaches the object through `IEnumerable<Play>` (LINQ, or a `foreach` over an interface-typed variable) still hits the inherited, now empty, list until step 3, so check for such callers before relying on the tests after this stage.
 
 After steps 3 and 4 (link removed; the compiler now rejects `Clear`):
 
 ```csharp
+// fragment
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
-public class Statement : IEnumerable<Transaction>
+public class ListeningHistory : IEnumerable<Play>
 {
-    private readonly List<Transaction> _transactions = new();
+    private readonly List<Play> _plays = new();
 
-    public void Add(Transaction t) => _transactions.Add(t);
-    public int Count => _transactions.Count;
-    public IEnumerator<Transaction> GetEnumerator() => _transactions.GetEnumerator();
+    public void Add(Play p) => _plays.Add(p);
+    public int Count => _plays.Count;
+    public IEnumerator<Play> GetEnumerator() => _plays.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public decimal Balance() => _transactions.Sum(t => t.Amount);
+    public int TotalSeconds() => _plays.Sum(p => p.Seconds);
 }
 ```
 

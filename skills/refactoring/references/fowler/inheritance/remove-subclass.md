@@ -40,84 +40,109 @@ Smell: none specific in the book (related: Lazy Element, Speculative Generality)
 Before: two subclasses that only return a constant, created from stored records.
 
 ```csharp
-public record AccountRecord(string Owner, string Kind);
+using System.Collections.Generic;
+using System.Linq;
 
-public class Account
+public class StoredPlaylist
 {
-    public Account(string owner) => Owner = owner;
-
-    public string Owner { get; }
-    public virtual string Kind => "basic";
-}
-
-public class SavingsAccount : Account
-{
-    public SavingsAccount(string owner) : base(owner) { }
-    public override string Kind => "savings";
-}
-
-public class CheckingAccount : Account
-{
-    public CheckingAccount(string owner) : base(owner) { }
-    public override string Kind => "checking";
-}
-
-// client
-var accounts = new List<Account>();
-foreach (var record in records)
-{
-    switch (record.Kind)
+    public StoredPlaylist(string name, string kind)
     {
-        case "S": accounts.Add(new SavingsAccount(record.Owner)); break;
-        case "C": accounts.Add(new CheckingAccount(record.Owner)); break;
-        default: accounts.Add(new Account(record.Owner)); break;
+        Name = name;
+        Kind = kind;
+    }
+
+    public string Name { get; }
+    public string Kind { get; }
+}
+
+public class Playlist
+{
+    public Playlist(string name) => Name = name;
+
+    public string Name { get; }
+    public virtual string Kind => "standard";
+}
+
+public class SmartPlaylist : Playlist
+{
+    public SmartPlaylist(string name) : base(name) { }
+    public override string Kind => "smart";
+}
+
+public class CollaborativePlaylist : Playlist
+{
+    public CollaborativePlaylist(string name) : base(name) { }
+    public override string Kind => "collaborative";
+}
+
+public class Library
+{
+    public int CountSmart(List<StoredPlaylist> records)
+    {
+        var playlists = new List<Playlist>();
+        foreach (var record in records)
+        {
+            switch (record.Kind)
+            {
+                case "S": playlists.Add(new SmartPlaylist(record.Name)); break;
+                case "C": playlists.Add(new CollaborativePlaylist(record.Name)); break;
+                default: playlists.Add(new Playlist(record.Name)); break;
+            }
+        }
+        return playlists.Count(p => p is SmartPlaylist);
     }
 }
-int savingsCount = accounts.Count(a => a is SavingsAccount);
 ```
 
 Steps 1 and 2: encapsulate creation in a factory and the type test in a member of the
 superclass.
 
 ```csharp
-public class Account
+// fragment
+public class Playlist
 {
     // ...
-    public bool IsSavings => this is SavingsAccount;
+    public bool IsSmart => this is SmartPlaylist;
 
-    public static Account Create(AccountRecord record) => record.Kind switch
+    public static Playlist Create(StoredPlaylist record) => record.Kind switch
     {
-        "S" => new SavingsAccount(record.Owner),
-        "C" => new CheckingAccount(record.Owner),
-        _ => new Account(record.Owner),
+        "S" => new SmartPlaylist(record.Name),
+        "C" => new CollaborativePlaylist(record.Name),
+        _ => new Playlist(record.Name),
     };
 }
 
-// client
-var accounts = records.Select(Account.Create).ToList();
-int savingsCount = accounts.Count(a => a.IsSavings);
+public class Library
+{
+    public int CountSmart(List<StoredPlaylist> records)
+    {
+        var playlists = records.Select(Playlist.Create).ToList();
+        return playlists.Count(p => p.IsSmart);
+    }
+}
 ```
 
 Steps 3 to 7: add the field, fold each subclass into the factory, then delete the subclasses.
 
 ```csharp
-public class Account
+// fragment
+public class Playlist
 {
-    private Account(string owner, string kind)
+    private Playlist(string name, string kind)
     {
-        Owner = owner;
+        Name = name;
         Kind = kind;
     }
 
-    public string Owner { get; }
+    public string Name { get; }
     public string Kind { get; }
-    public bool IsSavings => Kind == "savings";
+    public bool IsSmart => Kind == "smart";
 
-    public static Account Create(AccountRecord record) => record.Kind switch
+    public static Playlist Create(StoredPlaylist record) => record.Kind switch
     {
-        "S" => new Account(record.Owner, "savings"),
-        "C" => new Account(record.Owner, "checking"),
-        _ => new Account(record.Owner, "basic"),
+        "S" => new Playlist(record.Name, "smart"),
+        "C" => new Playlist(record.Name, "collaborative"),
+        _ => new Playlist(record.Name, "standard"),
     };
 }
 ```
