@@ -102,7 +102,7 @@ public class Notifier
     }
 }
 
-// callers
+// chamadores
 // notifier.SendNow("ada@example.com", "Your code is 4821");
 // notifier.Enqueue("ada@example.com", "Weekly digest");
 ```
