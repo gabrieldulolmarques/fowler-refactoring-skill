@@ -8,6 +8,10 @@ them, and links each pattern to the refactorings that reach it. Every refactorin
 
 **Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (English and Portuguese).
 
+**Using it?** If this skill helps you in a project, a paper or a post, please mention it: link
+this repository and credit Gabriel R. Marques ([gabrieldulolmarques](https://github.com/gabrieldulolmarques)
+on GitHub). I'd also like to hear how it went, so feel free to open an issue.
+
 ## Layout
 
 ```
