@@ -29,11 +29,11 @@ descriptions.
 | `SKILL.md` | this spec | the flow smell → refactoring → file, a smell quick index and a table of the 66 refactorings (name, when, file), grouped by chapter (section 4.1) |
 | `references/smells.md` | ch. 3; Kerievsky ch. 4 | the 29 smells, symptoms and suggested refactorings (sections 3 and 5.2) |
 | `references/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
-| `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or the web edition for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
-| `references/<chapter>/<slug>.md` (27 files) | Kerievsky ch. 6–11 | one refactoring to a pattern each, same format plus pattern and direction (section 5) |
+| `references/fowler/<chapter>/<slug>.md` (66 files) | ch. 6–12, or the web edition for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
+| `references/kerievsky/<chapter>/<slug>.md` (27 files) | Kerievsky ch. 6–11 | one refactoring to a pattern each, same format plus pattern and direction (section 5) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
-`references/first-set/extract-function.md`. The files are grouped in one folder per chapter:
+`references/fowler/first-set/extract-function.md`. The files are grouped by book (`fowler/`, `kerievsky/`) and then in one folder per chapter. Fowler's:
 `first-set` (ch. 6), `encapsulation` (7), `moving-features` (8), `organizing-data` (9),
 `conditional-logic` (10), `refactoring-apis` (11) and `inheritance` (12); a web-only refactoring goes
 in the chapter section 2 lists it under. The refactoring.com page uses the name in camelCase
@@ -46,11 +46,14 @@ skills/
     └── references/
         ├── smells.md
         ├── discipline.md
-        ├── first-set/
-        │   ├── extract-function.md
+        ├── fowler/ # 7 chapter folders, 66 files
+        │   ├── first-set/
+        │   │   ├── extract-function.md
+        │   │   └── ...
         │   └── ...
-        ├── encapsulation/
-        └── ... # 7 chapter folders, 66 refactoring files in all
+        └── kerievsky/ # 6 chapter folders, 27 files
+            ├── creation/
+            └── ...
 ```
 
 ---
@@ -172,7 +175,7 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 ## 3. `references/smells.md`: the 24 smells and where they lead
 
 Summary of ch. 3: the index the agent checks before picking a refactoring. Each refactoring
-named here is the file `references/<chapter>/<slug>.md`.
+named here is the file `references/fowler/<chapter>/<slug>.md`.
 
 | Smell | Page | Suggested refactorings |
 |---|---|---|
