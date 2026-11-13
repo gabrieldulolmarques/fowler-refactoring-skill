@@ -58,7 +58,7 @@ Refactoring needs self-checking tests: they run on their own and report pass/fai
 
 ## Beyond the book: legacy code without tests
 
-Not from Fowler's ch. 2-4. The term comes from Michael Feathers, *Working Effectively with Legacy Code*.
+Not from Fowler's ch. 2-4.
 
 A **characterization test** pins down what code does today (assert the current output), even if that output looks odd. Use it before restructuring code that has no tests.
 
