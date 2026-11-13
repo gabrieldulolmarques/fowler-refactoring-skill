@@ -19,7 +19,10 @@ Fluxo: **smell -> refatoração -> seu arquivo em `references/`.**
    pare assim que o smell sumir: ir *rumo a* um padrão muitas vezes basta.
 3. Antes de alterar qualquer coisa, confira a rede de segurança em
    [references/fowler/discipline.md](references/fowler/discipline.md): testes passando, passos pequenos, um commit
-   após cada refatoração verde. Se o código não tem testes, escreva-os primeiro.
+   após cada refatoração verde. Se o código não tem testes, escreva-os primeiro. Para uma
+   refatoração para padrão, leia também
+   [references/kerievsky/discipline.md](references/kerievsky/discipline.md): quando um padrão
+   compensa e quando parar.
 4. Siga a mecânica um passo de cada vez. Compile e execute os testes após cada passo; se
    algo falhar, desfaça o passo.
 

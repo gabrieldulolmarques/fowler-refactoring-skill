@@ -32,6 +32,7 @@ descrições concorrentes.
 | `references/fowler/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou a edição web para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
 | `references/kerievsky/<chapter>/<slug>.md` (27 arquivos) | Kerievsky, cap. 6–11 | uma refatoração para padrão em cada, no mesmo formato, mais padrão e direção (seção 5) |
 | `references/kerievsky/smells.md` | Kerievsky, cap. 4 | os 12 smells e as refatorações para padrões a que levam (seção 5.2) |
+| `references/kerievsky/discipline.md` | Kerievsky, cap. 1-3 | quando um padrão compensa, refatorações compostas e guiadas por testes, até/rumo a/longe, dívida de design |
 
 O slug é o nome da refatoração em kebab-case. Exemplo: Extrair Função (Extract Function) →
 `references/fowler/first-set/extract-function.md`. Os arquivos são agrupados por livro (`fowler/`, `kerievsky/`) e, dentro dele, em uma pasta por capítulo. Os de Fowler:
@@ -54,6 +55,7 @@ skills/
         │   └── ... # 7 pastas de capítulo, 66 arquivos
         └── kerievsky/
             ├── smells.md
+            ├── discipline.md
             ├── creation/
             └── ... # 6 pastas de capítulo, 27 arquivos
 ```
