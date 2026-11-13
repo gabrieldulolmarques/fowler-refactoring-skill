@@ -1,6 +1,6 @@
 # Site built by .github/workflows/pages.yml; .github/build_site.py prepares _docs first.
 site_name: Refactoring Skill
-site_description: "Martin Fowler's refactoring catalog as an Agent Skill: 24 smells, 66 refactorings, C# examples."
+site_description: "Fowler's and Kerievsky's refactoring catalogs as an Agent Skill: 29 smells, 66 refactorings, 27 refactorings to patterns, C# examples."
 site_url: https://gabrieldulolmarques.github.io/refactoring-skill/en/
 repo_url: https://github.com/gabrieldulolmarques/refactoring-skill
 docs_dir: _docs
@@ -130,6 +130,39 @@ nav:
           - skills/refactoring/references/inheritance/collapse-hierarchy.md
           - skills/refactoring/references/inheritance/replace-subclass-with-delegate.md
           - skills/refactoring/references/inheritance/replace-superclass-with-delegate.md
+      - "Creation (Kerievsky, ch. 6)":
+          - skills/refactoring/references/creation/replace-constructors-with-creation-methods.md
+          - skills/refactoring/references/creation/move-creation-knowledge-to-factory.md
+          - skills/refactoring/references/creation/encapsulate-classes-with-factory.md
+          - skills/refactoring/references/creation/introduce-polymorphic-creation-with-factory-method.md
+          - skills/refactoring/references/creation/encapsulate-composite-with-builder.md
+          - skills/refactoring/references/creation/inline-singleton.md
+      - "Simplification (Kerievsky, ch. 7)":
+          - skills/refactoring/references/simplification/compose-method.md
+          - skills/refactoring/references/simplification/replace-conditional-logic-with-strategy.md
+          - skills/refactoring/references/simplification/move-embellishment-to-decorator.md
+          - skills/refactoring/references/simplification/replace-state-altering-conditionals-with-state.md
+          - skills/refactoring/references/simplification/replace-implicit-tree-with-composite.md
+          - skills/refactoring/references/simplification/replace-conditional-dispatcher-with-command.md
+      - "Generalization (Kerievsky, ch. 8)":
+          - skills/refactoring/references/generalization/form-template-method.md
+          - skills/refactoring/references/generalization/extract-composite.md
+          - skills/refactoring/references/generalization/replace-one-many-distinctions-with-composite.md
+          - skills/refactoring/references/generalization/replace-hard-coded-notifications-with-observer.md
+          - skills/refactoring/references/generalization/unify-interfaces-with-adapter.md
+          - skills/refactoring/references/generalization/extract-adapter.md
+          - skills/refactoring/references/generalization/replace-implicit-language-with-interpreter.md
+      - "Protection (Kerievsky, ch. 9)":
+          - skills/refactoring/references/protection/replace-type-code-with-class.md
+          - skills/refactoring/references/protection/limit-instantiation-with-singleton.md
+          - skills/refactoring/references/protection/introduce-null-object.md
+      - "Accumulation (Kerievsky, ch. 10)":
+          - skills/refactoring/references/accumulation/move-accumulation-to-collecting-parameter.md
+          - skills/refactoring/references/accumulation/move-accumulation-to-visitor.md
+      - "Utilities (Kerievsky, ch. 11)":
+          - skills/refactoring/references/utilities/chain-constructors.md
+          - skills/refactoring/references/utilities/unify-interfaces.md
+          - skills/refactoring/references/utilities/extract-parameter.md
   - Agents:
       - agents/refactoring-analyst.md
       - agents/refactoring-implementer.md

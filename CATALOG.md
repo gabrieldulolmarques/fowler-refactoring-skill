@@ -2,7 +2,8 @@
 
 The spec the skill was written from and is checked against: one skill,
 `refactoring`, with one reference file per refactoring, the smells and the discipline,
-and the file format.
+and the file format. Sections 1–4 cover Fowler's catalog; section 5 covers Kerievsky's
+refactorings to patterns, added in 0.4.0.
 
 Sources: Fowler, *Refactoring*, 2nd ed. (2018), chapters 2–4 and 6–12, and the online catalog
 ([refactoring.com/catalog](https://refactoring.com/catalog/), checked on 2026-10-31), which
@@ -26,9 +27,10 @@ descriptions.
 | File | Source | Content |
 |---|---|---|
 | `SKILL.md` | this spec | the flow smell → refactoring → file, a smell quick index and a table of the 66 refactorings (name, when, file), grouped by chapter (section 4.1) |
-| `references/smells.md` | ch. 3 | the 24 smells, symptoms and suggested refactorings (section 3) |
+| `references/smells.md` | ch. 3; Kerievsky ch. 4 | the 29 smells, symptoms and suggested refactorings (sections 3 and 5.2) |
 | `references/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
 | `references/<chapter>/<slug>.md` (66 files) | ch. 6–12, or the web edition for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
+| `references/<chapter>/<slug>.md` (27 files) | Kerievsky ch. 6–11 | one refactoring to a pattern each, same format plus pattern and direction (section 5) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
 `references/first-set/extract-function.md`. The files are grouped in one folder per chapter:
@@ -270,3 +272,91 @@ Nothing in the skill names a specific project, framework, engine or team process
 
 Not used as a source: the replication package by Chen Kuang Piao et al.
 (`Fowler_catalog.json`). It has no license and contains text from the book.
+
+---
+
+## 5. Kerievsky's refactorings to patterns
+
+Source: Joshua Kerievsky, *Refactoring to Patterns*, Addison-Wesley (Pearson Education), 2004,
+chapters 4 and 6–11. Each refactoring is a sequence of smaller refactorings, mostly Fowler's,
+that ends at a pattern (*to*), moves partway (*towards*) or removes one (*away*). The online
+catalog at https://www.industriallogic.com/refactoring-to-patterns/catalog/ has only a summary
+and a diagram for each; the mechanics come from the book.
+
+### 5.1 The 27 refactorings
+
+**Page** is the printed page from the book's own list of refactorings (inside front cover).
+**Direction** comes from the book's "Refactoring Directions" table. **GoF** is the printed page of
+the target pattern in Gamma et al., *Design Patterns* (1995), from that book's inside front
+cover; "—" when the pattern is not in GoF. The book's mechanics name Fowler's refactorings by
+their 1st-edition names; the reference files use the 2nd-edition names (section 2) and link
+their files.
+
+| # | Refactoring | Folder | Page | Pattern | Direction | GoF |
+|---|---|---|---|---|---|---|
+| 1 | Replace Constructors with Creation Methods | `creation` (ch. 6) | 57 | Creation Method | to | — |
+| 2 | Move Creation Knowledge to Factory | `creation` | 68 | Factory | to | — |
+| 3 | Encapsulate Classes with Factory | `creation` | 80 | Factory | to | — |
+| 4 | Introduce Polymorphic Creation with Factory Method | `creation` | 88 | Factory Method | to | 107 |
+| 5 | Encapsulate Composite with Builder | `creation` | 96 | Builder (Composite: away) | to | 97 |
+| 6 | Inline Singleton | `creation` | 114 | Singleton | away | 127 |
+| 7 | Compose Method | `simplification` (ch. 7) | 123 | Composed Method | to | — |
+| 8 | Replace Conditional Logic with Strategy | `simplification` | 129 | Strategy | to, towards | 315 |
+| 9 | Move Embellishment to Decorator | `simplification` | 144 | Decorator | to, towards | 175 |
+| 10 | Replace State-Altering Conditionals with State | `simplification` | 166 | State | to, towards | 305 |
+| 11 | Replace Implicit Tree with Composite | `simplification` | 178 | Composite | to | 163 |
+| 12 | Replace Conditional Dispatcher with Command | `simplification` | 191 | Command | to, towards | 233 |
+| 13 | Form Template Method | `generalization` (ch. 8) | 205 | Template Method | to | 325 |
+| 14 | Extract Composite | `generalization` | 214 | Composite | to | 163 |
+| 15 | Replace One/Many Distinctions with Composite | `generalization` | 224 | Composite | to | 163 |
+| 16 | Replace Hard-Coded Notifications with Observer | `generalization` | 236 | Observer | to, towards | 293 |
+| 17 | Unify Interfaces with Adapter | `generalization` | 247 | Adapter | to, towards | 139 |
+| 18 | Extract Adapter | `generalization` | 258 | Adapter | to | 139 |
+| 19 | Replace Implicit Language with Interpreter | `generalization` | 269 | Interpreter | to | 243 |
+| 20 | Replace Type Code with Class | `protection` (ch. 9) | 286 | — | — | — |
+| 21 | Limit Instantiation with Singleton | `protection` | 296 | Singleton | to | 127 |
+| 22 | Introduce Null Object | `protection` | 301 | Null Object | to | — |
+| 23 | Move Accumulation to Collecting Parameter | `accumulation` (ch. 10) | 313 | Collecting Parameter | to | — |
+| 24 | Move Accumulation to Visitor | `accumulation` | 320 | Visitor (Iterator: away) | to, towards | 331 |
+| 25 | Chain Constructors | `utilities` (ch. 11) | 340 | — | — | — |
+| 26 | Unify Interfaces | `utilities` | 343 | — | — | — |
+| 27 | Extract Parameter | `utilities` | 346 | — | — | — |
+
+Overlaps with Fowler's 2nd edition, kept short and pointing to the Fowler file: Compose Method
+(Extract Function, Slide Statements), Replace Type Code with Class (Replace Primitive with
+Object, which subsumes it) and Introduce Null Object (Introduce Special Case, its new name).
+
+### 5.2 The 12 smells
+
+From ch. 4 and the inside back cover. Seven match a Fowler smell and are listed under it in
+`smells.md`; five are new and listed at the end.
+
+| Smell | Page | Fowler's smell | Refactorings |
+|---|---|---|---|
+| Duplicated Code | 39 | Duplicated Code | Form Template Method, Introduce Polymorphic Creation with Factory Method, Chain Constructors, Replace One/Many Distinctions with Composite, Extract Composite, Unify Interfaces with Adapter, Introduce Null Object |
+| Long Method | 40 | Long Function | Compose Method, Move Accumulation to Collecting Parameter, Replace Conditional Dispatcher with Command, Move Accumulation to Visitor, Replace Conditional Logic with Strategy |
+| Conditional Complexity | 41 | new | Replace Conditional Logic with Strategy, Move Embellishment to Decorator, Replace State-Altering Conditionals with State, Introduce Null Object |
+| Primitive Obsession | 41 | Primitive Obsession | Replace Type Code with Class, Replace State-Altering Conditionals with State, Replace Conditional Logic with Strategy, Replace Implicit Tree with Composite, Replace Implicit Language with Interpreter, Move Embellishment to Decorator, Encapsulate Composite with Builder |
+| Indecent Exposure | 42 | new | Encapsulate Classes with Factory |
+| Solution Sprawl | 43 | new (the book calls it the twin of Shotgun Surgery) | Move Creation Knowledge to Factory |
+| Alternative Classes with Different Interfaces | 43 | same | Unify Interfaces with Adapter |
+| Lazy Class | 43 | Lazy Element | Inline Singleton |
+| Large Class | 44 | Large Class | Replace Conditional Dispatcher with Command, Replace State-Altering Conditionals with State, Replace Implicit Language with Interpreter |
+| Switch Statements | 44 | Repeated Switches | Replace Conditional Dispatcher with Command, Move Accumulation to Visitor |
+| Combinatorial Explosion | 45 | new | Replace Implicit Language with Interpreter |
+| Oddball Solution | 45 | new | Substitute Algorithm, Unify Interfaces with Adapter |
+
+### 5.3 File format
+
+Same as section 4.2, with a different citation line:
+
+```markdown
+# Replace State-Altering Conditionals with State
+
+Kerievsky (2004), ch. 7, p. 166. Direction: to, towards. Pattern: State (GoF, p. 305).
+```
+
+A mechanics step that is a Fowler refactoring names it by its 2nd-edition name and links its
+file; a refactoring with no 2nd-edition counterpart (such as Extract Interface) is described in
+plain words and marked "(1st ed. only)". "When to use" includes the book's liabilities, so the
+agent knows when the pattern is not worth it. Examples are original C#, as in section 4.3.

@@ -1,10 +1,10 @@
 {
   "name": "refactoring",
-  "version": "0.3.0",
-  "description": "Fowler's refactoring catalog (Refactoring, 2nd ed.) as an Agent Skill: the 24 code smells and the 66 refactorings, each with mechanics and a C# example, plus two subagents: one finds smells and plans, the other applies a refactoring.",
+  "version": "0.4.0",
+  "description": "Two refactoring catalogs as one Agent Skill: Fowler's Refactoring (2nd ed.) and Kerievsky's Refactoring to Patterns. 29 code smells, 66 refactorings and 27 refactorings to patterns, each with mechanics and a C# example, plus two subagents: one finds smells and plans, the other applies one refactoring.",
   "author": {
     "name": "Gabriel R. Marques"
   },
   "license": "CC-BY-4.0",
-  "keywords": ["refactoring", "fowler", "code-smells", "csharp", "agent-skills"]
+  "keywords": ["refactoring", "fowler", "kerievsky", "design-patterns", "code-smells", "csharp", "agent-skills"]
 }
