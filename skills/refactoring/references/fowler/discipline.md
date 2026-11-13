@@ -58,7 +58,7 @@ A refatoração precisa de testes autoverificáveis: eles rodam sozinhos e infor
 
 ## Além do livro: código legado sem testes
 
-Não vem dos cap. 2-4 de Fowler. O termo é de Michael Feathers, *Working Effectively with Legacy Code*.
+Não vem dos cap. 2-4 de Fowler.
 
 Um **teste de caracterização** fixa o que o código faz hoje (afirma a saída atual), mesmo que essa saída pareça estranha. Use-o antes de reestruturar código que não tem testes.
 
