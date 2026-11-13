@@ -3,14 +3,14 @@
 Gamma et al. (1995), cap. 4, p. 207. Também conhecido como: Surrogate. Categoria: estrutural de objeto.
 
 ## Intenção
-Colocar um substituto com a mesma interface na frente de outro objeto, para controlar o acesso a ele: adiar sua criação, verificar permissões, alcançá-lo através de uma fronteira ou fazer contabilidade a cada uso.
+Colocar na frente de outro objeto um substituto com a mesma interface, para controlar o acesso a ele: adiar sua criação, verificar permissões, alcançá-lo através de uma fronteira ou fazer contabilidade a cada uso.
 
 ## Quando compensa
 - Um **proxy virtual** adia uma criação cara até o primeiro uso real. Um **proxy de proteção** verifica se quem chama pode executar a operação. Um **proxy remoto** representa um objeto que vive em outro lugar (um cliente HTTP ou RPC gerado é um exemplo). Uma **referência inteligente** acrescenta trabalho no acesso: contagem, bloqueio, carregamento no primeiro toque, log.
 - Os chamadores continuam usando a interface do sujeito e não sabem que há um proxy.
 - Copy-on-write é outro uso: as cópias compartilham um mesmo sujeito até que alguém o altere.
 - Custo: mais uma camada, e às vezes um custo ou uma falha oculta (uma chamada de rede que parece local).
-- Dispense quando os chamadores podem criar o objeto de forma preguiçosa com `Lazy<T>`, ou quando uma verificação simples em um único lugar basta.
+- Não vale a pena quando os chamadores podem criar o objeto de forma preguiçosa com `Lazy<T>`, ou quando uma verificação simples em um único lugar basta.
 
 ## Participantes em C#
 - **Subject** (`IAssistantTool`): a interface compartilhada pelo objeto real e pelo proxy.
@@ -70,10 +70,10 @@ public class LazyToolProxy : IAssistantTool
 public class AuthorizedToolProxy : IAssistantTool
 {
     private readonly IAssistantTool _real;
-    private readonly IReadOnlyCollection<string> _scopes;
+    private readonly ICollection<string> _scopes;
     private readonly string _requiredScope;
 
-    public AuthorizedToolProxy(IAssistantTool real, IReadOnlyCollection<string> callerScopes, string requiredScope)
+    public AuthorizedToolProxy(IAssistantTool real, ICollection<string> callerScopes, string requiredScope)
     {
         _real = real;
         _scopes = callerScopes;
@@ -84,7 +84,7 @@ public class AuthorizedToolProxy : IAssistantTool
 
     public Task<string> RunAsync(string input)
     {
-        if (!((ICollection<string>)_scopes).Contains(_requiredScope))
+        if (!_scopes.Contains(_requiredScope))
             return Task.FromResult($"refused: {Name} needs scope '{_requiredScope}'");
         return _real.RunAsync(input);
     }
@@ -112,14 +112,14 @@ public static class Program
 - **Proxy que conhece apenas a interface**: quando o proxy alcança o sujeito somente pela interface, uma única classe de proxy serve a todos os sujeitos (o proxy de proteção acima). Um proxy virtual precisa construir o sujeito, então recebe um delegate de fábrica ou um tipo concreto.
 - **Referência antes da criação**: enquanto o sujeito não existe, o proxy guarda uma referência indireta a ele (um identificador, um nome de arquivo, uma URL) e pode guardar em cache fatos baratos (um tamanho) para responder sem carregar.
 - **Repasse automático**: em C# é possível construir proxies sem escrever cada método de repasse, usando um gerador de proxy em tempo de execução (`DispatchProxy` ou uma biblioteca), em que um único handler vê todas as chamadas. Isso serve a verificações transversais, ao custo de velocidade e de menos verificação em tempo de compilação.
-- **Copy-on-write**: as cópias compartilham um sujeito. O proxy só copia no primeiro escrita.
+- **Copy-on-write**: as cópias compartilham um sujeito. O proxy só copia na primeira escrita.
 
 ## Riscos e alternativas em C#
 - `Lazy<T>` cobre a maioria dos proxies virtuais sem uma classe nova. Use uma classe de proxy apenas quando os chamadores precisam da interface do sujeito e não podem saber da preguiça.
 - Torne os proxies remotos honestos: a interface deve ser assíncrona (`Task`) e os chamadores devem esperar falhas e timeouts. Uma chamada remota disfarçada de local esconde o custo.
 - Um proxy de proteção não é a única linha de defesa. Aplique as mesmas verificações no servidor para tudo o que o cliente possa contornar.
-- `DispatchProxy` e ferramentas semelhantes usam reflexão, então são mais lentos e não são amigáveis a compilação antecipada (AOT) nem a trimming.
-- Não deixe o proxy acumular deveres sem relação entre si. Várias responsabilidades (controle de acesso, cache, log) ficam mais limpas como envoltórios separados; veja o decorator.
+- `DispatchProxy` e ferramentas semelhantes usam reflexão, então são mais lentos e não funcionam bem com compilação antecipada (AOT) nem com trimming.
+- Não deixe o proxy acumular deveres sem relação entre si. Várias responsabilidades (controle de acesso, cache, log) ficam mais limpas como invólucros (wrappers) separados; veja o decorator.
 - Compare identidades com cuidado: o proxy e o sujeito são objetos diferentes.
 
 ## Padrões relacionados

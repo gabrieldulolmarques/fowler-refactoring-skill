@@ -9,8 +9,9 @@ Transformar uma requisição em um objeto. Isso permite passar requisições com
 - Um objeto precisa disparar uma ação sem saber o que ela faz nem sobre quem atua (botões, itens de menu, agendadores, filas de trabalho). Um objeto de comando substitui o callback.
 - Requisições precisam ser enfileiradas, executadas depois, registradas em log, reexecutadas após uma falha ou enviadas a outro processo.
 - Você precisa de desfazer e refazer: o comando guarda o que precisa para se reverter, e uma lista de histórico dá vários níveis.
+- O sistema é organizado em torno de operações de alto nível construídas a partir de operações primitivas, como nos sistemas de informação baseados em transações: um comando encapsula um conjunto de alterações nos dados, e todos os comandos compartilham uma única interface.
 - Benefícios: o invocador fica desacoplado do receptor, os comandos são objetos de primeira classe, eles se compõem em macros, e novos comandos não exigem mudança nas classes existentes.
-- Passivo: uma classe por ação pode ser pesado. Para um callback simples, que não precisa de desfazer nem de dados, um delegate basta.
+- Custo: uma classe por ação pode ser pesada. Para um callback simples, que não precisa de desfazer nem de dados, um delegate basta.
 
 ## Participantes em C#
 - **Command** (`ICartCommand`): interface com `Execute` e, se houver suporte a desfazer, `Undo`.
@@ -63,7 +64,7 @@ public class AddItemCommand : ICartCommand
 
     public void Execute()
     {
-        _previous = _cart.QuantityOf(_sku);   // state needed to reverse exactly
+        _previous = _cart.QuantityOf(_sku);   // estado necessário para reverter com exatidão
         _cart.SetQuantity(_sku, _previous + _amount);
     }
 
@@ -104,7 +105,7 @@ public class MacroCommand : ICartCommand
 
     public void Undo()
     {
-        for (int i = _commands.Count - 1; i >= 0; i--) _commands[i].Undo(); // reverse order
+        for (int i = _commands.Count - 1; i >= 0; i--) _commands[i].Undo(); // ordem inversa
     }
 }
 
@@ -117,7 +118,7 @@ public class CartHistory
     {
         command.Execute();
         _done.Push(command);
-        _undone.Clear();   // a new action invalidates the redo branch
+        _undone.Clear();   // uma nova ação invalida o ramo de refazer
     }
 
     public void Undo()
@@ -151,7 +152,7 @@ public static class Program
             new ApplyCouponCommand(cart, "WELCOME10"),
         }));
 
-        history.Undo();   // removes sku-2 and the coupon together
+        history.Undo();   // remove sku-2 e o cupom juntos
         Console.WriteLine($"{cart.QuantityOf("sku-1")} {cart.QuantityOf("sku-2")} {cart.Coupon ?? "none"}");
     }
 }

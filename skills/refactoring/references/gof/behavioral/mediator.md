@@ -6,11 +6,11 @@ Gamma et al. (1995), cap. 5, p. 273. Categoria: comportamental de objeto.
 Colocar as regras de interação de um grupo de objetos em um único objeto, para que os membros do grupo não se refiram uns aos outros. A interação pode então mudar sem tocar nos membros.
 
 ## Quando compensa
-- Um conjunto de objetos se comunica de formas bem definidas, mas emaranhadas, e a teia de referências é difícil de acompanhar.
+- A forma como um grupo de objetos conversa entre si é clara o bastante em cada caso, mas virou um emaranhado de referências difícil de acompanhar.
 - Um objeto é difícil de reutilizar porque conhece e fala com muitos outros.
-- Um comportamento espalhado por várias classes deveria ser customizável sem uma pilha de subclasses.
+- Um comportamento espalhado por várias classes deveria ser personalizável sem uma pilha de subclasses.
 - Benefícios: os colaboradores se tornam reutilizáveis por conta própria, as ligações muitos-para-muitos viram um-para-muitos, e as regras de cooperação ficam em um único lugar com nome. Mudar as regras significa mudar ou trocar apenas o mediador.
-- Passivo: a complexidade migra para o mediador, que pode crescer até virar um monólito. Fique de olho no tamanho dele.
+- Custo: a complexidade migra para o mediador, que pode crescer até virar um monólito. Fique de olho no tamanho dele.
 - Não vale a pena para dois objetos, ou quando uma simples inscrição em evento basta.
 
 ## Participantes em C#
@@ -88,12 +88,12 @@ public class SignupForm : ISignupMediator
 
     public void Changed(object colleague) => Refresh();
 
-    // All cooperation rules live here.
+    // Todas as regras de cooperação ficam aqui.
     private void Refresh()
     {
         bool paid = Plan.Plan != "free";
         Coupon.Enabled = paid;
-        if (!paid && Coupon.Code != "") Coupon.Code = "";   // reports back, so guard against looping
+        if (!paid && Coupon.Code != "") Coupon.Code = "";   // informa de volta, então proteja contra laços
         bool couponOk = Coupon.Code == "" || Coupon.Code.StartsWith("PROMO", StringComparison.Ordinal);
         Pay.Enabled = couponOk;
     }
@@ -115,11 +115,11 @@ public static class Program
 
 ## Variações
 - **Omitir o mediador abstrato.** Se os colaboradores só trabalham com um mediador, a interface não acrescenta nada. Mantenha-a quando os colaboradores precisarem ser reutilizados com mediadores diferentes.
-- **Como os colaboradores falam com o mediador.** Ou o mediador assina os eventos dos colaboradores (ao estilo Observer, com `event` do C#), ou os colaboradores chamam um método específico do mediador e passam a si mesmos, de modo que o mediador sabe quem mudou. Passar o remetente é direto e fácil de depurar. Eventos mantêm os colaboradores livres de qualquer referência ao mediador.
+- **Como os colaboradores falam com o mediador.** Ou o mediador se inscreve nos eventos dos colaboradores (ao estilo Observer, com `event` do C#), ou os colaboradores chamam um método específico do mediador e passam a si mesmos, de modo que o mediador sabe quem mudou. Passar o remetente é direto e fácil de depurar. Os eventos mantêm os colaboradores livres de qualquer referência ao mediador.
 - **Mediador para coordenar atualizações.** Um mediador pode ficar entre um conjunto de fontes e um conjunto de ouvintes para agrupar notificações e evitar trabalho redundante.
 
 ## Riscos e alternativas em C#
-- Um mediador que conhece tudo vira uma classe deus. Divida-o por preocupação (um por tela, um por fluxo de trabalho) e mantenha nele decisões, não dados.
+- Um mediador que conhece tudo vira uma classe deus. Divida-o por responsabilidade (um por tela, um por fluxo de trabalho) e mantenha nele decisões, não dados.
 - Reentrância: um colaborador alterado pelo mediador pode informar de volta e disparar o mediador de novo. Torne a atualização idempotente ou proteja contra laços, como o exemplo faz.
 - Um barramento de mensagens ou um agregador de eventos é um mediador com interface genérica. Ele desacopla mais, mas torna o fluxo mais difícil de rastrear. Use-o quando os participantes forem muitos e desconhecidos de antemão.
 - Para um acoplamento simples de mão única (um valor muda, os outros reagem), `event` simples é mais leve do que um mediador.

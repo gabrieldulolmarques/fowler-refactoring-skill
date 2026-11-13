@@ -6,10 +6,11 @@ Gamma et al. (1995), cap. 5, p. 243. Categoria: comportamental de classe.
 Para uma linguagem pequena, representar sua gramática como um conjunto de classes e escrever um interpretador que avalia sentenças da linguagem, mantidas como árvores dessas classes.
 
 ## Quando compensa
+- As sentenças da linguagem podem ser representadas como árvores de sintaxe abstrata.
 - Um problema se repete com frequência suficiente para que expressar as instâncias como sentenças de uma linguagem pequena valha a pena (regras de correspondência, filtros, regras de preço, segmentação de feature flags).
 - A gramática é simples e o desempenho não é crítico. Cada regra da gramática vira uma classe, então o padrão escala mal para gramáticas grandes.
 - Benefícios: a gramática é fácil de mudar e estender, adicionando ou editando classes, e cada classe de nó é curta e parecida com as outras.
-- Passivos: muitas regras significam muitas classes difíceis de manter, e percorrer uma árvore não é a forma mais rápida de avaliar. Para linguagens grandes ou muito usadas, use um gerador de parsers ou compile a árvore para outra forma.
+- Custos: muitas regras significam muitas classes difíceis de manter, e percorrer uma árvore não é a forma mais rápida de avaliar. Para linguagens grandes ou muito usadas, use um gerador de parsers ou compile a árvore para outra forma.
 - Não vale a pena quando alguns `if` ou uma tabela de consulta cobrem os casos, ou quando já existe uma biblioteca de expressões pronta.
 
 ## Participantes em C#

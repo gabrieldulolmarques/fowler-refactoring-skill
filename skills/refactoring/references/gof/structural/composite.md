@@ -9,7 +9,7 @@ Organizar objetos em uma árvore de partes e todos, em que um item isolado e um 
 - O domínio é uma hierarquia parte-todo (um carrinho com produtos e pacotes, pastas e arquivos, grupos de permissão aninhados) e quem chama não deve se importar se um nó é folha ou grupo.
 - O código cliente fica mais simples: sem laços que testam o tipo de cada nó, e novos tipos de nó funcionam com o código existente.
 - Custo: o design pode ficar genérico demais. É difícil proibir que um grupo contenha certos tipos, já que o sistema de tipos vê todo nó como do mesmo tipo. Essas regras viram verificações em tempo de execução.
-- Dispense quando a árvore tem uma profundidade fixa (uma lista de itens e nada aninhado), caso em que uma coleção simples é mais clara.
+- Não vale a pena quando a árvore tem uma profundidade fixa (uma lista de itens e nada aninhado), caso em que uma coleção simples é mais clara.
 
 ## Participantes em C#
 - **Component** (`IPriced`): interface ou classe abstrata para todo nó. No exemplo tem uma operação, `Total()`, e o gerenciamento de filhos fica apenas no composite.

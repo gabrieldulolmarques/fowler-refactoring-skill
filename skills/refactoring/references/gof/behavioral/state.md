@@ -9,12 +9,12 @@ Permitir que um objeto mude seu comportamento quando seu estado interno muda, de
 - O comportamento depende do estado atual e precisa mudar em tempo de execução.
 - Várias operações repetem o mesmo `if` ou `switch` grande sobre um campo de status. Cada ramo vira uma classe e os switches desaparecem.
 - Benefícios: o comportamento de cada estado fica em um só lugar; as transições são explícitas; uma transição é uma única atribuição de referência, então o contexto nunca fica pela metade; objetos de estado sem dados podem ser compartilhados.
-- Passivos: mais classes do que uma grande classe única. Vale a pena com muitos estados ou muitas operações dependentes de estado, e não vale a pena com dois estados e uma operação.
-- Evite quando os estados e as transições são apenas dados, sem comportamento; um enum e uma tabela de transições (veja Variações) bastam.
+- Custos: mais classes do que uma grande classe única. Vale a pena com muitos estados ou muitas operações dependentes de estado, e não com dois estados e uma operação.
+- Não vale a pena quando os estados e as transições são apenas dados, sem comportamento; um enum e uma tabela de transições (veja Variações) bastam.
 
 ## Participantes em C#
 - **Context** (`Ride`): o tipo que os clientes usam. Guarda o objeto de estado atual e repassa as chamadas dependentes de estado a ele.
-- **State** (`RideState`): classe abstrata que declara um método para cada operação dependente de estado. Sua implementação padrão rejeita a operação, então cada estado concreto sobrescreve apenas o que permite. Uma interface também funciona quando não há padrões.
+- **State** (`RideState`): classe abstrata que declara um método para cada operação dependente de estado. Sua implementação padrão rejeita a operação, então cada estado concreto sobrescreve apenas o que permite. Uma interface também funciona quando não há implementações padrão.
 - **ConcreteState** (`RequestedState`, `AcceptedState`, `InProgressState`, `CompletedState`): comportamento e transições de saída de um estado.
 
 ## Exemplo (C#)
@@ -29,12 +29,12 @@ public class Ride
     public string? DriverId { get; private set; }
     public decimal Fare { get; private set; }
 
-    // Operations forwarded to the current state.
+    // Operações repassadas ao estado atual.
     public void Accept(string driverId) => State.Accept(this, driverId);
     public void Start() => State.Start(this);
     public void Complete(decimal fare) => State.Complete(this, fare);
 
-    // Used by the states, to change state and to record data.
+    // Usado pelos estados, para mudar de estado e registrar dados.
     public void TransitionTo(RideState next) => State = next;
     public void AssignDriver(string driverId) => DriverId = driverId;
     public void Charge(decimal fare) => Fare = fare;
@@ -88,7 +88,7 @@ public sealed class CompletedState : RideState
 {
     public static readonly CompletedState Instance = new();
     private CompletedState() { }
-    // Terminal: every operation is rejected by the base class.
+    // Terminal: toda operação é rejeitada pela classe base.
 }
 
 public static class Program
@@ -141,20 +141,21 @@ public class RideMachine
 - **Quem decide o próximo estado.** Se as regras são fixas, o contexto pode guardá-las. Costuma ser mais flexível deixar cada estado escolher o seu sucessor, como acima. O custo é que os estados passam a conhecer uns aos outros.
 - **Máquina dirigida por tabela.** Uma tabela mapeia (estado, evento) para o próximo estado. As regras viram dados e são fáceis de ler como um todo, mas a consulta é mais lenta do que uma chamada virtual, a lógica fica menos explícita, e associar ações às transições exige trabalho extra. State modela o comportamento por estado; uma tabela modela apenas as transições.
 - **Criar ou reutilizar objetos de estado.** Criar sob demanda serve a estados que carregam muitos dados e mudam pouco. Criar uma vez e reutilizar serve a transições frequentes, mas o contexto precisa conseguir alcançar todos os estados.
-- **Compartilhamento.** Um estado sem campos pode ser compartilhado por todos os contextos, passando o contexto como argumento para que ele possa agir sobre ele.
+- **Compartilhamento.** Um estado sem campos de instância, cujo significado é dado inteiramente pelo seu tipo, pode ser compartilhado por todos os contextos, passando o contexto como argumento para que ele possa agir sobre ele.
 - **Mudar de classe em tempo de execução.** Poucas linguagens permitem que um objeto troque de classe. Delegar a um objeto de estado substituível produz o mesmo efeito em C#.
 
 ## Riscos e alternativas em C#
 - Para poucos estados e uma ou duas operações, uma expressão `switch` sobre um enum é mais curta e mais fácil de seguir. Passe para State quando o mesmo `switch` aparecer em vários métodos ou quando cada ramo crescer.
 - Um `Instance` estático em cada estado é um singleton. Isso é aceitável para objetos sem estado, mas esconde a dependência. Passar as instâncias a partir do contexto, ou de um pequeno registro, facilita os testes.
 - Objetos de estado que alteram o contexto por métodos públicos (`TransitionTo`, `AssignDriver`) enfraquecem os invariantes do contexto. Mantenha esses métodos `internal` quando os tipos compartilham um assembly, ou exponha apenas o que os estados precisam.
-- Transições que envolvem I/O ou precisam ser seguras para threads exigem bloqueio ou serialização em volta da mudança de estado. Uma atribuição de referência é atômica, mas a sequência ler-e-agir não é.
-- Padrões da classe base que lançam exceção transformam uma operação proibida em erro de execução. Se quem chama deve poder perguntar antes, adicione um método no estilo `CanStart` ou retorne um tipo de resultado em vez de lançar exceção.
+- Transições que envolvem I/O ou precisam ser seguras para threads exigem uma trava (lock) ou serialização em volta da mudança de estado. Uma atribuição de referência é atômica, mas a sequência ler-e-agir não é.
+- As implementações padrão da classe base que lançam exceção transformam uma operação proibida em erro de execução. Se quem chama deve poder perguntar antes, adicione um método no estilo `CanStart` ou retorne um tipo de resultado em vez de lançar exceção.
 
 ## Padrões relacionados
-- [Flyweight](../structural/flyweight.md): explica quando e como objetos de estado podem ser compartilhados.
+- [Flyweight](../structural/flyweight.md): trata das condições e da técnica para compartilhar objetos de estado.
 - [Singleton](../creational/singleton.md): objetos de estado compartilhados e sem estado costumam ser singletons.
-- [Strategy](strategy.md): mesma estrutura (um contexto que delega a um objeto substituível), intenção diferente. Uma estratégia é escolhida de fora e raramente muda sozinha; um estado se substitui a si mesmo à medida que o objeto avança em sua vida.
+
+**Além do livro:** o [Strategy](strategy.md) tem a mesma estrutura (um contexto que delega a um objeto substituível), mas intenção diferente. Uma estratégia é escolhida de fora e raramente muda sozinha; um estado se substitui a si mesmo à medida que o objeto avança em sua vida.
 
 ## Verificação
 - Nenhum método do contexto contém `switch` ou `if` sobre um valor de status; cada chamada dependente de estado é um único repasse ao estado.

@@ -3,14 +3,14 @@
 Gamma et al. (1995), cap. 4, p. 195. Categoria: estrutural de objeto.
 
 ## Intenção
-Compartilhar objetos para que um número muito grande de objetos pequenos e de granularidade fina se torne viável. A parte compartilhada fica dentro do objeto, e a parte que varia é passada pelo chamador.
+Compartilhar objetos para que um número muito grande de objetos pequenos, de granularidade fina, se torne viável. A parte compartilhada fica dentro do objeto, e a parte que varia é passada pelo chamador.
 
 ## Quando compensa
 - Todas estas condições valem: o programa tem uma quantidade enorme de objetos parecidos, eles custam memória demais, a maior parte do estado pode ser movida para fora, e depois disso poucos objetos compartilhados podem representar muitos dos antigos.
 - O código não depende da identidade dos objetos (dois objetos lógicos podem ser a mesma instância).
 - Benefício: a memória cai conforme o compartilhamento aumenta, sobretudo quando os dados externos podem ser calculados ou guardados em uma estrutura compacta.
 - Custo: quem chama precisa fornecer o estado externo a cada chamada, e há um custo de busca ou de cálculo para isso. O código fica mais difícil de acompanhar.
-- Dispense quando a quantidade é pequena, quando a memória não é um problema medido, ou quando o estado não pode ser separado. Meça antes.
+- Não vale a pena quando a quantidade é pequena, quando a memória não é um problema medido, ou quando o estado não pode ser separado. Meça antes.
 
 ## Participantes em C#
 - **Flyweight** (`VehicleKind`): o objeto compartilhado, com apenas estado intrínseco (o mesmo para todos que o usam). Suas operações recebem o estado extrínseco como parâmetros. Em C# é uma classe imutável, já que objetos compartilhados não podem mudar.
@@ -106,11 +106,11 @@ public static class Program
 ## Variações
 - **Onde o estado extrínseco vive**: no objeto cliente (como o `Vehicle` faz), em uma estrutura separada e compacta (por exemplo, intervalos de itens que compartilham um estilo), ou calculado a partir do contexto quando preciso. Quanto mais ele é calculado em vez de guardado, maior a economia.
 - **Compartilhar apenas algumas classes**: compartilhe as muitas folhas pequenas e deixe sem compartilhamento os compostos ou os objetos raros. A interface do flyweight permite compartilhar sem obrigar a isso.
-- **Tempo de vida do pool**: se o conjunto de flyweights é pequeno e fixo, mantenha-os para sempre. Se pode crescer sem limite, a fábrica precisa de uma política de remoção ou de referências fracas para deixar ir os que não são usados.
+- **Tempo de vida do pool**: se o conjunto de flyweights é pequeno e fixo, mantenha-os para sempre. Se pode crescer sem limite, a fábrica precisa de uma política de remoção ou de referências fracas para descartar os que não são usados.
 - **Combinado com uma árvore**: folhas compartilhadas em uma hierarquia não podem guardar o seu pai. Passe o pai como estado extrínseco.
 
 ## Riscos e alternativas em C#
-- Flyweights precisam ser imutáveis. Um objeto compartilhado mutável muda para todos os usuários ao mesmo tempo. Use propriedades somente leitura, uma classe `sealed` e nenhuma coleção pública.
+- Os flyweights precisam ser imutáveis. Um objeto compartilhado mutável muda para todos os usuários ao mesmo tempo. Use propriedades somente leitura, uma classe `sealed` e nenhuma coleção pública.
 - Segurança para threads: um `Dictionary` não é seguro para escritas concorrentes. Use `ConcurrentDictionary<TKey, TValue>` com `GetOrAdd`, ou monte o pool na inicialização.
 - O C# já compartilha algumas coisas para você: internação de strings (`string.Intern`), valores de enum e instâncias `static readonly` em cache. Um conjunto fechado de tipos pode ser um campo `static readonly` por tipo, sem fábrica.
 - Um `struct` para a parte pequena que varia (aqui, um par de coordenadas) reduz ainda mais as alocações, o que pode importar mais do que o compartilhamento. Considere arrays de structs ou pooling (`ArrayPool<T>`) antes de construir uma fábrica de flyweights.

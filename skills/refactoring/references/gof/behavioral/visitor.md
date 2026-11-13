@@ -9,9 +9,10 @@ Empacotar uma operação sobre os elementos de uma estrutura de objetos em um ob
 - Uma estrutura guarda muitas classes com interfaces diferentes, e as operações dependem da classe concreta de cada elemento.
 - Muitas operações não relacionadas (preço, renderização, auditoria) poluiriam as classes dos elementos. Cada operação ganha uma classe visitor que mantém seu código e seus dados de trabalho juntos.
 - As classes dos elementos raramente mudam, mas novas operações sobre elas são adicionadas com frequência.
+- A estrutura é compartilhada por várias aplicações, e cada aplicação deve receber apenas as operações de que precisa.
 - Benefícios: uma nova operação é uma nova classe; o código relacionado fica em um lugar, o não relacionado fica separado; um visitor pode acumular estado enquanto percorre a estrutura; ele pode visitar elementos que não compartilham uma classe base comum.
-- Passivos: adicionar uma nova classe de elemento é caro, porque a interface do visitor e todos os visitors precisam mudar; os elementos geralmente precisam expor estado suficiente para que os visitors funcionem, o que enfraquece o encapsulamento.
-- Evite quando os tipos de elemento mudam mais do que as operações: coloque a operação nos próprios elementos.
+- Custos: adicionar uma nova classe de elemento é caro, porque a interface do visitor e todos os visitors precisam mudar; os elementos geralmente precisam expor estado suficiente para que os visitors funcionem, o que enfraquece o encapsulamento.
+- Não vale a pena quando os tipos de elemento mudam mais do que as operações: coloque a operação nos próprios elementos.
 
 ## Participantes em C#
 - **Visitor** (`IInvoiceVisitor`): interface com um método `Visit` para cada classe de elemento.
@@ -52,7 +53,7 @@ public sealed class SubscriptionLine : InvoiceLine
     public string Plan { get; }
     public decimal MonthlyPrice { get; }
 
-    public override void Accept(IInvoiceVisitor visitor) => visitor.Visit(this);   // first dispatch
+    public override void Accept(IInvoiceVisitor visitor) => visitor.Visit(this);   // primeiro despacho
 }
 
 public sealed class UsageLine : InvoiceLine
@@ -95,7 +96,7 @@ public class Invoice
         return this;
     }
 
-    // The structure drives the traversal.
+    // A estrutura conduz o percurso.
     public void Accept(IInvoiceVisitor visitor)
     {
         foreach (var line in _lines) line.Accept(visitor);
@@ -104,11 +105,11 @@ public class Invoice
 
 public class TotalCalculator : IInvoiceVisitor
 {
-    public decimal Total { get; private set; }   // state accumulated during the walk
+    public decimal Total { get; private set; }   // estado acumulado durante o percurso
 
     public void Visit(SubscriptionLine line) => Total += line.MonthlyPrice;
     public void Visit(UsageLine line) => Total += line.Units * line.UnitPrice;
-    public void Visit(DiscountLine line) => Total -= Total * line.Percent / 100m;   // applies to what came before
+    public void Visit(DiscountLine line) => Total -= Total * line.Percent / 100m;   // vale para o que veio antes
 }
 
 public class TextRenderer : IInvoiceVisitor
@@ -170,13 +171,13 @@ public static class PatternMatchingTotal
 
 ## Variações
 - **Despacho duplo.** A operação que roda depende de dois tipos: o do visitor e o do elemento. `Accept` recebe o visitor e chama a sobrecarga `Visit` correspondente ao tipo do próprio elemento, que é como o código certo é escolhido sem uma verificação de tipo. Linguagens com despacho múltiplo precisam menos do padrão.
-- **Quem percorre a estrutura.** A própria estrutura de objetos (uma coleção percorre seus elementos, um composite desce em seus filhos), um iterador, ou o próprio visitor. Coloque o percurso no visitor apenas quando ele for irregular ou depender de resultados de visitas anteriores, ao preço de repeti-lo em cada visitor.
-- **Sobrecargas ou nomes distintos.** `Visit(SubscriptionLine)` com sobrecargas é curto e mostra a simetria entre os casos; nomes como `VisitSubscription` tornam explícito cada ponto de chamada. Escolha um e mantenha.
+- **Quem percorre a estrutura.** Na maioria das vezes, a própria estrutura: uma lista chama `Accept` em cada elemento, e o `Accept` de uma árvore desce nos filhos. Um iterador separado é a outra opção, e o visitor também, o que serve a um percurso irregular ou que depende de resultados anteriores, ao preço de duplicar o percurso em cada visitor.
+- **Sobrecargas ou nomes distintos.** `Visit(SubscriptionLine)` com sobrecargas é curto e mostra a simetria entre os casos; nomes como `VisitSubscription` tornam cada ponto de chamada explícito. Escolha um e mantenha.
 - **Comportamento padrão.** Um visitor base abstrato pode dar a cada `Visit` um corpo vazio, para que um visitor concreto sobrescreva apenas os tipos de elemento que lhe interessam.
 - **Valores de retorno.** Um `IInvoiceVisitor<TResult>` genérico retorna um resultado por elemento, em vez de acumulá-lo em um campo, o que torna o visitor reutilizável e elimina o estado compartilhado.
 
 ## Riscos e alternativas em C#
-- Pattern matching: instruções `switch` e expressões sobre os tipos de elemento fazem o mesmo trabalho com muito menos código quando o conjunto de tipos de elemento é fechado e vive em um só assembly. O custo é que o compilador não obriga cada operação a tratar um novo elemento: sem um `default` que falhe (como acima), uma nova subclasse é ignorada em silêncio. Uma interface de visitor pega isso em tempo de compilação, e essa é a principal vantagem que resta ao padrão em C#.
+- Pattern matching: instruções `switch` e expressões sobre os tipos de elemento fazem o mesmo trabalho com muito menos código quando o conjunto de tipos de elemento é fechado e vive em um só assembly. O custo é que o compilador não obriga cada operação a tratar um novo elemento: sem um `default` que falhe (como acima), uma nova subclasse é ignorada em silêncio. Uma interface de visitor detecta isso em tempo de compilação, e essa é a principal vantagem que resta ao padrão em C#.
 - C# tem despacho `dynamic` (`visitor.Visit((dynamic)element)`), que elimina `Accept`, mas custa velocidade e perde a verificação em tempo de compilação. Evite, exceto em código descartável.
 - Toda assinatura `Visit` muda quando você adiciona uma classe de elemento. Se os elementos mudam com frequência, coloque o comportamento neles.
 - Visitors leem o estado dos elementos, então propriedades que eram privadas passam a ser públicas. Exponha apenas o que os visitors precisam, como membros somente leitura.

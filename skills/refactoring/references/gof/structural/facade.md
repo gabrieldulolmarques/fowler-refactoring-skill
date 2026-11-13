@@ -9,8 +9,8 @@ Dar a um conjunto de classes de um subsistema um único ponto de entrada simples
 - Um subsistema é formado por muitas classes pequenas que precisam ser chamadas na ordem certa, e a maioria dos chamadores quer um caso comum ("armazenar este arquivo") e não os detalhes.
 - Os clientes dependem diretamente de muitas classes do subsistema, e você quer cortar essas dependências ou definir um ponto de entrada claro para cada camada.
 - Benefícios: menos objetos que os clientes precisam conhecer, acoplamento mais fraco com o subsistema (você pode trocar suas partes) e as classes de nível mais baixo continuam públicas para os poucos clientes que precisam delas.
-- Custos: a fachada pode crescer até virar uma classe-deus que guarda regras de negócio, e se ocultar tudo, impede a customização.
-- Dispense quando há uma única classe a chamar, ou quando a fachada apenas repassa cada chamada uma a uma.
+- Custos: a fachada pode crescer até virar uma classe-deus que guarda regras de negócio, e, se ocultar tudo, impede a personalização.
+- Não vale a pena quando há uma única classe a chamar, ou quando a fachada apenas repassa cada chamada uma a uma.
 
 ## Participantes em C#
 - **Facade** (`UploadService`): classe que sabe quais classes do subsistema tratam cada requisição e as chama em ordem. Não acrescenta regras novas.
@@ -107,9 +107,9 @@ public static class Program
 ```
 
 ## Variações
-- **Fachada abstrata**: torne a fachada uma interface (`IUploadService`) para que os clientes não saibam qual implementação do subsistema fica por trás, e os testes possam substituí-la. Uma alternativa a ter várias classes de fachada é configurar uma única fachada com objetos diferentes do subsistema.
+- **Fachada abstrata**: torne a fachada uma interface (`IUploadService`) para que os clientes não saibam qual implementação do subsistema fica por trás, e os testes possam trocá-la por uma versão falsa. Uma alternativa a ter várias classes de fachada é configurar uma única fachada com objetos diferentes do subsistema.
 - **Classes públicas e privadas do subsistema**: a fachada faz parte da face pública, mas não é a única parte. Use `internal` para classes que só o subsistema precisa, e deixe públicas as que extensores e clientes avançados usam.
-- **Parametrizar a fachada**: deixar os chamadores passarem o verificador ou o armazenamento dá flexibilidade, mas cada opção acrescentada tira da meta da fachada de tornar o caso comum simples. Mantenha o caminho padrão curto, e ofereça uma segunda sobrecarga ou as partes cruas para o caso raro.
+- **Parametrizar a fachada**: deixar os chamadores passarem o verificador ou o armazenamento dá flexibilidade, mas cada opção acrescentada afasta a fachada da meta de tornar o caso comum simples. Mantenha o caminho padrão curto e ofereça uma segunda sobrecarga, ou as partes cruas, para o caso raro.
 - **Uma por camada do subsistema**: cada camada expõe uma fachada, e as camadas conversam entre si apenas por meio de fachadas.
 
 ## Riscos e alternativas em C#
@@ -120,7 +120,7 @@ public static class Program
 
 ## Padrões relacionados
 - [abstract-factory.md](../creational/abstract-factory.md): pode criar os objetos do subsistema sem citar suas classes concretas, ou ocultar classes específicas de plataforma como alternativa a uma fachada.
-- [mediator.md](../behavioral/mediator.md): também abstrai classes existentes, mas centraliza a comunicação entre pares que o conhecem, e pode acrescentar comportamento. Uma fachada apenas simplifica o acesso; o subsistema não sabe que ela existe.
+- [mediator.md](../behavioral/mediator.md): também abstrai classes existentes, mas centraliza a comunicação entre colegas que o conhecem, e pode acrescentar comportamento. Uma fachada apenas simplifica o acesso; o subsistema não sabe que ela existe.
 - [singleton.md](../creational/singleton.md): uma fachada costuma ser necessária uma única vez.
 - [adapter.md](adapter.md): um adaptador reutiliza uma interface existente, enquanto uma fachada define uma nova.
 

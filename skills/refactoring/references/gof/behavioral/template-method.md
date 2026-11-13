@@ -7,11 +7,11 @@ Escrever o esqueleto de um algoritmo uma única vez em uma classe base e deixar 
 
 ## Quando compensa
 - A parte fixa de um algoritmo deve morar em um só lugar, e só as partes que variam devem ser escritas pelas subclasses.
-- Subclasses repetem a mesma sequência de etapas com detalhes diferentes. Encontre as diferenças, mova cada uma para o seu próprio método e substitua a sequência duplicada por um único template method que chama esses métodos.
+- As subclasses repetem a mesma sequência de etapas com detalhes diferentes. Encontre as diferenças, mova cada uma para o seu próprio método e substitua a sequência duplicada por um único template method que chama esses métodos.
 - Você quer permitir extensão apenas em pontos escolhidos (hooks) e manter o restante fechado.
 - Benefícios: reuso da parte invariante; a classe base controla o fluxo ("não nos chame, nós chamaremos você"); um conjunto pequeno e documentado de pontos de extensão.
-- Passivos: quem escreve subclasses precisa aprender quais métodos sobrescrever; o desenho fica preso à herança, então é fixado em tempo de compilação e cada subclasse tem uma única classe base; etapas abstratas demais tornam a subclasse tediosa.
-- Evite quando a variação pode ser passada como objeto ou delegate, ou quando há apenas uma implementação.
+- Custos: quem escreve subclasses precisa aprender quais métodos sobrescrever; o design fica preso à herança, então é fixado em tempo de compilação e cada subclasse tem uma única classe base; etapas abstratas demais tornam a subclasse trabalhosa.
+- Não vale a pena quando a variação pode ser passada como objeto ou delegate, ou quando há apenas uma implementação.
 
 ## Participantes em C#
 - **AbstractClass** (`ReportExporter`): define o template method (`Export`, não virtual) e as etapas que ele chama. Membros abstratos são as etapas que uma subclasse deve fornecer; membros virtuais com corpo vazio ou padrão são os hooks.
@@ -42,7 +42,7 @@ public class SaleRow
 
 public abstract class ReportExporter
 {
-    // Template method: fixed order, not overridable.
+    // Template method: ordem fixa, não sobrescrevível.
     public string Export(IReadOnlyList<SaleRow> rows)
     {
         if (rows is null) throw new ArgumentNullException(nameof(rows));
@@ -58,10 +58,10 @@ public abstract class ReportExporter
         return sb.ToString();
     }
 
-    // Primitive operation: every format must supply it.
+    // Operação primitiva: todo formato precisa fornecê-la.
     protected abstract void WriteRow(StringBuilder sb, SaleRow row);
 
-    // Hooks: defaults that a format may replace.
+    // Hooks: implementações padrão que um formato pode substituir.
     protected virtual string Separator => "";
     protected virtual void WriteHeader(StringBuilder sb) { }
     protected virtual void WriteFooter(StringBuilder sb) { }
@@ -110,7 +110,7 @@ public static class Program
 ## Variações
 - **Tipos de etapa.** Um template method pode chamar operações concretas da própria classe, auxiliares destinados às subclasses (`Money`), etapas abstratas que precisam ser sobrescritas (`WriteRow`), métodos de fábrica que criam partes, e hooks que podem ser sobrescritos (`WriteHeader`).
 - **Deixe clara a diferença.** Deixe claro quais membros devem ser sobrescritos (abstract) e quais podem ser (virtual, geralmente com corpo vazio). Um prefixo de nome como `Do` ou `On` ajuda quem lê.
-- **Poucas primitivas.** Mantenha pequeno o número de etapas abstratas. Cada uma extra é mais uma coisa que cada subclasse precisa escrever.
+- **Poucas primitivas.** Mantenha pequeno o número de etapas abstratas. Cada etapa extra é mais uma coisa que cada subclasse precisa escrever.
 - **Proteja o esqueleto.** Deixe o template method não virtual e torne as etapas `protected`, para que só o template as chame. É assim que uma classe base garante um invariante, como "adquirir um recurso, executar a etapa, sempre liberar".
 - **Transformar uma sobrescrita em hook.** Se as subclasses precisam chamar a versão base de um método sobrescrito para estar corretas, transforme-o em um template method com hook, para que a classe base mantenha o controle e as subclasses não possam esquecer a chamada.
 

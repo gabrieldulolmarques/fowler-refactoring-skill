@@ -8,14 +8,15 @@ Acrescentar responsabilidades a um objeto individual em tempo de execução, env
 ## Quando compensa
 - Você quer acrescentar comportamento (novas tentativas, cache, log, compressão) a alguns objetos e não a outros, de forma transparente para quem chama, e possivelmente removê-lo depois.
 - Usar herança exigiria uma classe por combinação de funcionalidades, ou a classe não pode ser herdada.
-- Benefícios: as funcionalidades são peças pequenas e empilháveis. Você paga apenas pelas que acopla, e pode acoplar a mesma uma duas vezes.
-- Custos: um objeto decorado não é o mesmo objeto do original (não dependa de identidade nem de verificação de tipo), e uma pilha de muitos objetos pequenos parecidos é mais difícil de ler e depurar.
-- Dispense quando você precisa de apenas um comportamento extra em um único lugar (uma subclasse simples ou uma chamada direta bastam), ou quando o componente é tão pesado e tem tantos membros que cada envoltório teria de repassar dezenas deles.
+- Benefícios: as funcionalidades são peças pequenas e empilháveis. Você paga apenas pelas que acopla, e pode acoplar a mesma duas vezes.
+- Custos: um objeto decorado não é o mesmo objeto que o original (não dependa de identidade nem de verificação de tipo), e uma pilha de muitos objetos pequenos parecidos é mais difícil de ler e depurar.
+- Não vale a pena quando você precisa de apenas um comportamento extra em um único lugar (uma subclasse simples ou uma chamada direta bastam), ou quando o componente é tão pesado e tem tantos membros que cada invólucro (wrapper) teria de repassar dezenas deles.
 
 ## Participantes em C#
-- **Component** (`IApiClient`): a interface compartilhada pelo objeto real e pelos envoltórios. Mantenha-a pequena.
+- **Component** (`IApiClient`): a interface compartilhada pelo objeto real e pelos invólucros. Mantenha-a pequena.
 - **ConcreteComponent** (`HttpApiClient`): o objeto que faz o trabalho real.
-- **Decorator** (`RetryingClient`, `CachingClient`, `LoggingClient`): classes que implementam a interface do componente, guardam outro componente, repassam as chamadas a ele e acrescentam comportamento antes ou depois. Uma base abstrata `Decorator` que apenas repassa é opcional; com uma interface de um único método, não compensa tê-la.
+- **Decorator**: uma classe base que implementa a interface do componente, guarda outro componente e repassa as chamadas a ele. É opcional; com uma interface de um único método não compensa tê-la, e o exemplo não tem nenhuma.
+- **ConcreteDecorator** (`RetryingClient`, `CachingClient`, `LoggingClient`): implementa a interface do componente, guarda outro componente, repassa as chamadas a ele e acrescenta comportamento antes ou depois.
 - **Client** (código em `Main`): compõe a pilha e a usa pela interface do componente.
 
 ## Exemplo (C#)
@@ -116,17 +117,17 @@ public static class Program
 
 ## Variações
 - **A ordem importa**: no exemplo, o cache envolve as tentativas, então um acerto no cache nunca tenta de novo. Trocá-los muda o comportamento. Documente a ordem pretendida no ponto onde a pilha é montada.
-- **Decorador único sem classe base**: com uma só responsabilidade a acrescentar, dispense o decorador abstrato e escreva o envoltório diretamente, como acima.
+- **Decorador único sem classe base**: com uma só responsabilidade a acrescentar, dispense o decorador abstrato e escreva o invólucro diretamente, como acima.
 - **Decoradores com membros extras**: um decorador pode acrescentar uma operação própria (um método para limpar o cache). Quem usa essa operação precisa manter o decorador concreto, e então perde a transparência.
-- **Componente leve**: mantenha a interface compartilhada restrita a comportamento, não a dados. Um componente pesado torna cada envoltório caro. Quando o componente é pesado, dê a ele um objeto auxiliar substituível (uma estratégia) para a parte que varia.
+- **Componente leve**: mantenha a interface compartilhada restrita a comportamento, não a dados. Um componente pesado torna cada invólucro caro. Quando o componente é pesado, dê a ele um objeto auxiliar substituível (uma estratégia) para a parte que varia.
 - **Estratégia em vez de envolver**: o próprio componente guarda um objeto de comportamento substituível. Isso muda o interior do objeto e permite que a estratégia tenha uma interface própria e estreita, mas o componente precisa conhecer o ponto de extensão.
 
 ## Riscos e alternativas em C#
-- Para HTTP, o .NET já tem esse padrão: `DelegatingHandler` empilhado sobre `HttpClient`. Use-o em vez de escrever uma nova cadeia de decoradores quando usa `HttpClient`.
+- Para HTTP, o .NET já tem esse padrão: `DelegatingHandler` empilhado sobre `HttpClient`. Use-o, em vez de escrever uma nova cadeia de decoradores, quando você usa `HttpClient`.
 - Um decorador transversal sobre uma interface grande obriga a escrever cada membro à mão. Source generators, uma biblioteca de proxy dinâmico ou pipelines de middleware (delegates da forma `Func<Request, Func<Request, Task>, Task>`) reduzem essa repetição.
 - Em um contêiner de DI, registre os decoradores envolvendo o registro do serviço interno, para que nenhum consumidor monte a pilha por conta própria.
 - Descarte as cadeias corretamente: se o objeto interno é `IDisposable`, o decorador que o possui deve descartá-lo (ou deixar isso para o contêiner, mas apenas um lugar deve fazê-lo).
-- Cache dentro de um decorador precisa de um limite de tamanho e de um tempo de vida. O dicionário acima cresce para sempre e não é seguro para threads, o que só serve para ilustrar.
+- Cache dentro de um decorador precisa de um limite de tamanho e de um tempo de vida. O dicionário acima cresce para sempre e não é seguro para threads; ele serve apenas para ilustrar.
 
 ## Padrões relacionados
 - [adapter.md](adapter.md): muda a interface; um decorador mantém a interface e acrescenta responsabilidades.

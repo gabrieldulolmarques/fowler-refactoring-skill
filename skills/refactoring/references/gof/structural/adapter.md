@@ -10,7 +10,7 @@ Tornar utilizável, pela interface que o cliente espera, uma classe cuja interfa
 - Você escreve um componente reutilizável que deve funcionar com classes que não podem ser previstas, e prefere aceitar uma interface enxuta a impor uma classe base a todos.
 - Um único adaptador de objeto pode atender ao adaptado e a todas as suas subclasses. Ele também pode acrescentar um comportamento que o adaptado não tem.
 - Custo: o objeto adaptado deixa de ser do tipo adaptado, então o código que espera o tipo original não pode receber o adaptador. Um adaptador de duas vias (que implementa as duas interfaces) resolve isso, ao custo de mais código.
-- Dispense quando você controla o adaptado e pode simplesmente alterá-lo, ou quando a tradução é um único ponto de chamada (um lambda ou uma função local bastam).
+- Não vale a pena quando você controla o adaptado e pode simplesmente alterá-lo, ou quando a tradução é um único ponto de chamada (um lambda ou uma função local bastam).
 
 ## Participantes em C#
 - **Target** (`IPaymentProcessor`): a interface em que o código cliente é escrito, uma interface C#.

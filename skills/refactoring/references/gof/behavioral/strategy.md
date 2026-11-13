@@ -3,15 +3,15 @@
 Gamma et al. (1995), cap. 5, p. 315. Também conhecido como: Policy. Categoria: comportamental de objeto.
 
 ## Intenção
-Colocar cada algoritmo de uma família em seu próprio objeto, atrás de uma interface comum, para que o código que usa o algoritmo possa trocar entre eles e o algoritmo possa mudar sem tocar nesse código.
+Colocar cada algoritmo de uma família em seu próprio objeto, atrás de uma interface comum, para que o código que usa o algoritmo possa alternar entre eles e o algoritmo possa mudar sem tocar nesse código.
 
 ## Quando compensa
 - Várias classes diferem apenas na forma como fazem uma mesma coisa, ou uma classe escolhe entre comportamentos com uma cadeia de condicionais.
 - Você precisa de variantes do mesmo algoritmo, como uma versão rápida que usa mais memória e uma versão lenta que usa menos.
 - Um algoritmo precisa de dados ou estruturas auxiliares que quem chama não deveria ver.
 - Benefícios: famílias de algoritmos intercambiáveis; uma alternativa à herança do contexto; os condicionais desaparecem; a escolha pode ser feita em tempo de execução.
-- Passivos: quem chama precisa conhecer as estratégias bem o suficiente para escolher uma; a interface comum pode passar dados que algumas estratégias ignoram; há mais objetos.
-- Evite quando há um único algoritmo, ou quando a variação nunca importa para quem chama. Um `switch` com dois ramos que nunca crescem está bem.
+- Custos: quem chama precisa conhecer as estratégias bem o suficiente para escolher uma; a interface comum pode passar dados que algumas estratégias ignoram; há mais objetos.
+- Não vale a pena quando há um único algoritmo, ou quando a variação nunca importa para quem chama. Um `switch` com dois ramos que nunca crescem está bem.
 
 ## Participantes em C#
 - **Strategy** (`IRetryPolicy`): interface (ou tipo delegate) que todos os algoritmos implementam.
@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 public interface IRetryPolicy
 {
-    // Delay before retry number `attempt` (1 for the first retry), or null to stop.
+    // Espera antes da nova tentativa de número `attempt` (1 para a primeira), ou null para parar.
     TimeSpan? NextDelay(int attempt);
 }
 
@@ -89,7 +89,7 @@ public class ApiCaller
             catch (TimeoutException)
             {
                 var delay = _policy.NextDelay(attempt);
-                if (delay is null) throw;      // policy says stop
+                if (delay is null) throw;      // a política manda parar
                 await Task.Delay(delay.Value);
             }
         }
@@ -111,7 +111,7 @@ public static class Program
         var caller = new ApiCaller(new ExponentialBackoff(
             TimeSpan.FromMilliseconds(10), TimeSpan.FromSeconds(1), maxRetries: 5));
 
-        Console.WriteLine(await caller.CallAsync(Flaky));   // ok, after two waits
+        Console.WriteLine(await caller.CallAsync(Flaky));   // ok, após duas esperas
     }
 }
 ```
@@ -119,7 +119,7 @@ public static class Program
 ## Variações
 - **Como os dados chegam à estratégia.** Passe o que ela precisa como argumentos (o exemplo passa o número da tentativa): o par continua desacoplado, mas o contexto pode passar valores que algumas estratégias ignoram. Ou passe o próprio contexto, ou deixe a estratégia guardar uma referência a ele: a estratégia pode pedir exatamente o que precisa, mas o contexto precisa expor mais de si mesmo e os dois ficam acoplados.
 - **Seleção em tempo de compilação com genéricos.** Quando a estratégia é fixa na compilação e nunca muda, um parâmetro genérico com restrição de interface (`ApiCaller<TPolicy> where TPolicy : IRetryPolicy`) a vincula estaticamente e, com structs, pode evitar uma chamada virtual.
-- **Estratégia opcional.** Deixe o contexto ter um padrão quando nenhuma for fornecida, para que a maioria dos clientes nunca veja o padrão. No exemplo, uma política ausente poderia significar `NoRetry`.
+- **Estratégia opcional.** Deixe o contexto ter uma estratégia padrão para quando nenhuma for fornecida, de modo que a maioria dos clientes nunca precise vê-la. No exemplo, uma política ausente poderia significar `NoRetry`.
 - **Sem estado e compartilhadas.** Estratégias sem campos podem ser compartilhadas por vários contextos. Tudo o que varia por chamada fica no contexto e viaja nos argumentos.
 
 ## Riscos e alternativas em C#
@@ -127,12 +127,13 @@ public static class Program
 - Com injeção de dependência, registre as implementações e injete a desejada (ou um `IEnumerable<IRetryPolicy>` mais um seletor). A escolha da estratégia vira configuração.
 - Uma estratégia que mantém estado entre chamadas (um contador, uma janela de circuit breaker) não é segura para compartilhar entre chamadores ou threads. Ou mantenha-a por contexto, ou proteja o estado.
 - Estratégias que dependem de aleatoriedade ou de tempo (jitter, `DateTime.Now`) são difíceis de testar. Receba um relógio ou uma fonte aleatória como dependência.
-- Uma interface de estratégia moldada para o algoritmo mais complexo força os simples a aceitar parâmetros que nunca usam. Revise a interface quando uma nova estratégia precisar de dados que ela não carrega.
+- Uma interface de estratégia pensada para o algoritmo mais complexo força os simples a aceitar parâmetros que nunca usam. Revise a interface quando uma nova estratégia precisar de dados que ela não carrega.
 
 ## Padrões relacionados
 - [Flyweight](../structural/flyweight.md): objetos de estratégia sem estado são bons flyweights.
 - [Template Method](template-method.md): varia parte de um algoritmo por herança, enquanto Strategy varia o algoritmo inteiro por delegação.
-- [State](state.md): mesma estrutura, mas um estado é substituído pelo próprio objeto à medida que ele avança em sua vida, e uma estratégia é escolhida de fora.
+
+**Além do livro:** o [State](state.md) tem a mesma estrutura, mas um estado é substituído pelo próprio objeto à medida que ele avança em sua vida, e uma estratégia é escolhida de fora.
 
 ## Verificação
 - O contexto não contém nenhuma ramificação sobre qual algoritmo está em uso, e não cita nenhuma estratégia concreta.

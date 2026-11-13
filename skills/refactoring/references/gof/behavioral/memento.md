@@ -9,7 +9,7 @@ Capturar o estado interno de um objeto em um objeto separado, sem quebrar o enca
 - Você precisa guardar um snapshot do estado de um objeto para restaurá-lo depois (desfazer, checkpoints, reversão de uma mudança provisória), e
 - ler o estado por uma interface pública exporia detalhes de implementação.
 - Benefícios: os detalhes internos do originador permanecem privados, e o originador não precisa gerenciar uma lista de versões, porque quem chama guarda os snapshots.
-- Passivos: snapshots podem ser caros em memória ou em tempo de cópia. Quem guarda os mementos não consegue saber o tamanho de cada um, então um histórico pode crescer sem ser notado. Em algumas linguagens, é difícil permitir que só o originador leia o memento.
+- Custos: snapshots podem ser caros em memória ou em tempo de cópia. Quem guarda os mementos não consegue saber o tamanho de cada um, então um histórico pode crescer sem ser notado. Em algumas linguagens, é difícil permitir que só o originador leia o memento.
 - Não vale a pena quando o estado é meia dúzia de valores públicos (basta copiá-los) ou quando o desfazer pode ser uma operação inversa exata.
 
 ## Participantes em C#
@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 public interface IChatSettingsMemento
 {
-    // Narrow interface: nothing to read. Only the originator can see inside.
+    // Interface estreita: nada para ler. Só o originator enxerga o conteúdo.
 }
 
 public class ChatSettings
@@ -43,18 +43,18 @@ public class ChatSettings
         $"{_systemPrompt} | t={_temperature} | tools=[{string.Join(", ", _enabledTools)}]";
 
     public IChatSettingsMemento Save() =>
-        new Snapshot(_systemPrompt, _temperature, _enabledTools.ToArray());   // copies the list
+        new Snapshot(_systemPrompt, _temperature, _enabledTools.ToArray());   // copia a lista
 
     public void Restore(IChatSettingsMemento memento)
     {
-        var snapshot = (Snapshot)memento;   // throws for a foreign memento
+        var snapshot = (Snapshot)memento;   // lança exceção para um memento de outra origem
         _systemPrompt = snapshot.SystemPrompt;
         _temperature = snapshot.Temperature;
         _enabledTools.Clear();
         _enabledTools.AddRange(snapshot.EnabledTools);
     }
 
-    // Wide interface, visible only inside ChatSettings.
+    // Interface ampla, visível apenas dentro de ChatSettings.
     private sealed class Snapshot : IChatSettingsMemento
     {
         public Snapshot(string systemPrompt, double temperature, string[] enabledTools)
@@ -95,7 +95,7 @@ public static class Program
         Console.WriteLine(settings.Describe());
 
         history.Undo(settings);
-        Console.WriteLine(settings.Describe());   // back to the first state
+        Console.WriteLine(settings.Describe());   // de volta ao primeiro estado
     }
 }
 ```

@@ -19,31 +19,31 @@ Como escolher e aplicar um deles está em [principles.md](principles.md).
 
 ### Criacionais
 - [Abstract Factory](creational/abstract-factory.md) (p. 87): criar famílias de objetos relacionados por meio de uma interface, sem nomear suas classes concretas.
-- [Builder](creational/builder.md) (p. 97): separar a construção passo a passo de um objeto complexo da sua representação, para que os mesmos passos possam produzir resultados diferentes.
+- [Builder](creational/builder.md) (p. 97): executar uma mesma sequência de passos de construção que não depende da forma final, para que ela possa gerar várias formas de um objeto complexo.
 - [Factory Method](creational/factory-method.md) (p. 107): declarar uma operação que cria um objeto e deixar as subclasses decidirem qual classe criar.
-- [Prototype](creational/prototype.md) (p. 117): criar novos objetos copiando um objeto de exemplo já configurado.
+- [Prototype](creational/prototype.md) (p. 117): obter novos objetos clonando uma instância já configurada, o que também define os tipos disponíveis.
 - [Singleton](creational/singleton.md) (p. 127): garantir que uma classe tenha uma única instância e oferecer um ponto de acesso global a ela.
 
 ### Estruturais
 - [Adapter](structural/adapter.md) (p. 139): tornar uma classe utilizável por meio de uma interface que ela não implementa.
 - [Bridge](structural/bridge.md) (p. 151): separar uma abstração da sua implementação, para que cada uma possa variar de forma independente.
-- [Composite](structural/composite.md) (p. 163): organizar objetos em árvores e permitir que o cliente trate um objeto isolado e um grupo de objetos da mesma forma.
+- [Composite](structural/composite.md) (p. 163): organizar objetos em árvores que modelam hierarquias parte-todo e permitir que o cliente trate um objeto isolado e um grupo de objetos da mesma forma.
 - [Decorator](structural/decorator.md) (p. 175): acrescentar responsabilidades a um objeto em tempo de execução, envolvendo-o, em vez de criar subclasses.
 - [Facade](structural/facade.md) (p. 185): oferecer a um subsistema uma única interface mais simples.
 - [Flyweight](structural/flyweight.md) (p. 195): compartilhar objetos de granularidade fina para que grandes quantidades deles continuem baratas.
-- [Proxy](structural/proxy.md) (p. 207): substituir outro objeto para controlar o acesso a ele.
+- [Proxy](structural/proxy.md) (p. 207): colocar um substituto na frente de um objeto, para que o substituto decida como e quando o objeto real é acessado.
 
 ### Comportamentais
 - [Chain of Responsibility](behavioral/chain-of-responsibility.md) (p. 223): passar uma requisição ao longo de uma cadeia de handlers até que um deles a trate, para que o remetente não conheça o destinatário.
 - [Command](behavioral/command.md) (p. 233): transformar uma requisição em um objeto, para que ela possa ser enfileirada, registrada, parametrizada ou desfeita.
 - [Interpreter](behavioral/interpreter.md) (p. 243): representar a gramática de uma linguagem pequena como classes e avaliar sentenças com elas.
-- [Iterator](behavioral/iterator.md) (p. 257): percorrer os elementos de uma coleção sem expor como ela é armazenada.
+- [Iterator](behavioral/iterator.md) (p. 257): percorrer os elementos de uma coleção um após o outro sem expor como ela é armazenada.
 - [Mediator](behavioral/mediator.md) (p. 273): concentrar a interação entre um conjunto de objetos em um único objeto, para que eles não se referenciem mutuamente.
 - [Memento](behavioral/memento.md) (p. 283): capturar o estado interno de um objeto fora dele, sem quebrar o encapsulamento, para que possa ser restaurado depois.
 - [Observer](behavioral/observer.md) (p. 293): quando um objeto muda, notificar todos os objetos que dependem dele.
-- [State](behavioral/state.md) (p. 305): permitir que um objeto mude de comportamento quando seu estado interno muda, como se tivesse mudado de classe.
+- [State](behavioral/state.md) (p. 305): entregar o comportamento de um objeto a um objeto separado por estado, de modo que o comportamento acompanhe o estado e o objeto pareça pertencer a outra classe.
 - [Strategy](behavioral/strategy.md) (p. 315): colocar cada algoritmo de uma família atrás de uma mesma interface, para que sejam intercambiáveis.
-- [Template Method](behavioral/template-method.md) (p. 325): definir o esqueleto de um algoritmo e deixar as subclasses preencherem alguns passos.
+- [Template Method](behavioral/template-method.md) (p. 325): definir o esqueleto de um algoritmo e deixar as subclasses preencherem alguns passos, sem alterar a estrutura do algoritmo.
 - [Visitor](behavioral/visitor.md) (p. 331): adicionar operações sobre os elementos de uma estrutura sem alterar as classes deles.
 
 ## Da causa de reprojeto aos padrões que a evitam (p. 24)
@@ -94,7 +94,7 @@ Como escolher e aplicar um deles está em [principles.md](principles.md).
 ### Criacionais (p. 135)
 - Há duas formas de tornar um sistema independente das classes que ele cria: **criar subclasses** do criador (Factory Method), ou **passar um objeto** que conhece as classes (Abstract Factory, Builder, Prototype).
 - Factory Method acrescenta apenas uma operação, por isso é o início mais barato; mas cada novo produto pode exigir uma nova subclasse de criador.
-- Abstract Factory, Builder e Prototype são mais flexíveis e mais complexos. Projetos costumam começar com Factory Method e migrar para um deles quando a flexibilidade realmente for necessária.
+- Abstract Factory, Builder e Prototype são mais flexíveis e mais complexos. Os projetos costumam começar com Factory Method e migrar para um deles quando a flexibilidade realmente for necessária.
 - Prototype pode substituir uma hierarquia paralela de fábricas quando cada produto consegue copiar a si mesmo.
 
 ### Estruturais (p. 219)

@@ -3,10 +3,12 @@
 Gamma et al. (1995), cap. 3, p. 117. Categoria: criacional de objeto.
 
 ## Intenção
-Criar objetos novos copiando uma instância já configurada (o protótipo), para que um cliente possa produzir objetos sem conhecer suas classes nem como foram configurados.
+Obter objetos novos clonando uma instância já configurada (o protótipo), o que também define os tipos disponíveis, para que um cliente possa produzir objetos sem conhecer suas classes nem como foram configurados.
 
 ## Quando compensa
-- As classes a criar são escolhidas em tempo de execução, ou você quer evitar uma hierarquia de fábricas que espelha a hierarquia de produtos.
+- Pré-condição: o sistema não deve depender de como seus produtos são criados, compostos ou representados. Além disso, vale pelo menos uma das três situações a seguir.
+- As classes a criar só são conhecidas em tempo de execução (carregadas dinamicamente, por exemplo).
+- Você quer evitar uma hierarquia de fábricas que espelha a hierarquia de produtos.
 - As instâncias de uma classe diferem apenas em algumas combinações de estado, então é mais fácil manter algumas instâncias prontas e clonar do que construir cada uma do zero.
 - Novos tipos de objeto podem ser definidos registrando uma instância configurada, incluindo e removendo em tempo de execução, sem nenhuma classe nova.
 - Reduz a herança, e os usuários podem definir "novos tipos" variando valores ou estrutura.
@@ -89,7 +91,7 @@ public static class Program
 - **Fábrica baseada em protótipos.** Uma fábrica que mantém um protótipo por produto e o clona (veja [abstract-factory.md](abstract-factory.md)).
 
 ## Riscos e alternativas em C#
-- Esquecer de copiar em profundidade um campo mutável gera dois objetos que se alteram em silêncio. Teste se mudar o clone deixa o protótipo intacto (veja Verificação).
+- Esquecer de copiar em profundidade um campo mutável gera dois objetos que se alteram mutuamente, sem aviso. Teste se mudar o clone deixa o protótipo intacto (veja Verificação).
 - Um construtor de cópia (`new BillingPlan(other)`) é uma alternativa comum e explícita a um método `Clone()`, e não precisa de interface de clonagem.
 - Para objetos imutáveis não há o que proteger: compartilhe uma instância e crie variações com um método que devolve um objeto novo (`plan.WithPrice(39m)`).
 - Evite `ICloneable`: seu contrato não diz se a cópia é rasa ou profunda, e ele devolve `object`.
@@ -98,7 +100,7 @@ public static class Program
 ## Padrões relacionados
 - [Abstract Factory](abstract-factory.md): concorrente e parceiro; uma fábrica pode guardar protótipos e devolver clones.
 - [Factory Method](factory-method.md): outra forma de variar as classes criadas, por meio de subclasses do criador.
-- [Composite](../structural/composite.md) e [Decorator](../structural/decorator.md): designs com muitos desses padrões costumam se beneficiar do Prototype, já que copiar uma estrutura inteira é útil.
+- [Composite](../structural/composite.md) e [Decorator](../structural/decorator.md): designs que usam muito esses padrões costumam se beneficiar do Prototype, já que copiar uma estrutura inteira é útil.
 
 ## Verificação
 - Clonar devolve um objeto independente: alterar o clone não altera o protótipo, incluindo coleções aninhadas.

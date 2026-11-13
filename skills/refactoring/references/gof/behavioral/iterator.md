@@ -10,7 +10,7 @@ Dar acesso sequencial aos elementos de uma coleção sem expor como ela é armaz
 - Você precisa de vários percursos ao mesmo tempo sobre o mesmo agregado, ou de várias ordens de percurso (filtrado, invertido, em profundidade).
 - Você quer uma única forma de percorrer diferentes tipos de agregados.
 - Benefícios: variantes de percurso são fáceis de adicionar trocando o iterador, a interface do agregado continua pequena, e cada iterador guarda a sua própria posição, então os percursos não interferem uns nos outros.
-- Não vale a pena para uma lista ou array simples, onde `foreach` já resolve. Escreva um iterador personalizado apenas quando os dados não estiverem em memória (páginas, streams) ou quando a ordem não for a de armazenamento.
+- Não vale a pena para uma lista ou array simples, onde `foreach` já resolve. Escreva um iterador próprio apenas quando os dados não estiverem em memória (páginas, streams) ou quando a ordem não for a de armazenamento.
 
 ## Participantes em C#
 - **Iterator** (`IEnumerator<T>`): interface para acessar e avançar pelos elementos. Já vem no .NET.
@@ -54,7 +54,7 @@ public class FileListing : IEnumerable<string>
         string? token = null;
         do
         {
-            FilePage page = _api.ListPage(token);   // fetched lazily
+            FilePage page = _api.ListPage(token);   // buscada sob demanda
             foreach (string name in page.Names)
                 yield return name;
             token = page.NextToken;
@@ -63,7 +63,7 @@ public class FileListing : IEnumerable<string>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    // Another traversal over the same aggregate, as its own iterator.
+    // Outro percurso sobre o mesmo agregado, como um iterador próprio.
     public IEnumerable<string> WithExtension(string extension)
     {
         foreach (string name in this)
@@ -97,7 +97,7 @@ public static class Program
         foreach (string name in files.WithExtension(".txt"))
             Console.WriteLine(name);
 
-        // Two independent traversals at once: each enumerator has its own state.
+        // Dois percursos independentes ao mesmo tempo: cada enumerador tem o seu próprio estado.
         using var first = files.GetEnumerator();
         using var second = files.GetEnumerator();
         first.MoveNext();
@@ -113,7 +113,7 @@ public static class Program
 - **Quem é dono do algoritmo de percurso.** O iterador pode conter o algoritmo, o que torna os algoritmos reutilizáveis entre agregados, mas pode precisar acessar a parte interna do agregado. Ou o próprio agregado pode ser o dono do percurso e entregar um cursor que apenas marca uma posição. Um cursor é um snapshot leve da posição, próximo de um memento ([memento.md](memento.md)).
 - **Robustez.** Alterar uma coleção durante o percurso pode pular ou repetir elementos. As coleções do .NET lançam `InvalidOperationException` ao serem modificadas. As alternativas são percorrer uma cópia ou projetar o agregado para ajustar os iteradores ativos.
 - **Operações extras.** Além do mínimo (`MoveNext`, `Current`), um iterador pode oferecer `Reset`, `Previous`, pular ou espiar, se algum uso precisar.
-- **Estruturas compostas.** Percorrer uma árvore com um iterador externo exige uma pilha de posições. Um método recursivo com `yield return`, ou um cursor sobre os links dos nós, são as formas usuais. Pré-ordem, pós-ordem e largura podem ser cada um um método separado.
+- **Estruturas compostas.** Percorrer uma árvore com um iterador externo exige uma pilha de posições. Um método recursivo com `yield return`, ou um cursor sobre os vínculos entre os nós, são as formas usuais. Pré-ordem, pós-ordem e largura podem ser cada um um método separado.
 - **Iterador nulo.** Um iterador sempre vazio (`Enumerable.Empty<T>()`) elimina casos especiais para as folhas.
 
 ## Riscos e alternativas em C#

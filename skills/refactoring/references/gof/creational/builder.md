@@ -3,14 +3,14 @@
 Gamma et al. (1995), cap. 3, p. 97. Categoria: criacional de objeto.
 
 ## Intenção
-Separar o processo passo a passo de montagem de um objeto complexo da representação resultante, para que o mesmo processo possa produzir representações diferentes.
+Executar uma mesma sequência de passos de construção, que não depende da forma final, para que ela possa gerar várias formas de um objeto complexo.
 
 ## Quando compensa
 - O procedimento que decide quais partes criar e em que ordem deve ser reutilizável e independente de quais são as partes e de como são montadas.
 - O mesmo procedimento precisa conseguir produzir saídas diferentes (CSV e JSON do mesmo relatório, por exemplo).
 - A construção é uma sequência de passos, e o produto só fica completo no fim; o builder dá mais controle sobre esse processo do que uma única chamada de construtor.
 - Mantém o código que monta uma representação em um único lugar, separado do código que decide o que montar.
-- Não vale a pena quando um construtor com poucos parâmetros, ou um inicializador de objeto, já é claro. Builders se justificam com muitas partes opcionais ou com várias formas de saída.
+- Não vale a pena quando um construtor com poucos parâmetros, ou um inicializador de objeto, já é claro. Os builders se justificam com muitas partes opcionais ou com várias formas de saída.
 
 ## Participantes em C#
 - **Builder** (`IReportBuilder`): interface com um método por passo de construção.
@@ -49,14 +49,18 @@ public class JsonReportBuilder : IReportBuilder
     private string _title = "";
     private readonly List<string> _rows = new();
 
+    // Trata barra invertida, aspas, nova linha e retorno de carro; em código real, use System.Text.Json.
+    private static string Quote(string text) =>
+        "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r") + "\"";
+
     public void AddTitle(string title) => _title = title;
 
     public void AddRow(string label, decimal value) =>
-        _rows.Add("{\"label\":\"" + label.Replace("\"", "\\\"") + "\",\"value\":" +
+        _rows.Add("{\"label\":" + Quote(label) + ",\"value\":" +
                   value.ToString(CultureInfo.InvariantCulture) + "}");
 
     public string GetResult() =>
-        "{\"title\":\"" + _title.Replace("\"", "\\\"") + "\",\"rows\":[" + string.Join(",", _rows) + "]}";
+        "{\"title\":" + Quote(_title) + ",\"rows\":[" + string.Join(",", _rows) + "]}";
 }
 
 public class ReportDirector
@@ -87,7 +91,7 @@ public static class Program
 }
 ```
 
-Uma segunda forma é comum em C#: um builder fluente, sem director, em que quem chama emite os passos e a chamada final produz um objeto imutável. Serve para objetos com muitas configurações opcionais.
+**Além do livro:** uma segunda forma, um idioma de C# que não é o padrão do GoF, é o builder fluente, sem director e com uma única representação. Quem chama emite os passos em qualquer ordem, e o `Build()` final valida e devolve um objeto imutável. Serve para objetos com muitas configurações opcionais.
 
 ```csharp
 using System;
@@ -125,17 +129,16 @@ public class RetryPolicyBuilder
 ```
 
 ## Variações
-- **Padrões vazios na interface do builder.** Na forma do livro, a classe base do builder implementa cada passo como uma operação vazia, então um builder concreto sobrescreve apenas o que precisa. Em C#, use uma classe abstrata com métodos `virtual` vazios, ou métodos padrão de interface (C# 8), em vez de forçar todo builder a implementar todos os passos.
-- **Anexar versus consultar partes anteriores.** A maioria dos builders apenas acrescenta. Se um passo precisa de uma parte construída antes (um vínculo entre dois nós existentes), o builder deve expor uma forma de localizá-la, ou devolver identificadores dos passos anteriores que o director repassa de volta.
+- **Implementações padrão vazias na interface do builder.** Na forma do livro, a classe base do builder implementa cada passo como uma operação vazia, então um builder concreto sobrescreve apenas o que precisa. Em C#, use uma classe abstrata com métodos `virtual` vazios, ou métodos padrão de interface (C# 8), em vez de forçar todo builder a implementar todos os passos.
+- **Anexar versus consultar partes anteriores.** A maioria dos builders apenas acrescenta partes. Se um passo precisa de uma parte construída antes (um vínculo entre dois nós existentes), o builder deve expor uma forma de localizá-la, ou devolver identificadores dos passos anteriores que o director repassa de volta.
 - **Sem tipo de produto comum.** Como as saídas podem não ter relação, `GetResult()` é declarado em cada builder concreto, e o cliente que escolheu o builder conhece o seu tipo. Forçar uma classe base comum de produto normalmente não traz ganho.
-- **Builder fluente sem director.** A ordem dos passos fica por conta de quem chama; `Build()` valida e devolve um objeto imutável.
 
 ## Riscos e alternativas em C#
 - Para o caso simples de "muitos parâmetros opcionais", argumentos nomeados e opcionais, ou um inicializador de objeto com propriedades get/set, são mais simples do que uma classe builder.
 - Um builder fluente reutilizado depois de `Build()` compartilha estado mutável com o próximo produto. Ou faça `Build()` copiar as coleções que mantém, ou documente o builder como de uso único.
 - Valide em `Build()` (ou no construtor do produto), não em cada passo, para que um objeto incompleto não escape.
 - Para saída de texto, `StringBuilder` já é um builder; não o encapsule a menos que uma segunda representação seja de fato necessária.
-- Com injeção de dependência, builders que guardam estado por chamada devem ser registrados como transient, nunca como singleton.
+- Com injeção de dependência, builders que guardam estado por chamada devem ser registrados como transitórios (transient), nunca como singleton.
 
 ## Padrões relacionados
 - [Abstract Factory](abstract-factory.md): objetivo parecido, mas devolve cada produto imediatamente e foca em famílias, enquanto o Builder constrói um produto complexo passo a passo.
@@ -145,4 +148,4 @@ public class RetryPolicyBuilder
 - O director não contém código específico de formato, e os builders não contêm lógica de ordenação.
 - Adicionar um terceiro formato de saída exige um novo builder e nenhuma mudança no director.
 - A mesma entrada passada por dois builders gera conteúdo equivalente em duas formas (coberto por um teste por builder).
-- Uma montagem incompleta ou inválida falha em `Build()`/`GetResult()`, em vez de produzir um produto meio pronto.
+- Na forma fluente, uma montagem incompleta ou inválida falha em `Build()`, em vez de produzir um produto meio pronto. Na forma com director, `GetResult()` apenas devolve o que foi acumulado.

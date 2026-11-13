@@ -3,11 +3,13 @@
 Gamma et al. (1995), cap. 3, p. 87. Também conhecido como: Kit. Categoria: criacional de objeto.
 
 ## Intenção
-Oferecer uma interface para criar uma família inteira de objetos relacionados, para que o código cliente nunca cite as classes concretas dessa família.
+Oferecer uma interface para criar uma família inteira de objetos relacionados, para que o código cliente nunca nomeie as classes concretas dessa família.
 
 ## Quando compensa
+- O sistema não deve depender de como seus produtos são criados, compostos ou representados.
 - O sistema precisa funcionar com uma entre várias famílias de produtos (por exemplo, um conjunto de classes por região ou por provedor) e não pode depender de qual delas está em uso.
-- Os produtos de uma família só fazem sentido juntos, e você quer que o compilador e a fábrica, e não a disciplina, impeçam que sejam misturados.
+- Os produtos de uma família só fazem sentido juntos, e você quer que o compilador e a fábrica, e não a disciplina da equipe, impeçam que sejam misturados.
+- Você distribui uma biblioteca de produtos e quer expor apenas as interfaces deles, não as implementações.
 - Trocar a família é uma decisão única, em um só lugar: a fábrica concreta é criada uma vez e entregue ao código que precisa dos produtos.
 - Isola as classes concretas: os nomes dos produtos aparecem apenas dentro das fábricas concretas.
 - Custo: adicionar um novo tipo de produto altera a interface da fábrica e todas as fábricas concretas.
@@ -107,7 +109,6 @@ public static class Program
 ## Variações
 - **Métodos de fábrica dentro da fábrica.** A forma usual: cada método de criação é um método de fábrica, e uma fábrica concreta os implementa. Simples, mas exige uma classe de fábrica por família.
 - **Fábrica baseada em protótipos.** A fábrica guarda um protótipo de cada produto e o clona sob demanda (veja [prototype.md](prototype.md)). Uma nova família é então apenas um novo conjunto de protótipos, sem nova classe de fábrica.
-- **Fábrica concreta que também é a abstrata.** Em um sistema pequeno, uma única classe não abstrata com métodos de criação virtuais basta; as classes derivadas sobrescrevem apenas o que muda.
 - **Criação parametrizada.** Um único método `Create(kind)` substitui a interface com um método por produto, então novos tipos de produto não exigem mudança na interface. O preço é a segurança de tipos: todo resultado volta como o tipo base comum, e quem precisar de mais deve fazer um cast.
 - **Uma fábrica por família, normalmente uma instância.** A fábrica costuma ser criada uma vez e compartilhada. Recebê-la pelo construtor, como acima, basta; ela não precisa ser um [Singleton](singleton.md).
 
@@ -115,14 +116,14 @@ public static class Program
 - Se a família é apenas "qual implementação desta interface", registre as implementações em um contêiner de injeção de dependência, escolhidas por configuração (país, tenant). O contêiner passa a ser a fábrica abstrata e nenhuma interface de fábrica precisa ser escrita à mão.
 - Quando os tipos de produto são poucos e estáveis, um par de delegates (`Func<ITaxCalculator>`, `Func<IInvoiceFormatter>`) passado ao cliente faz o mesmo trabalho com menos cerimônia.
 - Quando as famílias são escolhidas em tempo de execução por chave, mantenha um `Dictionary<string, ICheckoutFactory>` e falhe de forma explícita com uma chave desconhecida na fronteira, em vez de cair em uma família padrão.
-- Não deixe os clientes receberem uma fábrica e depois ignorá-la instanciando classes concretas em outro lugar; isso quebra a garantia de que uma família nunca é misturada.
+- Não deixe os clientes receberem uma fábrica e depois ignorá-la, instanciando classes concretas em outro lugar; isso quebra a garantia de que uma família nunca é misturada.
 - Adicionar um tipo de produto depois obriga a editar todas as fábricas. Se isso acontece com frequência, a fronteira da família provavelmente está errada.
 
 ## Padrões relacionados
 - [Factory Method](factory-method.md): uma fábrica concreta costuma ser um conjunto de métodos de fábrica.
 - [Prototype](prototype.md): uma forma alternativa de implementar a fábrica concreta, por clonagem.
 - [Singleton](singleton.md): uma fábrica concreta costuma ser uma única instância compartilhada.
-- [Builder](builder.md): também cria objetos complexos, mas passo a passo e devolve o produto no fim; o Abstract Factory devolve cada produto de imediato e enfatiza famílias.
+- [Builder](builder.md): também cria objetos complexos, mas passo a passo, e devolve o produto no fim; o Abstract Factory devolve cada produto de imediato e enfatiza famílias.
 
 ## Verificação
 - Nenhum código cliente fora do ponto de composição cita uma classe de produto concreto ou de fábrica concreta.

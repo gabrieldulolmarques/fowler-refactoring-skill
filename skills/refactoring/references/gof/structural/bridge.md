@@ -10,7 +10,7 @@ Separar uma abstração da sua implementação em duas hierarquias ligadas por u
 - A implementação deve poder ser escolhida ou trocada em tempo de execução, ou ocultada do código cliente.
 - Benefícios: implementação e abstração podem ser estendidas separadamente, os clientes dependem apenas da abstração, e a implementação pode mudar sem tocar neles.
 - Custo: mais uma camada de indireção, e a divisão precisa ser feita no ponto certo. O padrão é planejado desde o início; não é uma correção para duas classes que, por acaso, são incompatíveis.
-- Dispense quando há uma só implementação e nenhum sinal de que haverá mais. Uma interface simples basta, e a bridge pode vir depois.
+- Não vale a pena quando há uma só implementação e nenhum sinal de que haverá mais. Uma interface simples basta, e a bridge pode vir depois.
 
 ## Participantes em C#
 - **Abstraction** (`Notification`): classe abstrata que guarda uma referência ao implementador e define a operação de alto nível em termos dele.
@@ -96,8 +96,8 @@ public static class Program
 
 ## Variações
 - **Implementador único**: quando há só uma implementação, o implementador abstrato pode ser descartado. A separação ainda permite que essa implementação mude sem tocar nos clientes.
-- **Escolha do implementador**: a abstração pode escolhê-lo no construtor a partir de parâmetros, começar com um padrão e trocar depois (por exemplo, pelo tamanho ou pela carga), ou pedir a uma fábrica para nunca citar uma classe concreta. Em C#, a forma mais simples é a injeção pelo construtor, com a escolha feita na raiz de composição ou por um contêiner de DI.
-- **Implementadores compartilhados**: vários objetos de abstração podem guardar a mesma instância de implementador. Implementadores costumam ser sem estado ou seguros para threads, para que o compartilhamento seja seguro.
+- **Escolha do implementador**: a abstração pode escolhê-lo no construtor a partir de parâmetros, começar com uma implementação padrão e trocar depois (por exemplo, pelo tamanho ou pela carga), ou pedir a uma fábrica para nunca citar uma classe concreta. Em C#, a forma mais simples é a injeção pelo construtor, com a escolha feita na raiz de composição ou por um contêiner de DI.
+- **Implementadores compartilhados**: vários objetos de abstração podem guardar a mesma instância de implementador. Os implementadores costumam ser sem estado ou seguros para threads, para que o compartilhamento seja seguro.
 - **Referência de volta**: o implementador pode precisar avisar a abstração sobre eventos (uma mensagem foi rejeitada); dê a ele um evento ou um callback, não o tipo concreto.
 
 ## Riscos e alternativas em C#
