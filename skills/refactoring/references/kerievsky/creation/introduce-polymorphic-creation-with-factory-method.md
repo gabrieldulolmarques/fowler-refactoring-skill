@@ -22,66 +22,68 @@ This covers the case of sibling subclasses with a *similar method*. A superclass
 6. If most subclasses create the same class, give the superclass method a default body creating that class, and let the others override it. Compile and test.
 
 ## Example
-Before: two exporters repeat the same method. Only the report class differs.
+Before: two clients repeat the same method. Only the parser class differs.
 
 ```csharp
-public interface IReport { string Render(); }
-public class TextReport : IReport
+using System.Collections.Generic;
+using System.Linq;
+
+public interface IItemParser { IReadOnlyList<string> Parse(string body); }
+public class CsvItemParser : IItemParser
 {
-    private readonly string _text;
-    public TextReport(string text) { _text = text; }
-    public string Render() => _text;
+    public IReadOnlyList<string> Parse(string body) => body.Split(',').Select(s => s.Trim()).ToList();
 }
-public class HtmlReport : IReport
+public class LineItemParser : IItemParser
 {
-    private readonly string _text;
-    public HtmlReport(string text) { _text = text; }
-    public string Render() => "<p>" + _text + "</p>";
+    public IReadOnlyList<string> Parse(string body) => body.Split('\n').Select(s => s.Trim()).ToList();
 }
 
-public class TextExporter
+public class CsvApiClient
 {
-    public string Export(IEnumerable<string> lines)
+    public IReadOnlyList<string> GetItems(string rawBody)
     {
-        var body = string.Join("\n", lines.Select(l => l.Trim()));
-        var report = new TextReport(body);
-        return "== Report ==\n" + report.Render();
+        var body = rawBody.Trim();
+        var parser = new CsvItemParser();
+        return parser.Parse(body).Where(i => i.Length > 0).ToList();
     }
 }
-public class HtmlExporter
+public class LineApiClient
 {
-    public string Export(IEnumerable<string> lines)
+    public IReadOnlyList<string> GetItems(string rawBody)
     {
-        var body = string.Join("\n", lines.Select(l => l.Trim()));
-        var report = new HtmlReport(body);
-        return "== Report ==\n" + report.Render();
+        var body = rawBody.Trim();
+        var parser = new LineItemParser();
+        return parser.Parse(body).Where(i => i.Length > 0).ToList();
     }
 }
 ```
 
-After: `Export` exists once in `Exporter`. It calls `CreateReport`, and each subclass decides what to build.
+After: `GetItems` exists once in `ApiClient`. It calls `CreateParser`, and each subclass decides what to build.
 
 ```csharp
-public abstract class Exporter
+using System.Collections.Generic;
+using System.Linq;
+
+public abstract class ApiClient
 {
-    public string Export(IEnumerable<string> lines)
+    public IReadOnlyList<string> GetItems(string rawBody)
     {
-        var body = string.Join("\n", lines.Select(l => l.Trim()));
-        var report = CreateReport(body);
-        return "== Report ==\n" + report.Render();
+        var body = rawBody.Trim();
+        var parser = CreateParser();
+        return parser.Parse(body).Where(i => i.Length > 0).ToList();
     }
 
-    protected abstract IReport CreateReport(string body);
+    protected abstract IItemParser CreateParser();
 }
 
-public class TextExporter : Exporter
+public class CsvApiClient : ApiClient
 {
-    protected override IReport CreateReport(string body) => new TextReport(body);
+    protected override IItemParser CreateParser() => new CsvItemParser();
 }
 
-public class HtmlExporter : Exporter
+public class LineApiClient : ApiClient
 {
-    protected override IReport CreateReport(string body) => new HtmlReport(body);
+    protected override IItemParser CreateParser() => new LineItemParser();
 }
 ```
 

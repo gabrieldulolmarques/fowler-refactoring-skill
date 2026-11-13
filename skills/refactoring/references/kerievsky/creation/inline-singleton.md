@@ -22,37 +22,37 @@ These are the same as Inline Class ([inline-class.md](../../fowler/encapsulation
 When the absorbing class is a client or a collaborator that already holds the object, the end result is that the object is given to it (constructor or parameter) instead of being looked up.
 
 ## Example
-Before: `TaxRegistry` is a global that `InvoiceCalculator` reads. Tests that need a different rate must change it and put it back.
+Before: `EndpointRegistry` is a global that `ReportClient` reads. Tests that need a different base URL must change it and put it back.
 
 ```csharp
-public class TaxTable { public virtual decimal Rate => 0.2m; }
+public class EndpointConfig { public virtual string BaseUrl => "https://api.example.test"; }
 
-public static class TaxRegistry
+public static class EndpointRegistry
 {
-    public static TaxTable Table { get; set; } = new();
+    public static EndpointConfig Config { get; set; } = new();
 }
 
-public class InvoiceCalculator
+public class ReportClient
 {
-    public decimal Total(decimal net) => net * (1 + TaxRegistry.Table.Rate);
+    public string UrlFor(string path) => EndpointRegistry.Config.BaseUrl + path;
 }
 ```
 
-After: `InvoiceCalculator` receives the `TaxTable` it uses. `TaxRegistry` is deleted. Callers pass the table in, and a test passes its own.
+After: `ReportClient` receives the `EndpointConfig` it uses. `EndpointRegistry` is deleted. Callers pass the config in, and a test passes its own.
 
 ```csharp
-public class TaxTable { public virtual decimal Rate => 0.2m; }
+public class EndpointConfig { public virtual string BaseUrl => "https://api.example.test"; }
 
-public class InvoiceCalculator
+public class ReportClient
 {
-    private readonly TaxTable _taxTable;
-    public InvoiceCalculator(TaxTable taxTable) { _taxTable = taxTable; }
+    private readonly EndpointConfig _config;
+    public ReportClient(EndpointConfig config) { _config = config; }
 
-    public decimal Total(decimal net) => net * (1 + _taxTable.Rate);
+    public string UrlFor(string path) => _config.BaseUrl + path;
 }
 ```
 
-In steps, `InvoiceCalculator` first gets a `Table` property that returns `TaxRegistry.Table`, callers switch to it, then the field moves in and `TaxRegistry` is removed.
+In steps, `ReportClient` first gets a `Config` property that returns `EndpointRegistry.Config`, callers switch to it, then the field moves in and `EndpointRegistry` is removed.
 
 ## C# notes
 - A `static class` or a class with a static `Instance` property are both Singletons for this purpose. The refactoring is the same.

@@ -20,77 +20,96 @@ There is no single set of mechanics: Builders for Composites can be designed in 
 5. Change the Composite-building code to use the builder. The client becomes the Director in the pattern. Compile and test.
 
 ## Example
-Before: a menu tree built by hand. Each node is created, added to its parent, and the current parent is tracked in local variables.
+Before: a route tree built by hand. Each node is created, added to its parent, and the current parent is tracked in local variables.
 
 ```csharp
-public class MenuItem
+using System.Collections.Generic;
+using System.Linq;
+
+public class RouteNode
 {
-    public string Title { get; }
-    public List<MenuItem> Children { get; } = new();
-    public MenuItem(string title) { Title = title; }
+    public string Segment { get; }
+    public List<RouteNode> Children { get; } = new();
+    public RouteNode(string segment) { Segment = segment; }
 
     public string Render(int depth = 0) =>
-        new string(' ', depth * 2) + Title + "\n" + string.Concat(Children.Select(c => c.Render(depth + 1)));
+        new string(' ', depth * 2) + Segment + "\n" + string.Concat(Children.Select(c => c.Render(depth + 1)));
 }
 
-var root = new MenuItem("File");
-var open = new MenuItem("Open");
-root.Children.Add(open);
-var recent = new MenuItem("Recent");
-open.Children.Add(recent);
-var exit = new MenuItem("Exit");
-root.Children.Add(exit);
-var text = root.Render();
+public static class Caller
+{
+    public static string BuildText()
+    {
+        var root = new RouteNode("api");
+        var v1 = new RouteNode("v1");
+        root.Children.Add(v1);
+        var users = new RouteNode("users");
+        v1.Children.Add(users);
+        var orders = new RouteNode("orders");
+        v1.Children.Add(orders);
+        var health = new RouteNode("health");
+        root.Children.Add(health);
+        return root.Render();
+    }
+}
 ```
 
-After: `MenuBuilder` keeps the path from the root to the current node. Clients pass titles only and read the result at the end.
+After: `RouteBuilder` keeps the path from the root to the current node. Clients pass segment names only and read the result at the end.
 
 ```csharp
-public class MenuBuilder
-{
-    private readonly MenuItem _root;
-    private readonly Stack<MenuItem> _path = new();
+using System;
+using System.Collections.Generic;
 
-    public MenuBuilder(string rootTitle)
+public class RouteBuilder
+{
+    private readonly RouteNode _root;
+    private readonly Stack<RouteNode> _path = new();
+
+    public RouteBuilder(string rootSegment)
     {
-        _root = new MenuItem(rootTitle);
+        _root = new RouteNode(rootSegment);
         _path.Push(_root);
     }
 
-    public MenuBuilder AddChild(string title)
+    public RouteBuilder AddChild(string segment)
     {
-        var item = new MenuItem(title);
-        _path.Peek().Children.Add(item);
-        _path.Push(item);
+        var node = new RouteNode(segment);
+        _path.Peek().Children.Add(node);
+        _path.Push(node);
         return this;
     }
 
-    public MenuBuilder AddSibling(string title)
+    public RouteBuilder AddSibling(string segment)
     {
         Up();
-        return AddChild(title);
+        return AddChild(segment);
     }
 
-    public MenuBuilder Up()
+    public RouteBuilder Up()
     {
         if (_path.Count == 1) throw new InvalidOperationException("Already at the root.");
         _path.Pop();
         return this;
     }
 
-    public MenuItem Build() => _root;
+    public RouteNode Build() => _root;
 }
 
-var text = new MenuBuilder("File")
-    .AddChild("Open")
-    .AddChild("Recent")
-    .Up()
-    .AddSibling("Exit")
-    .Build()
-    .Render();
+public static class Caller
+{
+    public static string BuildText() =>
+        new RouteBuilder("api")
+            .AddChild("v1")
+            .AddChild("users")
+            .AddSibling("orders")
+            .Up()
+            .AddSibling("health")
+            .Build()
+            .Render();
+}
 ```
 
-The tree is the same. `Up` after `Recent` goes back to `Open`, and `AddSibling("Exit")` then goes up once more and adds under `File`.
+The tree is the same. `AddSibling("orders")` goes up from `users` and adds under `v1`. The next `Up` leaves `orders` for `v1`, and `AddSibling("health")` goes up once more and adds under `api`.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

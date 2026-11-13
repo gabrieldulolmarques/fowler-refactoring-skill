@@ -5,7 +5,7 @@ Kerievsky (2004), ch. 6, p. 57. Pattern: Creation Method. Direction: to.
 ## When to use
 Smells: Duplicated Code, Primitive Obsession.
 
-- A class has several constructors, and callers must read parameter lists or constructor bodies to pick the right one. A call such as `new Subscription("Acme", 20m, 6)` does not say what kind of subscription it builds.
+- A class has several constructors, and callers must read parameter lists or constructor bodies to pick the right one. A call such as `new ClientOptions("https://api.example.com", 30, 1.5)` does not say what kind of client it configures.
 - Two kinds of instance need the same parameter types, so the second constructor cannot be written. Named methods have no such limit.
 - Constructors nobody calls tend to survive because they are hard to search for. A named creation method is easy to search for, so dead creation code is easier to find and delete.
 - A Creation Method is any static or instance method that returns a new instance. Every Factory Method is one, but not the reverse (see [introduce-polymorphic-creation-with-factory-method.md](introduce-polymorphic-creation-with-factory-method.md)).
@@ -22,61 +22,71 @@ Smells: Duplicated Code, Primitive Obsession.
 6. Make non-public every constructor that has no caller outside the class. Compile.
 
 ## Example
-Before: four constructors that differ only in which defaults they fill in. Two of them take a number, so callers must watch the type (`int` or `decimal`) to get the right one.
+Before: four constructors that differ only in which defaults they fill in. Two of them take a single number, so callers must watch the type (`int` or `double`) to get the right one.
 
 ```csharp
-public class Subscription
+public class ClientOptions
 {
-    private readonly string _customer;
-    private readonly decimal _monthlyFee;
-    private readonly int _months;
-    private readonly decimal _discount;
+    private readonly string _baseUrl;
+    private readonly int _timeoutSeconds;
+    private readonly double _backoffFactor;
 
-    public Subscription(string customer, decimal monthlyFee) : this(customer, monthlyFee, 12, 0m) { }
-    public Subscription(string customer, decimal monthlyFee, int months) : this(customer, monthlyFee, months, 0m) { }
-    public Subscription(string customer, decimal monthlyFee, decimal discount) : this(customer, monthlyFee, 12, discount) { }
-    public Subscription(string customer, decimal monthlyFee, int months, decimal discount)
+    public ClientOptions(string baseUrl) : this(baseUrl, 30, 2.0) { }
+    public ClientOptions(string baseUrl, int timeoutSeconds) : this(baseUrl, timeoutSeconds, 2.0) { }
+    public ClientOptions(string baseUrl, double backoffFactor) : this(baseUrl, 30, backoffFactor) { }
+    public ClientOptions(string baseUrl, int timeoutSeconds, double backoffFactor)
     {
-        _customer = customer; _monthlyFee = monthlyFee; _months = months; _discount = discount;
+        _baseUrl = baseUrl; _timeoutSeconds = timeoutSeconds; _backoffFactor = backoffFactor;
     }
 
-    public decimal Total => _monthlyFee * _months * (1 - _discount);
+    public string Describe() => $"{_baseUrl} timeout={_timeoutSeconds}s backoff={_backoffFactor}";
 }
 
-var a = new Subscription("Acme", 20m, 6);
-var b = new Subscription("Acme", 20m, 0.1m);
+public static class Caller
+{
+    public static void Run()
+    {
+        var a = new ClientOptions("https://api.example.test", 10);
+        var b = new ClientOptions("https://api.example.test", 1.5);
+    }
+}
 ```
 
-After: only the catch-all constructor remains, private. Each kind of subscription has a name.
+After: only the catch-all constructor remains, private. Each kind of options has a name.
 
 ```csharp
-public class Subscription
+public class ClientOptions
 {
-    private readonly string _customer;
-    private readonly decimal _monthlyFee;
-    private readonly int _months;
-    private readonly decimal _discount;
+    private readonly string _baseUrl;
+    private readonly int _timeoutSeconds;
+    private readonly double _backoffFactor;
 
-    private Subscription(string customer, decimal monthlyFee, int months, decimal discount)
+    private ClientOptions(string baseUrl, int timeoutSeconds, double backoffFactor)
     {
-        _customer = customer; _monthlyFee = monthlyFee; _months = months; _discount = discount;
+        _baseUrl = baseUrl; _timeoutSeconds = timeoutSeconds; _backoffFactor = backoffFactor;
     }
 
-    public static Subscription Annual(string customer, decimal monthlyFee) => new(customer, monthlyFee, 12, 0m);
-    public static Subscription ForMonths(string customer, decimal monthlyFee, int months) => new(customer, monthlyFee, months, 0m);
-    public static Subscription AnnualWithDiscount(string customer, decimal monthlyFee, decimal discount) => new(customer, monthlyFee, 12, discount);
+    public static ClientOptions Default(string baseUrl) => new(baseUrl, 30, 2.0);
+    public static ClientOptions WithTimeout(string baseUrl, int timeoutSeconds) => new(baseUrl, timeoutSeconds, 2.0);
+    public static ClientOptions WithBackoff(string baseUrl, double backoffFactor) => new(baseUrl, 30, backoffFactor);
 
-    public decimal Total => _monthlyFee * _months * (1 - _discount);
+    public string Describe() => $"{_baseUrl} timeout={_timeoutSeconds}s backoff={_backoffFactor}";
 }
 
-var a = Subscription.ForMonths("Acme", 20m, 6);
-var b = Subscription.AnnualWithDiscount("Acme", 20m, 0.1m);
+public static class Caller
+{
+    public static void Run()
+    {
+        var a = ClientOptions.WithTimeout("https://api.example.test", 10);
+        var b = ClientOptions.WithBackoff("https://api.example.test", 1.5);
+    }
+}
 ```
 
 ## C# notes
 - Optional parameters or object initializers can replace some chained constructors, but they do not name the kind of instance. Use them when the variants differ only by an optional value, and Creation Methods when the variants mean different things.
-- A `record` with a private constructor plus static methods works the same way.
+- A `record` with a private constructor plus static methods works the same way (C# 9+; on Unity it needs an `IsExternalInit` shim).
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - A search for the constructor finds no caller outside the class, and no Creation Method is unused.
-- Each Creation Method name says what differs from the default (months, discount), not how the arguments are laid out.
+- Each Creation Method name says what differs from the default (timeout, backoff), not how the arguments are laid out.

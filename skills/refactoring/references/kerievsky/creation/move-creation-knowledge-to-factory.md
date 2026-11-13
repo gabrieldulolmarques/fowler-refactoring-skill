@@ -20,55 +20,55 @@ These steps assume the Factory is a class. An interface needs small changes.
 5. Look for data and methods in the other classes that exist only to feed the creation. Move them into the factory with Move Field ([move-field.md](../../fowler/moving-features/move-field.md)) and Move Function, which may also change who creates the factory. Compile and test after each move.
 
 ## Example
-Before: `CheckoutPage` knows the order options, passes them to `CheckoutService`, which only copies them onto the order it creates. Both classes carry the same two fields.
+Before: `ApiSession` knows the request options, passes them to `RequestSender`, which only copies them onto the request it creates. Both classes carry the same two fields.
 
 ```csharp
-public class Order
+public class ApiRequest
 {
-    public string Customer { get; }
-    public Order(string customer) { Customer = customer; }
-    public string? Note { get; set; }
-    public bool Express { get; set; }
+    public string Path { get; }
+    public ApiRequest(string path) { Path = path; }
+    public int TimeoutSeconds { get; set; }
+    public int MaxRetries { get; set; }
 }
 
-public class CheckoutPage
+public class ApiSession
 {
-    private readonly bool _express;
-    private readonly string _note;
-    public CheckoutPage(bool express, string note) { _express = express; _note = note; }
-    public Order Submit(string customer) => new CheckoutService(_express, _note).Place(customer);
+    private readonly int _timeoutSeconds;
+    private readonly int _maxRetries;
+    public ApiSession(int timeoutSeconds, int maxRetries) { _timeoutSeconds = timeoutSeconds; _maxRetries = maxRetries; }
+    public ApiRequest Send(string path) => new RequestSender(_timeoutSeconds, _maxRetries).Prepare(path);
 }
 
-public class CheckoutService
+public class RequestSender
 {
-    private readonly bool _express;
-    private readonly string _note;
-    public CheckoutService(bool express, string note) { _express = express; _note = note; }
-    public Order Place(string customer) => new Order(customer) { Note = _note, Express = _express };
+    private readonly int _timeoutSeconds;
+    private readonly int _maxRetries;
+    public RequestSender(int timeoutSeconds, int maxRetries) { _timeoutSeconds = timeoutSeconds; _maxRetries = maxRetries; }
+    public ApiRequest Prepare(string path) => new ApiRequest(path) { TimeoutSeconds = _timeoutSeconds, MaxRetries = _maxRetries };
 }
 ```
 
-After: `OrderFactory` holds the options and builds the order. The page configures it once. The service no longer knows what the options are.
+After: `RequestFactory` holds the options and builds the request. The session configures it once. The sender no longer knows what the options are.
 
 ```csharp
-public class OrderFactory
+public class RequestFactory
 {
-    private readonly bool _express;
-    private readonly string _note;
-    public OrderFactory(bool express, string note) { _express = express; _note = note; }
-    public Order CreateOrder(string customer) => new(customer) { Note = _note, Express = _express };
+    private readonly int _timeoutSeconds;
+    private readonly int _maxRetries;
+    public RequestFactory(int timeoutSeconds, int maxRetries) { _timeoutSeconds = timeoutSeconds; _maxRetries = maxRetries; }
+    public ApiRequest CreateRequest(string path) => new(path) { TimeoutSeconds = _timeoutSeconds, MaxRetries = _maxRetries };
 }
 
-public class CheckoutPage
+public class ApiSession
 {
-    private readonly OrderFactory _factory;
-    public CheckoutPage(bool express, string note) { _factory = new OrderFactory(express, note); }
-    public Order Submit(string customer, CheckoutService service) => service.Place(customer, _factory);
+    private readonly RequestFactory _factory;
+    public ApiSession(int timeoutSeconds, int maxRetries) { _factory = new RequestFactory(timeoutSeconds, maxRetries); }
+    public ApiRequest Send(string path, RequestSender sender) => sender.Prepare(path, _factory);
 }
 
-public class CheckoutService
+public class RequestSender
 {
-    public Order Place(string customer, OrderFactory factory) => factory.CreateOrder(customer);
+    public ApiRequest Prepare(string path, RequestFactory factory) => factory.CreateRequest(path);
 }
 ```
 

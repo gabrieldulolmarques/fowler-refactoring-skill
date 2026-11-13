@@ -22,34 +22,44 @@ Use it when the classes share a public interface or superclass and live in the s
 5. Repeat for each subclass you want to hide.
 
 ## Example
-Before: the three shipping classes are public, and callers pick one with `new`.
+Before: the three retry policies are public, and callers pick one with `new`.
 
 ```csharp
-public abstract class Shipping { public abstract decimal Cost(decimal kg); }
-public class GroundShipping : Shipping { public override decimal Cost(decimal kg) => 2m * kg; }
-public class AirShipping : Shipping { public override decimal Cost(decimal kg) => 9m * kg; }
-public class PickupShipping : Shipping { public override decimal Cost(decimal kg) => 0m; }
+using System;
 
-Shipping s = new AirShipping();
+public abstract class RetryPolicy { public abstract TimeSpan Delay(int attempt); }
+public class NoRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.Zero; }
+public class FixedRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(2); }
+public class ExponentialRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt)); }
+
+public static class Caller
+{
+    public static RetryPolicy Pick() => new ExponentialRetry();
+}
 ```
 
-After: the subclasses are private nested classes of `Shipping`, which now serves as the factory. Callers see only the base type.
+After: the subclasses are private nested classes of `RetryPolicy`, which now serves as the factory. Callers see only the base type.
 
 ```csharp
-public abstract class Shipping
+using System;
+
+public abstract class RetryPolicy
 {
-    public static Shipping Ground() => new GroundShipping();
-    public static Shipping Air() => new AirShipping();
-    public static Shipping Pickup() => new PickupShipping();
+    public static RetryPolicy None() => new NoRetry();
+    public static RetryPolicy Fixed() => new FixedRetry();
+    public static RetryPolicy Exponential() => new ExponentialRetry();
 
-    public abstract decimal Cost(decimal kg);
+    public abstract TimeSpan Delay(int attempt);
 
-    private sealed class GroundShipping : Shipping { public override decimal Cost(decimal kg) => 2m * kg; }
-    private sealed class AirShipping : Shipping { public override decimal Cost(decimal kg) => 9m * kg; }
-    private sealed class PickupShipping : Shipping { public override decimal Cost(decimal kg) => 0m; }
+    private sealed class NoRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.Zero; }
+    private sealed class FixedRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(2); }
+    private sealed class ExponentialRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt)); }
 }
 
-Shipping s = Shipping.Air();
+public static class Caller
+{
+    public static RetryPolicy Pick() => RetryPolicy.Exponential();
+}
 ```
 
 The same shape appears in the standard library's wrappers that make a collection read-only: the proxy classes are hidden, and static methods return them as the common interface type. The book calls this the inner-class variation.
