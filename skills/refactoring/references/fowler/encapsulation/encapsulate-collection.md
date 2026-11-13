@@ -36,73 +36,89 @@ coleção segura e escolha uma única proteção (cópia ou visão somente leitu
    ou falha de forma explícita.
 
 ## Exemplo
+
 Antes:
 
 ```csharp
-public class OrderLine
+using System.Collections.Generic;
+using System.Linq;
+
+public class Coupon
 {
-    public OrderLine(string sku, int quantity) { Sku = sku; Quantity = quantity; }
-    public string Sku { get; }
-    public int Quantity { get; }
+    public Coupon(string code, decimal percentOff) { Code = code; PercentOff = percentOff; }
+    public string Code { get; }
+    public decimal PercentOff { get; }
 }
 
-public class Order
+public class Subscription
 {
-    public List<OrderLine> Lines { get; set; } = new();
+    public List<Coupon> Coupons { get; set; } = new();
 }
 
-// chamadores
-order.Lines.Add(new OrderLine("A-1", 2));
-order.Lines = LoadLines(id);
-var total = order.Lines.Sum(l => l.Quantity);
+public static class Client
+{
+    public static void Run(Subscription subscription, List<Coupon> loaded)
+    {
+        subscription.Coupons.Add(new Coupon("WELCOME10", 10m));
+        subscription.Coupons = loaded;
+        var totalOff = subscription.Coupons.Sum(c => c.PercentOff);
+    }
+}
 ```
 
 Depois:
 
 ```csharp
-public class Order
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Subscription
 {
-    private readonly List<OrderLine> _lines = new();
+    private readonly List<Coupon> _coupons = new();
 
-    public IReadOnlyList<OrderLine> Lines => _lines.ToArray();
+    public IReadOnlyList<Coupon> Coupons => _coupons.ToArray();
 
-    public void AddLine(OrderLine line) => _lines.Add(line);
+    public void AddCoupon(Coupon coupon) => _coupons.Add(coupon);
 
-    public void RemoveLine(OrderLine line)
+    public void RemoveCoupon(Coupon coupon)
     {
-        if (!_lines.Remove(line))
-            throw new InvalidOperationException("O pedido não contém esta linha.");
+        if (!_coupons.Remove(coupon))
+            throw new InvalidOperationException("The subscription does not have this coupon.");
     }
 
-    public void ReplaceLines(IEnumerable<OrderLine> lines)
+    public void ReplaceCoupons(IEnumerable<Coupon> coupons)
     {
-        var copy = lines.ToList();
-        _lines.Clear();
-        _lines.AddRange(copy);
+        var copy = coupons.ToList();
+        _coupons.Clear();
+        _coupons.AddRange(copy);
     }
 }
 
-// chamadores (usings e LoadLines omitidos, como em Antes)
-order.AddLine(new OrderLine("A-1", 2));
-order.ReplaceLines(LoadLines(id)); // o setter sumiu
-var total = order.Lines.Sum(l => l.Quantity);
+public static class Client
+{
+    public static void Run(Subscription subscription, List<Coupon> loaded)
+    {
+        subscription.AddCoupon(new Coupon("WELCOME10", 10m));
+        subscription.ReplaceCoupons(loaded); // o setter foi removido
+        var totalOff = subscription.Coupons.Sum(c => c.PercentOff);
+    }
+}
 ```
 
-As leituras continuam funcionando com LINQ. As escritas agora passam por `Order`, então uma regra como "no máximo
-50 linhas" tem um único lugar para viver.
+As leituras continuam funcionando com LINQ. As escritas agora passam por `Subscription`, então uma regra
+como "no máximo 3 cupons por assinatura" tem um único lugar para morar.
 
 ## Notas (C#)
-- Exponha `IReadOnlyList<T>` ou `IReadOnlyCollection<T>`, com métodos `Add`/`Remove` no
-  dono.
-- Uma interface somente leitura não impede que um chamador faça o cast de volta para `List<T>` e a modifique.
-  Onde isso importar, retorne uma cópia (`ToArray()`, `ToList()`) ou um wrapper como
-  `AsReadOnly()`.
-- Uma cópia é um instantâneo: mudanças posteriores no dono não aparecem nela. Um wrapper é uma visão
-  ao vivo. Escolha um e seja consistente. Para coleções grandes lidas com frequência, um wrapper
+- Exponha `IReadOnlyList<T>` ou `IReadOnlyCollection<T>`, com métodos `Add`/`Remove` no dono.
+- Uma interface somente leitura não impede o chamador de converter de volta para `List<T>` e modificá-la.
+  Quando isso importa, devolva uma cópia (`ToArray()`, `ToList()`) ou um invólucro como `AsReadOnly()`.
+- Uma cópia é um instantâneo: mudanças posteriores no dono não aparecem nela. Um invólucro é uma visão
+  ao vivo. Escolha um e seja consistente. Para coleções grandes que são lidas com frequência, um invólucro
   evita o custo da cópia.
-- Operações que mutam uma coleção que você não possui ainda podem causar problemas: `List<T>.Sort()` e
-  `Reverse()` alteram a lista in-place, então copie antes ao ordenar o que um getter retornou.
+- Operações de mutação em uma coleção que você não possui ainda podem causar problemas: `List<T>.Sort()` e
+  `Reverse()` alteram a lista no lugar, então copie antes de ordenar o que um getter devolveu.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Nenhum chamador modifica a coleção a não ser pelos métodos do dono.
+- Nenhum chamador modifica a coleção, exceto pelos métodos do dono.

@@ -25,70 +25,72 @@ Se a variável é visível para código fora da sua base de código, ela é publ
 refatoração não se aplica como está.
 
 ## Exemplo
+
 Um valor mutável muito usado. Antes:
 
 ```csharp
-public static class Settings
+public static class ShippingSettings
 {
-    public static string dflCur = "USD";
+    public static string dflMethod = "standard";
 
-    public static string Format(decimal amount) => $"{amount:0.00} {dflCur}";
+    public static string Describe(decimal fee) => $"{fee:0.00} via {dflMethod}";
 }
 
 // em outro lugar
-Settings.dflCur = account.Currency;
+// ShippingSettings.dflMethod = cart.PreferredMethod;
 ```
 
-Passo 1, encapsule para que haja um só lugar a renomear:
+Passo 1, encapsule para que haja um único lugar onde renomear:
 
 ```csharp
-public static class Settings
+public static class ShippingSettings
 {
-    private static string dflCur = "USD";
+    private static string dflMethod = "standard";
 
-    public static string DefaultCurrency
+    public static string DefaultMethod
     {
-        get => dflCur;
-        set => dflCur = value;
+        get => dflMethod;
+        set => dflMethod = value;
     }
 
-    public static string Format(decimal amount) => $"{amount:0.00} {DefaultCurrency}";
+    public static string Describe(decimal fee) => $"{fee:0.00} via {DefaultMethod}";
 }
 
 // em outro lugar
-Settings.DefaultCurrency = account.Currency;
+// ShippingSettings.DefaultMethod = cart.PreferredMethod;
 ```
 
-Passo 2, renomeie o campo agora privado. Mantenha a propriedade em vez de internalizá-la: o valor
-é muito usado, então vale manter o encapsulamento.
+Passo 2, renomeie o campo, agora privado. Mantenha a propriedade em vez de internalizá-la: o valor é muito
+usado, então vale manter o encapsulamento.
 
 ```csharp
-public static class Settings
+public static class ShippingSettings
 {
-    private static string defaultCurrency = "USD";
+    private static string defaultMethod = "standard";
 
-    public static string DefaultCurrency
+    public static string DefaultMethod
     {
-        get => defaultCurrency;
-        set => defaultCurrency = value;
+        get => defaultMethod;
+        set => defaultMethod = value;
     }
 
-    public static string Format(decimal amount) => $"{amount:0.00} {DefaultCurrency}";
+    public static string Describe(decimal fee) => $"{fee:0.00} via {DefaultMethod}";
 }
 ```
 
 Renomeando uma constante aos poucos, por cópia:
 
 ```csharp
+// fragment
 // antes
-public const decimal tx = 0.2m;
+public const decimal fst = 50m;
 
-// durante: os dois existem, os chamadores migram alguns por vez
-public const decimal StandardTaxRate = 0.2m;
-public const decimal tx = StandardTaxRate;
+// durante: os dois existem, e os chamadores migram alguns de cada vez
+public const decimal FreeShippingThreshold = 50m;
+public const decimal fst = FreeShippingThreshold;
 
 // depois: o nome antigo é apagado quando nada mais o usa
-public const decimal StandardTaxRate = 0.2m;
+public const decimal FreeShippingThreshold = 50m;
 ```
 
 ## Verificação

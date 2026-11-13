@@ -24,41 +24,54 @@ Smells: Cadeias de Mensagens (Message Chains), Troca de Informações Privilegia
 5. Compile e teste.
 
 ## Exemplo
-Antes: o cliente navega pela conta até o contato de cobrança do seu titular.
+
+Antes: o cliente navega pela assinatura até o preço mensal do plano.
 
 ```csharp
-public class Customer
+public class Plan
 {
-    public string BillingContact { get; set; }
+    public decimal MonthlyPrice { get; set; }
 }
 
-public class Account
+public class Subscription
 {
-    public Customer Owner { get; set; }
+    public Plan Plan { get; set; }
 }
 
-// cliente
-string contact = account.Owner.BillingContact;
+public static class Client
+{
+    public static decimal Price(Subscription subscription)
+    {
+        decimal price = subscription.Plan.MonthlyPrice;
+        return price;
+    }
+}
 ```
 
-Depois: `Account` oculta `Customer`.
+Depois: `Subscription` oculta `Plan`.
 
 ```csharp
-public class Account
+public class Subscription
 {
-    private Customer _owner;
+    private Plan _plan;
 
-    public Customer Owner { get => _owner; set => _owner = value; } // removido no passo 4
-    public string BillingContact => _owner.BillingContact;
+    public Plan Plan { get => _plan; set => _plan = value; } // removido no passo 4
+    public decimal MonthlyPrice => _plan.MonthlyPrice;
 }
 
-// cliente
-string contact = account.BillingContact;
+public static class Client
+{
+    public static decimal Price(Subscription subscription)
+    {
+        decimal price = subscription.MonthlyPrice;
+        return price;
+    }
+}
 ```
 
-Quando todo cliente usar `BillingContact`, apague o acessor público `Owner` (ou torne-o
-privado), para que o delegado não possa mais ser alcançado de fora.
+Quando todos os clientes usarem `MonthlyPrice`, apague o acessor público `Plan` (ou torne-o
+privado), para que a delegação não possa mais ser alcançada de fora.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Nenhum cliente ainda referencia o tipo do delegado através do servidor.
+- Nenhum cliente ainda referencia o tipo delegado através do servidor.

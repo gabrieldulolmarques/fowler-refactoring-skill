@@ -26,120 +26,184 @@ Smells: Alteração Divergente (Divergent Change), Cirurgia com Espingarda (Shot
 
 ## Exemplo
 
-Antes: um método reúne estatísticas e também renderiza o texto.
+Antes: um método ao mesmo tempo calcula os totais e renderiza o texto.
 
 ```csharp
 using System.Collections.Generic;
 using System.Text;
 
-public record Order(string Id, decimal Amount);
-
-public class ReportService
+public class CartLine
 {
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    public string Sku { get; }
+    public int Quantity { get; }
+    public decimal UnitPrice { get; }
+
+    public CartLine(string sku, int quantity, decimal unitPrice)
     {
-        var count = orders.Count;
-        decimal total = 0m;
-        decimal largest = 0m;
-        foreach (var order in orders)
+        Sku = sku;
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+    }
+}
+
+public class CheckoutSummary
+{
+    public string Summary(IReadOnlyList<CartLine> lines, decimal taxRate, string currencySymbol)
+    {
+        decimal subtotal = 0m;
+        foreach (var line in lines)
         {
-            total += order.Amount;
-            if (order.Amount > largest) largest = order.Amount;
+            subtotal += line.Quantity * line.UnitPrice;
         }
+        decimal tax = subtotal * taxRate;
+        decimal shipping = subtotal >= 50m ? 0m : 4.90m;
 
         var sb = new StringBuilder();
-        sb.AppendLine($"Pedidos: {count}");
-        sb.AppendLine($"Total: {currencySymbol}{total:F2}");
-        sb.AppendLine($"Maior: {currencySymbol}{largest:F2}");
+        sb.AppendLine($"Items: {lines.Count}");
+        sb.AppendLine($"Subtotal: {currencySymbol}{subtotal:F2}");
+        sb.AppendLine($"Tax: {currencySymbol}{tax:F2}");
+        sb.AppendLine($"Shipping: {currencySymbol}{shipping:F2}");
         return sb.ToString();
     }
 }
 ```
 
-Depois: estatísticas e renderização são fases separadas, ligadas por um `record`.
+Depois: os totais e a renderização são fases separadas, ligadas por um objeto `CartTotals`.
 
 ```csharp
 using System.Collections.Generic;
 using System.Text;
 
-public record Order(string Id, decimal Amount);
-
-public record OrderStats(int Count, decimal Total, decimal Largest);
-
-public class ReportService
+public class CartTotals
 {
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    public int ItemCount { get; }
+    public decimal Subtotal { get; }
+    public decimal Tax { get; }
+    public decimal Shipping { get; }
+
+    public CartTotals(int itemCount, decimal subtotal, decimal tax, decimal shipping)
     {
-        var stats = ComputeStats(orders);
-        return Render(stats, currencySymbol);
+        ItemCount = itemCount;
+        Subtotal = subtotal;
+        Tax = tax;
+        Shipping = shipping;
+    }
+}
+
+public class CheckoutSummary
+{
+    public string Summary(IReadOnlyList<CartLine> lines, decimal taxRate, string currencySymbol)
+    {
+        var totals = ComputeTotals(lines, taxRate);
+        return Render(totals, currencySymbol);
     }
 
-    private static OrderStats ComputeStats(IReadOnlyList<Order> orders)
+    private static CartTotals ComputeTotals(IReadOnlyList<CartLine> lines, decimal taxRate)
     {
-        decimal total = 0m;
-        decimal largest = 0m;
-        foreach (var order in orders)
+        decimal subtotal = 0m;
+        foreach (var line in lines)
         {
-            total += order.Amount;
-            if (order.Amount > largest) largest = order.Amount;
+            subtotal += line.Quantity * line.UnitPrice;
         }
-        return new OrderStats(orders.Count, total, largest);
+        decimal tax = subtotal * taxRate;
+        decimal shipping = subtotal >= 50m ? 0m : 4.90m;
+        return new CartTotals(lines.Count, subtotal, tax, shipping);
     }
 
-    private static string Render(OrderStats stats, string currencySymbol)
+    private static string Render(CartTotals totals, string currencySymbol)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"Pedidos: {stats.Count}");
-        sb.AppendLine($"Total: {currencySymbol}{stats.Total:F2}");
-        sb.AppendLine($"Maior: {currencySymbol}{stats.Largest:F2}");
+        sb.AppendLine($"Items: {totals.ItemCount}");
+        sb.AppendLine($"Subtotal: {currencySymbol}{totals.Subtotal:F2}");
+        sb.AppendLine($"Tax: {currencySymbol}{totals.Tax:F2}");
+        sb.AppendLine($"Shipping: {currencySymbol}{totals.Shipping:F2}");
         return sb.ToString();
     }
 }
 ```
 
-A mesma saída para a mesma entrada. Agora um novo formato de saída toca apenas `Render`, e uma nova estatística toca `ComputeStats` mais os campos que ela alimenta.
+A mesma entrada gera a mesma saída. Agora um novo formato de saída toca apenas `Render`, e um novo total toca
+`ComputeTotals` mais os campos que ele alimenta.
 
 ### Variação: a primeira fase como objeto transformador
 
-Quando a primeira fase precisa de várias funções auxiliares sobre a mesma entrada, uma classe pequena as mantém juntas. A classe recebe a entrada bruta, e um método retorna a estrutura intermediária. `Render` não muda.
+Quando a primeira fase precisa de vários auxiliares sobre a mesma entrada, uma pequena classe os mantém juntos. A
+classe recebe a entrada bruta, e um método devolve a estrutura intermediária. `Render` não muda.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
-public class OrderStatsCalculator
+public class CartTotals
 {
-    private readonly IReadOnlyList<Order> _orders;
+    public int ItemCount { get; }
+    public decimal Subtotal { get; }
+    public decimal Tax { get; }
+    public decimal Shipping { get; }
 
-    public OrderStatsCalculator(IReadOnlyList<Order> orders) => _orders = orders;
-
-    public OrderStats Run() => new(_orders.Count, Total(), Largest());
-
-    private decimal Total() => _orders.Sum(o => o.Amount);
-
-    private decimal Largest() => _orders.Aggregate(0m, (max, o) => o.Amount > max ? o.Amount : max);
+    public CartTotals(int itemCount, decimal subtotal, decimal tax, decimal shipping)
+    {
+        ItemCount = itemCount;
+        Subtotal = subtotal;
+        Tax = tax;
+        Shipping = shipping;
+    }
 }
 
-public class ReportService
+public class CartTotalsCalculator
 {
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    private readonly IReadOnlyList<CartLine> _lines;
+    private readonly decimal _taxRate;
+
+    public CartTotalsCalculator(IReadOnlyList<CartLine> lines, decimal taxRate)
     {
-        var stats = new OrderStatsCalculator(orders).Run();
-        return Render(stats, currencySymbol);
+        _lines = lines;
+        _taxRate = taxRate;
     }
 
-    // Render como acima.
+    public CartTotals Run()
+    {
+        var subtotal = Subtotal();
+        return new(_lines.Count, subtotal, subtotal * _taxRate, ShippingFor(subtotal));
+    }
+
+    private decimal Subtotal() => _lines.Sum(l => l.Quantity * l.UnitPrice);
+
+    private static decimal ShippingFor(decimal subtotal) => subtotal >= 50m ? 0m : 4.90m;
+}
+
+public class CheckoutSummary
+{
+    public string Summary(IReadOnlyList<CartLine> lines, decimal taxRate, string currencySymbol)
+    {
+        var totals = new CartTotalsCalculator(lines, taxRate).Run();
+        return Render(totals, currencySymbol);
+    }
+
+    private static string Render(CartTotals totals, string currencySymbol)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Items: {totals.ItemCount}");
+        sb.AppendLine($"Subtotal: {currencySymbol}{totals.Subtotal:F2}");
+        sb.AppendLine($"Tax: {currencySymbol}{totals.Tax:F2}");
+        sb.AppendLine($"Shipping: {currencySymbol}{totals.Shipping:F2}");
+        return sb.ToString();
+    }
 }
 ```
 
-Mesma saída de antes, inclusive para lista vazia e valores negativos (`Largest` continua começando em `0`).
+Mesma saída de antes, inclusive para um carrinho vazio (o frete continua sendo `4.90`, como no original).
 
 ## Notas (C#)
 
-- A estrutura de dados intermediária costuma ser um `record` (ou um `readonly record struct` para dados pequenos e muito usados). A imutabilidade impede que as fases mexam no estado uma da outra.
+- A estrutura de dados intermediária costuma ser um `record` (ou um `readonly record struct` para dados pequenos e
+  muito usados; C# 9+, e no Unity precisa de um shim de `IsExternalInit`). A imutabilidade impede que as fases
+  alcancem o estado uma da outra.
 
 ## Verificação
 
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- O comportamento não muda: mesma saída para a mesma entrada, inclusive em casos de borda como entrada vazia.
-- A segunda fase não lê mais nada que só a primeira fase deveria saber; seus parâmetros são a estrutura intermediária mais os dados que ela realmente possui.
+- O comportamento não muda: mesma saída para a mesma entrada, inclusive casos de borda como entrada vazia.
+- A segunda fase não lê mais nada que só a primeira fase deveria conhecer; seus parâmetros são a estrutura
+  intermediária mais os dados que ela realmente possui.

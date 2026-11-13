@@ -44,30 +44,31 @@ Opções quando os chamadores não devem mutar o objeto compartilhado:
   nível.
 
 ## Exemplo
-Antes: um campo estático lido e escrito a partir de muitas classes.
+
+Antes: um campo estático lido e escrito por muitas classes.
 
 ```csharp
-public class Billing
+public class CheckoutSettings
 {
     public static decimal TaxRate = 0.18m;
 }
 
-public class InvoiceCalculator
+public class PriceCalculator
 {
-    public decimal Total(decimal subtotal) => subtotal * (1 + Billing.TaxRate);
+    public decimal Total(decimal subtotal) => subtotal * (1 + CheckoutSettings.TaxRate);
 }
 
 public class SettingsScreen
 {
-    public void Apply(decimal rate) => Billing.TaxRate = rate;
+    public void Apply(decimal rate) => CheckoutSettings.TaxRate = rate;
 }
 ```
 
-Depois: o campo é renomeado e privado, e uma propriedade com o nome antigo encaminha para ele.
+Depois: o campo é renomeado e fica privado, e uma propriedade com o nome antigo o encaminha.
 O comportamento não muda.
 
 ```csharp
-public class Billing
+public class CheckoutSettings
 {
     private static decimal _taxRate = 0.18m;
 
@@ -78,17 +79,17 @@ public class Billing
     }
 }
 
-// Os chamadores mantêm a mesma sintaxe: Billing.TaxRate e Billing.TaxRate = rate.
+// Os chamadores mantêm a mesma sintaxe: CheckoutSettings.TaxRate e CheckoutSettings.TaxRate = rate.
 ```
 
 Mudança posterior, que não faz parte da refatoração porque altera o comportamento: com o setter
-como ponto de entrada único, a validação agora pode ser adicionada em um só lugar, e uma taxa negativa
-que antes era aceita agora lança uma exceção.
+como único ponto de entrada, a validação pode ser adicionada em um só lugar, e uma taxa negativa
+que antes era aceita agora lança exceção.
 
 ```csharp
 using System;
 
-public class Billing
+public class CheckoutSettings
 {
     private static decimal _taxRate = 0.18m;
 
@@ -110,29 +111,29 @@ Encapsulando o valor: uma lista compartilhada entregue como cópia.
 using System.Collections.Generic;
 using System.Linq;
 
-public class Customers
+public class CouponRegistry
 {
-    private static List<string> _blocked = new();
+    private static List<string> _redeemed = new();
 
-    public static IReadOnlyList<string> Blocked => _blocked.ToList();
-    public static void Block(string id) => _blocked.Add(id);
+    public static IReadOnlyList<string> Redeemed => _redeemed.ToList();
+    public static void MarkRedeemed(string code) => _redeemed.Add(code);
 }
 ```
 
 ## Notas (C#)
 - Um campo público vira um campo privado mais uma propriedade. Em C#, trocar um campo por uma
-  propriedade mantém a sintaxe de chamada, mas quebra a compatibilidade binária e qualquer coisa que o passe
-  por `ref`/`out` ou dependa de reflexão pelo nome do campo, então verifique isso.
+  propriedade mantém a sintaxe de chamada, mas quebra a compatibilidade binária e qualquer código que
+  passe o campo por `ref`/`out` ou dependa de reflexão pelo nome do campo, então verifique esses casos.
 - Um campo estático vira uma propriedade estática.
-- Uma propriedade com o mesmo nome do campo mantém a sintaxe de chamada, então o passo 3 não tem nada a substituir.
-  Renomeie o campo primeiro (`_x`), adicione uma propriedade com o nome antigo e faça o build. Se os chamadores
-  precisarem mudar (acessores como métodos, ou um membro renomeado), substitua as referências uma de cada vez
-  com testes.
+- Uma propriedade com o mesmo nome do campo mantém a sintaxe de chamada, então o passo 3 não tem o que
+  substituir. Renomeie o campo primeiro (`_x`), adicione uma propriedade com o nome antigo e compile. Se os
+  chamadores precisarem mudar (acessores como métodos, ou um membro renomeado), substitua as referências
+  uma de cada vez, com testes.
 - Código que passa o membro por `ref`/`out` deixa de compilar contra uma propriedade.
-- Uma propriedade de tipo struct não pode ser mutada no lugar (`Prop.X = 1` é um erro de compilação);
-  leia-a, altere a cópia e atribua de volta.
+- Uma propriedade de tipo struct não pode ser mutada no lugar (`Prop.X = 1` é erro de compilação); leia-a,
+  altere a cópia e atribua de volta.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Nenhum membro fora da classe dona referencia o campo (faça o build depois de torná-lo privado),
-  e uma busca pelo nome antigo encontra apenas o acessor.
+- Nenhum membro fora da classe dona referencia o campo (compile depois de torná-lo privado), e uma busca
+  pelo nome antigo encontra apenas o acessor.

@@ -30,33 +30,58 @@ caso de Internalizar Variável).
 6. Apague qualquer comentário que agora só repita o que o nome da variável diz.
 
 ## Exemplo
+
 Antes:
 
 ```csharp
-public bool CanApproveCredit(Customer customer, Account account)
+public class Cart
 {
-    // adulto, usando mais da metade do limite e não congelado
-    return customer.Age >= 18
-        && account.Balance > account.Limit * 0.5m
-        && !account.IsFrozen;
+    public decimal Subtotal { get; }
+    public decimal WeightKg { get; }
+
+    public Cart(decimal subtotal, decimal weightKg)
+    {
+        Subtotal = subtotal;
+        WeightKg = weightKg;
+    }
+}
+
+public class ShippingOption
+{
+    public bool IsExpress { get; }
+
+    public ShippingOption(bool isExpress) => IsExpress = isExpress;
+}
+
+public class ShippingPolicy
+{
+    public bool OffersFreeShipping(Cart cart, ShippingOption option)
+    {
+        // gasta pelo menos 50, é leve o bastante e não é expresso
+        return cart.Subtotal >= 50m
+            && cart.WeightKg <= 20m
+            && !option.IsExpress;
+    }
 }
 ```
 
-Depois de extrair cada condição, uma de cada vez, com os testes executados após cada passo (este é o
-estado final):
+Depois de extrair cada condição, uma por vez, com os testes executados após cada passo (este é o estado final):
 
 ```csharp
-public bool CanApproveCredit(Customer customer, Account account)
+public class ShippingPolicy
 {
-    var isAdult = customer.Age >= 18;
-    var usesOverHalfOfLimit = account.Balance > account.Limit * 0.5m;
-    var isActive = !account.IsFrozen;
-    return isAdult && usesOverHalfOfLimit && isActive;
+    public bool OffersFreeShipping(Cart cart, ShippingOption option)
+    {
+        var meetsMinimumSpend = cart.Subtotal >= 50m;
+        var isLightEnough = cart.WeightKg <= 20m;
+        var isStandardSpeed = !option.IsExpress;
+        return meetsMinimumSpend && isLightEnough && isStandardSpeed;
+    }
 }
 ```
 
-Se um nome como `isActive` também faz sentido para outros membros de `Account`, faça dele uma
-propriedade somente leitura da classe em vez de uma variável local.
+Se um nome como `meetsMinimumSpend` também for significativo para outros membros de `Cart`, transforme-o em
+uma propriedade somente leitura da classe, em vez de uma variável local.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

@@ -28,65 +28,78 @@ para que os encaminhadores passem pelo acessor público e depois Internalizar Fu
 substituir todos os seus chamadores de uma vez ([encapsulate-variable.md](../first-set/encapsulate-variable.md), [inline-function.md](../first-set/inline-function.md)).
 
 ## Exemplo
-Antes: `Customer` oculta sua `Account` e encaminha para ela.
+
+Antes: `Workspace` oculta a sua `BillingAccount` e encaminha chamadas para ela.
 
 ```csharp
-public class Account
+public class BillingAccount
 {
-    public string Manager { get; }
-    public decimal CreditLimit { get; }
+    public string BillingEmail { get; }
+    public decimal CreditBalance { get; }
 
-    public Account(string manager, decimal creditLimit)
+    public BillingAccount(string billingEmail, decimal creditBalance)
     {
-        Manager = manager;
-        CreditLimit = creditLimit;
+        BillingEmail = billingEmail;
+        CreditBalance = creditBalance;
     }
 }
 
-public class Customer
+public class Workspace
 {
-    private readonly Account _account;
+    private readonly BillingAccount _billingAccount;
 
-    public Customer(Account account) => _account = account;
+    public Workspace(BillingAccount billingAccount) => _billingAccount = billingAccount;
 
-    public string Manager => _account.Manager;
-    public decimal CreditLimit => _account.CreditLimit;
+    public string BillingEmail => _billingAccount.BillingEmail;
+    public decimal CreditBalance => _billingAccount.CreditBalance;
 }
 
-// cliente
-string manager = customer.Manager;
+public static class Client
+{
+    public static string Email(Workspace workspace)
+    {
+        string email = workspace.BillingEmail;
+        return email;
+    }
+}
 ```
 
 Passo 1: exponha o delegado.
 
 ```csharp
-public class Customer
+public class Workspace
 {
-    private readonly Account _account;
+    private readonly BillingAccount _billingAccount;
 
-    public Customer(Account account) => _account = account;
+    public Workspace(BillingAccount billingAccount) => _billingAccount = billingAccount;
 
-    public Account Account => _account;
-    public string Manager => _account.Manager;
-    public decimal CreditLimit => _account.CreditLimit;
+    public BillingAccount BillingAccount => _billingAccount;
+    public string BillingEmail => _billingAccount.BillingEmail;
+    public decimal CreditBalance => _billingAccount.CreditBalance;
 }
 ```
 
 Passos 2 e 3: atualize cada cliente e depois apague os encaminhadores que não são mais usados.
 
 ```csharp
-// cliente
-string manager = customer.Account.Manager;
-
-public class Customer
+public class Workspace
 {
-    public Customer(Account account) => Account = account;
+    public Workspace(BillingAccount billingAccount) => BillingAccount = billingAccount;
 
-    public Account Account { get; }
+    public BillingAccount BillingAccount { get; }
+}
+
+public static class Client
+{
+    public static string Email(Workspace workspace)
+    {
+        string email = workspace.BillingAccount.BillingEmail;
+        return email;
+    }
 }
 ```
 
-O comportamento é o mesmo; `Customer` não precisa mais de um novo membro cada vez que `Account` ganha um.
+O comportamento é o mesmo; `Workspace` não precisa mais de um membro novo cada vez que `BillingAccount` ganha um.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

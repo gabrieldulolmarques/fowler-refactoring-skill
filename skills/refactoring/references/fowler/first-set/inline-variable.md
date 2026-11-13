@@ -24,17 +24,36 @@ Fowler (2018), cap. 6, p. 123. Antes / também: Inline Temp. Inversa: Extrair Va
 6. Apague a declaração e a atribuição. Faça o build e teste.
 
 ## Exemplo
+
 Antes:
 
 ```csharp
-public record Invoice(DateTime DueDate);
+using System.Collections.Generic;
+using System.Linq;
 
-public class CollectionsPolicy
+public class CartLine
 {
-    public bool IsSeriouslyOverdue(Invoice invoice, DateTime today)
+    public string Sku { get; }
+    public int Quantity { get; }
+
+    public CartLine(string sku, int quantity)
     {
-        int daysLate = (today - invoice.DueDate).Days;
-        return daysLate > 30;
+        Sku = sku;
+        Quantity = quantity;
+    }
+}
+
+public class Cart
+{
+    public List<CartLine> Lines { get; } = new();
+}
+
+public class WholesalePolicy
+{
+    public bool QualifiesForWholesale(Cart cart)
+    {
+        int units = cart.Lines.Sum(l => l.Quantity);
+        return units > 20;
     }
 }
 ```
@@ -42,13 +61,13 @@ public class CollectionsPolicy
 Depois:
 
 ```csharp
-public record Invoice(DateTime DueDate);
+using System.Linq;
 
-public class CollectionsPolicy
+public class WholesalePolicy
 {
-    public bool IsSeriouslyOverdue(Invoice invoice, DateTime today)
+    public bool QualifiesForWholesale(Cart cart)
     {
-        return (today - invoice.DueDate).Days > 30;
+        return cart.Lines.Sum(l => l.Quantity) > 20;
     }
 }
 ```
@@ -57,5 +76,5 @@ O comportamento é o mesmo: a expressão é avaliada uma vez, no mesmo ponto, se
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Depois que a última leitura é substituída, a variável não tem mais referências; o compilador falha se
-  a declaração foi apagada cedo demais.
+- Depois que a última leitura é substituída, a variável não tem mais referências; o compilador falha se a
+  declaração tiver sido apagada cedo demais.

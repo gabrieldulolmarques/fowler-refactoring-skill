@@ -37,59 +37,66 @@ Polimorfismo: cada vínculo que os chamadores podem alcançar precisa da funçã
 API publicada: pare depois de criar a nova função, marque a antiga como obsoleta e mantenha-a encaminhando para a nova até que os clientes tenham migrado; apague-a só quando tiver confiança (ou nunca, se não conseguir alcançá-los).
 
 ## Exemplo
-Objetivo: `Overdue(Invoice)` deve receber apenas a data de vencimento, para também funcionar com qualquer coisa que tenha uma data de vencimento. Rota de migração, com um nome provisório.
+
+Objetivo: `QualifiesForFreeShipping(Cart)` deve receber apenas o subtotal, para que também funcione com
+qualquer coisa que tenha um subtotal (um orçamento, um carrinho salvo). Caminho de migração, com um nome temporário.
 
 Antes:
 
 ```csharp
-using System;
-
-public class Invoice
+public class Cart
 {
-    public DateTime DueDate { get; init; }
+    public decimal Subtotal { get; }
+
+    public Cart(decimal subtotal) => Subtotal = subtotal;
 }
 
-public static class Billing
+public static class Shipping
 {
-    public static bool Overdue(Invoice invoice) =>
-        invoice.DueDate < DateTime.Today;
+    public static bool QualifiesForFreeShipping(Cart cart) =>
+        cart.Subtotal >= 50m;
 }
 
-// chamador
-// var late = invoices.Where(i => Billing.Overdue(i));
+// caller
+// var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping(c));
 ```
 
-Passo 1, extraia o corpo para uma nova função com um nome provisório e o parâmetro desejado:
+Passo 1, extraia o corpo para uma nova função com um nome temporário e o parâmetro desejado:
 
 ```csharp
-public static bool Overdue(Invoice invoice) =>
-    Overdue_new(invoice.DueDate);
+// fragment
+public static bool QualifiesForFreeShipping(Cart cart) =>
+    QualifiesForFreeShipping_new(cart.Subtotal);
 
-public static bool Overdue_new(DateTime dueDate) =>
-    dueDate < DateTime.Today;
+public static bool QualifiesForFreeShipping_new(decimal subtotal) =>
+    subtotal >= 50m;
 ```
 
-Passo 2, internalize `Overdue` em cada chamador (teste após cada um) e depois apague-a:
+Passo 2, internalize `QualifiesForFreeShipping` em cada chamador (teste após cada um) e depois apague-a:
 
 ```csharp
-// var late = invoices.Where(i => Billing.Overdue_new(i.DueDate));
+// fragment
+// var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping_new(c.Subtotal));
 ```
 
-Passo 3, renomeie `Overdue_new` de volta para `Overdue`:
+Passo 3, renomeie `QualifiesForFreeShipping_new` de volta para `QualifiesForFreeShipping`:
 
 ```csharp
-public static bool Overdue(DateTime dueDate) =>
-    dueDate < DateTime.Today;
+// fragment
+public static bool QualifiesForFreeShipping(decimal subtotal) =>
+    subtotal >= 50m;
 
-// var late = invoices.Where(i => Billing.Overdue(i.DueDate));
+// var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping(c.Subtotal));
 ```
 
-Mesmo comportamento o tempo todo; o build continua verde após cada passo.
+O comportamento é o mesmo do início ao fim; a build continua verde após cada passo.
 
 ## Notas (C#)
-- O compilador encontra os chamadores diretos, mas não reflexão, buscas baseadas em string (exceto `nameof`) nem nomes serializados; procure por eles separadamente.
+- O compilador encontra os chamadores diretos, mas não a reflexão, as buscas por string (além de `nameof`) nem
+  os nomes serializados; procure esses casos separadamente.
 - Em uma API pública, mantenha a assinatura antiga como um encaminhador `[Obsolete]` para a nova durante a migração.
-- Alterar um `override`, um membro `virtual` ou um membro de interface afeta todas as implementações; atualize-as juntas ou encaminhe a partir de cada uma.
+- Mudar um `override`, um membro `virtual` ou um membro de interface afeta todas as implementações; atualize-as
+  juntas ou encaminhe a partir de cada uma.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

@@ -23,60 +23,74 @@ Não use quando a função é polimórfica (sobrescrita), é recursiva, tem vár
 7. Se um passo quebrar os testes e a causa não for óbvia, reverta ao último estado verde e refaça em passos menores.
 
 ## Exemplo
-Antes: `IsLargeOrder` apenas embrulha uma comparação.
+
+Antes: `IsBulkOrder` apenas envolve uma comparação.
 
 ```csharp
-public record Order(int Id, decimal Total);
-
-public class Shipping
+public class Cart
 {
-    public decimal Fee(Order order)
+    public int Id { get; }
+    public int Units { get; }
+
+    public Cart(int id, int units)
     {
-        return IsLargeOrder(order) ? 0m : 9.90m;
+        Id = id;
+        Units = units;
+    }
+}
+
+public class Discounts
+{
+    public decimal UnitDiscount(Cart cart)
+    {
+        return IsBulkOrder(cart) ? 1.50m : 0m;
     }
 
-    private bool IsLargeOrder(Order o)
+    private bool IsBulkOrder(Cart c)
     {
-        return o.Total > 500m;
+        return c.Units >= 10;
     }
 }
 ```
 
-Depois: a chamada é substituída (o parâmetro `o` vira o argumento `order`) e o auxiliar é removido.
+Depois: a chamada é substituída (o parâmetro `c` vira o argumento `cart`) e o auxiliar é removido.
 
 ```csharp
-public record Order(int Id, decimal Total);
-
-public class Shipping
+public class Discounts
 {
-    public decimal Fee(Order order)
+    public decimal UnitDiscount(Cart cart)
     {
-        return order.Total > 500m ? 0m : 9.90m;
+        return cart.Units >= 10 ? 1.50m : 0m;
     }
 }
 ```
 
-Um caso que exige mais ajuste: o auxiliar escreve em um objeto que pertence ao chamador.
+Um caso que precisa de mais cuidado: o auxiliar escreve em um objeto que pertence ao chamador.
 
 ```csharp
 using System.Linq;
 using System.Text;
 
-public record Cart(int[] ItemPrices);
+public class PricedCart
+{
+    public decimal[] ItemPrices { get; }
+
+    public PricedCart(decimal[] itemPrices) => ItemPrices = itemPrices;
+}
 
 public class CartSummary
 {
     // Antes
-    public string BuildSummary(Cart cart)
+    public string BuildSummary(PricedCart cart)
     {
         var sb = new StringBuilder();
         AppendTotals(sb, cart);
         return sb.ToString();
     }
 
-    private void AppendTotals(StringBuilder target, Cart source)
+    private void AppendTotals(StringBuilder target, PricedCart source)
     {
-        target.Append($"itens: {source.ItemPrices.Length}; ");
+        target.Append($"items: {source.ItemPrices.Length}; ");
         target.Append($"total: {source.ItemPrices.Sum()}");
     }
 }
@@ -84,10 +98,10 @@ public class CartSummary
 public class CartSummaryAfter
 {
     // Depois
-    public string BuildSummary(Cart cart)
+    public string BuildSummary(PricedCart cart)
     {
         var sb = new StringBuilder();
-        sb.Append($"itens: {cart.ItemPrices.Length}; ");
+        sb.Append($"items: {cart.ItemPrices.Length}; ");
         sb.Append($"total: {cart.ItemPrices.Sum()}");
         return sb.ToString();
     }
@@ -95,8 +109,10 @@ public class CartSummaryAfter
 ```
 
 ## Notas (C#)
-- Não internalize um método `virtual` ou `override`, nem uma implementação de interface, sem verificar as outras implementações: os chamadores que passam pelo tipo base ou pela interface ainda precisam do método.
-- Um método alcançado por reflexão, injeção de dependência, serialização ou assinatura de evento tem chamadores que uma busca textual não encontra.
+- Não internalize um método `virtual` ou `override`, nem uma implementação de interface, sem verificar as outras
+  implementações: os chamadores que passam pelo tipo base ou pela interface ainda precisam do método.
+- Um método alcançado por reflexão, injeção de dependência, serialização ou assinatura de evento tem chamadores
+  que uma busca por texto não encontra.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

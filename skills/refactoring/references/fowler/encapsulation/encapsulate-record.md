@@ -21,7 +21,7 @@ Desnecessário para um valor imutável usado em um escopo pequeno: ali, adiciona
 
 ## Mecânica
 1. Aplique Encapsular Variável (Encapsulate Variable) ([encapsulate-variable.md](../first-set/encapsulate-variable.md)) à variável que guarda o
-   registro. Dê ao getter um nome temporário e fácil de buscar com grep, como `GetRawContact`; ele é
+   registro. Dê ao getter um nome temporário e fácil de buscar com grep, como `GetRawProfile`; ele é
    removido no passo 5.
 2. Introduza uma classe pequena que guarde o registro e armazene uma instância dela na variável.
    Dê a ela uma propriedade que exponha o registro subjacente (uma propriedade `RawData` no exemplo
@@ -50,104 +50,104 @@ dados (simples, mas custa tempo e surpreende chamadores que esperam modificar o 
 meça primeiro); ou recorrer a classes menores (mais controle, mais trabalho). Uma mistura serve.
 
 ## Exemplo
-Antes: um registro de contato compartilhado mantido como dicionário.
+
+Antes: um perfil de cobrança compartilhado, guardado em um dicionário.
 
 ```csharp
 using System.Collections.Generic;
 
 public static class Billing
 {
-    public static Dictionary<string, string> Contact =
-        new() { ["name"] = "Ana Souza", ["email"] = "ana@example.com" };
+    public static Dictionary<string, string> Profile =
+        new() { ["plan"] = "Team", ["billingEmail"] = "finance@example.com" };
 }
 
 public static class InvoiceHeader
 {
-    public static string Render() => $"Bill to: {Billing.Contact["name"]}";
+    public static string Render() => $"Plan: {Billing.Profile["plan"]}";
 }
 
-public static class ContactForm
+public static class ProfileForm
 {
-    public static void ChangeEmail(string email) => Billing.Contact["email"] = email;
+    public static void ChangeEmail(string email) => Billing.Profile["billingEmail"] = email;
 }
 ```
 
-Estado intermediário (passos 1 a 3): classe wrapper, acessor bruto, acessor de objeto. O passo 1 também
-faz `InvoiceHeader` e `ContactForm` chamarem o acessor bruto.
+Estado intermediário (passos 1 a 3): classe invólucro, acessor bruto e acessor de objeto. O passo 1 também
+faz `InvoiceHeader` e `ProfileForm` chamarem o acessor bruto.
 
 ```csharp
 using System.Collections.Generic;
 
-public class BillingContact
+public class BillingProfile
 {
     private readonly Dictionary<string, string> _data;
-    public BillingContact(Dictionary<string, string> data) => _data = data;
+    public BillingProfile(Dictionary<string, string> data) => _data = data;
     public Dictionary<string, string> RawData => _data;
 }
 
 public static class Billing
 {
-    private static BillingContact _contact = new(
-        new() { ["name"] = "Ana Souza", ["email"] = "ana@example.com" });
+    private static BillingProfile _profile = new(
+        new() { ["plan"] = "Team", ["billingEmail"] = "finance@example.com" });
 
-    public static Dictionary<string, string> GetRawContact() => _contact.RawData;
-    public static BillingContact GetContact() => _contact;
+    public static Dictionary<string, string> GetRawProfile() => _profile.RawData;
+    public static BillingProfile GetProfile() => _profile;
 }
 
 public static class InvoiceHeader
 {
-    public static string Render() => $"Bill to: {Billing.GetRawContact()["name"]}";
+    public static string Render() => $"Plan: {Billing.GetRawProfile()["plan"]}";
 }
 
-public static class ContactForm
+public static class ProfileForm
 {
-    public static void ChangeEmail(string email) => Billing.GetRawContact()["email"] = email;
+    public static void ChangeEmail(string email) => Billing.GetRawProfile()["billingEmail"] = email;
 }
 ```
 
-Depois (passos 4 a 6): os chamadores usam o objeto, os acessores brutos sumiram, o dicionário é
-incorporado em propriedades.
+Depois (passos 4 a 6): os chamadores usam o objeto, os acessores brutos somem, e o dicionário é
+convertido em propriedades.
 
 ```csharp
 using System.Collections.Generic;
 
-public class BillingContact
+public class BillingProfile
 {
-    public BillingContact(Dictionary<string, string> data)
+    public BillingProfile(Dictionary<string, string> data)
     {
-        Name = data["name"];
-        Email = data["email"];
+        Plan = data["plan"];
+        BillingEmail = data["billingEmail"];
     }
 
-    public string Name { get; set; }
-    public string Email { get; set; }
+    public string Plan { get; set; }
+    public string BillingEmail { get; set; }
 }
 
 public static class Billing
 {
-    private static BillingContact _contact = new(
-        new() { ["name"] = "Ana Souza", ["email"] = "ana@example.com" });
+    private static BillingProfile _profile = new(
+        new() { ["plan"] = "Team", ["billingEmail"] = "finance@example.com" });
 
-    public static BillingContact GetContact() => _contact;
+    public static BillingProfile GetProfile() => _profile;
 }
 
 public static class InvoiceHeader
 {
-    public static string Render() => $"Bill to: {Billing.GetContact().Name}";
+    public static string Render() => $"Plan: {Billing.GetProfile().Plan}";
 }
 
-public static class ContactForm
+public static class ProfileForm
 {
-    public static void ChangeEmail(string email) => Billing.GetContact().Email = email;
+    public static void ChangeEmail(string email) => Billing.GetProfile().BillingEmail = email;
 }
 ```
 
 ## Notas (C#)
-- Dados em dicionário, tupla, tipo anônimo ou `dynamic` viram uma classe ou `record` com propriedades.
-  Tipos anônimos não podem cruzar fronteiras de método como valor tipado, o que é um bom motivo para
-  convertê-los.
+- Dados em dicionário, tupla, tipo anônimo ou `dynamic` viram uma classe ou um `record` com propriedades.
+  Tipos anônimos não atravessam fronteiras de método como valor tipado, o que é um bom motivo para convertê-los.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Após o passo 5, faça grep pelos nomes dos acessores brutos e pela indexação direta da variável antiga.
+- Depois do passo 5, faça uma busca pelos nomes dos acessores brutos e pela indexação direta da variável antiga.
   Espere zero ocorrências.

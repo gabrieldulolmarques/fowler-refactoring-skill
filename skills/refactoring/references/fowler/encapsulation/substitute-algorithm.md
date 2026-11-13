@@ -17,63 +17,69 @@ Não use em uma função grande e emaranhada do jeito que está. Quebre a funç�
 5. Execute os testes contra o novo algoritmo e compare sua saída com a do antigo nas mesmas entradas. Se os resultados coincidirem, apague o algoritmo antigo e dê à função seu nome final. Se diferirem, mantenha a versão antiga como referência enquanto depura a nova.
 
 ## Exemplo
-Antes: uma acumulação escrita à mão que soma os pedidos por cliente e depois varre em busca do maior total.
+
+Antes: uma acumulação escrita à mão que soma as cobranças por conta e depois procura o maior total.
 
 ```csharp
 using System.Collections.Generic;
 
-public record Order(string Customer, decimal Total);
-
-public static class OrderStats
+public class Charge
 {
-    public static string? TopCustomer(List<Order> orders)
+    public Charge(string account, decimal amount) { Account = account; Amount = amount; }
+    public string Account { get; }
+    public decimal Amount { get; }
+}
+
+public static class BillingStats
+{
+    public static string? TopAccount(List<Charge> charges)
     {
-        var customers = new List<string>();
+        var accounts = new List<string>();
         var totals = new List<decimal>();
-        foreach (var order in orders)
+        foreach (var charge in charges)
         {
-            int index = customers.IndexOf(order.Customer);
+            int index = accounts.IndexOf(charge.Account);
             if (index < 0)
             {
-                customers.Add(order.Customer);
-                totals.Add(order.Total);
+                accounts.Add(charge.Account);
+                totals.Add(charge.Amount);
             }
             else
             {
-                totals[index] += order.Total;
+                totals[index] += charge.Amount;
             }
         }
-        if (customers.Count == 0) return null;
+        if (accounts.Count == 0) return null;
         int best = 0;
-        for (int i = 1; i < customers.Count; i++)
+        for (int i = 1; i < accounts.Count; i++)
         {
             if (totals[i] > totals[best]) best = i;
         }
-        return customers[best];
+        return accounts[best];
     }
 }
 ```
 
-Depois: o mesmo resultado, com o agrupamento, a soma e a escolha do máximo delegados à biblioteca.
+Depois: o mesmo resultado, com agrupamento, soma e ordenação delegados à biblioteca.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public record Order(string Customer, decimal Total);
-
-public static class OrderStats
+public static class BillingStats
 {
-    public static string? TopCustomer(List<Order> orders) =>
-        orders
-            .GroupBy(o => o.Customer)
-            .Select(g => new { Customer = g.Key, Total = g.Sum(o => o.Total) })
-            .MaxBy(x => x.Total)?.Customer;
+    public static string? TopAccount(List<Charge> charges) =>
+        charges
+            .GroupBy(c => c.Account)
+            .Select(g => new { Account = g.Key, Total = g.Sum(c => c.Amount) })
+            .OrderByDescending(x => x.Total)
+            .FirstOrDefault()?.Account;
 }
 ```
 
-Os testes que fixavam o comportamento antigo (o maior total vence, o primeiro cliente vence um empate, uma lista vazia retorna null) passam sem alteração contra o novo corpo.
+Os testes que fixavam o comportamento antigo (vence o maior total, em empate vence a primeira conta, uma
+lista vazia devolve null) passam sem mudanças contra o novo corpo.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Os testes da função rodaram contra os dois algoritmos com as mesmas entradas antes de o antigo ser apagado.
+- Os testes da função rodaram contra os dois algoritmos, com as mesmas entradas, antes de o antigo ser apagado.

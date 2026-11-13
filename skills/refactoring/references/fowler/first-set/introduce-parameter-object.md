@@ -31,66 +31,83 @@ Smells: Agrupamentos de Dados (Data Clumps), Lista Longa de Parâmetros (Long Pa
    e outros lugares em que o mesmo grupo apareça, e use o novo tipo lá também.
 
 ## Exemplo
-Antes: três valores viajam juntos por duas funções.
+
+Antes: o mesmo par de limites viaja junto por duas funções.
 
 ```csharp
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record Order(string Id, decimal Total, DateTime PlacedOn);
-
-public class OrderReport
+public class CartLine
 {
-    public decimal TotalBetween(IEnumerable<Order> orders, DateTime from, DateTime to) =>
-        orders.Where(o => o.PlacedOn >= from && o.PlacedOn <= to).Sum(o => o.Total);
+    public string Sku { get; }
+    public decimal Price { get; }
 
-    public int CountBetween(IEnumerable<Order> orders, DateTime from, DateTime to) =>
-        orders.Count(o => o.PlacedOn >= from && o.PlacedOn <= to);
+    public CartLine(string sku, decimal price)
+    {
+        Sku = sku;
+        Price = price;
+    }
+}
+
+public class CartReport
+{
+    public decimal TotalBetween(IEnumerable<CartLine> lines, decimal min, decimal max) =>
+        lines.Where(l => l.Price >= min && l.Price <= max).Sum(l => l.Price);
+
+    public int CountBetween(IEnumerable<CartLine> lines, decimal min, decimal max) =>
+        lines.Count(l => l.Price >= min && l.Price <= max);
 }
 
 // chamador
-// var total = report.TotalBetween(orders, quarter.Start, quarter.End);
-// var count = report.CountBetween(orders, quarter.Start, quarter.End);
+// var total = report.TotalBetween(lines, band.Min, band.Max);
+// var count = report.CountBetween(lines, band.Min, band.Max);
 ```
 
-Depois: o par vira um `DateRange`, e a verificação de pertinência foi movida para dentro dele.
+Depois: o par vira um `PriceRange`, e a verificação de contenção passa para ele.
 
 ```csharp
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record Order(string Id, decimal Total, DateTime PlacedOn);
-
-public record DateRange(DateTime From, DateTime To)
+public class PriceRange
 {
-    public bool Contains(DateTime value) => value >= From && value <= To;
+    public decimal Min { get; }
+    public decimal Max { get; }
+
+    public PriceRange(decimal min, decimal max)
+    {
+        Min = min;
+        Max = max;
+    }
+
+    public bool Contains(decimal value) => value >= Min && value <= Max;
 }
 
-public class OrderReport
+public class CartReport
 {
-    public decimal TotalBetween(IEnumerable<Order> orders, DateRange range) =>
-        orders.Where(o => range.Contains(o.PlacedOn)).Sum(o => o.Total);
+    public decimal TotalBetween(IEnumerable<CartLine> lines, PriceRange range) =>
+        lines.Where(l => range.Contains(l.Price)).Sum(l => l.Price);
 
-    public int CountBetween(IEnumerable<Order> orders, DateRange range) =>
-        orders.Count(o => range.Contains(o.PlacedOn));
+    public int CountBetween(IEnumerable<CartLine> lines, PriceRange range) =>
+        lines.Count(l => range.Contains(l.Price));
 }
 
 // chamador
-// var period = new DateRange(quarter.Start, quarter.End);
-// var total = report.TotalBetween(orders, period);
-// var count = report.CountBetween(orders, period);
+// var range = new PriceRange(band.Min, band.Max);
+// var total = report.TotalBetween(lines, range);
+// var count = report.CountBetween(lines, range);
 ```
 
-O comportamento não muda. Os estados intermediários (com os parâmetros antigos e o novo na
-assinatura) compilaram e passaram nos testes a cada passo.
+O comportamento não muda. Os estados intermediários (os parâmetros antigos e o novo na assinatura)
+compilaram e passaram nos testes em cada passo.
 
 ## Notas (C#)
-- O novo tipo pode ser uma classe, um `record` ou um `record struct`. Um `record` dá igualdade por valor
-  e imutabilidade (`init` ou propriedades posicionais) de graça, o que combina com um objeto de valor.
+- O novo tipo pode ser uma classe, um `record` ou um `record struct`. Um `record` oferece igualdade por valor e
+  imutabilidade (`init` ou propriedades posicionais) de graça, o que combina com um objeto de valor (C# 9+; no Unity
+  precisa de um shim de `IsExternalInit`).
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Nenhum chamador ainda passa os valores individuais antigos, e nenhuma função os lê de outro lugar
-  que não seja o novo objeto.
+- Nenhum chamador ainda passa os valores individuais antigos, e nenhuma função os lê de outro lugar que não
+  o novo objeto.

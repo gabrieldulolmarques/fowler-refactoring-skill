@@ -98,8 +98,8 @@ public class CheckoutService
             warehouse.Stock[line.Sku] -= line.Quantity;
         }
 
-        Console.WriteLine($"itens: {cart.Lines.Count}");
-        Console.WriteLine($"pagar: {payable:F2}");
+        Console.WriteLine($"items: {cart.Lines.Count}");
+        Console.WriteLine($"pay: {payable:F2}");
     }
 }
 ```
@@ -139,8 +139,8 @@ public class CheckoutService
 
     private static void PrintReceipt(Cart cart, decimal payable)
     {
-        Console.WriteLine($"itens: {cart.Lines.Count}");
-        Console.WriteLine($"pagar: {payable:F2}");
+        Console.WriteLine($"items: {cart.Lines.Count}");
+        Console.WriteLine($"pay: {payable:F2}");
     }
 }
 ```

@@ -34,63 +34,64 @@ Não use para uma única função (basta movê-la) nem quando as funções não 
    ([extract-function.md](extract-function.md)) e mova-a também para a classe. Teste após cada uma.
 
 ## Exemplo
-Antes: funções livres que recebem todas o mesmo registro mutável.
+
+Antes: funções livres que recebem o mesmo registro mutável.
 
 ```csharp
-public class OrderData
+public class CartData
 {
     public string Customer { get; set; } = "";
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
-    public int Year { get; set; }
+    public bool IsMember { get; set; }
 }
 
-public static class OrderPricing
+public static class CartPricing
 {
-    public static decimal Subtotal(OrderData order) =>
-        order.Quantity * order.UnitPrice;
+    public static decimal Subtotal(CartData cart) =>
+        cart.Quantity * cart.UnitPrice;
 
-    public static decimal FreeAllowance(int year) => year >= 2020 ? 100m : 50m;
+    public static decimal MemberDiscountRate(bool isMember) => isMember ? 0.10m : 0m;
 
-    public static decimal Billable(OrderData order) =>
-        Math.Max(0, Subtotal(order) - FreeAllowance(order.Year));
+    public static decimal Payable(CartData cart) =>
+        Subtotal(cart) * (1 - MemberDiscountRate(cart.IsMember));
 }
 
-// clientes
-var data = LoadOrder();
-decimal subtotal = data.Quantity * data.UnitPrice;         // fórmula duplicada
-decimal billable = OrderPricing.Billable(data);
+// clients
+// var data = LoadCart();
+// decimal subtotal = data.Quantity * data.UnitPrice;         // duplicated formula
+// decimal payable = CartPricing.Payable(data);
 ```
 
-Depois: o registro vira o estado de uma classe e as funções viram membros.
+Depois: o registro se torna o estado de uma classe, e as funções se tornam membros.
 
 ```csharp
-public class Order
+public class Cart
 {
-    private readonly OrderData _data;
+    private readonly CartData _data;
 
-    public Order(OrderData data) => _data = data;
+    public Cart(CartData data) => _data = data;
 
     public string Customer => _data.Customer;
     public int Quantity => _data.Quantity;
     public decimal UnitPrice => _data.UnitPrice;
-    public int Year => _data.Year;
+    public bool IsMember => _data.IsMember;
 
     public decimal Subtotal => Quantity * UnitPrice;
 
-    public decimal FreeAllowance => Year >= 2020 ? 100m : 50m;
+    public decimal MemberDiscountRate => IsMember ? 0.10m : 0m;
 
-    public decimal Billable => Math.Max(0, Subtotal - FreeAllowance);
+    public decimal Payable => Subtotal * (1 - MemberDiscountRate);
 }
 
-// clientes
-var order = new Order(LoadOrder());
-decimal subtotal = order.Subtotal;
-decimal billable = order.Billable;
+// clients
+// var cart = new Cart(LoadCart());
+// decimal subtotal = cart.Subtotal;
+// decimal payable = cart.Payable;
 ```
 
-Todo valor derivado é calculado sob demanda, então, se `Quantity` mudar depois, `Subtotal` e
-`Billable` continuam de acordo com ela. Os chamadores não distinguem um valor armazenado de um derivado.
+Cada valor derivado é calculado sob demanda, então, se `Quantity` mudar depois, `Subtotal` e
+`Payable` continuam coerentes com ele. Os chamadores não conseguem distinguir um valor armazenado de um derivado.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

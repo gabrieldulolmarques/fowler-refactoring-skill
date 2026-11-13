@@ -30,67 +30,108 @@ Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative G
 8. Quando a classe de origem estiver vazia e nada a referenciar, apague-a. Compile e teste.
 
 ## Exemplo
-Antes: `PaymentTerms` guarda pouco e só é usada por `Invoice`.
+
+Antes: `TrialTerms` guarda pouca coisa e só é usada por `Subscription`.
 
 ```csharp
-public class PaymentTerms
+using System;
+
+public class TrialTerms
 {
-    public int NetDays { get; set; }
+    public int Days { get; set; }
     public string Label { get; set; } = "";
 
-    public string Describe() => $"{Label} (net {NetDays} days)";
+    public string Describe() => $"{Label} ({Days} days)";
 }
 
-public class Invoice
+public class Subscription
 {
-    public PaymentTerms Terms { get; } = new PaymentTerms();
-    public DateTime IssuedOn { get; init; }
+    public Subscription(DateTime startedOn) => StartedOn = startedOn;
 
-    public DateTime DueDate => IssuedOn.AddDays(Terms.NetDays);
-    public string TermsSummary => Terms.Describe();
+    public TrialTerms Trial { get; } = new TrialTerms();
+    public DateTime StartedOn { get; }
+
+    public DateTime TrialEnd => StartedOn.AddDays(Trial.Days);
+    public string TrialSummary => Trial.Describe();
 }
 
-// cliente
-invoice.Terms.NetDays = 30;
-invoice.Terms.Label = "Standard";
+public static class Client
+{
+    public static void Configure(Subscription subscription)
+    {
+        subscription.Trial.Days = 14;
+        subscription.Trial.Label = "Standard";
+    }
+}
 ```
 
-Passos 2 e 4: adicione delegadores a `Invoice` e depois altere os clientes para usá-los.
+Passos 2 e 4: adicione delegações em `Subscription` e depois mude os clientes para usá-las.
 
 ```csharp
-public int NetDays
+using System;
+
+public class Subscription
 {
-    get => Terms.NetDays;
-    set => Terms.NetDays = value;
+    public Subscription(DateTime startedOn) => StartedOn = startedOn;
+
+    public TrialTerms Trial { get; } = new TrialTerms();
+    public DateTime StartedOn { get; }
+
+    public int TrialDays
+    {
+        get => Trial.Days;
+        set => Trial.Days = value;
+    }
+
+    public string TrialLabel
+    {
+        get => Trial.Label;
+        set => Trial.Label = value;
+    }
+
+    public DateTime TrialEnd => StartedOn.AddDays(Trial.Days);
+    public string TrialSummary => Trial.Describe();
 }
 
-public string TermsLabel
+public static class Client
 {
-    get => Terms.Label;
-    set => Terms.Label = value;
+    public static void Configure(Subscription subscription)
+    {
+        subscription.TrialDays = 14;
+        subscription.TrialLabel = "Standard";
+    }
 }
-
-// cliente
-invoice.NetDays = 30;
-invoice.TermsLabel = "Standard";
 ```
 
-Passos 5 a 8: mova os dados e o comportamento e depois apague `PaymentTerms`.
+Passos 5 a 8: mova os dados e o comportamento, depois apague `TrialTerms`.
 
 ```csharp
-public class Invoice
-{
-    public DateTime IssuedOn { get; init; }
-    public int NetDays { get; set; }
-    public string TermsLabel { get; set; } = "";
+using System;
 
-    public DateTime DueDate => IssuedOn.AddDays(NetDays);
-    public string TermsSummary => $"{TermsLabel} (net {NetDays} days)";
+public class Subscription
+{
+    public Subscription(DateTime startedOn) => StartedOn = startedOn;
+
+    public DateTime StartedOn { get; }
+    public int TrialDays { get; set; }
+    public string TrialLabel { get; set; } = "";
+
+    public DateTime TrialEnd => StartedOn.AddDays(TrialDays);
+    public string TrialSummary => $"{TrialLabel} ({TrialDays} days)";
+}
+
+public static class Client
+{
+    public static void Configure(Subscription subscription)
+    {
+        subscription.TrialDays = 14;
+        subscription.TrialLabel = "Standard";
+    }
 }
 ```
 
-O comportamento não muda. Só o código cliente que passava por `Terms` mudou de forma, e
-isso aconteceu antes de a classe desaparecer.
+O comportamento não muda. Só o código do cliente que chegava até `Trial` mudou de forma, e isso
+aconteceu antes de a classe desaparecer.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

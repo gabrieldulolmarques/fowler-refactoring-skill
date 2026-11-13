@@ -20,79 +20,91 @@ Faça isso assim que quiser fazer mais com o valor do que imprimir ou armazenar.
 A seguir, opcionalmente: adicione um acessor que retorne o novo objeto e migre os chamadores para ele um de cada vez, depois mova a validação, a comparação e a formatação para o tipo, tornando-o imutável com igualdade por valor. Cada uma dessas é uma pequena mudança testada por si só.
 
 ## Exemplo
-Antes: o telefone de um cliente é uma string, e os chamadores a destrinchan.
+
+Antes: o cupom de uma assinatura é uma string, e os chamadores a desmontam.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public class Customer
+public class Subscription
 {
-    public string Phone { get; set; } = "";
+    public string Coupon { get; set; } = "";
 }
 
 public static class Reports
 {
-    public static int CountInArea(IEnumerable<Customer> customers, string areaCode) =>
-        customers.Count(c => c.Phone.StartsWith(areaCode));
+    public static int CountByCampaign(IEnumerable<Subscription> subscriptions, string campaign) =>
+        subscriptions.Count(s => s.Coupon.StartsWith(campaign + "-"));
 }
 ```
 
-Depois: um tipo de valor é dono da validação e do código de área.
+Depois: um tipo de valor passa a cuidar da validação e da campanha.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed record PhoneNumber
+public sealed class CouponCode
 {
-    private readonly string _digits;
+    private readonly string _value;
 
-    public PhoneNumber(string value)
+    public CouponCode(string value)
     {
-        if (value is null || value.Length != 10 || !value.All(char.IsDigit))
-            throw new ArgumentException($"'{value}' não é um telefone de 10 dígitos");
-        _digits = value;
+        var parts = (value ?? "").Split('-');
+        if (parts.Length != 2 || parts[0].Length == 0
+            || !int.TryParse(parts[1], out var percent) || percent < 1 || percent > 100)
+            throw new ArgumentException($"'{value}' is not a coupon code like SPRING-15");
+        _value = value!;
+        Campaign = parts[0];
+        PercentOff = percent;
     }
 
-    public string AreaCode => _digits[..2];
-    public string Formatted() => $"({AreaCode}) {_digits[2..6]}-{_digits[6..]}";
-    public override string ToString() => _digits;
+    public string Campaign { get; }
+    public int PercentOff { get; }
+    public override string ToString() => _value;
 }
 
-public class Customer
+public class Subscription
 {
-    private PhoneNumber _phone;
+    private CouponCode _coupon;
 
-    public Customer(string phone) => _phone = new PhoneNumber(phone);
+    public Subscription(string coupon) => _coupon = new CouponCode(coupon);
 
-    public PhoneNumber Phone => _phone;
+    public CouponCode Coupon => _coupon;
 
-    // Acessor antigo mantido para os chamadores existentes, renomeado porque agora retorna texto.
-    public string PhoneText
+    // Acessor antigo mantido para os chamadores existentes, renomeado porque agora devolve texto.
+    public string CouponText
     {
-        get => _phone.ToString();
-        set => _phone = new PhoneNumber(value);
+        get => _coupon.ToString();
+        set => _coupon = new CouponCode(value);
     }
 }
 
 public static class Reports
 {
-    public static int CountInArea(IEnumerable<Customer> customers, string areaCode) =>
-        customers.Count(c => c.Phone.AreaCode == areaCode);
+    public static int CountByCampaign(IEnumerable<Subscription> subscriptions, string campaign) =>
+        subscriptions.Count(s => s.Coupon.Campaign == campaign);
 }
 ```
 
-O mesmo comportamento para entradas válidas de 10 dígitos; um número malformado agora é rejeitado quando é atribuído, e não descoberto depois. O cliente é sempre construído com um telefone, então `Phone` nunca é nulo.
+Mesmo comportamento para códigos válidos; um código malformado agora é rejeitado no momento da
+atribuição, e não descoberto mais tarde. A assinatura sempre é criada com um cupom, então `Coupon` nunca é nulo.
 
 ## Notas (C#)
-- Uma `string` ou `int` com significado vira seu próprio tipo: um `record`, ou um `readonly record struct` para valores pequenos. Se os valores legais forem um conjunto fechado e fixo, sem comportamento extra, um `enum` pode bastar.
-- Um `record` dá igualdade por valor de graça; mantenha o estado imutável.
-- Um `readonly record struct` pode ser `default`, o que pula o construtor e sua validação. Uma expressão `with` em um record também copia o estado sem executar a validação. Use uma `sealed class` quando qualquer um dos dois importar.
-- Um `enum` é mais fraco que um wrapper: qualquer inteiro pode ser convertido para ele sem verificação.
+- Um `string` ou `int` com significado vira um tipo próprio: um `record`, ou um `readonly record struct` para
+  valores pequenos (C# 9+ para `record`, C# 10 para `readonly record struct`; no Unity precisa de um shim de
+  `IsExternalInit`). Se os valores legais forem um conjunto fechado fixo, sem comportamento extra, um `enum`
+  pode bastar.
+- Um `record` oferece igualdade por valor de graça; mantenha o estado imutável.
+- Um `readonly record struct` pode ser `default`, o que pula o construtor e a sua validação. Uma expressão
+  `with` em um record também copia o estado sem rodar a validação. Use uma `sealed class` quando qualquer um
+  desses casos importar.
+- Um `enum` é mais fraco que um invólucro: qualquer inteiro pode ser convertido para ele sem verificação.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Faça grep pelas comparações e parsing brutos do primitivo antigo (literais de string, `StartsWith`, `Substring`); nenhum deve restar fora do novo tipo.
+- Faça uma busca pelas comparações e análises brutas do primitivo antigo (literais de string, `StartsWith`,
+  `Substring`); nenhuma deve restar fora do novo tipo.
 - Todo ponto de construção passa pelo construtor que valida.

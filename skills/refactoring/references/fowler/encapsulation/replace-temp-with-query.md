@@ -36,68 +36,70 @@ Não use quando:
 7. Repita para a próxima temporária.
 
 ## Exemplo
+
 Antes:
 
 ```csharp
-public class Invoice
+public class UsageInvoice
 {
-    private readonly int _hours;
-    private readonly Consultant _consultant;
+    private readonly int _units;
+    private readonly PricingPlan _plan;
 
-    public Invoice(int hours, Consultant consultant)
+    public UsageInvoice(int units, PricingPlan plan)
     {
-        _hours = hours;
-        _consultant = consultant;
+        _units = units;
+        _plan = plan;
     }
 
     public decimal Total()
     {
-        var fees = _hours * _consultant.HourlyRate;
-        var surchargeRate = 0.02m;
-        if (fees > 5000m) surchargeRate = 0.05m;
-        return fees + fees * surchargeRate;
+        var charge = _units * _plan.UnitPrice;
+        var discountRate = 0.05m;
+        if (charge > 5000m) discountRate = 0.10m;
+        return charge - charge * discountRate;
     }
 }
 
-public record Consultant(decimal HourlyRate);
+public class PricingPlan
+{
+    public PricingPlan(decimal unitPrice) => UnitPrice = unitPrice;
+    public decimal UnitPrice { get; }
+}
 ```
 
-Passo a passo: `fees` já é atribuída uma só vez, então extraia seu
-lado direito para `Fees` e internalize a variável. Depois extraia `surchargeRate`, mantendo as duas
-atribuições dentro do novo método, e internalize-a.
+Passo a passo: `charge` já é atribuída uma única vez, então extraia o lado direito dela para `Charge`
+e internalize a variável. Depois extraia `discountRate`, mantendo as suas duas atribuições dentro do novo
+método, e internalize-a.
 
 Depois:
 
 ```csharp
-public class Invoice
+public class UsageInvoice
 {
-    private readonly int _hours;
-    private readonly Consultant _consultant;
+    private readonly int _units;
+    private readonly PricingPlan _plan;
 
-    public Invoice(int hours, Consultant consultant)
+    public UsageInvoice(int units, PricingPlan plan)
     {
-        _hours = hours;
-        _consultant = consultant;
+        _units = units;
+        _plan = plan;
     }
 
-    public decimal Total() => Fees + Fees * SurchargeRate;
+    public decimal Total() => Charge - Charge * DiscountRate;
 
-    private decimal Fees => _hours * _consultant.HourlyRate;
+    private decimal Charge => _units * _plan.UnitPrice;
 
-    private decimal SurchargeRate => Fees > 5000m ? 0.05m : 0.02m;
+    private decimal DiscountRate => Charge > 5000m ? 0.10m : 0.05m;
 }
-
-public record Consultant(decimal HourlyRate);
 ```
 
-O comportamento é o mesmo. `Fees` agora é reutilizável por outros métodos, e `Total` não carrega mais
-temporárias que bloqueariam extrações futuras.
+O comportamento é o mesmo. `Charge` agora pode ser reutilizada por outros métodos, e `Total` não carrega mais
+temporárias que bloqueariam novas extrações.
 
 ## Notas (C#)
-- Uma propriedade somente leitura (`private decimal Fees => ...`) serve para cálculos baratos e sem efeitos colaterais.
-- Mantenha as consultas caras como métodos (`ComputeFees()`), para que o custo fique visível no ponto de chamada.
+- Uma propriedade somente leitura (`private decimal Charge => ...`) combina com cálculos baratos e sem efeitos colaterais.
+- Mantenha consultas caras como métodos (`ComputeCharge()`), para que o custo fique visível no ponto de chamada.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- A consulta retorna o mesmo valor em todos os pontos onde a temporária era lida (sem mudanças de estado
-  entre eles).
+- A consulta devolve o mesmo valor em cada ponto em que a temporária era lida (sem mudança de estado entre eles).
