@@ -21,53 +21,65 @@ Skip it when the function updates several variables at once (return a small reco
 Before:
 
 ```csharp
-public class InvoiceReport
-{
-    private decimal _totalDiscount;
+using System.Collections.Generic;
 
-    private void CalculateDiscount(IReadOnlyList<InvoiceLine> lines)
+public class DeliveryReport
+{
+    private int _delivered;
+
+    private void CountDelivered(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        foreach (var line in lines)
+        foreach (var attempt in attempts)
         {
-            if (line.Discount > 0)
-                _totalDiscount += line.Discount;
+            if (attempt.Succeeded)
+                _delivered += 1;
         }
     }
 
-    public decimal Summarize(IReadOnlyList<InvoiceLine> lines)
+    public int Summarize(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        _totalDiscount = 0;
-        CalculateDiscount(lines);
-        return _totalDiscount;
+        _delivered = 0;
+        CountDelivered(attempts);
+        return _delivered;
     }
 }
 
-public record InvoiceLine(decimal Price, decimal Discount);
+public class DeliveryAttempt
+{
+    public DeliveryAttempt(bool succeeded, int errorCode)
+    {
+        Succeeded = succeeded;
+        ErrorCode = errorCode;
+    }
+
+    public bool Succeeded { get; }
+    public int ErrorCode { get; }
+}
 ```
 
 After:
 
 ```csharp
-public class InvoiceReport
+using System.Collections.Generic;
+
+public class DeliveryReport
 {
-    private decimal CalculateDiscount(IReadOnlyList<InvoiceLine> lines)
+    private int CountDelivered(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        var result = 0m;
-        foreach (var line in lines)
+        var result = 0;
+        foreach (var attempt in attempts)
         {
-            if (line.Discount > 0)
-                result += line.Discount;
+            if (attempt.Succeeded)
+                result += 1;
         }
         return result;
     }
 
-    public decimal Summarize(IReadOnlyList<InvoiceLine> lines)
+    public int Summarize(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        return CalculateDiscount(lines);
+        return CountDelivered(attempts);
     }
 }
-
-public record InvoiceLine(decimal Price, decimal Discount);
 ```
 
 Same behavior, including repeated calls (the "before" resets the field at the start of `Summarize`), with the field gone and the data flow visible at the call.

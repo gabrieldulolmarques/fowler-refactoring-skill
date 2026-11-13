@@ -21,63 +21,86 @@ when callers rely on undo, queuing, several entry points or incremental setup.
 Before:
 
 ```csharp
-public class InvoiceTotalCalculator
+public class Channel
 {
-    private readonly Customer _customer;
-    private readonly int _units;
-    private readonly ShippingPolicy _shipping;
+    public Channel(decimal pricePerMessage) => PricePerMessage = pricePerMessage;
+    public decimal PricePerMessage { get; }
+}
 
-    public InvoiceTotalCalculator(Customer customer, int units, ShippingPolicy shipping)
+public class Surcharge
+{
+    public Surcharge(decimal fee) => Fee = fee;
+    public decimal Fee { get; }
+}
+
+public class BatchCostCalculator
+{
+    private readonly Channel _channel;
+    private readonly int _messages;
+    private readonly Surcharge _surcharge;
+
+    public BatchCostCalculator(Channel channel, int messages, Surcharge surcharge)
     {
-        _customer = customer;
-        _units = units;
-        _shipping = shipping;
+        _channel = channel;
+        _messages = messages;
+        _surcharge = surcharge;
     }
 
-    private decimal Subtotal() => _customer.UnitPrice * _units;
+    private decimal Subtotal() => _channel.PricePerMessage * _messages;
 
     public decimal Execute()
     {
-        return Subtotal() + _shipping.Fee;
+        return Subtotal() + _surcharge.Fee;
     }
 }
 
 // caller
-decimal total = new InvoiceTotalCalculator(customer, units, shipping).Execute();
+// decimal cost = new BatchCostCalculator(channel, messages, surcharge).Execute();
 ```
 
 Step 1, wrap the call:
 
 ```csharp
-public static decimal InvoiceTotal(Customer customer, int units, ShippingPolicy shipping)
-    => new InvoiceTotalCalculator(customer, units, shipping).Execute();
+public static class Billing
+{
+    public static decimal BatchCost(Channel channel, int messages, Surcharge surcharge)
+        => new BatchCostCalculator(channel, messages, surcharge).Execute();
+}
 ```
 
 Steps 2 to 4, `Subtotal` inlined, parameters moved to `Execute`, fields no longer used. The
 static wrapper from step 1 lives in the same class or a static helper class, and now calls
-`new InvoiceTotalCalculator(customer, units, shipping).Execute(customer, units, shipping)`.
+`new BatchCostCalculator(channel, messages, surcharge).Execute(channel, messages, surcharge)`.
 The constructor still takes its three arguments, but it no longer stores them; it goes away
 with the class in step 7:
 
 ```csharp
-public decimal Execute(Customer customer, int units, ShippingPolicy shipping)
+public class BatchCostCalculator
 {
-    var subtotal = customer.UnitPrice * units;
-    return subtotal + shipping.Fee;
+    public BatchCostCalculator(Channel channel, int messages, Surcharge surcharge) { }
+
+    public decimal Execute(Channel channel, int messages, Surcharge surcharge)
+    {
+        var subtotal = channel.PricePerMessage * messages;
+        return subtotal + surcharge.Fee;
+    }
 }
 ```
 
 Steps 5 to 7, logic inlined into the wrapper, class deleted:
 
 ```csharp
-public static decimal InvoiceTotal(Customer customer, int units, ShippingPolicy shipping)
+public static class Billing
 {
-    var subtotal = customer.UnitPrice * units;
-    return subtotal + shipping.Fee;
+    public static decimal BatchCost(Channel channel, int messages, Surcharge surcharge)
+    {
+        var subtotal = channel.PricePerMessage * messages;
+        return subtotal + surcharge.Fee;
+    }
 }
 
 // caller
-decimal total = InvoiceTotal(customer, units, shipping);
+// decimal cost = Billing.BatchCost(channel, messages, surcharge);
 ```
 
 ## Verification

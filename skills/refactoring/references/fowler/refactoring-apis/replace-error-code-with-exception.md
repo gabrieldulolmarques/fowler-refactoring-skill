@@ -32,35 +32,34 @@ keep a return-based result or offer a precheck instead; see [replace-exception-w
    simplify it, for example to `void`, as a separate step with [change-function-declaration.md](../first-set/change-function-declaration.md).
 
 ## Example
-Before: `Reserve` returns a code, and the caller must interpret it.
+Before: `Send` returns a code, and the caller must interpret it.
 
 ```csharp
 using System;
-using System.Collections.Generic;
 
-public class Inventory
+public class SmsGateway
 {
-    private readonly Dictionary<string, int> _stock = new();
+    private int _sentThisMinute;
 
-    public int Reserve(string sku, int quantity)
+    public int Send(string phone, string text)
     {
-        if (!_stock.TryGetValue(sku, out var available)) return -1; // unknown sku
-        if (available < quantity) return -2;                        // not enough stock
-        _stock[sku] = available - quantity;
+        if (!phone.StartsWith("+")) return -1;      // invalid number
+        if (_sentThisMinute >= 100) return -2;      // rate limit exceeded
+        _sentThisMinute++;
         return 0;
     }
 }
 
-public class OrderService
+public class NotificationService
 {
-    private readonly Inventory _inventory = new();
+    private readonly SmsGateway _gateway = new();
 
-    public string Place(string sku, int quantity)
+    public string Notify(string phone, string text)
     {
-        var result = _inventory.Reserve(sku, quantity);
-        if (result == -1) return "unknown product";
-        if (result == -2) return "out of stock";
-        return "placed";
+        var result = _gateway.Send(phone, text);
+        if (result == -1) return "invalid number";
+        if (result == -2) return "rate limit exceeded";
+        return "sent";
     }
 }
 ```
@@ -69,39 +68,38 @@ After: failures are exceptions and the caller handles them where it chooses.
 
 ```csharp
 using System;
-using System.Collections.Generic;
 
-public class ReservationException : Exception
+public class DeliveryException : Exception
 {
-    public ReservationException(string message) : base(message) { }
+    public DeliveryException(string message) : base(message) { }
 }
 
-public class Inventory
+public class SmsGateway
 {
-    private readonly Dictionary<string, int> _stock = new();
+    private int _sentThisMinute;
 
-    public void Reserve(string sku, int quantity)
+    public void Send(string phone, string text)
     {
-        if (!_stock.TryGetValue(sku, out var available))
-            throw new ReservationException("unknown product");
-        if (available < quantity)
-            throw new ReservationException("out of stock");
-        _stock[sku] = available - quantity;
+        if (!phone.StartsWith("+"))
+            throw new DeliveryException("invalid number");
+        if (_sentThisMinute >= 100)
+            throw new DeliveryException("rate limit exceeded");
+        _sentThisMinute++;
     }
 }
 
-public class OrderService
+public class NotificationService
 {
-    private readonly Inventory _inventory = new();
+    private readonly SmsGateway _gateway = new();
 
-    public string Place(string sku, int quantity)
+    public string Notify(string phone, string text)
     {
         try
         {
-            _inventory.Reserve(sku, quantity);
-            return "placed";
+            _gateway.Send(phone, text);
+            return "sent";
         }
-        catch (ReservationException e)
+        catch (DeliveryException e)
         {
             return e.Message;
         }

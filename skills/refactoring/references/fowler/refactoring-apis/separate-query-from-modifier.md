@@ -28,23 +28,36 @@ observable, since every sequence of calls returns the same results. Leave those 
    making the command call the query.
 
 ## Example
-Before: one method finds the overdue account and suspends it.
+Before: one method finds the first bouncing subscriber and disables it.
 
 ```csharp
-public record Account(string Id, int DaysOverdue);
+using System;
+using System.Collections.Generic;
 
-public class CollectionsService
+public class Subscriber
 {
-    private readonly List<string> _suspended = new();
-
-    public string SuspendFirstOverdue(IEnumerable<Account> accounts)
+    public Subscriber(string id, int bounces)
     {
-        foreach (var account in accounts)
+        Id = id;
+        Bounces = bounces;
+    }
+
+    public string Id { get; }
+    public int Bounces { get; }
+}
+
+public class MailingListService
+{
+    private readonly List<string> _disabled = new();
+
+    public string DisableFirstBouncing(IEnumerable<Subscriber> subscribers)
+    {
+        foreach (var subscriber in subscribers)
         {
-            if (account.DaysOverdue > 30)
+            if (subscriber.Bounces > 3)
             {
-                _suspended.Add(account.Id);
-                return account.Id;
+                _disabled.Add(subscriber.Id);
+                return subscriber.Id;
             }
         }
         return "";
@@ -52,37 +65,40 @@ public class CollectionsService
 }
 
 // caller
-var id = service.SuspendFirstOverdue(accounts);
-Console.WriteLine($"First overdue: {id}");
+// var id = service.DisableFirstBouncing(subscribers);
+// Console.WriteLine($"First bouncing: {id}");
 ```
 
 After: a query and a command, with the command reusing the query.
 
 ```csharp
-public class CollectionsService
-{
-    private readonly List<string> _suspended = new();
+using System;
+using System.Collections.Generic;
 
-    public string FindFirstOverdue(IEnumerable<Account> accounts)
+public class MailingListService
+{
+    private readonly List<string> _disabled = new();
+
+    public string FindFirstBouncing(IEnumerable<Subscriber> subscribers)
     {
-        foreach (var account in accounts)
+        foreach (var subscriber in subscribers)
         {
-            if (account.DaysOverdue > 30) return account.Id;
+            if (subscriber.Bounces > 3) return subscriber.Id;
         }
         return "";
     }
 
-    public void SuspendFirstOverdue(IEnumerable<Account> accounts)
+    public void DisableFirstBouncing(IEnumerable<Subscriber> subscribers)
     {
-        var id = FindFirstOverdue(accounts);
-        if (id != "") _suspended.Add(id);
+        var id = FindFirstBouncing(subscribers);
+        if (id != "") _disabled.Add(id);
     }
 }
 
 // caller
-var id = service.FindFirstOverdue(accounts);
-service.SuspendFirstOverdue(accounts);
-Console.WriteLine($"First overdue: {id}");
+// var id = service.FindFirstBouncing(subscribers);
+// service.DisableFirstBouncing(subscribers);
+// Console.WriteLine($"First bouncing: {id}");
 ```
 
 Note that the command now runs the search again. That is the usual cost of the split; if

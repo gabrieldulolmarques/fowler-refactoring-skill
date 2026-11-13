@@ -21,28 +21,28 @@ Before:
 ```csharp
 using System;
 
-public class Invoice
+public class Notification
 {
-    public string Customer { get; }
-    public string KindCode { get; }
+    public string Recipient { get; }
+    public string ChannelCode { get; }
 
-    public Invoice(string customer, string kindCode)
+    public Notification(string recipient, string channelCode)
     {
-        Customer = customer;
-        KindCode = kindCode;
+        Recipient = recipient;
+        ChannelCode = channelCode;
     }
 
-    public string Kind => KindCode switch
+    public string Channel => ChannelCode switch
     {
-        "R" => "Recurring",
-        "O" => "OneOff",
-        _ => throw new ArgumentException("Unknown kind")
+        "E" => "Email",
+        "S" => "Sms",
+        _ => throw new ArgumentException("Unknown channel")
     };
 }
 
 // callers
-var a = new Invoice(row.Customer, row.KindCode);
-var b = new Invoice("Acme", "R");
+// var a = new Notification(row.Recipient, row.ChannelCode);
+// var b = new Notification("ada@example.com", "E");
 ```
 
 After:
@@ -50,34 +50,34 @@ After:
 ```csharp
 using System;
 
-public class Invoice
+public class Notification
 {
-    public string Customer { get; }
-    public string KindCode { get; }
+    public string Recipient { get; }
+    public string ChannelCode { get; }
 
-    private Invoice(string customer, string kindCode)
+    private Notification(string recipient, string channelCode)
     {
-        Customer = customer;
-        KindCode = kindCode;
+        Recipient = recipient;
+        ChannelCode = channelCode;
     }
 
-    public static Invoice Create(string customer, string kindCode) =>
-        new Invoice(customer, kindCode);
+    public static Notification Create(string recipient, string channelCode) =>
+        new Notification(recipient, channelCode);
 
-    public static Invoice CreateRecurring(string customer) =>
-        new Invoice(customer, "R");
+    public static Notification CreateEmail(string recipient) =>
+        new Notification(recipient, "E");
 
-    public string Kind => KindCode switch
+    public string Channel => ChannelCode switch
     {
-        "R" => "Recurring",
-        "O" => "OneOff",
-        _ => throw new ArgumentException("Unknown kind")
+        "E" => "Email",
+        "S" => "Sms",
+        _ => throw new ArgumentException("Unknown channel")
     };
 }
 
 // callers
-var a = Invoice.Create(row.Customer, row.KindCode);
-var b = Invoice.CreateRecurring("Acme");
+// var a = Notification.Create(row.Recipient, row.ChannelCode);
+// var b = Notification.CreateEmail("ada@example.com");
 ```
 
 Behavior is the same; the literal code no longer appears in `b`'s call site.

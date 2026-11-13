@@ -28,29 +28,47 @@ Variation: if you prefer to build the new method from other refactorings, use [e
 Before:
 
 ```csharp
-public record DateRange(DateOnly Start, DateOnly End);
+using System;
+using System.Collections.Generic;
 
-public class Invoice
+public class TimeWindow
 {
-    public DateRange Period { get; init; } = new(default, default);
-}
-
-public class BillingCalendar
-{
-    private readonly DateRange _open = new(new DateOnly(2025, 1, 1), new DateOnly(2025, 12, 31));
-
-    public bool Covers(DateOnly start, DateOnly end) =>
-        start >= _open.Start && end <= _open.End;
-}
-
-public class InvoiceAuditor
-{
-    public void Audit(Invoice invoice, BillingCalendar calendar, List<string> findings)
+    public TimeWindow(TimeSpan start, TimeSpan end)
     {
-        var from = invoice.Period.Start;
-        var to = invoice.Period.End;
-        if (!calendar.Covers(from, to))
-            findings.Add("billing period is not covered by the calendar");
+        Start = start;
+        End = end;
+    }
+
+    public TimeSpan Start { get; }
+    public TimeSpan End { get; }
+}
+
+public class ScheduledNotification
+{
+    public ScheduledNotification(TimeWindow window)
+    {
+        Window = window;
+    }
+
+    public TimeWindow Window { get; }
+}
+
+public class QuietHoursPolicy
+{
+    private readonly TimeWindow _allowed = new(TimeSpan.FromHours(8), TimeSpan.FromHours(21));
+
+    public bool Allows(TimeSpan start, TimeSpan end) =>
+        start >= _allowed.Start && end <= _allowed.End;
+}
+
+public class NotificationAuditor
+{
+    public void Audit(ScheduledNotification notification, QuietHoursPolicy policy, List<string> findings)
+    {
+        var from = notification.Window.Start;
+        var to = notification.Window.End;
+        if (!policy.Allows(from, to))
+            findings.Add("delivery window falls inside quiet hours");
     }
 }
 ```
@@ -58,26 +76,27 @@ public class InvoiceAuditor
 Intermediate (steps 1 to 2; the new method delegates to the old one):
 
 ```csharp
-public bool xxNewCovers(DateRange period) => Covers(period.Start, period.End);
+// fragment
+public bool xxNewAllows(TimeWindow window) => Allows(window.Start, window.End);
 ```
 
 After (callers migrated, old method inlined, temporary name removed):
 
 ```csharp
-public class BillingCalendar
+public class QuietHoursPolicy
 {
-    private readonly DateRange _open = new(new DateOnly(2025, 1, 1), new DateOnly(2025, 12, 31));
+    private readonly TimeWindow _allowed = new(TimeSpan.FromHours(8), TimeSpan.FromHours(21));
 
-    public bool Covers(DateRange period) =>
-        period.Start >= _open.Start && period.End <= _open.End;
+    public bool Allows(TimeWindow window) =>
+        window.Start >= _allowed.Start && window.End <= _allowed.End;
 }
 
-public class InvoiceAuditor
+public class NotificationAuditor
 {
-    public void Audit(Invoice invoice, BillingCalendar calendar, List<string> findings)
+    public void Audit(ScheduledNotification notification, QuietHoursPolicy policy, List<string> findings)
     {
-        if (!calendar.Covers(invoice.Period))
-            findings.Add("billing period is not covered by the calendar");
+        if (!policy.Allows(notification.Window))
+            findings.Add("delivery window falls inside quiet hours");
     }
 }
 ```

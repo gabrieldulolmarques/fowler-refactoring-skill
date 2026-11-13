@@ -21,52 +21,52 @@ Smells: Mutable Data, Data Class.
 Before: `Id` is assigned once at creation, but anyone can reassign it later.
 
 ```csharp
-public class Customer
+public class Recipient
 {
     public string Id { get; set; } = "";
-    public string Name { get; set; } = "";
+    public string Email { get; set; } = "";
 }
 
 public static class Program
 {
     public static void Main()
     {
-        var customer = new Customer();
-        customer.Name = "Ada";
-        customer.Id = "C-1001";
-        System.Console.WriteLine($"{customer.Id} {customer.Name}");
+        var recipient = new Recipient();
+        recipient.Email = "ada@example.com";
+        recipient.Id = "R-1001";
+        System.Console.WriteLine($"{recipient.Id} {recipient.Email}");
     }
 }
 ```
 
-After: the id arrives through the constructor and has no setter. `Name` may still change, so it keeps its setter.
+After: the id arrives through the constructor and has no setter. `Email` may still change, so it keeps its setter.
 
 ```csharp
-public class Customer
+public class Recipient
 {
-    public Customer(string id)
+    public Recipient(string id)
     {
         Id = id;
     }
 
     public string Id { get; }
-    public string Name { get; set; } = "";
+    public string Email { get; set; } = "";
 }
 
 public static class Program
 {
     public static void Main()
     {
-        var customer = new Customer("C-1001");
-        customer.Name = "Ada";
-        System.Console.WriteLine($"{customer.Id} {customer.Name}");
+        var recipient = new Recipient("R-1001");
+        recipient.Email = "ada@example.com";
+        System.Console.WriteLine($"{recipient.Id} {recipient.Email}");
     }
 }
 ```
 
 ## C# notes
-- Use `{ get; }` for a value set only in the constructor, or `{ get; init; }` when callers may still set it in an object initializer (`new Customer { Id = "C-1001" }`) but not afterwards.
-- `init` is a lighter first step when many creation sites use initializers: it blocks later assignment without forcing a constructor change at once. Prefer `{ get; }` plus a constructor when the value is mandatory, so the compiler rejects objects built without it.
+- Use `{ get; }` for a value set only in the constructor, or `{ get; init; }` (C# 9+; on Unity it needs an `IsExternalInit` shim) when callers may still set it in an object initializer (`new Recipient { Id = "R-1001" }`) but not afterwards.
+- `init` (same shim caveat) is a lighter first step when many creation sites use initializers: it blocks later assignment without forcing a constructor change at once. Prefer `{ get; }` plus a constructor when the value is mandatory, so the compiler rejects objects built without it.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

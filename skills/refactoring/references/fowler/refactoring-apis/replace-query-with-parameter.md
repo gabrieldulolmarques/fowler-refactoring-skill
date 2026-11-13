@@ -32,59 +32,59 @@ Fowler (2018), ch. 11, p. 327. Formerly / aka: —. Inverse: Replace Parameter w
 Before: the method reads a static clock.
 
 ```csharp
-public class Invoice
-{
-    private readonly decimal _amount;
-    private readonly DateTime _dueDate;
-    private readonly decimal _dailyPenaltyRate;
+using System;
 
-    public Invoice(decimal amount, DateTime dueDate, decimal dailyPenaltyRate)
+public class PendingNotification
+{
+    private readonly string _recipient;
+    private readonly DateTime _scheduledFor;
+
+    public PendingNotification(string recipient, DateTime scheduledFor)
     {
-        _amount = amount;
-        _dueDate = dueDate;
-        _dailyPenaltyRate = dailyPenaltyRate;
+        _recipient = recipient;
+        _scheduledFor = scheduledFor;
     }
 
-    public decimal Penalty()
+    public int OverdueMinutes()
     {
-        var daysLate = (DateTime.Today - _dueDate).Days;
-        return daysLate > 0 ? _amount * _dailyPenaltyRate * daysLate : 0m;
+        var late = (DateTime.UtcNow - _scheduledFor).TotalMinutes;
+        return late > 0 ? (int)late : 0;
     }
 }
 
 // caller
-var penalty = invoice.Penalty();
+// var overdue = notification.OverdueMinutes();
 ```
 
-After: the caller supplies the date, and `Penalty` depends only on its arguments and the
+After: the caller supplies the time, and `OverdueMinutes` depends only on its arguments and the
 immutable fields.
 
 ```csharp
-public class Invoice
-{
-    private readonly decimal _amount;
-    private readonly DateTime _dueDate;
-    private readonly decimal _dailyPenaltyRate;
+using System;
 
-    public Invoice(decimal amount, DateTime dueDate, decimal dailyPenaltyRate)
+public class PendingNotification
+{
+    private readonly string _recipient;
+    private readonly DateTime _scheduledFor;
+
+    public PendingNotification(string recipient, DateTime scheduledFor)
     {
-        _amount = amount;
-        _dueDate = dueDate;
-        _dailyPenaltyRate = dailyPenaltyRate;
+        _recipient = recipient;
+        _scheduledFor = scheduledFor;
     }
 
-    public decimal Penalty(DateTime today)
+    public int OverdueMinutes(DateTime now)
     {
-        var daysLate = (today - _dueDate).Days;
-        return daysLate > 0 ? _amount * _dailyPenaltyRate * daysLate : 0m;
+        var late = (now - _scheduledFor).TotalMinutes;
+        return late > 0 ? (int)late : 0;
     }
 }
 
 // caller
-var penalty = invoice.Penalty(DateTime.Today);
+// var overdue = notification.OverdueMinutes(DateTime.UtcNow);
 ```
 
-A test can now pass any date and get a repeatable result.
+A test can now pass any time and get a repeatable result.
 
 ## C# notes
 - Useful to remove a dependency on a static or singleton (`DateTime.Today`, a static configuration

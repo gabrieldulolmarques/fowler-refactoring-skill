@@ -17,18 +17,25 @@ Do not use it when the condition cannot be tested reliably before the call (for 
 5. Remove the temporary assertion or log, and tidy the remaining conditional (for example with a guard clause).
 
 ## Example
-Before (`_quantities` is an `int[]` field of an `Order`, one entry per line):
+Before (`_delaysInSeconds` is an `int[]` field of a `RetrySchedule`, one entry per retry attempt):
 
 ```csharp
-public int GetLineQuantity(int lineIndex)
+using System;
+
+public class RetrySchedule
 {
-    try
+    private readonly int[] _delaysInSeconds = { 30, 120, 600 };
+
+    public int GetRetryDelay(int attempt)
     {
-        return _quantities[lineIndex];
-    }
-    catch (IndexOutOfRangeException)
-    {
-        return 0;
+        try
+        {
+            return _delaysInSeconds[attempt];
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return 0;
+        }
     }
 }
 ```
@@ -36,17 +43,22 @@ public int GetLineQuantity(int lineIndex)
 After:
 
 ```csharp
-public int GetLineQuantity(int lineIndex)
+public class RetrySchedule
 {
-    if (lineIndex < 0 || lineIndex >= _quantities.Length)
-        return 0;
+    private readonly int[] _delaysInSeconds = { 30, 120, 600 };
 
-    return _quantities[lineIndex];
+    public int GetRetryDelay(int attempt)
+    {
+        if (attempt < 0 || attempt >= _delaysInSeconds.Length)
+            return 0;
+
+        return _delaysInSeconds[attempt];
+    }
 }
 ```
 
 ## C# notes
-- Prefer the framework's `TryParse` / `TryGetValue` pattern where it exists: it performs the check and the operation together, so there is no gap between test and use. Example: `if (_prices.TryGetValue(sku, out var price)) return price; return 0m;` instead of catching `KeyNotFoundException`.
+- Prefer the framework's `TryParse` / `TryGetValue` pattern where it exists: it performs the check and the operation together, so there is no gap between test and use. Example: `if (_templates.TryGetValue(name, out var body)) return body; return "";` instead of catching `KeyNotFoundException`.
 - A narrow `catch` makes the condition easy to identify. A broad `catch (Exception)` calls for first finding which cause is intended, since it often hides more than one.
 
 ## Verification

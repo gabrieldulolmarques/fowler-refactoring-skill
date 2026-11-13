@@ -28,86 +28,78 @@ With several independent flags, one method per combination is impractical, so ke
 Before:
 
 ```csharp
-using System.IO;
-using System.IO.Compression;
-using System.Text;
+using System.Collections.Generic;
 
-public record Report(string Title, string Body);
-
-public static class Exporter
+public class Notifier
 {
-    public static byte[] Export(Report report, bool compressed)
-    {
-        var raw = Encoding.UTF8.GetBytes(report.Title + "\n" + report.Body);
-        if (!compressed) return raw;
+    private readonly List<string> _sent = new();
+    private readonly List<string> _queue = new();
 
-        using var output = new MemoryStream();
-        using (var gzip = new GZipStream(output, CompressionLevel.Optimal))
+    public void Send(string recipient, string text, bool immediate)
+    {
+        if (immediate)
         {
-            gzip.Write(raw);
+            _sent.Add(recipient + ": " + text);
+            return;
         }
-        return output.ToArray();
+        _queue.Add(recipient + ": " + text);
     }
 }
-```
 
-Callers (a separate fragment, for example top-level statements in another file):
-
-```csharp
-var report = new Report("Q3", "Totals...");
-var plain = Exporter.Export(report, false);
-var packed = Exporter.Export(report, true);
+// callers
+// notifier.Send("ada@example.com", "Your code is 4821", true);
+// notifier.Send("ada@example.com", "Weekly digest", false);
 ```
 
 After:
 
 ```csharp
-public static class Exporter
+using System.Collections.Generic;
+
+public class Notifier
 {
-    public static byte[] ExportPlain(Report report)
+    private readonly List<string> _sent = new();
+    private readonly List<string> _queue = new();
+
+    public void SendNow(string recipient, string text)
     {
-        return Encoding.UTF8.GetBytes(report.Title + "\n" + report.Body);
+        _sent.Add(recipient + ": " + text);
     }
 
-    public static byte[] ExportCompressed(Report report)
+    public void Enqueue(string recipient, string text)
     {
-        var raw = ExportPlain(report);
-        using var output = new MemoryStream();
-        using (var gzip = new GZipStream(output, CompressionLevel.Optimal))
-        {
-            gzip.Write(raw);
-        }
-        return output.ToArray();
+        _queue.Add(recipient + ": " + text);
     }
 }
+
+// callers
+// notifier.SendNow("ada@example.com", "Your code is 4821");
+// notifier.Enqueue("ada@example.com", "Weekly digest");
 ```
 
-Callers:
+When the flag is used in several places in the body, keep the original and add wrappers instead. In the end state below, the original `Send` has been renamed to `SendCore` and made private, which is possible once no literal caller uses it:
 
 ```csharp
-var report = new Report("Q3", "Totals...");
-var plain = Exporter.ExportPlain(report);
-var packed = Exporter.ExportCompressed(report);
-```
+using System.Collections.Generic;
 
-When the flag is used in several places in the body, keep the original and add wrappers instead. In the end state below, the original `Export` has been renamed to `ExportCore` and made private, which is possible once no literal caller uses it:
-
-```csharp
-public static byte[] ExportPlain(Report report) => ExportCore(report, compressed: false);
-public static byte[] ExportCompressed(Report report) => ExportCore(report, compressed: true);
-
-private static byte[] ExportCore(Report report, bool compressed)
+public class Notifier
 {
-    var title = compressed ? report.Title.ToUpperInvariant() : report.Title;
-    var raw = Encoding.UTF8.GetBytes(title + "\n" + report.Body);
-    if (!compressed) return raw;
+    private readonly List<string> _sent = new();
+    private readonly List<string> _queue = new();
 
-    using var output = new MemoryStream();
-    using (var gzip = new GZipStream(output, CompressionLevel.Optimal))
+    public void SendNow(string recipient, string text) => SendCore(recipient, text, immediate: true);
+    public void Enqueue(string recipient, string text) => SendCore(recipient, text, immediate: false);
+
+    private void SendCore(string recipient, string text, bool immediate)
     {
-        gzip.Write(raw);
+        var line = immediate ? "[URGENT] " + text : text;
+        if (immediate)
+        {
+            _sent.Add(recipient + ": " + line);
+            return;
+        }
+        _queue.Add(recipient + ": " + line);
     }
-    return output.ToArray();
 }
 ```
 
