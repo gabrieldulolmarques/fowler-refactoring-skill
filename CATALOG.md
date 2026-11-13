@@ -29,11 +29,11 @@ descrições concorrentes.
 | `SKILL.md` | esta especificação | o fluxo smell → refatoração → arquivo, um índice rápido de smells e uma tabela das 66 refatorações (nome, quando, arquivo), agrupadas por capítulo (seção 4.1) |
 | `references/smells.md` | cap. 3; Kerievsky, cap. 4 | os 29 smells, sintomas e refatorações sugeridas (seções 3 e 5.2) |
 | `references/discipline.md` | cap. 2 e 4 | testes primeiro, passos pequenos, commit após cada refatoração verde |
-| `references/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou a edição web para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
-| `references/<chapter>/<slug>.md` (27 arquivos) | Kerievsky, cap. 6–11 | uma refatoração para padrão em cada, no mesmo formato, mais padrão e direção (seção 5) |
+| `references/fowler/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou a edição web para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
+| `references/kerievsky/<chapter>/<slug>.md` (27 arquivos) | Kerievsky, cap. 6–11 | uma refatoração para padrão em cada, no mesmo formato, mais padrão e direção (seção 5) |
 
 O slug é o nome da refatoração em kebab-case. Exemplo: Extrair Função (Extract Function) →
-`references/first-set/extract-function.md`. Os arquivos são agrupados em uma pasta por capítulo:
+`references/fowler/first-set/extract-function.md`. Os arquivos são agrupados por livro (`fowler/`, `kerievsky/`) e, dentro dele, em uma pasta por capítulo. Os de Fowler:
 `first-set` (cap. 6), `encapsulation` (7), `moving-features` (8), `organizing-data` (9),
 `conditional-logic` (10), `refactoring-apis` (11) e `inheritance` (12); uma refatoração exclusiva da web fica
 no capítulo sob o qual a seção 2 a lista. A página do refactoring.com usa o nome em camelCase:
@@ -46,11 +46,14 @@ skills/
     └── references/
         ├── smells.md
         ├── discipline.md
-        ├── first-set/
-        │   ├── extract-function.md
+        ├── fowler/ # 7 pastas de capítulo, 66 arquivos
+        │   ├── first-set/
+        │   │   ├── extract-function.md
+        │   │   └── ...
         │   └── ...
-        ├── encapsulation/
-        └── ... # 7 pastas de capítulo, 66 arquivos de refatoração no total
+        └── kerievsky/ # 6 pastas de capítulo, 27 arquivos
+            ├── creation/
+            └── ...
 ```
 
 ---
@@ -172,7 +175,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 ## 3. `references/smells.md`: os 24 smells e para onde levam
 
 Resumo do cap. 3: o índice que o agente consulta antes de escolher uma refatoração. Cada refatoração
-citada aqui é o arquivo `references/<chapter>/<slug>.md`.
+citada aqui é o arquivo `references/fowler/<chapter>/<slug>.md`.
 
 | Smell | Página | Refatorações sugeridas |
 |---|---|---|

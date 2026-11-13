@@ -57,112 +57,114 @@ nav:
   - Catálogo:
       - Smells: skills/refactoring/references/smells.md
       - Disciplina: skills/refactoring/references/discipline.md
-      - "Um primeiro conjunto (cap. 6)":
-          - skills/refactoring/references/first-set/extract-function.md
-          - skills/refactoring/references/first-set/inline-function.md
-          - skills/refactoring/references/first-set/extract-variable.md
-          - skills/refactoring/references/first-set/inline-variable.md
-          - skills/refactoring/references/first-set/change-function-declaration.md
-          - skills/refactoring/references/first-set/encapsulate-variable.md
-          - skills/refactoring/references/first-set/rename-variable.md
-          - skills/refactoring/references/first-set/introduce-parameter-object.md
-          - skills/refactoring/references/first-set/combine-functions-into-class.md
-          - skills/refactoring/references/first-set/combine-functions-into-transform.md
-          - skills/refactoring/references/first-set/split-phase.md
-      - "Encapsulamento (cap. 7)":
-          - skills/refactoring/references/encapsulation/encapsulate-record.md
-          - skills/refactoring/references/encapsulation/encapsulate-collection.md
-          - skills/refactoring/references/encapsulation/replace-primitive-with-object.md
-          - skills/refactoring/references/encapsulation/replace-temp-with-query.md
-          - skills/refactoring/references/encapsulation/extract-class.md
-          - skills/refactoring/references/encapsulation/inline-class.md
-          - skills/refactoring/references/encapsulation/hide-delegate.md
-          - skills/refactoring/references/encapsulation/remove-middle-man.md
-          - skills/refactoring/references/encapsulation/substitute-algorithm.md
-      - "Movendo recursos (cap. 8)":
-          - skills/refactoring/references/moving-features/move-function.md
-          - skills/refactoring/references/moving-features/move-field.md
-          - skills/refactoring/references/moving-features/move-statements-into-function.md
-          - skills/refactoring/references/moving-features/move-statements-to-callers.md
-          - skills/refactoring/references/moving-features/replace-inline-code-with-function-call.md
-          - skills/refactoring/references/moving-features/slide-statements.md
-          - skills/refactoring/references/moving-features/split-loop.md
-          - skills/refactoring/references/moving-features/replace-loop-with-pipeline.md
-          - skills/refactoring/references/moving-features/remove-dead-code.md
-      - "Organizando dados (cap. 9)":
-          - skills/refactoring/references/organizing-data/split-variable.md
-          - skills/refactoring/references/organizing-data/rename-field.md
-          - skills/refactoring/references/organizing-data/replace-derived-variable-with-query.md
-          - skills/refactoring/references/organizing-data/change-reference-to-value.md
-          - skills/refactoring/references/organizing-data/change-value-to-reference.md
-          - skills/refactoring/references/organizing-data/replace-magic-literal.md
-      - "Simplificando a lógica condicional (cap. 10)":
-          - skills/refactoring/references/conditional-logic/decompose-conditional.md
-          - skills/refactoring/references/conditional-logic/consolidate-conditional-expression.md
-          - skills/refactoring/references/conditional-logic/replace-nested-conditional-with-guard-clauses.md
-          - skills/refactoring/references/conditional-logic/replace-conditional-with-polymorphism.md
-          - skills/refactoring/references/conditional-logic/introduce-special-case.md
-          - skills/refactoring/references/conditional-logic/introduce-assertion.md
-          - skills/refactoring/references/conditional-logic/replace-control-flag-with-break.md
-      - "Refatorando APIs (cap. 11)":
-          - skills/refactoring/references/refactoring-apis/separate-query-from-modifier.md
-          - skills/refactoring/references/refactoring-apis/parameterize-function.md
-          - skills/refactoring/references/refactoring-apis/remove-flag-argument.md
-          - skills/refactoring/references/refactoring-apis/preserve-whole-object.md
-          - skills/refactoring/references/refactoring-apis/replace-parameter-with-query.md
-          - skills/refactoring/references/refactoring-apis/replace-query-with-parameter.md
-          - skills/refactoring/references/refactoring-apis/remove-setting-method.md
-          - skills/refactoring/references/refactoring-apis/replace-constructor-with-factory-function.md
-          - skills/refactoring/references/refactoring-apis/replace-function-with-command.md
-          - skills/refactoring/references/refactoring-apis/replace-command-with-function.md
-          - skills/refactoring/references/refactoring-apis/return-modified-value.md
-          - skills/refactoring/references/refactoring-apis/replace-error-code-with-exception.md
-          - skills/refactoring/references/refactoring-apis/replace-exception-with-precheck.md
-      - "Lidando com herança (cap. 12)":
-          - skills/refactoring/references/inheritance/pull-up-method.md
-          - skills/refactoring/references/inheritance/pull-up-field.md
-          - skills/refactoring/references/inheritance/pull-up-constructor-body.md
-          - skills/refactoring/references/inheritance/push-down-method.md
-          - skills/refactoring/references/inheritance/push-down-field.md
-          - skills/refactoring/references/inheritance/replace-type-code-with-subclasses.md
-          - skills/refactoring/references/inheritance/remove-subclass.md
-          - skills/refactoring/references/inheritance/extract-superclass.md
-          - skills/refactoring/references/inheritance/collapse-hierarchy.md
-          - skills/refactoring/references/inheritance/replace-subclass-with-delegate.md
-          - skills/refactoring/references/inheritance/replace-superclass-with-delegate.md
-      - "Criação (Kerievsky, cap. 6)":
-          - skills/refactoring/references/creation/replace-constructors-with-creation-methods.md
-          - skills/refactoring/references/creation/move-creation-knowledge-to-factory.md
-          - skills/refactoring/references/creation/encapsulate-classes-with-factory.md
-          - skills/refactoring/references/creation/introduce-polymorphic-creation-with-factory-method.md
-          - skills/refactoring/references/creation/encapsulate-composite-with-builder.md
-          - skills/refactoring/references/creation/inline-singleton.md
-      - "Simplificação (Kerievsky, cap. 7)":
-          - skills/refactoring/references/simplification/compose-method.md
-          - skills/refactoring/references/simplification/replace-conditional-logic-with-strategy.md
-          - skills/refactoring/references/simplification/move-embellishment-to-decorator.md
-          - skills/refactoring/references/simplification/replace-state-altering-conditionals-with-state.md
-          - skills/refactoring/references/simplification/replace-implicit-tree-with-composite.md
-          - skills/refactoring/references/simplification/replace-conditional-dispatcher-with-command.md
-      - "Generalização (Kerievsky, cap. 8)":
-          - skills/refactoring/references/generalization/form-template-method.md
-          - skills/refactoring/references/generalization/extract-composite.md
-          - skills/refactoring/references/generalization/replace-one-many-distinctions-with-composite.md
-          - skills/refactoring/references/generalization/replace-hard-coded-notifications-with-observer.md
-          - skills/refactoring/references/generalization/unify-interfaces-with-adapter.md
-          - skills/refactoring/references/generalization/extract-adapter.md
-          - skills/refactoring/references/generalization/replace-implicit-language-with-interpreter.md
-      - "Proteção (Kerievsky, cap. 9)":
-          - skills/refactoring/references/protection/replace-type-code-with-class.md
-          - skills/refactoring/references/protection/limit-instantiation-with-singleton.md
-          - skills/refactoring/references/protection/introduce-null-object.md
-      - "Acumulação (Kerievsky, cap. 10)":
-          - skills/refactoring/references/accumulation/move-accumulation-to-collecting-parameter.md
-          - skills/refactoring/references/accumulation/move-accumulation-to-visitor.md
-      - "Utilitários (Kerievsky, cap. 11)":
-          - skills/refactoring/references/utilities/chain-constructors.md
-          - skills/refactoring/references/utilities/unify-interfaces.md
-          - skills/refactoring/references/utilities/extract-parameter.md
+      - "Fowler (2018)":
+          - "Um primeiro conjunto (cap. 6)":
+              - skills/refactoring/references/fowler/first-set/extract-function.md
+              - skills/refactoring/references/fowler/first-set/inline-function.md
+              - skills/refactoring/references/fowler/first-set/extract-variable.md
+              - skills/refactoring/references/fowler/first-set/inline-variable.md
+              - skills/refactoring/references/fowler/first-set/change-function-declaration.md
+              - skills/refactoring/references/fowler/first-set/encapsulate-variable.md
+              - skills/refactoring/references/fowler/first-set/rename-variable.md
+              - skills/refactoring/references/fowler/first-set/introduce-parameter-object.md
+              - skills/refactoring/references/fowler/first-set/combine-functions-into-class.md
+              - skills/refactoring/references/fowler/first-set/combine-functions-into-transform.md
+              - skills/refactoring/references/fowler/first-set/split-phase.md
+          - "Encapsulamento (cap. 7)":
+              - skills/refactoring/references/fowler/encapsulation/encapsulate-record.md
+              - skills/refactoring/references/fowler/encapsulation/encapsulate-collection.md
+              - skills/refactoring/references/fowler/encapsulation/replace-primitive-with-object.md
+              - skills/refactoring/references/fowler/encapsulation/replace-temp-with-query.md
+              - skills/refactoring/references/fowler/encapsulation/extract-class.md
+              - skills/refactoring/references/fowler/encapsulation/inline-class.md
+              - skills/refactoring/references/fowler/encapsulation/hide-delegate.md
+              - skills/refactoring/references/fowler/encapsulation/remove-middle-man.md
+              - skills/refactoring/references/fowler/encapsulation/substitute-algorithm.md
+          - "Movendo recursos (cap. 8)":
+              - skills/refactoring/references/fowler/moving-features/move-function.md
+              - skills/refactoring/references/fowler/moving-features/move-field.md
+              - skills/refactoring/references/fowler/moving-features/move-statements-into-function.md
+              - skills/refactoring/references/fowler/moving-features/move-statements-to-callers.md
+              - skills/refactoring/references/fowler/moving-features/replace-inline-code-with-function-call.md
+              - skills/refactoring/references/fowler/moving-features/slide-statements.md
+              - skills/refactoring/references/fowler/moving-features/split-loop.md
+              - skills/refactoring/references/fowler/moving-features/replace-loop-with-pipeline.md
+              - skills/refactoring/references/fowler/moving-features/remove-dead-code.md
+          - "Organizando dados (cap. 9)":
+              - skills/refactoring/references/fowler/organizing-data/split-variable.md
+              - skills/refactoring/references/fowler/organizing-data/rename-field.md
+              - skills/refactoring/references/fowler/organizing-data/replace-derived-variable-with-query.md
+              - skills/refactoring/references/fowler/organizing-data/change-reference-to-value.md
+              - skills/refactoring/references/fowler/organizing-data/change-value-to-reference.md
+              - skills/refactoring/references/fowler/organizing-data/replace-magic-literal.md
+          - "Simplificando a lógica condicional (cap. 10)":
+              - skills/refactoring/references/fowler/conditional-logic/decompose-conditional.md
+              - skills/refactoring/references/fowler/conditional-logic/consolidate-conditional-expression.md
+              - skills/refactoring/references/fowler/conditional-logic/replace-nested-conditional-with-guard-clauses.md
+              - skills/refactoring/references/fowler/conditional-logic/replace-conditional-with-polymorphism.md
+              - skills/refactoring/references/fowler/conditional-logic/introduce-special-case.md
+              - skills/refactoring/references/fowler/conditional-logic/introduce-assertion.md
+              - skills/refactoring/references/fowler/conditional-logic/replace-control-flag-with-break.md
+          - "Refatorando APIs (cap. 11)":
+              - skills/refactoring/references/fowler/refactoring-apis/separate-query-from-modifier.md
+              - skills/refactoring/references/fowler/refactoring-apis/parameterize-function.md
+              - skills/refactoring/references/fowler/refactoring-apis/remove-flag-argument.md
+              - skills/refactoring/references/fowler/refactoring-apis/preserve-whole-object.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-parameter-with-query.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-query-with-parameter.md
+              - skills/refactoring/references/fowler/refactoring-apis/remove-setting-method.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-constructor-with-factory-function.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-function-with-command.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-command-with-function.md
+              - skills/refactoring/references/fowler/refactoring-apis/return-modified-value.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-error-code-with-exception.md
+              - skills/refactoring/references/fowler/refactoring-apis/replace-exception-with-precheck.md
+          - "Lidando com herança (cap. 12)":
+              - skills/refactoring/references/fowler/inheritance/pull-up-method.md
+              - skills/refactoring/references/fowler/inheritance/pull-up-field.md
+              - skills/refactoring/references/fowler/inheritance/pull-up-constructor-body.md
+              - skills/refactoring/references/fowler/inheritance/push-down-method.md
+              - skills/refactoring/references/fowler/inheritance/push-down-field.md
+              - skills/refactoring/references/fowler/inheritance/replace-type-code-with-subclasses.md
+              - skills/refactoring/references/fowler/inheritance/remove-subclass.md
+              - skills/refactoring/references/fowler/inheritance/extract-superclass.md
+              - skills/refactoring/references/fowler/inheritance/collapse-hierarchy.md
+              - skills/refactoring/references/fowler/inheritance/replace-subclass-with-delegate.md
+              - skills/refactoring/references/fowler/inheritance/replace-superclass-with-delegate.md
+      - "Kerievsky (2004)":
+          - "Criação (cap. 6)":
+              - skills/refactoring/references/kerievsky/creation/replace-constructors-with-creation-methods.md
+              - skills/refactoring/references/kerievsky/creation/move-creation-knowledge-to-factory.md
+              - skills/refactoring/references/kerievsky/creation/encapsulate-classes-with-factory.md
+              - skills/refactoring/references/kerievsky/creation/introduce-polymorphic-creation-with-factory-method.md
+              - skills/refactoring/references/kerievsky/creation/encapsulate-composite-with-builder.md
+              - skills/refactoring/references/kerievsky/creation/inline-singleton.md
+          - "Simplificação (cap. 7)":
+              - skills/refactoring/references/kerievsky/simplification/compose-method.md
+              - skills/refactoring/references/kerievsky/simplification/replace-conditional-logic-with-strategy.md
+              - skills/refactoring/references/kerievsky/simplification/move-embellishment-to-decorator.md
+              - skills/refactoring/references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md
+              - skills/refactoring/references/kerievsky/simplification/replace-implicit-tree-with-composite.md
+              - skills/refactoring/references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md
+          - "Generalização (cap. 8)":
+              - skills/refactoring/references/kerievsky/generalization/form-template-method.md
+              - skills/refactoring/references/kerievsky/generalization/extract-composite.md
+              - skills/refactoring/references/kerievsky/generalization/replace-one-many-distinctions-with-composite.md
+              - skills/refactoring/references/kerievsky/generalization/replace-hard-coded-notifications-with-observer.md
+              - skills/refactoring/references/kerievsky/generalization/unify-interfaces-with-adapter.md
+              - skills/refactoring/references/kerievsky/generalization/extract-adapter.md
+              - skills/refactoring/references/kerievsky/generalization/replace-implicit-language-with-interpreter.md
+          - "Proteção (cap. 9)":
+              - skills/refactoring/references/kerievsky/protection/replace-type-code-with-class.md
+              - skills/refactoring/references/kerievsky/protection/limit-instantiation-with-singleton.md
+              - skills/refactoring/references/kerievsky/protection/introduce-null-object.md
+          - "Acumulação (cap. 10)":
+              - skills/refactoring/references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md
+              - skills/refactoring/references/kerievsky/accumulation/move-accumulation-to-visitor.md
+          - "Utilitários (cap. 11)":
+              - skills/refactoring/references/kerievsky/utilities/chain-constructors.md
+              - skills/refactoring/references/kerievsky/utilities/unify-interfaces.md
+              - skills/refactoring/references/kerievsky/utilities/extract-parameter.md
   - Agentes:
       - agents/refactoring-analyst.md
       - agents/refactoring-implementer.md
