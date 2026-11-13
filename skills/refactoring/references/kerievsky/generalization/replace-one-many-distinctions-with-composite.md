@@ -22,45 +22,60 @@ Call the method that takes one object the one-object method, and the one that ta
 6. Apply Encapsulate Collection ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)) to the composite: clients now call `Add` instead of passing a collection to the constructor, and the getter returns a read-only view. Compile and test.
 
 ## Example
-Before: an order checker has a one-rule method and a many-rule method that repeat the same work.
+Before: a moderation checker has a one-rule method and a many-rule method that repeat the same work.
 
 ```csharp
 using System.Collections.Generic;
 
-public record Order(string Id, decimal Total, string Country);
-public record CheckResult(bool Valid, IReadOnlyList<string> Failures);
-
-public interface IOrderRule
+public class ChatMessage
 {
-    IReadOnlyList<string> Failures(Order order);
+    public string Id { get; }
+    public string Text { get; }
+    public ChatMessage(string id, string text) { Id = id; Text = text; }
 }
 
-public class MinimumTotal : IOrderRule
+public class ModerationResult
 {
-    public IReadOnlyList<string> Failures(Order o) =>
-        o.Total >= 10m ? new List<string>() : new List<string> { "total below 10" };
-}
-
-public class DomesticOnly : IOrderRule
-{
-    public IReadOnlyList<string> Failures(Order o) =>
-        o.Country == "BR" ? new List<string>() : new List<string> { "not domestic" };
-}
-
-public class OrderChecker
-{
-    public CheckResult Check(Order order, IOrderRule rule)
+    public bool Allowed { get; }
+    public IReadOnlyList<string> Violations { get; }
+    public ModerationResult(bool allowed, IReadOnlyList<string> violations)
     {
-        var failures = rule.Failures(order);
-        return new CheckResult(failures.Count == 0, failures);
+        Allowed = allowed;
+        Violations = violations;
+    }
+}
+
+public interface IModerationRule
+{
+    IReadOnlyList<string> Violations(ChatMessage message);
+}
+
+public class MaxLength : IModerationRule
+{
+    public IReadOnlyList<string> Violations(ChatMessage m) =>
+        m.Text.Length <= 2000 ? new List<string>() : new List<string> { "message too long" };
+}
+
+public class NoLinks : IModerationRule
+{
+    public IReadOnlyList<string> Violations(ChatMessage m) =>
+        m.Text.Contains("http") ? new List<string> { "contains a link" } : new List<string>();
+}
+
+public class ModerationChecker
+{
+    public ModerationResult Check(ChatMessage message, IModerationRule rule)
+    {
+        var violations = rule.Violations(message);
+        return new ModerationResult(violations.Count == 0, violations);
     }
 
-    public CheckResult CheckAll(Order order, List<IOrderRule> rules)
+    public ModerationResult CheckAll(ChatMessage message, List<IModerationRule> rules)
     {
-        var failures = new List<string>();
+        var violations = new List<string>();
         foreach (var rule in rules)
-            failures.AddRange(rule.Failures(order));
-        return new CheckResult(failures.Count == 0, failures);
+            violations.AddRange(rule.Violations(message));
+        return new ModerationResult(violations.Count == 0, violations);
     }
 }
 ```
@@ -70,59 +85,74 @@ After: `AllOf` is a composite rule. `CheckAll` is gone and callers pass one rule
 ```csharp
 using System.Collections.Generic;
 
-public record Order(string Id, decimal Total, string Country);
-public record CheckResult(bool Valid, IReadOnlyList<string> Failures);
-
-public interface IOrderRule
+public class ChatMessage
 {
-    IReadOnlyList<string> Failures(Order order);
+    public string Id { get; }
+    public string Text { get; }
+    public ChatMessage(string id, string text) { Id = id; Text = text; }
 }
 
-public class MinimumTotal : IOrderRule
+public class ModerationResult
 {
-    public IReadOnlyList<string> Failures(Order o) =>
-        o.Total >= 10m ? new List<string>() : new List<string> { "total below 10" };
-}
-
-public class DomesticOnly : IOrderRule
-{
-    public IReadOnlyList<string> Failures(Order o) =>
-        o.Country == "BR" ? new List<string>() : new List<string> { "not domestic" };
-}
-
-public class AllOf : IOrderRule
-{
-    private readonly List<IOrderRule> _rules = new();
-    public IReadOnlyList<IOrderRule> Rules => _rules;
-    public void Add(IOrderRule rule) => _rules.Add(rule);
-
-    public IReadOnlyList<string> Failures(Order order)
+    public bool Allowed { get; }
+    public IReadOnlyList<string> Violations { get; }
+    public ModerationResult(bool allowed, IReadOnlyList<string> violations)
     {
-        var failures = new List<string>();
-        foreach (var rule in _rules)
-            failures.AddRange(rule.Failures(order));
-        return failures;
+        Allowed = allowed;
+        Violations = violations;
     }
 }
 
-public class OrderChecker
+public interface IModerationRule
 {
-    public CheckResult Check(Order order, IOrderRule rule)
+    IReadOnlyList<string> Violations(ChatMessage message);
+}
+
+public class MaxLength : IModerationRule
+{
+    public IReadOnlyList<string> Violations(ChatMessage m) =>
+        m.Text.Length <= 2000 ? new List<string>() : new List<string> { "message too long" };
+}
+
+public class NoLinks : IModerationRule
+{
+    public IReadOnlyList<string> Violations(ChatMessage m) =>
+        m.Text.Contains("http") ? new List<string> { "contains a link" } : new List<string>();
+}
+
+public class AllOf : IModerationRule
+{
+    private readonly List<IModerationRule> _rules = new();
+    public IReadOnlyList<IModerationRule> Rules => _rules;
+    public void Add(IModerationRule rule) => _rules.Add(rule);
+
+    public IReadOnlyList<string> Violations(ChatMessage message)
     {
-        var failures = rule.Failures(order);
-        return new CheckResult(failures.Count == 0, failures);
+        var violations = new List<string>();
+        foreach (var rule in _rules)
+            violations.AddRange(rule.Violations(message));
+        return violations;
+    }
+}
+
+public class ModerationChecker
+{
+    public ModerationResult Check(ChatMessage message, IModerationRule rule)
+    {
+        var violations = rule.Violations(message);
+        return new ModerationResult(violations.Count == 0, violations);
     }
 }
 
 // A client now builds a group and makes one call:
-//   var rules = new AllOf(); rules.Add(new MinimumTotal()); rules.Add(new DomesticOnly());
-//   var result = new OrderChecker().Check(order, rules);
+//   var rules = new AllOf(); rules.Add(new MaxLength()); rules.Add(new NoLinks());
+//   var result = new ModerationChecker().Check(message, rules);
 ```
 
-A sibling composite such as `AnyOf` (passes when at least one child passes) can now be added without touching `OrderChecker`; this is the "(A and B) or C" case the list version could not express in one call.
+A sibling composite such as `AnyOf` (passes when at least one child passes) can now be added without touching `ModerationChecker`; this is the "(A and B) or C" case the list version could not express in one call.
 
 ## C# notes
 - Where a method takes `IEnumerable<T>` only to loop, check whether a composite is worth it: if clients never need nesting or other combinators, a `params`/`IEnumerable` overload with shared code may be enough.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
-- The failures reported for a group are the same, in the same order, as `CheckAll` gave before, and `Check` with a single rule is unchanged.
+- The violations reported for a group are the same, in the same order, as `CheckAll` gave before, and `Check` with a single rule is unchanged.

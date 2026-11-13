@@ -21,77 +21,77 @@ Smells: Duplicated Code.
 5. Check each client of a container: if it can talk to the container through the composite type, change it to do so. Compile and test.
 
 ## Example
-Before: `Box` and `Pallet` each keep their own list of child items, with the same `Add` and a near-identical `Weight`.
+Before: `SystemPrompt` and `FewShotBlock` each keep their own list of child parts, with the same `Add` and a near-identical `Render`.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public abstract class Item
+public abstract class PromptPart
 {
-    public abstract decimal Weight();
+    public abstract string Render();
 }
 
-public class Crate : Item
+public class TextPart : PromptPart
 {
-    private readonly decimal _weight;
-    public Crate(decimal weight) => _weight = weight;
-    public override decimal Weight() => _weight;
+    private readonly string _text;
+    public TextPart(string text) => _text = text;
+    public override string Render() => _text;
 }
 
-public class Box : Item
+public class SystemPrompt : PromptPart
 {
-    private readonly List<Item> _items = new();
-    public void Add(Item item) => _items.Add(item);
-    public override decimal Weight() => 0.5m + _items.Sum(i => i.Weight());
+    private readonly List<PromptPart> _parts = new();
+    public void Add(PromptPart part) => _parts.Add(part);
+    public override string Render() => "[system]\n" + string.Join("\n", _parts.Select(p => p.Render()));
 }
 
-public class Pallet : Item
+public class FewShotBlock : PromptPart
 {
-    private readonly List<Item> _contents = new();
-    public void Add(Item item) => _contents.Add(item);
-    public override decimal Weight() => 20m + _contents.Sum(c => c.Weight());
+    private readonly List<PromptPart> _examples = new();
+    public void Add(PromptPart example) => _examples.Add(example);
+    public override string Render() => "Examples:\n" + string.Join("\n", _examples.Select(e => e.Render()));
 }
 ```
 
-After: `CompositeItem` owns the children, `Add` and the sum. Each container adds only its own tare weight.
+After: `CompositePart` owns the children, `Add` and the joining. Each container adds only its own heading.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public abstract class Item
+public abstract class PromptPart
 {
-    public abstract decimal Weight();
+    public abstract string Render();
 }
 
-public class Crate : Item
+public class TextPart : PromptPart
 {
-    private readonly decimal _weight;
-    public Crate(decimal weight) => _weight = weight;
-    public override decimal Weight() => _weight;
+    private readonly string _text;
+    public TextPart(string text) => _text = text;
+    public override string Render() => _text;
 }
 
-public abstract class CompositeItem : Item
+public abstract class CompositePart : PromptPart
 {
-    private readonly List<Item> _children = new();
-    public void Add(Item item) => _children.Add(item);
-    protected decimal ChildrenWeight() => _children.Sum(c => c.Weight());
+    private readonly List<PromptPart> _children = new();
+    public void Add(PromptPart part) => _children.Add(part);
+    protected string RenderChildren() => string.Join("\n", _children.Select(c => c.Render()));
 }
 
-public class Box : CompositeItem
+public class SystemPrompt : CompositePart
 {
-    public override decimal Weight() => 0.5m + ChildrenWeight();
+    public override string Render() => "[system]\n" + RenderChildren();
 }
 
-public class Pallet : CompositeItem
+public class FewShotBlock : CompositePart
 {
-    public override decimal Weight() => 20m + ChildrenWeight();
+    public override string Render() => "Examples:\n" + RenderChildren();
 }
 ```
 
 ## C# notes
-- Expose the children as `IReadOnlyList<Item>` if subclasses or clients need to read them; keep the list itself private ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)).
+- Expose the children as `IReadOnlyList<PromptPart>` if subclasses or clients need to read them; keep the list itself private ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)).
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
-- Totals for nested containers (a box inside a pallet) match the old results, and no container still declares its own children field.
+- Totals for nested containers (a few-shot block inside a system prompt) match the old results, and no container still declares its own children field.

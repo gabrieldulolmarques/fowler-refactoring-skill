@@ -21,89 +21,92 @@ There are several routes. If a class uses conditionals to handle versions, you c
 4. Remove the duplication among the new adapters with Pull Up Method ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)) and Form Template Method ([form-template-method.md](form-template-method.md)). Compile and test.
 
 ## Example
-Before: `ExchangeRates` adapts two versions of a rate service. It has two constructors, one nullable field per version, and a branch in the only method.
+Before: `AssistantModel` adapts two versions of a model provider's API. It has two constructors, one nullable field per version, and a branch in the only method.
 
 ```csharp
-using System;
-
-// Old version of the external service.
-public class LegacyRateService
+// Old version of the provider API: a single prompt string in, text out.
+public class LegacyCompletionService
 {
-    public decimal Rate(string pair) => pair == "USD/BRL" ? 5m : 1m;
+    public string Complete(string prompt) => $"  reply to [{prompt}]  ";
 }
 
-// New version of the external service.
-public record RateQuote(decimal Value, DateTime At);
-public class RateServiceV2
+// New version: system and user text are separate, and the answer is an object.
+public class ChatReply
 {
-    public RateQuote Quote(string from, string to) =>
-        new(from == "USD" && to == "BRL" ? 5m : 1m, DateTime.UtcNow);
+    public string Text { get; }
+    public ChatReply(string text) => Text = text;
 }
 
-public class ExchangeRates
+public class ChatServiceV2
 {
-    private readonly LegacyRateService? _legacy;
-    private readonly RateServiceV2? _v2;
+    public ChatReply Send(string system, string user) => new ChatReply($"  reply to [{system}/{user}]  ");
+}
 
-    public ExchangeRates(LegacyRateService legacy) => _legacy = legacy;
-    public ExchangeRates(RateServiceV2 v2) => _v2 = v2;
+public class AssistantModel
+{
+    private readonly LegacyCompletionService? _legacy;
+    private readonly ChatServiceV2? _v2;
 
-    public decimal Convert(decimal amount, string from, string to)
+    public AssistantModel(LegacyCompletionService legacy) => _legacy = legacy;
+    public AssistantModel(ChatServiceV2 v2) => _v2 = v2;
+
+    public string Ask(string question)
     {
-        var rate = _legacy != null
-            ? _legacy.Rate($"{from}/{to}")
-            : _v2!.Quote(from, to).Value;
-        return Math.Round(amount * rate, 2);
+        var raw = _legacy != null
+            ? _legacy.Complete($"User: {question}")
+            : _v2!.Send("assistant", question).Text;
+        return raw.Trim();
     }
 }
 ```
 
-After: one adapter per version, behind a common interface. The shared rounding stays in a base class (the Form Template Method step), and each adapter implements only how to get a rate.
+After: one adapter per version, behind a common interface. The shared trimming stays in a base class (the Form Template Method step), and each adapter implements only how to get the raw reply.
 
 ```csharp
-using System;
-
-public class LegacyRateService
+public class LegacyCompletionService
 {
-    public decimal Rate(string pair) => pair == "USD/BRL" ? 5m : 1m;
+    public string Complete(string prompt) => $"  reply to [{prompt}]  ";
 }
 
-public record RateQuote(decimal Value, DateTime At);
-public class RateServiceV2
+public class ChatReply
 {
-    public RateQuote Quote(string from, string to) =>
-        new(from == "USD" && to == "BRL" ? 5m : 1m, DateTime.UtcNow);
+    public string Text { get; }
+    public ChatReply(string text) => Text = text;
 }
 
-public interface IExchangeRates
+public class ChatServiceV2
 {
-    decimal Convert(decimal amount, string from, string to);
+    public ChatReply Send(string system, string user) => new ChatReply($"  reply to [{system}/{user}]  ");
 }
 
-public abstract class ExchangeRates : IExchangeRates
+public interface IAssistantModel
 {
-    public decimal Convert(decimal amount, string from, string to) =>
-        Math.Round(amount * RateFor(from, to), 2);
-
-    protected abstract decimal RateFor(string from, string to);
+    string Ask(string question);
 }
 
-public class LegacyExchangeRates : ExchangeRates
+public abstract class AssistantModel : IAssistantModel
 {
-    private readonly LegacyRateService _service;
-    public LegacyExchangeRates(LegacyRateService service) => _service = service;
-    protected override decimal RateFor(string from, string to) => _service.Rate($"{from}/{to}");
+    public string Ask(string question) => RawReply(question).Trim();
+
+    protected abstract string RawReply(string question);
 }
 
-public class V2ExchangeRates : ExchangeRates
+public class LegacyAssistantModel : AssistantModel
 {
-    private readonly RateServiceV2 _service;
-    public V2ExchangeRates(RateServiceV2 service) => _service = service;
-    protected override decimal RateFor(string from, string to) => _service.Quote(from, to).Value;
+    private readonly LegacyCompletionService _service;
+    public LegacyAssistantModel(LegacyCompletionService service) => _service = service;
+    protected override string RawReply(string question) => _service.Complete($"User: {question}");
+}
+
+public class V2AssistantModel : AssistantModel
+{
+    private readonly ChatServiceV2 _service;
+    public V2AssistantModel(ChatServiceV2 service) => _service = service;
+    protected override string RawReply(string question) => _service.Send("assistant", question).Text;
 }
 ```
 
-Clients depend on `IExchangeRates`; startup code (or configuration) chooses `LegacyExchangeRates` or `V2ExchangeRates`. When version 1 is retired, delete one class and nothing else.
+Clients depend on `IAssistantModel`; startup code (or configuration) chooses `LegacyAssistantModel` or `V2AssistantModel`. When version 1 is retired, delete one class and nothing else.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

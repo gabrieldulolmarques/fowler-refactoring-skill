@@ -23,123 +23,156 @@ Terms: the notifier is the class that calls the receiver; the receiver is the cl
 7. Make every subscription pair with an unsubscription at the right moment (when the observer is disposed, closed or replaced), and iterate over a copy of the collection when notifying so an observer that unsubscribes inside its callback does not break the loop.
 
 ## Example
-Before: `PaymentProcessor` decides the outcome of a charge. `DashboardPaymentProcessor` is a subclass whose only job is to report each charge to one `PaymentDashboard`, and it also builds the text line the dashboard shows.
+Before: `TokenMeter` measures the token usage of a conversation against its budget. `DashboardTokenMeter` is a subclass whose only job is to report each measurement to one `UsageDashboard`, and it also builds the text line the dashboard shows.
 
 ```csharp
 using System.Collections.Generic;
 
-public record ChargeResult(string Account, decimal Amount, bool Approved);
-
-public class PaymentProcessor
+public class UsageReport
 {
-    public ChargeResult Charge(string account, decimal amount)
+    public string Conversation { get; }
+    public int Tokens { get; }
+    public bool OverBudget { get; }
+    public UsageReport(string conversation, int tokens, bool overBudget)
     {
-        var result = new ChargeResult(account, amount, amount <= 1000m);
-        OnCharged(result);
-        return result;
+        Conversation = conversation;
+        Tokens = tokens;
+        OverBudget = overBudget;
     }
-
-    protected virtual void OnCharged(ChargeResult result) { }
 }
 
-public class PaymentDashboard
+public class TokenMeter
+{
+    public UsageReport Record(string conversation, int tokens)
+    {
+        var report = new UsageReport(conversation, tokens, tokens > 4000);
+        OnRecorded(report);
+        return report;
+    }
+
+    protected virtual void OnRecorded(UsageReport report) { }
+}
+
+public class UsageDashboard
 {
     public List<string> Lines { get; } = new();
     public void Add(string line) => Lines.Add(line);
 }
 
-public class DashboardPaymentProcessor : PaymentProcessor
+public class DashboardTokenMeter : TokenMeter
 {
-    private readonly PaymentDashboard _dashboard;
-    public DashboardPaymentProcessor(PaymentDashboard dashboard) => _dashboard = dashboard;
+    private readonly UsageDashboard _dashboard;
+    public DashboardTokenMeter(UsageDashboard dashboard) => _dashboard = dashboard;
 
-    protected override void OnCharged(ChargeResult r)
+    protected override void OnRecorded(UsageReport r)
     {
-        var line = $"{r.Account}: {r.Amount:F2} {(r.Approved ? "approved" : "declined")}";
+        var line = $"{r.Conversation}: {r.Tokens} tokens {(r.OverBudget ? "over budget" : "ok")}";
         _dashboard.Add(line);
     }
 }
 ```
 
-After, classic form: the formatting moved to the dashboard (step 1), `IChargeObserver` was extracted (steps 2 and 3), the notification moved up and the subclass was deleted (steps 4 and 5), and the subject now keeps a list (step 6). A second observer, `FraudMonitor`, subscribes without any change to `PaymentProcessor`.
+After, classic form: the formatting moved to the dashboard (step 1), `IUsageObserver` was extracted (steps 2 and 3), the notification moved up and the subclass was deleted (steps 4 and 5), and the subject now keeps a list (step 6). A second observer, `BudgetAlarm`, subscribes without any change to `TokenMeter`.
 
 ```csharp
 using System.Collections.Generic;
 
-public record ChargeResult(string Account, decimal Amount, bool Approved);
-
-public interface IChargeObserver
+public class UsageReport
 {
-    void Charged(ChargeResult result);
-}
-
-public class PaymentProcessor
-{
-    private readonly List<IChargeObserver> _observers = new();
-
-    public void Subscribe(IChargeObserver observer) => _observers.Add(observer);
-    public void Unsubscribe(IChargeObserver observer) => _observers.Remove(observer);
-
-    public ChargeResult Charge(string account, decimal amount)
+    public string Conversation { get; }
+    public int Tokens { get; }
+    public bool OverBudget { get; }
+    public UsageReport(string conversation, int tokens, bool overBudget)
     {
-        var result = new ChargeResult(account, amount, amount <= 1000m);
-        foreach (var observer in _observers.ToArray())
-            observer.Charged(result);
-        return result;
+        Conversation = conversation;
+        Tokens = tokens;
+        OverBudget = overBudget;
     }
 }
 
-public class PaymentDashboard : IChargeObserver
+public interface IUsageObserver
+{
+    void Recorded(UsageReport report);
+}
+
+public class TokenMeter
+{
+    private readonly List<IUsageObserver> _observers = new();
+
+    public void Subscribe(IUsageObserver observer) => _observers.Add(observer);
+    public void Unsubscribe(IUsageObserver observer) => _observers.Remove(observer);
+
+    public UsageReport Record(string conversation, int tokens)
+    {
+        var report = new UsageReport(conversation, tokens, tokens > 4000);
+        foreach (var observer in _observers.ToArray())
+            observer.Recorded(report);
+        return report;
+    }
+}
+
+public class UsageDashboard : IUsageObserver
 {
     public List<string> Lines { get; } = new();
 
-    public void Charged(ChargeResult r) =>
-        Lines.Add($"{r.Account}: {r.Amount:F2} {(r.Approved ? "approved" : "declined")}");
+    public void Recorded(UsageReport r) =>
+        Lines.Add($"{r.Conversation}: {r.Tokens} tokens {(r.OverBudget ? "over budget" : "ok")}");
 }
 
-public class FraudMonitor : IChargeObserver
+public class BudgetAlarm : IUsageObserver
 {
-    public int Declines { get; private set; }
-    public void Charged(ChargeResult r) { if (!r.Approved) Declines++; }
+    public int Overruns { get; private set; }
+    public void Recorded(UsageReport r) { if (r.OverBudget) Overruns++; }
 }
 
 // Wiring and teardown, always as a pair:
-//   var processor = new PaymentProcessor();
-//   var dashboard = new PaymentDashboard();
-//   processor.Subscribe(dashboard);
-//   processor.Charge("acc-1", 50m);
-//   processor.Unsubscribe(dashboard);
+//   var meter = new TokenMeter();
+//   var dashboard = new UsageDashboard();
+//   meter.Subscribe(dashboard);
+//   meter.Record("chat-1", 1200);
+//   meter.Unsubscribe(dashboard);
 ```
 
-After, idiomatic C#: the same design with an event instead of an interface and two methods. The observer interface becomes the delegate type `EventHandler<ChargeResult>`, and the list, `Subscribe` and `Unsubscribe` become `event`, `+=` and `-=`.
+After, idiomatic C#: the same design with an event instead of an interface and two methods. The observer interface becomes the delegate type `EventHandler<UsageReport>`, and the list, `Subscribe` and `Unsubscribe` become `event`, `+=` and `-=`.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record ChargeResult(string Account, decimal Amount, bool Approved);
-
-public class PaymentProcessor
+public class UsageReport
 {
-    public event EventHandler<ChargeResult>? Charged;
-
-    public ChargeResult Charge(string account, decimal amount)
+    public string Conversation { get; }
+    public int Tokens { get; }
+    public bool OverBudget { get; }
+    public UsageReport(string conversation, int tokens, bool overBudget)
     {
-        var result = new ChargeResult(account, amount, amount <= 1000m);
-        Charged?.Invoke(this, result);
-        return result;
+        Conversation = conversation;
+        Tokens = tokens;
+        OverBudget = overBudget;
     }
 }
 
-public class PaymentDashboard
+public class TokenMeter
+{
+    public event EventHandler<UsageReport>? Recorded;
+
+    public UsageReport Record(string conversation, int tokens)
+    {
+        var report = new UsageReport(conversation, tokens, tokens > 4000);
+        Recorded?.Invoke(this, report);
+        return report;
+    }
+}
+
+public class UsageDashboard
 {
     public List<string> Lines { get; } = new();
 
-    public void Attach(PaymentProcessor processor) => processor.Charged += OnCharged;
-    public void Detach(PaymentProcessor processor) => processor.Charged -= OnCharged;
+    public void Attach(TokenMeter meter) => meter.Recorded += OnRecorded;
+    public void Detach(TokenMeter meter) => meter.Recorded -= OnRecorded;
 
-    private void OnCharged(object? sender, ChargeResult r) =>
-        Lines.Add($"{r.Account}: {r.Amount:F2} {(r.Approved ? "approved" : "declined")}");
+    private void OnRecorded(object? sender, UsageReport r) =>
+        Lines.Add($"{r.Conversation}: {r.Tokens} tokens {(r.OverBudget ? "over budget" : "ok")}");
 }
 ```
 

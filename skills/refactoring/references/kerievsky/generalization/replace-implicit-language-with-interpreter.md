@@ -22,48 +22,62 @@ These steps assume object selection: several methods each loop over a collection
 6. Inline the old selection methods with Inline Function ([inline-function.md](../../fowler/first-set/inline-function.md)) so callers build the specification and call `SelectBy`. Compile and test.
 
 ## Example
-Before: an order finder with one method per combination.
+Before: a finder over the tool-call log of an assistant, with one method per combination.
 
 ```csharp
 using System.Collections.Generic;
 
-public enum Status { Open, Paid, Shipped }
-public record Order(string Id, string Customer, Status Status, decimal Total);
+public enum CallStatus { Ok, Failed, TimedOut }
 
-public class OrderFinder
+public class ToolCall
 {
-    private readonly List<Order> _orders;
-    public OrderFinder(List<Order> orders) => _orders = orders;
-
-    public List<Order> ByStatus(Status status)
+    public string Id { get; }
+    public string Tool { get; }
+    public CallStatus Status { get; }
+    public int DurationMs { get; }
+    public ToolCall(string id, string tool, CallStatus status, int durationMs)
     {
-        var found = new List<Order>();
-        foreach (var o in _orders)
-            if (o.Status == status) found.Add(o);
+        Id = id;
+        Tool = tool;
+        Status = status;
+        DurationMs = durationMs;
+    }
+}
+
+public class ToolCallFinder
+{
+    private readonly List<ToolCall> _calls;
+    public ToolCallFinder(List<ToolCall> calls) => _calls = calls;
+
+    public List<ToolCall> ByStatus(CallStatus status)
+    {
+        var found = new List<ToolCall>();
+        foreach (var c in _calls)
+            if (c.Status == status) found.Add(c);
         return found;
     }
 
-    public List<Order> ByMinTotal(decimal min)
+    public List<ToolCall> ByMinDuration(int minMs)
     {
-        var found = new List<Order>();
-        foreach (var o in _orders)
-            if (o.Total >= min) found.Add(o);
+        var found = new List<ToolCall>();
+        foreach (var c in _calls)
+            if (c.DurationMs >= minMs) found.Add(c);
         return found;
     }
 
-    public List<Order> ByStatusAndMinTotal(Status status, decimal min)
+    public List<ToolCall> ByStatusAndMinDuration(CallStatus status, int minMs)
     {
-        var found = new List<Order>();
-        foreach (var o in _orders)
-            if (o.Status == status && o.Total >= min) found.Add(o);
+        var found = new List<ToolCall>();
+        foreach (var c in _calls)
+            if (c.Status == status && c.DurationMs >= minMs) found.Add(c);
         return found;
     }
 
-    public List<Order> ByCustomerNotStatus(string customer, Status status)
+    public List<ToolCall> ByToolNotStatus(string tool, CallStatus status)
     {
-        var found = new List<Order>();
-        foreach (var o in _orders)
-            if (o.Customer == customer && o.Status != status) found.Add(o);
+        var found = new List<ToolCall>();
+        foreach (var c in _calls)
+            if (c.Tool == tool && c.Status != status) found.Add(c);
         return found;
     }
 }
@@ -75,71 +89,85 @@ After: a small set of specification classes and one `SelectBy`. Any combination 
 using System.Collections.Generic;
 using System.Linq;
 
-public enum Status { Open, Paid, Shipped }
-public record Order(string Id, string Customer, Status Status, decimal Total);
+public enum CallStatus { Ok, Failed, TimedOut }
 
-public abstract class OrderSpec
+public class ToolCall
 {
-    public abstract bool IsSatisfiedBy(Order order);
+    public string Id { get; }
+    public string Tool { get; }
+    public CallStatus Status { get; }
+    public int DurationMs { get; }
+    public ToolCall(string id, string tool, CallStatus status, int durationMs)
+    {
+        Id = id;
+        Tool = tool;
+        Status = status;
+        DurationMs = durationMs;
+    }
 }
 
-public class StatusSpec : OrderSpec
+public abstract class ToolCallSpec
 {
-    private readonly Status _status;
-    public StatusSpec(Status status) => _status = status;
-    public override bool IsSatisfiedBy(Order o) => o.Status == _status;
+    public abstract bool IsSatisfiedBy(ToolCall call);
 }
 
-public class MinTotalSpec : OrderSpec
+public class StatusSpec : ToolCallSpec
 {
-    private readonly decimal _min;
-    public MinTotalSpec(decimal min) => _min = min;
-    public override bool IsSatisfiedBy(Order o) => o.Total >= _min;
+    private readonly CallStatus _status;
+    public StatusSpec(CallStatus status) => _status = status;
+    public override bool IsSatisfiedBy(ToolCall c) => c.Status == _status;
 }
 
-public class CustomerSpec : OrderSpec
+public class MinDurationSpec : ToolCallSpec
 {
-    private readonly string _customer;
-    public CustomerSpec(string customer) => _customer = customer;
-    public override bool IsSatisfiedBy(Order o) => o.Customer == _customer;
+    private readonly int _minMs;
+    public MinDurationSpec(int minMs) => _minMs = minMs;
+    public override bool IsSatisfiedBy(ToolCall c) => c.DurationMs >= _minMs;
 }
 
-public class AndSpec : OrderSpec
+public class ToolSpec : ToolCallSpec
 {
-    private readonly OrderSpec[] _specs;
-    public AndSpec(params OrderSpec[] specs) => _specs = specs;
-    public override bool IsSatisfiedBy(Order o) => _specs.All(s => s.IsSatisfiedBy(o));
+    private readonly string _tool;
+    public ToolSpec(string tool) => _tool = tool;
+    public override bool IsSatisfiedBy(ToolCall c) => c.Tool == _tool;
 }
 
-public class OrSpec : OrderSpec
+public class AndSpec : ToolCallSpec
 {
-    private readonly OrderSpec[] _specs;
-    public OrSpec(params OrderSpec[] specs) => _specs = specs;
-    public override bool IsSatisfiedBy(Order o) => _specs.Any(s => s.IsSatisfiedBy(o));
+    private readonly ToolCallSpec[] _specs;
+    public AndSpec(params ToolCallSpec[] specs) => _specs = specs;
+    public override bool IsSatisfiedBy(ToolCall c) => _specs.All(s => s.IsSatisfiedBy(c));
 }
 
-public class NotSpec : OrderSpec
+public class OrSpec : ToolCallSpec
 {
-    private readonly OrderSpec _spec;
-    public NotSpec(OrderSpec spec) => _spec = spec;
-    public override bool IsSatisfiedBy(Order o) => !_spec.IsSatisfiedBy(o);
+    private readonly ToolCallSpec[] _specs;
+    public OrSpec(params ToolCallSpec[] specs) => _specs = specs;
+    public override bool IsSatisfiedBy(ToolCall c) => _specs.Any(s => s.IsSatisfiedBy(c));
 }
 
-public class OrderFinder
+public class NotSpec : ToolCallSpec
 {
-    private readonly List<Order> _orders;
-    public OrderFinder(List<Order> orders) => _orders = orders;
-
-    public List<Order> SelectBy(OrderSpec spec) => _orders.Where(spec.IsSatisfiedBy).ToList();
+    private readonly ToolCallSpec _spec;
+    public NotSpec(ToolCallSpec spec) => _spec = spec;
+    public override bool IsSatisfiedBy(ToolCall c) => !_spec.IsSatisfiedBy(c);
 }
 
-// Old ByCustomerNotStatus(c, s) is now:
-//   finder.SelectBy(new AndSpec(new CustomerSpec(c), new NotSpec(new StatusSpec(s))));
+public class ToolCallFinder
+{
+    private readonly List<ToolCall> _calls;
+    public ToolCallFinder(List<ToolCall> calls) => _calls = calls;
+
+    public List<ToolCall> SelectBy(ToolCallSpec spec) => _calls.Where(spec.IsSatisfiedBy).ToList();
+}
+
+// Old ByToolNotStatus(t, s) is now:
+//   finder.SelectBy(new AndSpec(new ToolSpec(t), new NotSpec(new StatusSpec(s))));
 ```
 
 ## C# notes
-- In C#, a `Func<Order, bool>` (and combinators over it) or LINQ `Where` is often all you need for in-memory filtering. Classes earn their place when the criteria must be inspected, printed, serialized or translated (for instance to SQL).
+- In C#, a `Func<ToolCall, bool>` (and combinators over it) or LINQ `Where` is often all you need for in-memory filtering. Classes earn their place when the criteria must be inspected, printed, serialized or translated (for instance to SQL).
 - If the target is a database, `Expression<Func<T, bool>>` lets a provider translate the criteria; building your own specification classes would then duplicate what the provider already does.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
-- For each old finder method, a test builds the equivalent specification and returns the same orders in the same order before the old method is inlined.
+- For each old finder method, a test builds the equivalent specification and returns the same calls in the same order before the old method is inlined.

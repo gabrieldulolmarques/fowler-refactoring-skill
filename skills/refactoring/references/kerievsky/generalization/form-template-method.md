@@ -18,86 +18,96 @@ Smells: Duplicated Code.
 5. Pull up the similar method from one subclass and delete it from the other. Declare an abstract method in the superclass for every unique method (or a `virtual` one where a default makes sense). The pulled-up method is now the template. Compile and test.
 
 ## Example
-Before: two exporters repeat the same sequence (header, one line per order, footer), each with its own formatting.
+Before: two formatters repeat the same sequence (header, one line per message, footer), each with its own formatting.
 
 ```csharp
 using System.Collections.Generic;
 using System.Text;
 
-public record Order(string Id, string Customer, decimal Total);
-
-public abstract class OrderExporter
+public class ChatMessage
 {
-    public abstract string Export(IReadOnlyList<Order> orders);
+    public string Role { get; }
+    public string Text { get; }
+    public ChatMessage(string role, string text) { Role = role; Text = text; }
 }
 
-public class CsvOrderExporter : OrderExporter
+public abstract class TranscriptFormatter
 {
-    public override string Export(IReadOnlyList<Order> orders)
+    public abstract string Format(IReadOnlyList<ChatMessage> messages);
+}
+
+public class MarkdownTranscriptFormatter : TranscriptFormatter
+{
+    public override string Format(IReadOnlyList<ChatMessage> messages)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("id,customer,total");
-        foreach (var o in orders)
-            sb.AppendLine($"{o.Id},{o.Customer},{o.Total}");
-        sb.AppendLine($"count={orders.Count}");
+        sb.AppendLine("# Conversation");
+        foreach (var m in messages)
+            sb.AppendLine($"**{m.Role}**: {m.Text}");
+        sb.AppendLine($"messages={messages.Count}");
         return sb.ToString();
     }
 }
 
-public class TextOrderExporter : OrderExporter
+public class PlainTranscriptFormatter : TranscriptFormatter
 {
-    public override string Export(IReadOnlyList<Order> orders)
+    public override string Format(IReadOnlyList<ChatMessage> messages)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("ORDERS");
-        foreach (var o in orders)
-            sb.AppendLine($"{o.Id} for {o.Customer}: {o.Total}");
-        sb.AppendLine($"count={orders.Count}");
+        sb.AppendLine("CONVERSATION");
+        foreach (var m in messages)
+            sb.AppendLine($"{m.Role}> {m.Text}");
+        sb.AppendLine($"messages={messages.Count}");
         return sb.ToString();
     }
 }
 ```
 
-After: the superclass owns the sequence and the identical footer. Each subclass writes only its header and its row.
+After: the superclass owns the sequence and the identical footer. Each subclass writes only its header and its line.
 
 ```csharp
 using System.Collections.Generic;
 using System.Text;
 
-public record Order(string Id, string Customer, decimal Total);
-
-public abstract class OrderExporter
+public class ChatMessage
 {
-    public string Export(IReadOnlyList<Order> orders)
+    public string Role { get; }
+    public string Text { get; }
+    public ChatMessage(string role, string text) { Role = role; Text = text; }
+}
+
+public abstract class TranscriptFormatter
+{
+    public string Format(IReadOnlyList<ChatMessage> messages)
     {
         var sb = new StringBuilder();
         WriteHeader(sb);
-        foreach (var o in orders)
-            WriteRow(sb, o);
-        WriteFooter(sb, orders.Count);
+        foreach (var m in messages)
+            WriteLine(sb, m);
+        WriteFooter(sb, messages.Count);
         return sb.ToString();
     }
 
     protected abstract void WriteHeader(StringBuilder sb);
-    protected abstract void WriteRow(StringBuilder sb, Order order);
-    protected virtual void WriteFooter(StringBuilder sb, int count) => sb.AppendLine($"count={count}");
+    protected abstract void WriteLine(StringBuilder sb, ChatMessage message);
+    protected virtual void WriteFooter(StringBuilder sb, int count) => sb.AppendLine($"messages={count}");
 }
 
-public class CsvOrderExporter : OrderExporter
+public class MarkdownTranscriptFormatter : TranscriptFormatter
 {
-    protected override void WriteHeader(StringBuilder sb) => sb.AppendLine("id,customer,total");
-    protected override void WriteRow(StringBuilder sb, Order o) => sb.AppendLine($"{o.Id},{o.Customer},{o.Total}");
+    protected override void WriteHeader(StringBuilder sb) => sb.AppendLine("# Conversation");
+    protected override void WriteLine(StringBuilder sb, ChatMessage m) => sb.AppendLine($"**{m.Role}**: {m.Text}");
 }
 
-public class TextOrderExporter : OrderExporter
+public class PlainTranscriptFormatter : TranscriptFormatter
 {
-    protected override void WriteHeader(StringBuilder sb) => sb.AppendLine("ORDERS");
-    protected override void WriteRow(StringBuilder sb, Order o) => sb.AppendLine($"{o.Id} for {o.Customer}: {o.Total}");
+    protected override void WriteHeader(StringBuilder sb) => sb.AppendLine("CONVERSATION");
+    protected override void WriteLine(StringBuilder sb, ChatMessage m) => sb.AppendLine($"{m.Role}> {m.Text}");
 }
 ```
 
 ## C# notes
-- `Export` is not `virtual`, so a subclass cannot replace the sequence by accident. A method that was never virtual is the C# equivalent of Java's `final` template.
+- `Format` is not `virtual`, so a subclass cannot replace the sequence by accident. A method that was never virtual is the C# equivalent of Java's `final` template.
 - Mark required steps `abstract` and optional ones `virtual` with a useful default (the footer above). Use `protected` for both, since callers should only see the template.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
