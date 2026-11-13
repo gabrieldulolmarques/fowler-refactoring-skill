@@ -1,10 +1,10 @@
 # refactoring-skill
 
-Two refactoring catalogs packaged as [Agent Skills](https://agentskills.io) for coding
-agents: Martin Fowler's *Refactoring* (2nd ed., 2018) and Joshua Kerievsky's *Refactoring to
-Patterns* (2004). One skill, `refactoring`, maps 29 code smells to the 66 refactorings and 27
-refactorings to patterns that fix them, with one reference file per refactoring (mechanics, a
-C# example and verification steps).
+Two refactoring catalogs and a design patterns catalog packaged as [Agent Skills](https://agentskills.io)
+for coding agents: Martin Fowler's *Refactoring* (2nd ed., 2018), Joshua Kerievsky's *Refactoring to
+Patterns* (2004) and the 23 patterns of Gamma et al.'s *Design Patterns* (GoF, 1995). One skill,
+`refactoring`, maps 29 code smells to the 66 refactorings and 27 refactorings to patterns that fix
+them, and links each pattern to the refactorings that reach it. Every file has a C# 9 example.
 
 **Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (English and Portuguese).
 
@@ -20,7 +20,7 @@ agents/
 └── refactoring-implementer.md # applies one refactoring, testing after each step
 skills/refactoring/
 ├── SKILL.md # flow smell → refactoring → file, smell index, tables of the 66 + 27
-└── references/ # fowler/ and kerievsky/, each with its smells.md, discipline.md and a folder per chapter
+└── references/ # fowler/ and kerievsky/ (smells.md, discipline.md, a folder per chapter); gof/ (catalog.md, principles.md, a folder per category)
 ```
 
 Only the skill's description stays in the agent's context. The body loads when the skill is
@@ -59,6 +59,9 @@ package **and** the books it is based on:
 >
 > Joshua Kerievsky. *Refactoring to Patterns*. Boston: Addison-Wesley (Pearson Education),
 > 2004. ISBN 978-0-321-21335-8.
+>
+> Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides. *Design Patterns: Elements of
+> Reusable Object-Oriented Software*. Reading: Addison-Wesley, 1995. ISBN 978-0-201-63361-0.
 
 The license covers only this package's own content, not the books (see [NOTICE](NOTICE)).
 The motivation and mechanics in the skill are paraphrased, with chapter and page cited;

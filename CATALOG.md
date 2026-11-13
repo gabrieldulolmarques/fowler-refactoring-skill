@@ -33,6 +33,9 @@ descriptions.
 | `references/kerievsky/<chapter>/<slug>.md` (27 files) | Kerievsky ch. 6–11 | one refactoring to a pattern each, same format plus pattern and direction (section 5) |
 | `references/kerievsky/smells.md` | Kerievsky ch. 4 | the 12 smells and the refactorings to patterns they point to (section 5.2) |
 | `references/kerievsky/discipline.md` | Kerievsky ch. 1-3 | when a pattern pays off, composite and test-driven refactorings, to/towards/away, design debt |
+| `references/gof/catalog.md` | GoF ch. 1, 3-5 | the 23 intents, purpose and scope, causes of redesign, what each pattern lets vary, comparisons (section 6) |
+| `references/gof/principles.md` | GoF ch. 1 and 6 | design principles, how to select and use a pattern (section 6) |
+| `references/gof/<category>/<slug>.md` (23 files) | GoF ch. 3-5 | one pattern each: intent, when it pays off, participants, C# example, variations, risks (section 6) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
 `references/fowler/first-set/extract-function.md`. The files are grouped by book (`fowler/`, `kerievsky/`) and then in one folder per chapter. Fowler's:
@@ -53,11 +56,16 @@ skills/
         │   │   ├── extract-function.md
         │   │   └── ...
         │   └── ... # 7 chapter folders, 66 files
-        └── kerievsky/
-            ├── smells.md
-            ├── discipline.md
-            ├── creation/
-            └── ... # 6 chapter folders, 27 files
+        ├── kerievsky/
+        │   ├── smells.md
+        │   ├── discipline.md
+        │   ├── creation/
+        │   └── ... # 6 chapter folders, 27 files
+        └── gof/
+            ├── catalog.md
+            ├── principles.md
+            ├── creational/
+            └── ... # 3 category folders, 23 files
 ```
 
 ---
@@ -394,3 +402,70 @@ A mechanics step that is a Fowler refactoring names it by its 2nd-edition name a
 file; a refactoring with no 2nd-edition counterpart (such as Extract Interface) is described in
 plain words and marked "(1st ed. only)". "When to use" includes the book's liabilities, so the
 agent knows when the pattern is not worth it. Examples are original C#, as in section 4.3.
+
+---
+
+## 6. The GoF design patterns
+
+Source: Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, *Design Patterns: Elements of
+Reusable Object-Oriented Software*, Addison-Wesley, 1995. Covered: ch. 1 (except §1.2), ch. 3-5,
+the comparisons that close each of them, and §6.1. Left out: §1.2 (MVC in Smalltalk), ch. 2 (a
+long case study in its own domain), §6.2-6.5 (history and community) and the appendices. The
+`gof/` files are self-contained: they do not mention the refactoring catalogs, and the table at the
+end of `SKILL.md` links each pattern to the refactorings that reach it.
+
+| Pattern | Folder | Ch. | Page |
+|---|---|---|---|
+| Abstract Factory | `creational` | 3 | 87 |
+| Builder | `creational` | 3 | 97 |
+| Factory Method | `creational` | 3 | 107 |
+| Prototype | `creational` | 3 | 117 |
+| Singleton | `creational` | 3 | 127 |
+| Adapter | `structural` | 4 | 139 |
+| Bridge | `structural` | 4 | 151 |
+| Composite | `structural` | 4 | 163 |
+| Decorator | `structural` | 4 | 175 |
+| Facade | `structural` | 4 | 185 |
+| Flyweight | `structural` | 4 | 195 |
+| Proxy | `structural` | 4 | 207 |
+| Chain of Responsibility | `behavioral` | 5 | 223 |
+| Command | `behavioral` | 5 | 233 |
+| Interpreter | `behavioral` | 5 | 243 |
+| Iterator | `behavioral` | 5 | 257 |
+| Mediator | `behavioral` | 5 | 273 |
+| Memento | `behavioral` | 5 | 283 |
+| Observer | `behavioral` | 5 | 293 |
+| State | `behavioral` | 5 | 305 |
+| Strategy | `behavioral` | 5 | 315 |
+| Template Method | `behavioral` | 5 | 325 |
+| Visitor | `behavioral` | 5 | 331 |
+
+Pages are the printed pages from the book's own list of patterns (inside front cover).
+
+File format:
+
+```markdown
+# State
+
+Gamma et al. (1995), ch. 5, p. 305. Category: object behavioral.
+
+## Intent
+## When it pays off
+## Participants in C#
+## Example (C#)
+## Variations
+## Risks and C# alternatives
+## Related patterns
+## Verification
+```
+
+## 7. C# level of every example
+
+All examples in the package are C# 9, so that they also compile in Unity, whose compiler stops at
+C# 9: no `record` or `init` (they need an `IsExternalInit` shim there), no `required`, no primary
+constructors, no collection expressions, no file-scoped namespaces, no `global using`, no raw
+strings, no list patterns. Pattern matching, switch expressions, `new()`, nullable reference types,
+delegates, events, LINQ and `async` are used freely. Every block is compiled against
+`netstandard2.1` with `LangVersion` 9; a deliberately partial block starts with `// fragment`.
+Examples use current, neutral themes (checkout, billing, payments, HTTP clients, an AI assistant,
+IoT, feature flags, report export, cloud storage...), never the books' own examples.

@@ -8,7 +8,8 @@ academic and commercial use, as long as you give appropriate credit, as describe
 Credit
 ------
 The refactoring catalogs, the refactoring and code smell names, and the method these skills
-teach are the work of Martin Fowler and Joshua Kerievsky, published in:
+teach are the work of Martin Fowler and Joshua Kerievsky, and the design patterns are the work
+of Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, published in:
 
   Martin Fowler. Refactoring: Improving the Design of Existing Code. 2nd ed.
   Boston: Addison-Wesley (Pearson Education), 2018. ISBN 978-0-13-475759-9.
@@ -17,6 +18,10 @@ teach are the work of Martin Fowler and Joshua Kerievsky, published in:
   Joshua Kerievsky. Refactoring to Patterns. Boston: Addison-Wesley
   (Pearson Education), 2004. ISBN 978-0-321-21335-8.
   Online catalog: https://www.industriallogic.com/refactoring-to-patterns/catalog/
+
+  Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides. Design Patterns:
+  Elements of Reusable Object-Oriented Software. Reading: Addison-Wesley, 1995.
+  ISBN 978-0-201-63361-0.
 
 When you reuse or adapt this package, credit both this package and the books above.
 
