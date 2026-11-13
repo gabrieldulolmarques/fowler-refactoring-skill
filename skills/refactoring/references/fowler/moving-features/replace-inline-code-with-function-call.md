@@ -25,21 +25,21 @@ corpo da função sem querer que este código mudasse, eles não são a mesma co
 Antes:
 
 ```csharp
-public class ShippingPolicy
+public class CourierCoverage
 {
-    private static readonly string[] RestrictedCountries = { "KP", "IR", "SY" };
+    private static readonly string[] ServiceAreas = { "north", "central", "harbor" };
 
-    public bool IsRestricted(string countryCode)
+    public bool Covers(string zone)
     {
-        bool restricted = false;
-        foreach (var code in RestrictedCountries)
+        bool covered = false;
+        foreach (var area in ServiceAreas)
         {
-            if (code == countryCode)
+            if (area == zone)
             {
-                restricted = true;
+                covered = true;
             }
         }
-        return restricted;
+        return covered;
     }
 }
 ```
@@ -47,19 +47,21 @@ public class ShippingPolicy
 Depois:
 
 ```csharp
-public class ShippingPolicy
-{
-    private static readonly string[] RestrictedCountries = { "KP", "IR", "SY" };
+using System.Linq;
 
-    public bool IsRestricted(string countryCode)
+public class CourierCoverage
+{
+    private static readonly string[] ServiceAreas = { "north", "central", "harbor" };
+
+    public bool Covers(string zone)
     {
-        return RestrictedCountries.Contains(countryCode);
+        return ServiceAreas.Contains(zone);
     }
 }
 ```
 
-(`Contains` em um array vem de `System.Linq`; adicione `using System.Linq;` onde necessário.)
-O comportamento não muda: ambos retornam true quando o código está na lista.
+(`Contains` em um array vem de `System.Linq`; adicione `using System.Linq;` onde for preciso.)
+O comportamento não muda: os dois retornam verdadeiro quando a zona está na lista.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

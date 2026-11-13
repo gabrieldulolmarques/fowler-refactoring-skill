@@ -28,94 +28,126 @@ preferência de estilo, então decida pela legibilidade.
    Consolidar Expressão Condicional (Consolidate Conditional Expression) ([consolidate-conditional-expression.md](consolidate-conditional-expression.md)).
 
 ## Exemplo
-Antes: a taxa só é calculada quando o pedido não está cancelado nem vazio.
+Antes: a taxa só é calculada quando o pedido não é retirada nem vazio, e fica abaixo do limite de frete grátis.
 
 ```csharp
-public decimal ShippingFee(Order order)
+public class Order
 {
-    decimal result;
-    if (order.IsCancelled)
+    public bool IsPickup { get; }
+    public bool IsIsland { get; }
+    public int ItemCount { get; }
+    public int Zone { get; }
+    public decimal Subtotal { get; }
+
+    public Order(bool isPickup, bool isIsland, int itemCount, int zone, decimal subtotal)
     {
-        result = 0m;
+        IsPickup = isPickup;
+        IsIsland = isIsland;
+        ItemCount = itemCount;
+        Zone = zone;
+        Subtotal = subtotal;
     }
-    else
+}
+
+public class ShippingService
+{
+    public decimal ShippingFee(Order order)
     {
-        if (order.Items.Count == 0)
+        decimal result;
+        if (order.IsPickup)
         {
             result = 0m;
         }
         else
         {
-            if (order.Total >= 100m)
+            if (order.ItemCount == 0)
             {
                 result = 0m;
             }
             else
             {
-                result = 7.5m + order.Items.Count * 0.5m;
+                if (order.Subtotal >= 100m)
+                {
+                    result = 0m;
+                }
+                else
+                {
+                    result = 7.5m + order.Zone * 1.5m;
+                }
             }
         }
+        return result;
     }
-    return result;
 }
 ```
 
-Depois da primeira guarda (um passo, testes executados):
+Depois da primeira cláusula de guarda (um passo, com testes rodando):
 
 ```csharp
-public decimal ShippingFee(Order order)
+public class ShippingService
 {
-    decimal result;
-    if (order.IsCancelled) return 0m;
-    if (order.Items.Count == 0)
+    public decimal ShippingFee(Order order)
     {
-        result = 0m;
+        decimal result;
+        if (order.IsPickup) return 0m;
+        if (order.ItemCount == 0)
+        {
+            result = 0m;
+        }
+        else
+        {
+            if (order.Subtotal >= 100m) result = 0m;
+            else result = 7.5m + order.Zone * 1.5m;
+        }
+        return result;
     }
-    else
-    {
-        if (order.Total >= 100m) result = 0m;
-        else result = 7.5m + order.Items.Count * 0.5m;
-    }
-    return result;
 }
 ```
 
-Final, sem a variável e com os resultados iguais consolidados:
+Final, com a variável eliminada e os resultados iguais consolidados:
 
 ```csharp
-public decimal ShippingFee(Order order)
+public class ShippingService
 {
-    if (order.IsCancelled || order.Items.Count == 0 || order.Total >= 100m) return 0m;
-    return 7.5m + order.Items.Count * 0.5m;
+    public decimal ShippingFee(Order order)
+    {
+        if (order.IsPickup || order.ItemCount == 0 || order.Subtotal >= 100m) return 0m;
+        return 7.5m + order.Zone * 1.5m;
+    }
 }
 ```
 
-Invertendo uma condição: quando um teste com `||` protege o caminho normal, inverta-o (De Morgan
-transforma o `||` em `&&`).
+Invertendo uma condição: quando um teste com `||` protege o caminho normal, inverta-o (De Morgan transforma o `||` em `&&`).
 
 ```csharp
 // antes
-public decimal AmountDue(Invoice invoice)
+public class SurchargeRules
 {
-    if (invoice.IsOpen || invoice.IsOverdue)
+    public decimal RemoteSurcharge(Order order)
     {
-        if (invoice.Customer != null)
-            return invoice.Amount - invoice.Paid;
+        if (order.Zone >= 4 || order.IsIsland)
+        {
+            if (!order.IsPickup)
+                return 12m;
+        }
+        return 0m;
     }
-    return 0m;
 }
+```
 
+```csharp
 // depois
-public decimal AmountDue(Invoice invoice)
+public class SurchargeRules
 {
-    if (!invoice.IsOpen && !invoice.IsOverdue) return 0m;
-    if (invoice.Customer == null) return 0m;
-    return invoice.Amount - invoice.Paid;
+    public decimal RemoteSurcharge(Order order)
+    {
+        if (order.Zone < 4 && !order.IsIsland) return 0m;
+        if (order.IsPickup) return 0m;
+        return 12m;
+    }
 }
 ```
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Cada guarda mantém o valor de retorno original para o seu caso, e a ordem das guardas
-  corresponde à ordem original de avaliação (uma guarda que chama algo com efeitos colaterais
-  não deve passar para antes de outra).
+- Cada cláusula de guarda mantém o valor de retorno original para o seu caso, e a ordem das cláusulas segue a ordem original de avaliação (uma cláusula que chama algo com efeitos colaterais não pode passar antes de outra).

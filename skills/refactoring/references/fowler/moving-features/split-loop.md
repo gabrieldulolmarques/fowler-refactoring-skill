@@ -20,70 +20,78 @@ Não decida contra isso só porque os dados são percorridos duas vezes. A clare
 6. Considere Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) em cada laço e Substituir Laço por Pipeline (Replace Loop with Pipeline) ([replace-loop-with-pipeline.md](replace-loop-with-pipeline.md)) onde ficar mais legível.
 
 ## Exemplo
-Antes: uma passada calcula tanto o total quanto a data de vencimento mais recente.
+Antes: uma única passagem calcula ao mesmo tempo o peso total e a entrega mais recente.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(decimal Amount, DateTime DueDate);
-
-public static class InvoiceReport
+public class Delivery
 {
-    public static string Summarize(IReadOnlyList<Invoice> invoices)
+    public Delivery(decimal weightKg, DateTime deliveredAt)
     {
-        decimal total = 0;
-        DateTime latestDue = DateTime.MinValue;
-        foreach (var invoice in invoices)
+        WeightKg = weightKg;
+        DeliveredAt = deliveredAt;
+    }
+
+    public decimal WeightKg { get; }
+    public DateTime DeliveredAt { get; }
+}
+
+public static class DeliveryReport
+{
+    public static string Summarize(IReadOnlyList<Delivery> deliveries)
+    {
+        decimal totalWeight = 0;
+        DateTime latestDelivery = DateTime.MinValue;
+        foreach (var delivery in deliveries)
         {
-            total += invoice.Amount;
-            if (invoice.DueDate > latestDue) latestDue = invoice.DueDate;
+            totalWeight += delivery.WeightKg;
+            if (delivery.DeliveredAt > latestDelivery) latestDelivery = delivery.DeliveredAt;
         }
 
-        return $"total: {total}, vencimento mais recente: {latestDue:yyyy-MM-dd}";
+        return $"weight: {totalWeight} kg, last delivery: {latestDelivery:yyyy-MM-dd}";
     }
 }
 ```
 
-Depois: um laço por responsabilidade, e depois cada um extraído para uma função.
+Depois: um laço por preocupação, e então cada um é extraído para uma função.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(decimal Amount, DateTime DueDate);
-
-public static class InvoiceReport
+public static class DeliveryReport
 {
-    public static string Summarize(IReadOnlyList<Invoice> invoices)
+    public static string Summarize(IReadOnlyList<Delivery> deliveries)
     {
-        return $"total: {TotalAmount(invoices)}, vencimento mais recente: {LatestDueDate(invoices):yyyy-MM-dd}";
+        return $"weight: {TotalWeight(deliveries)} kg, last delivery: {LatestDelivery(deliveries):yyyy-MM-dd}";
     }
 
-    private static decimal TotalAmount(IReadOnlyList<Invoice> invoices)
+    private static decimal TotalWeight(IReadOnlyList<Delivery> deliveries)
     {
-        decimal total = 0;
-        foreach (var invoice in invoices)
+        decimal totalWeight = 0;
+        foreach (var delivery in deliveries)
         {
-            total += invoice.Amount;
+            totalWeight += delivery.WeightKg;
         }
-        return total;
+        return totalWeight;
     }
 
-    private static DateTime LatestDueDate(IReadOnlyList<Invoice> invoices)
+    private static DateTime LatestDelivery(IReadOnlyList<Delivery> deliveries)
     {
-        DateTime latestDue = DateTime.MinValue;
-        foreach (var invoice in invoices)
+        DateTime latestDelivery = DateTime.MinValue;
+        foreach (var delivery in deliveries)
         {
-            if (invoice.DueDate > latestDue) latestDue = invoice.DueDate;
+            if (delivery.DeliveredAt > latestDelivery) latestDelivery = delivery.DeliveredAt;
         }
-        return latestDue;
+        return latestDelivery;
     }
 }
 ```
 
-O comportamento é o mesmo. Cada função agora tem um único propósito e mais tarde pode virar uma expressão LINQ (`invoices.Sum(i => i.Amount)`).
+O comportamento é o mesmo. Cada função agora tem um único propósito e pode, mais tarde, virar uma expressão LINQ (`deliveries.Sum(d => d.WeightKg)`).
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Não misture uma otimização ou uma reescrita para pipeline no mesmo commit da divisão.
+- Não misture uma otimização ou uma reescrita em pipeline no mesmo commit da divisão.

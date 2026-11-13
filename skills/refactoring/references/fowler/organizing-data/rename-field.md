@@ -36,80 +36,86 @@ migre os usuários gradualmente e então apague o nome antigo. Nunca mantenha du
 Se os testes quebrarem durante uma renomeação de uma só vez, desfaça e use o caminho gradual.
 
 ## Exemplo
-Antes: `Customer` expõe um campo público chamado `Tag` que na verdade guarda a referência de
-cobrança, e muitos chamadores o usam.
+Antes: `Device` expõe um campo público chamado `Rev` que na verdade guarda a versão do firmware, e muitos chamadores o usam.
 
 ```csharp
-public class Customer
+using System;
+
+public class Device
 {
-    public string Tag;       // na verdade é a referência de cobrança
-    public string Country;
+    public string Rev; // na verdade a versão do firmware
+    public int SamplingSeconds;
 }
 
-// chamador
-var customer = new Customer { Tag = "INV-2041", Country = "BR" };
-Console.WriteLine(customer.Tag);
-```
-
-Passo 1, encapsule e dê ao campo de apoio o seu próprio nome. O inicializador de objeto no
-chamador continua compilando porque passa pelos setters das propriedades:
-
-```csharp
-public class Customer
+public class Caller
 {
-    private string _billingReference;
-    private string _country;
-
-    public string Tag
+    public void Run()
     {
-        get => _billingReference;
-        set => _billingReference = value;
-    }
-
-    public string Country
-    {
-        get => _country;
-        set => _country = value;
+        var device = new Device { Rev = "2.4.1", SamplingSeconds = 30 };
+        Console.WriteLine(device.Rev);
     }
 }
 ```
 
-Passo 2, renomeie a propriedade e atualize os chamadores. Esta classe não tem construtor, então
-o passo 4 da mecânica não tem o que fazer aqui:
+Passo 1, encapsule e dê ao campo de suporte um nome próprio. O inicializador de objeto no chamador continua compilando, porque passa pelos setters da propriedade:
 
 ```csharp
-public class Customer
+public class Device
 {
-    private string _billingReference;
-    private string _country;
+    private string _firmwareVersion;
+    private int _samplingSeconds;
 
-    public string BillingReference
+    public string Rev
     {
-        get => _billingReference;
-        set => _billingReference = value;
+        get => _firmwareVersion;
+        set => _firmwareVersion = value;
     }
 
-    public string Country
+    public int SamplingSeconds
     {
-        get => _country;
-        set => _country = value;
+        get => _samplingSeconds;
+        set => _samplingSeconds = value;
+    }
+}
+```
+
+Passo 2, renomeie a propriedade e atualize os chamadores. Esta classe não tem construtor, então o passo 4 da mecânica não tem nada a fazer aqui:
+
+```csharp
+public class Device
+{
+    private string _firmwareVersion;
+    private int _samplingSeconds;
+
+    public string FirmwareVersion
+    {
+        get => _firmwareVersion;
+        set => _firmwareVersion = value;
+    }
+
+    public int SamplingSeconds
+    {
+        get => _samplingSeconds;
+        set => _samplingSeconds = value;
     }
 }
 
-// chamador
-var customer = new Customer { BillingReference = "INV-2041", Country = "BR" };
-Console.WriteLine(customer.BillingReference);
+public class Caller
+{
+    public void Run()
+    {
+        var device = new Device { FirmwareVersion = "2.4.1", SamplingSeconds = 30 };
+        Console.WriteLine(device.FirmwareVersion);
+    }
+}
 ```
 
-O comportamento não muda; só o nome mudou de lugar.
+O comportamento não muda; só o nome mudou.
 
 ## Notas (C#)
-- Um campo serializado ou persistido só mantém o seu nome externo com um atributo de mapeamento (por
-  exemplo `[JsonPropertyName("oldName")]`) ou uma migração. Renomear a propriedade sem um deles
-  muda o JSON, a coluna ou os dados armazenados.
-- Transformar um campo público em propriedade muda o próprio membro: a reflexão e os consumidores binários
-  quebram, e os serializadores podem tratar os dois de forma diferente.
-- O compilador encontra usos diretos, não reflexão, data binding por string nem chaves de configuração.
+- Um campo serializado ou persistido mantém seu nome no formato só com um atributo de mapeamento (por exemplo `[JsonPropertyName("oldName")]`) ou uma migração. Renomear a propriedade sem um deles muda o JSON, a coluna ou os dados armazenados.
+- Transformar um campo público em propriedade muda o próprio membro: consumidores por reflexão e binários quebram, e os serializadores podem tratar os dois de forma diferente.
+- O compilador encontra usos diretos, não reflexão, vinculação de dados por string nem chaves de configuração.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

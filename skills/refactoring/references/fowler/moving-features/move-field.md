@@ -40,146 +40,157 @@ Smells: Cirurgia com Espingarda (Shotgun Surgery), Troca de Informações Privil
   uma a uma.
 
 ## Exemplo
-Antes: a multa por atraso vive no membro, embora seja na verdade um termo da assinatura.
+Antes: o limite de tentativas fica em `Shipment`, embora na verdade seja um termo do plano de entrega.
 
 ```csharp
-public class Member
-{
-    private readonly Membership _membership;
-    private decimal _lateFeePerDay;
+using System;
 
-    public Member(string name, decimal lateFeePerDay)
+public class Shipment
+{
+    private readonly DeliveryPlan _plan;
+    private int _maxAttempts;
+
+    public Shipment(string trackingCode, int maxAttempts)
     {
-        Name = name;
-        _lateFeePerDay = lateFeePerDay;
-        _membership = new Membership(DateTime.UtcNow.Date);
+        TrackingCode = trackingCode;
+        _maxAttempts = maxAttempts;
+        _plan = new DeliveryPlan(DateTime.UtcNow.Date);
     }
 
-    public string Name { get; }
-    public decimal LateFeePerDay => _lateFeePerDay;
+    public string TrackingCode { get; }
+    public int MaxAttempts => _maxAttempts;
 
-    public void Upgrade() => _lateFeePerDay += 0.25m;
+    public void Escalate() => _maxAttempts += 1;
 
-    public decimal FeeFor(int daysLate) => daysLate * _lateFeePerDay;
+    public bool CanRetry(int attemptsMade) => attemptsMade < _maxAttempts;
 }
 
-public class Membership
+public class DeliveryPlan
 {
-    public Membership(DateTime joinedOn) => JoinedOn = joinedOn;
-    public DateTime JoinedOn { get; }
+    public DeliveryPlan(DateTime plannedFor) => PlannedFor = plannedFor;
+    public DateTime PlannedFor { get; }
 }
 ```
 
 Passo 1, encapsule o campo. O construtor agora passa pelo setter:
 
 ```csharp
-public Member(string name, decimal lateFeePerDay)
+// fragment
+public Shipment(string trackingCode, int maxAttempts)
 {
-    Name = name;
-    SetLateFee(lateFeePerDay);
-    _membership = new Membership(DateTime.UtcNow.Date);
+    TrackingCode = trackingCode;
+    SetMaxAttempts(maxAttempts);
+    _plan = new DeliveryPlan(DateTime.UtcNow.Date);
 }
 
-public decimal LateFeePerDay => _lateFeePerDay;
-private void SetLateFee(decimal value) => _lateFeePerDay = value;
+public int MaxAttempts => _maxAttempts;
+private void SetMaxAttempts(int value) => _maxAttempts = value;
 
-public void Upgrade() => SetLateFee(LateFeePerDay + 0.25m);
-public decimal FeeFor(int daysLate) => daysLate * LateFeePerDay;
+public void Escalate() => SetMaxAttempts(MaxAttempts + 1);
+public bool CanRetry(int attemptsMade) => attemptsMade < MaxAttempts;
 ```
 
-Passo 2, adicione o campo e os acessores a `Membership`. O novo parâmetro é opcional por enquanto, de modo que
-`Member` ainda compila sem alteração:
+Passo 2, adicione o campo e os acessores em `DeliveryPlan`. O novo parâmetro é opcional por enquanto, então `Shipment` continua compilando sem mudanças:
 
 ```csharp
-public class Membership
+using System;
+
+public class DeliveryPlan
 {
-    public Membership(DateTime joinedOn, decimal lateFeePerDay = 0m)
+    public DeliveryPlan(DateTime plannedFor, int maxAttempts = 0)
     {
-        JoinedOn = joinedOn;
-        LateFeePerDay = lateFeePerDay;
+        PlannedFor = plannedFor;
+        MaxAttempts = maxAttempts;
     }
 
-    public DateTime JoinedOn { get; }
-    public decimal LateFeePerDay { get; set; }
+    public DateTime PlannedFor { get; }
+    public int MaxAttempts { get; set; }
 }
 ```
 
 Passo 4, primeira tentativa: redirecione os acessores enquanto o construtor ainda está na ordem antiga.
 
 ```csharp
-public decimal LateFeePerDay => _membership.LateFeePerDay;
-private void SetLateFee(decimal value) => _membership.LateFeePerDay = value;
-// o construtor chama SetLateFee antes de _membership ser atribuído:
+// fragment
+public int MaxAttempts => _plan.MaxAttempts;
+private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
+// o construtor chama SetMaxAttempts antes de _plan ser atribuído:
 // NullReferenceException na construção
 ```
 
-Reverta os acessores e reordene o construtor para que `_membership` exista antes de o setter
-rodar. Teste:
+Reverta os acessores e reordene o construtor para que `_plan` exista antes de o setter rodar. Teste:
 
 ```csharp
-public Member(string name, decimal lateFeePerDay)
+// fragment
+public Shipment(string trackingCode, int maxAttempts)
 {
-    Name = name;
-    _membership = new Membership(DateTime.UtcNow.Date);
-    SetLateFee(lateFeePerDay);
+    TrackingCode = trackingCode;
+    _plan = new DeliveryPlan(DateTime.UtcNow.Date);
+    SetMaxAttempts(maxAttempts);
 }
 ```
 
 Redirecione os acessores de novo. Teste:
 
 ```csharp
-public decimal LateFeePerDay => _membership.LateFeePerDay;
-private void SetLateFee(decimal value) => _membership.LateFeePerDay = value;
+// fragment
+public int MaxAttempts => _plan.MaxAttempts;
+private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
 ```
 
-Passo 5: apague `_lateFeePerDay`. Teste.
+Passo 5: apague `_maxAttempts`. Teste.
 
-Limpeza opcional, como um passo separado: o construtor pode entregar a multa inicial direto para
-`Membership`, e o valor padrão temporário do novo parâmetro some. `SetLateFee` fica para
-`Upgrade`:
+Limpeza opcional, como passo separado: o construtor pode entregar o limite inicial diretamente a `DeliveryPlan`, e o padrão temporário do novo parâmetro some. `SetMaxAttempts` continua para `Escalate`:
 
 ```csharp
-public Member(string name, decimal lateFeePerDay)
+// fragment
+public Shipment(string trackingCode, int maxAttempts)
 {
-    Name = name;
-    _membership = new Membership(DateTime.UtcNow.Date, lateFeePerDay);
+    TrackingCode = trackingCode;
+    _plan = new DeliveryPlan(DateTime.UtcNow.Date, maxAttempts);
 }
 ```
 
-Movendo para um objeto compartilhado: o percentual de imposto de um produto passa a ser o percentual da sua categoria.
-Durante a transição, o produto ainda armazena o valor, mas assere que ele coincide:
+Movendo para um objeto compartilhado: o percentual de seguro de uma encomenda passa a ser o percentual do seu nível de serviço. Durante a transição, a encomenda ainda guarda o valor, mas afirma que ele é igual ao do nível:
 
 ```csharp
 using System.Diagnostics;
 
-public class Product
+public class ServiceLevel
 {
-    private readonly Category _category;
-    private readonly decimal _vatPercent;
-
-    public Product(string sku, Category category, decimal vatPercent)
+    public ServiceLevel(string name, decimal insurancePercent)
     {
-        Debug.Assert(vatPercent == category.VatPercent);
-        Sku = sku;
-        _category = category;
-        _vatPercent = vatPercent;
+        Name = name;
+        InsurancePercent = insurancePercent;
     }
 
-    public string Sku { get; }
-    public decimal VatPercent => _vatPercent;
+    public string Name { get; }
+    public decimal InsurancePercent { get; }
+}
+
+public class Parcel
+{
+    private readonly ServiceLevel _level;
+    private readonly decimal _insurancePercent;
+
+    public Parcel(string trackingCode, ServiceLevel level, decimal insurancePercent)
+    {
+        Debug.Assert(insurancePercent == level.InsurancePercent);
+        TrackingCode = trackingCode;
+        _level = level;
+        _insurancePercent = insurancePercent;
+    }
+
+    public string TrackingCode { get; }
+    public decimal InsurancePercent => _insurancePercent;
 }
 ```
 
-Depois que a asserção se sustentar, remova o parâmetro do construtor e o campo e retorne
-`_category.VatPercent`.
+Quando a asserção tiver se mantido, remova o parâmetro e o campo do construtor, e retorne `_level.InsurancePercent`.
 
 ## Notas (C#)
-- Um campo persistido ou serializado só mantém seu nome armazenado se o mapeamento também for atualizado
-  (coluna, nome da propriedade JSON, atributos do serializador). Movê-lo para outra classe muda
-  o formato armazenado, então migre ou mapeie os dados.
+- Um campo persistido ou serializado mantém o nome armazenado só se o mapeamento também for atualizado (coluna, nome da propriedade JSON, atributos do serializador). Movê-lo para outra classe muda o formato armazenado, então migre ou mapeie os dados.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- No caso do objeto compartilhado, consulte os dados armazenados em busca de linhas cujo valor difira do
-  do destino, ou execute com a asserção habilitada (ou uma linha de log no lugar dela) e confirme que
-  nada dispara antes de remover o campo antigo.
+- No caso do objeto compartilhado, consulte os dados armazenados por linhas cujo valor difere do valor do alvo, ou execute com a asserção habilitada (ou com uma linha de log no lugar dela) e confirme que nada dispara antes de remover o campo antigo.

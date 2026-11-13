@@ -24,73 +24,121 @@ Quando a escolha do novo lar não é clara, ela costuma importar pouco. Coloque 
 9. Dê à função de destino seu nome final, agora que ela vive em seu novo contexto ([change-function-declaration.md](../first-set/change-function-declaration.md)), e mova quaisquer funções auxiliares que só ela usava.
 
 ## Exemplo
-Antes: `Order` calcula uma taxa de frete a partir de dados que em sua maioria pertencem a `Customer`.
+Antes: `Delivery` calcula uma sobretaxa a partir de dados que em sua maioria pertencem a `Zone`.
 
 ```csharp
-public class Customer
+public class Zone
 {
-    public string Region { get; init; } = "";
-    public bool IsMember { get; init; }
+    public Zone(string name, bool isRemote)
+    {
+        Name = name;
+        IsRemote = isRemote;
+    }
+
+    public string Name { get; }
+    public bool IsRemote { get; }
 }
 
-public class Order
+public class Delivery
 {
-    public Customer Customer { get; init; } = new();
-    public decimal Subtotal { get; init; }
-
-    public decimal Total => Subtotal + ShippingFee();
-
-    public decimal ShippingFee()
+    public Delivery(Zone zone, decimal baseRate)
     {
-        if (Customer.IsMember) return 0m;
-        return Customer.Region == "domestic" ? 5m : 20m;
+        Zone = zone;
+        BaseRate = baseRate;
+    }
+
+    public Zone Zone { get; }
+    public decimal BaseRate { get; }
+
+    public decimal Total => BaseRate + Surcharge();
+
+    public decimal Surcharge()
+    {
+        if (Zone.IsRemote) return 12m;
+        return Zone.Name == "urban" ? 0m : 4m;
     }
 }
 ```
 
-Passos 3 a 7: copie a função para `Customer` (o pedido não é necessário, então não há parâmetro) e depois delegue a partir de `Order`.
+Passos 3 a 7: copie a função para `Zone` (a entrega não é necessária, então não há parâmetro) e depois delegue a partir de `Delivery`.
 
 ```csharp
-public class Customer
+public class Zone
 {
-    public string Region { get; init; } = "";
-    public bool IsMember { get; init; }
-
-    public decimal ShippingFee()
+    public Zone(string name, bool isRemote)
     {
-        if (IsMember) return 0m;
-        return Region == "domestic" ? 5m : 20m;
+        Name = name;
+        IsRemote = isRemote;
+    }
+
+    public string Name { get; }
+    public bool IsRemote { get; }
+
+    public decimal Surcharge()
+    {
+        if (IsRemote) return 12m;
+        return Name == "urban" ? 0m : 4m;
     }
 }
 
-public class Order
+public class Delivery
 {
-    public Customer Customer { get; init; } = new();
-    public decimal Subtotal { get; init; }
+    public Delivery(Zone zone, decimal baseRate)
+    {
+        Zone = zone;
+        BaseRate = baseRate;
+    }
 
-    public decimal Total => Subtotal + ShippingFee();
+    public Zone Zone { get; }
+    public decimal BaseRate { get; }
 
-    public decimal ShippingFee() => Customer.ShippingFee();
+    public decimal Total => BaseRate + Surcharge();
+
+    public decimal Surcharge() => Zone.Surcharge();
 }
 ```
 
 Passo 8: só `Total` a chama, então internalize a função delegadora.
 
 ```csharp
-public class Order
+public class Zone
 {
-    public Customer Customer { get; init; } = new();
-    public decimal Subtotal { get; init; }
+    public Zone(string name, bool isRemote)
+    {
+        Name = name;
+        IsRemote = isRemote;
+    }
 
-    public decimal Total => Subtotal + Customer.ShippingFee();
+    public string Name { get; }
+    public bool IsRemote { get; }
+
+    public decimal Surcharge()
+    {
+        if (IsRemote) return 12m;
+        return Name == "urban" ? 0m : 4m;
+    }
+}
+
+public class Delivery
+{
+    public Delivery(Zone zone, decimal baseRate)
+    {
+        Zone = zone;
+        BaseRate = baseRate;
+    }
+
+    public Zone Zone { get; }
+    public decimal BaseRate { get; }
+
+    public decimal Total => BaseRate + Zone.Surcharge();
 }
 ```
 
-Se a função movida precisar depois de mais coisas do pedido (por exemplo, o subtotal para um limite de frete grátis), passe o pedido em vez de valores avulsos: `Customer.ShippingFee(this)`.
+Se a função movida depois precisar de mais dados da entrega (por exemplo, a taxa base para uma sobretaxa percentual), passe a entrega em vez de valores isolados: `Zone.Surcharge(this)`.
 
 ## Notas (C#)
 - O destino pode ser outra classe, uma classe estática ou um método de extensão. Um método de extensão serve para um tipo que você não pode editar, mas só pode usar membros públicos.
-- Mover um método `virtual`, `override` ou que implementa uma interface muda o contrato para as outras implementações; verifique-as primeiro.
+- Mover um método `virtual`, `override` ou que implementa interface muda o contrato para as outras implementações; verifique-as primeiro.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

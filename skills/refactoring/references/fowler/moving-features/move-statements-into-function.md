@@ -30,73 +30,79 @@ se um comportamento compartilhado precisar começar a variar, a refatoração in
    para o nome original, ou um melhor.
 
 ## Exemplo
-Dois métodos imprimem as linhas de contato de um cliente. Cada um imprime o nome do cliente logo antes de
-chamar `PrintContact`.
+Dois métodos imprimem o bloco de endereço de uma remessa. Cada um imprime o nome do destinatário logo antes de chamar `PrintAddress`.
 
 Antes:
 
 ```csharp
 using System.Collections.Generic;
 
-public record Customer(string Name, string Email, string Phone);
-
-public class StatementPrinter
+public class Recipient
 {
-    public IEnumerable<string> PrintInvoiceHeader(Customer customer)
+    public Recipient(string name, string street, string city)
     {
-        var lines = new List<string> { "INVOICE" };
-        lines.Add($"customer: {customer.Name}");
-        lines.AddRange(PrintContact(customer));
+        Name = name;
+        Street = street;
+        City = city;
+    }
+
+    public string Name { get; }
+    public string Street { get; }
+    public string City { get; }
+}
+
+public class LabelPrinter
+{
+    public IEnumerable<string> PrintShippingLabel(Recipient recipient)
+    {
+        var lines = new List<string> { "SHIPPING LABEL" };
+        lines.Add($"recipient: {recipient.Name}");
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    public IEnumerable<string> PrintReminder(Customer customer)
+    public IEnumerable<string> PrintDeliveryReceipt(Recipient recipient)
     {
-        var lines = new List<string> { "PAYMENT REMINDER" };
-        lines.Add($"customer: {customer.Name}");
-        lines.AddRange(PrintContact(customer));
+        var lines = new List<string> { "DELIVERY RECEIPT" };
+        lines.Add($"recipient: {recipient.Name}");
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    private IEnumerable<string> PrintContact(Customer customer)
+    private IEnumerable<string> PrintAddress(Recipient recipient)
     {
-        yield return $"email: {customer.Email}";
-        yield return $"phone: {customer.Phone}";
+        yield return $"street: {recipient.Street}";
+        yield return $"city: {recipient.City}";
     }
 }
 ```
 
-Após o passo 3, `PrintInvoiceHeader` chama uma `PrintCustomerAndContact(customer)` temporária, cujo
-corpo é a linha do nome seguida da chamada a `PrintContact`; `PrintReminder` ainda tem sua própria linha de nome
-e a chamada a `PrintContact`. Os passos 4 e 5 atualizam `PrintReminder` e internalizam `PrintContact`, e
-o passo 6 renomeia a função temporária para `PrintContact`. Depois:
+Depois do passo 3, `PrintShippingLabel` chama um `PrintRecipientAndAddress(recipient)` temporário, cujo corpo é a linha do nome seguida da chamada a `PrintAddress`; `PrintDeliveryReceipt` ainda tem sua própria linha de nome e sua própria chamada a `PrintAddress`. Os passos 4 e 5 atualizam `PrintDeliveryReceipt` e internalizam `PrintAddress`, e o passo 6 renomeia a função temporária para `PrintAddress`. Depois:
 
 ```csharp
 using System.Collections.Generic;
 
-public record Customer(string Name, string Email, string Phone);
-
-public class StatementPrinter
+public class LabelPrinter
 {
-    public IEnumerable<string> PrintInvoiceHeader(Customer customer)
+    public IEnumerable<string> PrintShippingLabel(Recipient recipient)
     {
-        var lines = new List<string> { "INVOICE" };
-        lines.AddRange(PrintContact(customer));
+        var lines = new List<string> { "SHIPPING LABEL" };
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    public IEnumerable<string> PrintReminder(Customer customer)
+    public IEnumerable<string> PrintDeliveryReceipt(Recipient recipient)
     {
-        var lines = new List<string> { "PAYMENT REMINDER" };
-        lines.AddRange(PrintContact(customer));
+        var lines = new List<string> { "DELIVERY RECEIPT" };
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    private IEnumerable<string> PrintContact(Customer customer)
+    private IEnumerable<string> PrintAddress(Recipient recipient)
     {
-        yield return $"customer: {customer.Name}";
-        yield return $"email: {customer.Email}";
-        yield return $"phone: {customer.Phone}";
+        yield return $"recipient: {recipient.Name}";
+        yield return $"street: {recipient.Street}";
+        yield return $"city: {recipient.City}";
     }
 }
 ```
@@ -105,6 +111,6 @@ A saída dos dois métodos não muda.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Busque o nome provisório para confirmar que ele sumiu.
+- Procure o nome provisório para confirmar que ele sumiu.
 - Confirme que nenhum chamador ainda executa por conta própria as instruções movidas.
 - Compare a saída de cada chamador antes e depois da mudança.

@@ -22,70 +22,100 @@ Atribuir a um parâmetro de entrada é um caso comum: o parâmetro é ao mesmo t
 6. Para um parâmetro: declare uma variável local inicializada a partir do parâmetro no início da função, renomeie o parâmetro para dizer que é a entrada original e aponte para o parâmetro as leituras que significam a entrada original. Depois continue com os passos acima na variável local, renomeando-a para dizer o que ela guarda.
 
 ## Exemplo
-Antes: `amount` primeiro guarda o subtotal do pedido e depois é reutilizada para o valor após o desconto, que é uma grandeza diferente.
+Antes: `value` primeiro guarda a temperatura sem calibração e depois é reutilizada para a calibrada, que é outra grandeza.
 
 ```csharp
-public decimal InvoiceTotal(Order order, Customer customer)
-{
-    decimal amount = order.Quantity * order.UnitPrice;
-    Console.WriteLine($"Subtotal: {amount}");
+using System;
 
-    amount = amount - amount * customer.DiscountRate;
-    return amount + order.ShippingFee;
+public class Sample
+{
+    public int RawCounts { get; set; }
+    public double CountsToCelsius { get; set; }
+    public double SelfHeating { get; set; }
+}
+
+public class Calibration
+{
+    public double Offset { get; set; }
+    public double Gain { get; set; }
+}
+
+public class Report
+{
+    public double ReportedTemperature(Sample sample, Calibration calibration)
+    {
+        double value = sample.RawCounts * sample.CountsToCelsius;
+        Console.WriteLine($"Uncalibrated: {value}");
+
+        value = (value - calibration.Offset) * calibration.Gain;
+        return value - sample.SelfHeating;
+    }
 }
 ```
 
 Depois: uma variável por responsabilidade, cada uma nomeada pelo que guarda.
 
 ```csharp
-public decimal InvoiceTotal(Order order, Customer customer)
+public class Report
 {
-    decimal subtotal = order.Quantity * order.UnitPrice;
-    Console.WriteLine($"Subtotal: {subtotal}");
+    public double ReportedTemperature(Sample sample, Calibration calibration)
+    {
+        double uncalibrated = sample.RawCounts * sample.CountsToCelsius;
+        Console.WriteLine($"Uncalibrated: {uncalibrated}");
 
-    decimal discounted = subtotal - subtotal * customer.DiscountRate;
-    return discounted + order.ShippingFee;
+        double calibrated = (uncalibrated - calibration.Offset) * calibration.Gain;
+        return calibrated - sample.SelfHeating;
+    }
 }
 ```
 
-Caso do parâmetro. Antes, `weight` é ao mesmo tempo a entrada e o custo de envio:
+Caso de parâmetro. Antes, `requested` é ao mesmo tempo a entrada e o intervalo de amostragem efetivo:
 
 ```csharp
-public decimal ShippingCost(decimal weight, bool express)
+public class Scheduler
 {
-    weight = Math.Max(weight, 1m) * 4.5m;
-    if (express) weight *= 1.8m;
-    return weight;
+    public double EffectiveInterval(double requested, bool lowBattery)
+    {
+        requested = Math.Max(requested, 0.5) + 0.25;
+        if (lowBattery) requested *= 4;
+        return requested;
+    }
 }
 ```
 
-Intermediário: o parâmetro é renomeado para dizer que é a entrada, e uma variável local assume como valor de trabalho.
+Intermediário: o parâmetro é renomeado para indicar que é a entrada, e uma variável local assume o valor de trabalho.
 
 ```csharp
-public decimal ShippingCost(decimal weightKg, bool express)
+public class Scheduler
 {
-    decimal weight = weightKg;
-    weight = Math.Max(weight, 1m) * 4.5m;
-    if (express) weight *= 1.8m;
-    return weight;
+    public double EffectiveInterval(double requestedSeconds, bool lowBattery)
+    {
+        double requested = requestedSeconds;
+        requested = Math.Max(requested, 0.5) + 0.25;
+        if (lowBattery) requested *= 4;
+        return requested;
+    }
 }
 ```
 
 Depois: a variável local é renomeada pelo que guarda.
 
 ```csharp
-public decimal ShippingCost(decimal weightKg, bool express)
+public class Scheduler
 {
-    decimal cost = Math.Max(weightKg, 1m) * 4.5m;
-    if (express) cost *= 1.8m;
-    return cost;
+    public double EffectiveInterval(double requestedSeconds, bool lowBattery)
+    {
+        double interval = Math.Max(requestedSeconds, 0.5) + 0.25;
+        if (lowBattery) interval *= 4;
+        return interval;
+    }
 }
 ```
 
 ## Notas (C#)
-- C# não tem variáveis locais imutáveis (`const` só serve para constantes de tempo de compilação), então mantenha cada nova variável atribuída exatamente uma vez.
-- Renomear um parâmetro de um método público quebra os chamadores que o passam por nome (argumentos nomeados).
+- C# não tem variáveis locais imutáveis (`const` só serve para constantes de tempo de compilação), então atribua cada nova variável exatamente uma vez.
+- Renomear um parâmetro de um método público quebra os chamadores que o passam pelo nome (argumentos nomeados).
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Nenhuma variável é atribuída duas vezes para propósitos diferentes; as únicas atribuições repetidas que restam são contadores de laço e variáveis de coleta.
+- Nenhuma variável é atribuída duas vezes para finalidades diferentes; as únicas atribuições repetidas que restam são contadores de laço e variáveis acumuladoras.

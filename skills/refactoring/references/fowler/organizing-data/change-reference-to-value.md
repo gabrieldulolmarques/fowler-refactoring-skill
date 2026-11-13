@@ -28,105 +28,99 @@ objeto é uma referência de verdade, e o movimento certo pode ser a refatoraç�
    atualize-os para a nova igualdade.
 
 ## Exemplo
-Antes: um pedido possui um endereço mutável, e suas propriedades atualizam esse endereço no lugar.
+Antes: um dispositivo possui uma calibração mutável, e suas propriedades atualizam essa calibração no lugar.
 
 ```csharp
-public class PostalAddress
+public class Calibration
 {
-    public string Street { get; set; }
-    public string City { get; set; }
+    public double Offset { get; set; }
+    public double Scale { get; set; } = 1;
 }
 
-public class Order
+public class Device
 {
-    private PostalAddress _shippingAddress = new PostalAddress();
+    private Calibration _calibration = new Calibration();
 
-    public string ShippingStreet
+    public double CalibrationOffset
     {
-        get => _shippingAddress.Street;
-        set => _shippingAddress.Street = value;
+        get => _calibration.Offset;
+        set => _calibration.Offset = value;
     }
 
-    public string ShippingCity
+    public double CalibrationScale
     {
-        get => _shippingAddress.City;
-        set => _shippingAddress.City = value;
+        get => _calibration.Scale;
+        set => _calibration.Scale = value;
     }
 }
 ```
 
-Passo 1, remova os setters um por vez. O construtor recebe os campos, e cada setter
-de `Order` substitui o endereço inteiro:
+Passo 1, remova os setters um de cada vez. O construtor recebe os campos, e cada setter de `Device` substitui a calibração inteira:
 
 ```csharp
-public class PostalAddress
+public class Calibration
 {
-    public PostalAddress(string street, string city)
+    public Calibration(double offset, double scale)
     {
-        Street = street;
-        City = city;
+        Offset = offset;
+        Scale = scale;
     }
 
-    public string Street { get; }
-    public string City { get; }
+    public double Offset { get; }
+    public double Scale { get; }
 }
 
-public class Order
+public class Device
 {
-    private PostalAddress _shippingAddress = new PostalAddress(null, null);
+    private Calibration _calibration = new Calibration(0, 1);
 
-    public string ShippingStreet
+    public double CalibrationOffset
     {
-        get => _shippingAddress.Street;
-        set => _shippingAddress = new PostalAddress(value, _shippingAddress.City);
+        get => _calibration.Offset;
+        set => _calibration = new Calibration(value, _calibration.Scale);
     }
 
-    public string ShippingCity
+    public double CalibrationScale
     {
-        get => _shippingAddress.City;
-        set => _shippingAddress = new PostalAddress(_shippingAddress.Street, value);
+        get => _calibration.Scale;
+        set => _calibration = new Calibration(_calibration.Offset, value);
     }
 }
 ```
 
-Passo 2, dê a ele igualdade por valor (aqui à mão; veja as Notas (C#) para a forma mais curta):
+Passo 2, dê a ela igualdade por valor (aqui à mão; veja as notas de C# para a forma mais curta):
 
 ```csharp
+// fragment
 using System;
 
-public sealed class PostalAddress : IEquatable<PostalAddress>
+public sealed class Calibration : IEquatable<Calibration>
 {
-    public PostalAddress(string street, string city)
+    public Calibration(double offset, double scale)
     {
-        Street = street;
-        City = city;
+        Offset = offset;
+        Scale = scale;
     }
 
-    public string Street { get; }
-    public string City { get; }
+    public double Offset { get; }
+    public double Scale { get; }
 
-    public bool Equals(PostalAddress other) =>
-        other is not null && Street == other.Street && City == other.City;
+    public bool Equals(Calibration other) =>
+        other is not null && Offset == other.Offset && Scale == other.Scale;
 
-    public override bool Equals(object obj) => Equals(obj as PostalAddress);
+    public override bool Equals(object obj) => Equals(obj as Calibration);
 
-    public override int GetHashCode() => HashCode.Combine(Street, City);
+    public override int GetHashCode() => HashCode.Combine(Offset, Scale);
 }
 ```
 
-O comportamento visto de fora de `Order` é o mesmo; `new PostalAddress("A", "B")` agora é igual a
-outra instância construída com os mesmos argumentos.
+Visto de fora de `Device`, o comportamento é o mesmo; `new Calibration(0.5, 1)` agora é igual a outra instância criada com os mesmos argumentos.
 
 ## Notas (C#)
-- Um `record`, um `readonly record struct` ou uma classe imutável com igualdade por valor
-  (`Equals`/`GetHashCode`) servem. Com um `record PostalAddress(string Street, string City)`,
-  a igualdade e o hash code são gerados, e o setter do dono pode ser
-  `_shippingAddress = _shippingAddress with { City = value };`.
-- Sempre que `Equals` for sobrescrito, sobrescreva `GetHashCode` com os mesmos campos, ou as coleções baseadas
-  em hash se comportam mal. Considere também os operadores `==`/`!=` se os chamadores os usam.
-- Mantenha os próprios campos do valor imutáveis (ou comparados por valor); caso contrário, o valor ainda pode
-  ser alterado por dentro.
+- Um `record` (C# 9+; no Unity ele precisa de um shim de `IsExternalInit`), um `readonly record struct` ou uma classe imutável com igualdade por valor (`Equals`/`GetHashCode`) servem. Com um `record Calibration(double Offset, double Scale)`, a igualdade e o código de hash são gerados, e o setter do dono pode ser `_calibration = _calibration with { Scale = value };`.
+- Sempre que `Equals` for sobrescrito, sobrescreva `GetHashCode` com os mesmos campos, ou as coleções baseadas em hash se comportam mal. Considere também os operadores `==`/`!=` se os chamadores os usarem.
+- Mantenha os próprios campos do valor imutáveis (ou comparados por valor); do contrário, o valor ainda pode ser alterado por dentro.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Os testes de igualdade do passo 3 passam, incluindo `null` e outros tipos.
+- Os testes de igualdade do passo 3 passam, inclusive com `null` e outros tipos.

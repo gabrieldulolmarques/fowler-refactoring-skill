@@ -27,80 +27,74 @@ Não vale a pena quando a entidade nunca é atualizada: as cópias são então i
    não fique acoplado a estado compartilhado.
 
 ## Exemplo
-Antes: toda fatura constrói a sua própria `Account`, então duas faturas da mesma conta guardam dois
-objetos separados.
+Antes: cada leitura cria o seu próprio `Sensor`, então duas leituras do mesmo sensor guardam dois objetos separados.
 
 ```csharp
-public class Account
+public class Sensor
 {
-    public Account(string id) { Id = id; }
+    public Sensor(string id) { Id = id; }
     public string Id { get; }
-    public decimal CreditLimit { get; set; }
+    public double AlarmThreshold { get; set; }
 }
 
-public class Invoice
+public class Reading
 {
-    public Invoice(string number, string accountId)
+    public Reading(double value, string sensorId)
     {
-        Number = number;
-        Account = new Account(accountId);
+        Value = value;
+        Sensor = new Sensor(sensorId);
     }
 
-    public string Number { get; }
-    public Account Account { get; }
+    public double Value { get; }
+    public Sensor Sensor { get; }
 }
 ```
 
-Aumentar o limite de crédito por meio de uma fatura não afeta a outra.
+Alterar o limite de alarme por meio de uma leitura não afeta a outra.
 
-Depois: um repositório entrega uma `Account` por id, e `Invoice` o utiliza.
+Depois: um registro entrega um único `Sensor` por id, e `Reading` o usa.
 
 ```csharp
 using System.Collections.Generic;
 
-public class AccountRepository
+public class SensorRegistry
 {
-    private readonly Dictionary<string, Account> _accounts = new();
+    private readonly Dictionary<string, Sensor> _sensors = new();
 
-    public Account GetOrRegister(string id)
+    public Sensor GetOrRegister(string id)
     {
-        if (!_accounts.TryGetValue(id, out var account))
+        if (!_sensors.TryGetValue(id, out var sensor))
         {
-            account = new Account(id);
-            _accounts[id] = account;
+            sensor = new Sensor(id);
+            _sensors[id] = sensor;
         }
-        return account;
+        return sensor;
     }
 
-    public Account? Find(string id) =>
-        _accounts.TryGetValue(id, out var account) ? account : null;
+    public Sensor? Find(string id) =>
+        _sensors.TryGetValue(id, out var sensor) ? sensor : null;
 }
 
-public class Invoice
+public class Reading
 {
-    public Invoice(string number, string accountId, AccountRepository accounts)
+    public Reading(double value, string sensorId, SensorRegistry sensors)
     {
-        Number = number;
-        Account = accounts.GetOrRegister(accountId);
+        Value = value;
+        Sensor = sensors.GetOrRegister(sensorId);
     }
 
-    public string Number { get; }
-    public Account Account { get; }
+    public double Value { get; }
+    public Sensor Sensor { get; }
 }
 ```
 
-Agora `a.Account` e `b.Account` são o mesmo objeto para o mesmo id, então uma mudança feita por meio de uma
-fatura é vista por todas. Aqui o repositório é passado como parâmetro em vez de lido de um global.
+Agora `a.Sensor` e `b.Sensor` são o mesmo objeto para o mesmo id, então uma mudança feita por uma leitura é vista por todas. Aqui o registro é passado como parâmetro, em vez de ser lido de uma variável global.
 
 ## Notas (C#)
-- Um repositório ou registro que entrega a instância compartilhada é a forma usual: um
-  dicionário indexado por id, dentro de uma classe pequena.
-- Se o repositório for compartilhado entre threads, use uma estrutura thread-safe (por exemplo
-  `ConcurrentDictionary.GetOrAdd`) para que dois chamadores não possam criar duas instâncias para um mesmo id.
-- A igualdade por referência é o padrão de uma classe, que é o que você quer aqui: não adicione igualdade
-  por valor à entidade compartilhada.
+- Um repositório ou registro que entrega a instância compartilhada é o formato usual: um dicionário indexado por id, dentro de uma pequena classe.
+- Se o repositório for compartilhado entre threads, use uma estrutura thread-safe (por exemplo, `ConcurrentDictionary.GetOrAdd`) para que dois chamadores não criem duas instâncias para um mesmo id.
+- A igualdade por referência é o padrão de uma classe, e é o que se quer aqui: não adicione igualdade por valor à entidade compartilhada.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Adicione um teste de que dois hospedeiros construídos a partir do mesmo id retornam a mesma instância
-  (`Assert.Same`), e de que uma mudança feita por um é visível pelo outro.
+- Adicione um teste de que duas instâncias criadas com o mesmo id retornam a mesma instância (`Assert.Same`), e de que uma mudança feita por uma é visível pela outra.

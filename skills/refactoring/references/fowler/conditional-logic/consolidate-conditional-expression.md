@@ -22,43 +22,88 @@ A ordem importa quando as condições podem lançar exceção ou são custosas: 
 Antes:
 
 ```csharp
-public decimal RefundAmount(Order order)
-{
-    if (order.IsDigital) return 0m;
-    if (order.DaysSinceDelivery > 30) return 0m;
-    if (order.IsFinalSale) return 0m;
+using System;
 
-    return order.Total - order.RestockingFee;
+public class Cart
+{
+    public decimal Subtotal { get; }
+    public bool ContainsGiftCard { get; }
+
+    public Cart(decimal subtotal, bool containsGiftCard)
+    {
+        Subtotal = subtotal;
+        ContainsGiftCard = containsGiftCard;
+    }
+}
+
+public class Coupon
+{
+    public DateTime ExpiresOn { get; }
+    public decimal MinimumSubtotal { get; }
+    public decimal Percentage { get; }
+    public bool IsSingleUse { get; }
+
+    public Coupon(DateTime expiresOn, decimal minimumSubtotal, decimal percentage, bool isSingleUse)
+    {
+        ExpiresOn = expiresOn;
+        MinimumSubtotal = minimumSubtotal;
+        Percentage = percentage;
+        IsSingleUse = isSingleUse;
+    }
+}
+
+public class CouponService
+{
+    public decimal Discount(Cart cart, Coupon coupon, DateTime today)
+    {
+        if (today > coupon.ExpiresOn) return 0m;
+        if (cart.Subtotal < coupon.MinimumSubtotal) return 0m;
+        if (cart.ContainsGiftCard) return 0m;
+
+        return cart.Subtotal * coupon.Percentage;
+    }
 }
 ```
 
-Depois de fundir e depois extrair:
+Depois de unir e depois extrair:
 
 ```csharp
-public decimal RefundAmount(Order order)
+public class CouponService
 {
-    if (IsNotRefundable(order)) return 0m;
+    public decimal Discount(Cart cart, Coupon coupon, DateTime today)
+    {
+        if (IsNotApplicable(cart, coupon, today)) return 0m;
 
-    return order.Total - order.RestockingFee;
+        return cart.Subtotal * coupon.Percentage;
+    }
+
+    private static bool IsNotApplicable(Cart cart, Coupon coupon, DateTime today) =>
+        today > coupon.ExpiresOn
+        || cart.Subtotal < coupon.MinimumSubtotal
+        || cart.ContainsGiftCard;
 }
-
-private static bool IsNotRefundable(Order order) =>
-    order.IsDigital
-    || order.DaysSinceDelivery > 30
-    || order.IsFinalSale;
 ```
 
-Forma aninhada, fundida com `&&`:
+Forma aninhada, unida com `&&`:
 
 ```csharp
-// antes
-if (customer.IsActive)
-    if (customer.Balance > 0m)
-        SendReminder(customer);
+public class CouponBadge
+{
+    public void ShowBefore(Cart cart, Coupon coupon)
+    {
+        if (coupon.IsSingleUse)
+            if (cart.Subtotal >= coupon.MinimumSubtotal)
+                ShowBadge(cart);
+    }
 
-// depois
-if (customer.IsActive && customer.Balance > 0m)
-    SendReminder(customer);
+    public void ShowAfter(Cart cart, Coupon coupon)
+    {
+        if (coupon.IsSingleUse && cart.Subtotal >= coupon.MinimumSubtotal)
+            ShowBadge(cart);
+    }
+
+    private void ShowBadge(Cart cart) { }
+}
 ```
 
 ## Verificação

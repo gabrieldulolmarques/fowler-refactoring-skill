@@ -30,72 +30,76 @@ cálculo é caro e lido com muita frequência; meça antes de abrir mão do valo
 8. Rode os testes.
 
 ## Exemplo
-Antes: `AmountPaid` é uma segunda cópia de uma informação que já está em `Payments`.
+Antes: `UsedKwh` é uma segunda cópia de informação que já está nas leituras.
 
 ```csharp
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-public record Payment(decimal Amount);
-
-public class Invoice
+public class EnergyReading
 {
-    private readonly List<Payment> _payments = new();
-    private decimal _amountPaid;
+    public EnergyReading(double kwh) => Kwh = kwh;
+    public double Kwh { get; }
+}
 
-    public Invoice(decimal total) => Total = total;
+public class EnergyMeter
+{
+    private readonly List<EnergyReading> _readings = new();
+    private double _usedKwh;
 
-    public decimal Total { get; }
-    public decimal AmountPaid => _amountPaid;
-    public decimal Outstanding => Total - AmountPaid;
+    public EnergyMeter(double budgetKwh) => BudgetKwh = budgetKwh;
 
-    public void Register(Payment payment)
+    public double BudgetKwh { get; }
+    public double UsedKwh => _usedKwh;
+    public double RemainingKwh => BudgetKwh - UsedKwh;
+
+    public void Record(EnergyReading reading)
     {
-        _payments.Add(payment);
-        _amountPaid += payment.Amount;
+        _readings.Add(reading);
+        _usedKwh += reading.Kwh;
     }
 }
 ```
 
-Passo intermediário: afirme contra o cálculo, rode os testes e então troque o leitor.
+Passo intermediário: adicione uma asserção contra o cálculo, rode os testes e então troque o leitor.
 
 ```csharp
-public decimal AmountPaid
+// fragment
+public double UsedKwh
 {
     get
     {
-        Debug.Assert(_amountPaid == CalculatedAmountPaid);
-        return CalculatedAmountPaid;
+        Debug.Assert(_usedKwh == CalculatedUsedKwh);
+        return CalculatedUsedKwh;
     }
 }
 
-private decimal CalculatedAmountPaid => _payments.Sum(p => p.Amount);
+private double CalculatedUsedKwh => _readings.Sum(r => r.Kwh);
 ```
 
-Depois: o campo e a sua atualização sumiram.
+Depois: o campo e a atualização dele sumiram.
 
 ```csharp
-public class Invoice
+public class EnergyMeter
 {
-    private readonly List<Payment> _payments = new();
+    private readonly List<EnergyReading> _readings = new();
 
-    public Invoice(decimal total) => Total = total;
+    public EnergyMeter(double budgetKwh) => BudgetKwh = budgetKwh;
 
-    public decimal Total { get; }
-    public decimal AmountPaid => _payments.Sum(p => p.Amount);
-    public decimal Outstanding => Total - AmountPaid;
+    public double BudgetKwh { get; }
+    public double UsedKwh => _readings.Sum(r => r.Kwh);
+    public double RemainingKwh => BudgetKwh - UsedKwh;
 
-    public void Register(Payment payment) => _payments.Add(payment);
+    public void Record(EnergyReading reading) => _readings.Add(reading);
 }
 ```
 
-Se o campo tivesse começado com um valor inicial diferente de zero, a asserção falharia. Divida-o
-primeiro em `_openingPaid` e um acumulador, e calcule apenas a parte do acumulador.
+Se o campo tivesse começado com um valor inicial diferente de zero, a asserção falharia. Separe-o antes em `_openingUsedKwh` e um acumulador, e calcule apenas a parte do acumulador.
 
 ## Notas (C#)
 - O cálculo cabe em uma propriedade somente leitura calculada (`=> ...`).
-- `Debug.Assert` é removido dos builds Release, então rode os testes em Debug para exercitá-lo.
+- `Debug.Assert` é removido das compilações Release, então rode os testes em Debug para exercitá-lo.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

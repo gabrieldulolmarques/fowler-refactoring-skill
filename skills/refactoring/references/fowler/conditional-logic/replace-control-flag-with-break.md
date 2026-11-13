@@ -21,24 +21,42 @@ não uma flag de controle, e talvez seja melhor mantida ou retornada por uma fun
 3. Quando nenhum lugar definir mais a flag, tire-a da condição do laço ou do `if` que a protegia, e apague a sua declaração. Compile e teste.
 
 ## Exemplo
-Pressupõe que `Customer` e `IMailer` existam.
-
 Antes:
 
 ```csharp
 using System.Collections.Generic;
 
-public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
+public class Promotion
 {
-    bool notified = false;
-    foreach (var customer in customers)
+    public decimal MinimumSubtotal { get; }
+    public Promotion(decimal minimumSubtotal) => MinimumSubtotal = minimumSubtotal;
+}
+
+public class Cart
+{
+    public decimal Subtotal { get; }
+    public Cart(decimal subtotal) => Subtotal = subtotal;
+}
+
+public interface IPromotionLog
+{
+    void Apply(Promotion promotion, Cart cart);
+}
+
+public class PromotionApplier
+{
+    public void ApplyFirstEligible(IEnumerable<Promotion> promotions, Cart cart, IPromotionLog log)
     {
-        if (!notified)
+        bool applied = false;
+        foreach (var promotion in promotions)
         {
-            if (customer.Balance < 0)
+            if (!applied)
             {
-                mailer.SendReminder(customer);
-                notified = true;
+                if (cart.Subtotal >= promotion.MinimumSubtotal)
+                {
+                    log.Apply(promotion, cart);
+                    applied = true;
+                }
             }
         }
     }
@@ -48,14 +66,17 @@ public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
 Depois:
 
 ```csharp
-public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
+public class PromotionApplier
 {
-    foreach (var customer in customers)
+    public void ApplyFirstEligible(IEnumerable<Promotion> promotions, Cart cart, IPromotionLog log)
     {
-        if (customer.Balance < 0)
+        foreach (var promotion in promotions)
         {
-            mailer.SendReminder(customer);
-            break;
+            if (cart.Subtotal >= promotion.MinimumSubtotal)
+            {
+                log.Apply(promotion, cart);
+                break;
+            }
         }
     }
 }
@@ -63,4 +84,4 @@ public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- O comportamento não muda: o laço ainda para no mesmo elemento e nada depois do ponto de saída costumava rodar.
+- O comportamento não muda: o laço continua parando no mesmo elemento, e nada após o ponto de saída executava antes.

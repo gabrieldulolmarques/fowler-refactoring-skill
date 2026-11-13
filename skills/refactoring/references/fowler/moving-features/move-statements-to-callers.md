@@ -17,72 +17,82 @@ Fowler (2018), cap. 8, p. 217. Antes / também: —. Inversa: Mover Instruções
 6. Dê à função extraída seu nome final: o nome antigo da função apagada, ou um mais claro se você tiver ([change-function-declaration.md](../first-set/change-function-declaration.md)). Faça o build e teste.
 
 ## Exemplo
-Antes: `PrintInvoice` e `PrintReminder` chamam ambos `WriteSummary`, que termina com a data de vencimento. Os lembretes precisam mostrar a data de vencimento de outro jeito.
+Antes: `PrintReceipt` e `PrintDelayNotice` chamam `WriteSummary`, que termina com a chegada estimada. O aviso de atraso precisa mostrar a chegada de outro jeito.
 
 ```csharp
 using System;
 using System.IO;
 
-public record Invoice(string Number, decimal Total, DateTime DueDate);
-
-public static class InvoicePrinter
+public class Shipment
 {
-    public static void PrintInvoice(TextWriter output, Invoice invoice)
+    public Shipment(string trackingCode, string carrier, DateTime eta)
     {
-        output.WriteLine("INVOICE");
-        WriteSummary(output, invoice);
+        TrackingCode = trackingCode;
+        Carrier = carrier;
+        Eta = eta;
     }
 
-    public static void PrintReminder(TextWriter output, Invoice invoice)
+    public string TrackingCode { get; }
+    public string Carrier { get; }
+    public DateTime Eta { get; }
+}
+
+public static class ShipmentPrinter
+{
+    public static void PrintReceipt(TextWriter output, Shipment shipment)
     {
-        output.WriteLine("REMINDER");
-        WriteSummary(output, invoice);
+        output.WriteLine("RECEIPT");
+        WriteSummary(output, shipment);
     }
 
-    private static void WriteSummary(TextWriter output, Invoice invoice)
+    public static void PrintDelayNotice(TextWriter output, Shipment shipment)
     {
-        output.WriteLine($"Number: {invoice.Number}");
-        output.WriteLine($"Total: {invoice.Total:C}");
-        output.WriteLine($"Due: {invoice.DueDate:d}");
+        output.WriteLine("DELAY NOTICE");
+        WriteSummary(output, shipment);
+    }
+
+    private static void WriteSummary(TextWriter output, Shipment shipment)
+    {
+        output.WriteLine($"Tracking: {shipment.TrackingCode}");
+        output.WriteLine($"Carrier: {shipment.Carrier}");
+        output.WriteLine($"ETA: {shipment.Eta:d}");
     }
 }
 ```
 
-Passo 2: extraia o que fica (nome temporário `ZzTmp`), depois internalize `WriteSummary` em cada chamador e apague-a. Passo 6: renomeie `ZzTmp` de volta para `WriteSummary`.
+Passo 2: extraia o que fica (nome temporário `ZzTmp`) e depois internalize `WriteSummary` em cada chamador e apague-a. Passo 6: renomeie `ZzTmp` de volta para `WriteSummary`.
 
-Depois: a linha da data de vencimento agora vive nos chamadores, e o lembrete pode alterá-la.
+Depois: a linha da chegada agora fica nos chamadores, e o aviso de atraso pode alterá-la.
 
 ```csharp
 using System;
 using System.IO;
 
-public record Invoice(string Number, decimal Total, DateTime DueDate);
-
-public static class InvoicePrinter
+public static class ShipmentPrinter
 {
-    public static void PrintInvoice(TextWriter output, Invoice invoice)
+    public static void PrintReceipt(TextWriter output, Shipment shipment)
     {
-        output.WriteLine("INVOICE");
-        WriteSummary(output, invoice);
-        output.WriteLine($"Due: {invoice.DueDate:d}");
+        output.WriteLine("RECEIPT");
+        WriteSummary(output, shipment);
+        output.WriteLine($"ETA: {shipment.Eta:d}");
     }
 
-    public static void PrintReminder(TextWriter output, Invoice invoice)
+    public static void PrintDelayNotice(TextWriter output, Shipment shipment)
     {
-        output.WriteLine("REMINDER");
-        WriteSummary(output, invoice);
-        output.WriteLine($"Due: {invoice.DueDate:d}");
+        output.WriteLine("DELAY NOTICE");
+        WriteSummary(output, shipment);
+        output.WriteLine($"ETA: {shipment.Eta:d}");
     }
 
-    private static void WriteSummary(TextWriter output, Invoice invoice)
+    private static void WriteSummary(TextWriter output, Shipment shipment)
     {
-        output.WriteLine($"Number: {invoice.Number}");
-        output.WriteLine($"Total: {invoice.Total:C}");
+        output.WriteLine($"Tracking: {shipment.TrackingCode}");
+        output.WriteLine($"Carrier: {shipment.Carrier}");
     }
 }
 ```
 
-O comportamento não muda neste ponto. A próxima mudança (um formato diferente de data de vencimento no lembrete) agora toca apenas `PrintReminder`.
+O comportamento não muda neste ponto. A próxima mudança (uma janela de chegada revisada no aviso de atraso) agora toca apenas `PrintDelayNotice`.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

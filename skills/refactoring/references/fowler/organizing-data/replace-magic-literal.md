@@ -18,39 +18,45 @@ Não extraia todo literal. `0`, `1`, `""` ou `-1` em um papel óbvio (início de
 Antes:
 
 ```csharp
-public decimal TotalWithTax(decimal subtotal)
+public class TemperatureConverter
 {
-    return subtotal * 1.18m;
-}
+    public double ToKelvin(double celsius)
+    {
+        return celsius + 273.15;
+    }
 
-public decimal TaxAmount(decimal subtotal)
-{
-    return subtotal * 0.18m;
+    public double ToCelsius(double kelvin)
+    {
+        return kelvin - 273.15;
+    }
 }
 ```
 
 Depois:
 
 ```csharp
-private const decimal TaxRate = 0.18m;
-
-public decimal TotalWithTax(decimal subtotal)
+public class TemperatureConverter
 {
-    return subtotal * (1 + TaxRate);
-}
+    private const double KelvinOffset = 273.15;
 
-public decimal TaxAmount(decimal subtotal)
-{
-    return subtotal * TaxRate;
+    public double ToKelvin(double celsius)
+    {
+        return celsius + KelvinOffset;
+    }
+
+    public double ToCelsius(double kelvin)
+    {
+        return kelvin - KelvinOffset;
+    }
 }
 ```
 
-O comportamento não muda, e a relação entre os dois métodos agora é visível.
+O comportamento não muda, e a relação entre os dois métodos agora fica visível.
 
 ## Notas (C#)
-- `const` se limita a primitivos, `string` e `null`. Use-o para valores de tempo de compilação, `static readonly` para o resto (calculados na inicialização, ou de um tipo que não pode ser `const`).
-- Um `const` de outro assembly é incorporado em tempo de compilação, então mudar o seu valor exige recompilar os consumidores; prefira `static readonly` para valores públicos que podem mudar.
+- `const` se limita a tipos primitivos, `string` e `null`. Use-o para valores de tempo de compilação, e `static readonly` para o resto (calculado na inicialização, ou de um tipo que não pode ser `const`).
+- Um `const` de outro assembly é embutido em tempo de compilação, então mudar seu valor exige recompilar os consumidores; prefira `static readonly` para valores públicos que possam mudar.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Procure no código o literal antigo para confirmar que nenhuma ocorrência daquele significado restou, e que ocorrências do mesmo valor com outro significado foram deixadas em paz.
+- Busque no código o literal antigo para confirmar que nenhuma ocorrência com esse significado restou, e que ocorrências do mesmo valor com outro significado foram deixadas em paz.

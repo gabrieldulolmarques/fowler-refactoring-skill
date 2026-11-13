@@ -33,61 +33,56 @@ significa um bug. Nada deve tratá-la como um resultado normal.
 Antes:
 
 ```csharp
-public class Customer
+public class Promotion
 {
-    public string? Email { get; }
-    public string? Phone { get; }
+    public string? Code { get; }
+    public string? SeasonName { get; }
 
-    public Customer(string? email, string? phone)
+    public Promotion(string? code, string? seasonName)
     {
-        Email = email;
-        Phone = phone;
+        Code = code;
+        SeasonName = seasonName;
     }
 
-    public string PreferredContact()
+    public string Label()
     {
-        // email e telefone nunca são ambos vazios
-        return string.IsNullOrEmpty(Email) ? Phone! : Email;
+        // uma promoção sempre tem um código de cupom ou um nome de temporada
+        return string.IsNullOrEmpty(Code) ? SeasonName! : Code;
     }
 }
 ```
 
-Depois (a verificação vive no construtor, onde um par ruim entraria primeiro):
+Depois (a verificação fica no construtor, onde um par inválido entraria primeiro):
 
 ```csharp
 using System.Diagnostics;
 
-public class Customer
+public class Promotion
 {
-    public string? Email { get; }
-    public string? Phone { get; }
+    public string? Code { get; }
+    public string? SeasonName { get; }
 
-    public Customer(string? email, string? phone)
+    public Promotion(string? code, string? seasonName)
     {
         Debug.Assert(
-            !string.IsNullOrEmpty(email) || !string.IsNullOrEmpty(phone),
-            "o cliente precisa de um e-mail ou de um telefone");
-        Email = email;
-        Phone = phone;
+            !string.IsNullOrEmpty(code) || !string.IsNullOrEmpty(seasonName),
+            "a promotion needs a coupon code or a season name");
+        Code = code;
+        SeasonName = seasonName;
     }
 
-    public string PreferredContact()
+    public string Label()
     {
-        return string.IsNullOrEmpty(Email) ? Phone! : Email;
+        return string.IsNullOrEmpty(Code) ? SeasonName! : Code;
     }
 }
 ```
 
 ## Notas (C#)
-- `Debug.Assert` (`System.Diagnostics`) é removido dos builds Release, o que combina com a regra
-  de que o programa deve se comportar do mesmo jeito sem asserções. Não ponha efeitos colaterais na
-  expressão asserida.
-- `Debug.Assert` não altera a análise de fluxo de nulos, então o `!` em `PreferredContact`
-  permanece e ainda esconde um possível nulo quando `Email` está vazio. A asserção documenta a
-  invariante; ela não a prova ao compilador.
-- Se uma verificação também precisar rodar em produção, ela não é uma asserção: use validação de verdade
-  (por exemplo, lançar `ArgumentException`).
+- `Debug.Assert` (`System.Diagnostics`) é removido das compilações Release, o que combina com a regra de que o programa deve se comportar igual sem asserções. Não coloque efeitos colaterais na expressão verificada.
+- `Debug.Assert` não muda a análise de fluxo de nulos do compilador, então o `!` em `Label` continua e ainda oculta um possível null quando `Code` estiver vazio. A asserção documenta o invariante; ela não o prova para o compilador.
+- Se a verificação também precisar rodar em produção, ela não é uma asserção: use validação de verdade (por exemplo, lançar `ArgumentException`).
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Execute os testes em um build Debug para que a nova asserção seja de fato avaliada.
+- Rode os testes em uma compilação Debug para que a nova asserção de fato seja avaliada.

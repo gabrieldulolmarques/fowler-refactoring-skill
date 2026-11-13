@@ -26,63 +26,70 @@ as alocações extras importem.
    renomeie os parâmetros das lambdas para dizerem o que guardam e ponha uma operação por linha.
 
 ## Exemplo
-Antes: os números das primeiras faturas vencidas, até um limite.
+Antes: os códigos de rastreio das primeiras remessas atrasadas, até um limite.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(string Number, DateOnly DueDate, bool IsPaid);
-
-public class InvoiceReport
+public class Shipment
 {
-    public List<string> OverdueNumbers(IEnumerable<Invoice> invoices, DateOnly today, int limit)
+    public Shipment(string trackingCode, DateTime promisedBy, bool isDelivered)
+    {
+        TrackingCode = trackingCode;
+        PromisedBy = promisedBy;
+        IsDelivered = isDelivered;
+    }
+
+    public string TrackingCode { get; }
+    public DateTime PromisedBy { get; }
+    public bool IsDelivered { get; }
+}
+
+public class DelayReport
+{
+    public List<string> LateTrackingCodes(IEnumerable<Shipment> shipments, DateTime now, int limit)
     {
         var result = new List<string>();
-        foreach (var invoice in invoices)
+        foreach (var shipment in shipments)
         {
             if (result.Count == limit) break;
-            if (invoice.IsPaid) continue;
-            if (invoice.DueDate >= today) continue;
-            result.Add(invoice.Number.ToUpperInvariant());
+            if (shipment.IsDelivered) continue;
+            if (shipment.PromisedBy >= now) continue;
+            result.Add(shipment.TrackingCode.ToUpperInvariant());
         }
         return result;
     }
 }
 ```
 
-Depois: a verificação do contador e os `continue`s sumiram, e cada passo é uma linha.
+Depois: a verificação do contador e os `continue` sumiram, e cada etapa ocupa uma linha.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record Invoice(string Number, DateOnly DueDate, bool IsPaid);
-
-public class InvoiceReport
+public class DelayReport
 {
-    public List<string> OverdueNumbers(IEnumerable<Invoice> invoices, DateOnly today, int limit)
+    public List<string> LateTrackingCodes(IEnumerable<Shipment> shipments, DateTime now, int limit)
     {
-        return invoices
-            .Where(invoice => !invoice.IsPaid)
-            .Where(invoice => invoice.DueDate < today)
-            .Select(invoice => invoice.Number.ToUpperInvariant())
+        return shipments
+            .Where(shipment => !shipment.IsDelivered)
+            .Where(shipment => shipment.PromisedBy < now)
+            .Select(shipment => shipment.TrackingCode.ToUpperInvariant())
             .Take(limit)
             .ToList();
     }
 }
 ```
 
-O limite conta resultados, não itens lidos, então `Take` vem depois dos filtros.
+O limite conta resultados, não itens lidos, então `Take` vai depois dos filtros.
 
 ## Notas (C#)
-- Use LINQ: `Where` para filtrar, `Select` para mapear, `Skip`/`Take` para fatiar, `ToList()` ou
-  `ToArray()` para produzir a coleção final.
-- LINQ é preguiçoso. Enumere uma vez, no fim do pipeline, e não guarde uma consulta adiada
-  que seja enumerada de novo mais tarde sobre dados alterados ou caros de ler.
-- Cada passo pode alocar (delegados, iteradores, arrays intermediários). Em caminhos críticos, meça
-  antes e depois, e mantenha o laço se o custo aparecer.
+- Use LINQ: `Where` para filtrar, `Select` para mapear, `Skip`/`Take` para fatiar, `ToList()` ou `ToArray()` para produzir a coleção final.
+- LINQ é preguiçoso. Enumere uma vez, no fim do pipeline, e não guarde uma consulta adiada que seja enumerada de novo depois, contra dados alterados ou caros de ler.
+- Cada etapa pode alocar (delegates, iteradores, arrays intermediários). Em caminhos críticos, meça antes e depois, e mantenha o laço se o custo aparecer.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

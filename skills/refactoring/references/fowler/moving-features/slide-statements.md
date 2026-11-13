@@ -26,67 +26,114 @@ Não vale a pena se o deslocamento não puder ser feito com segurança em passos
 Deslocando para fora de uma condicional: quando as mesmas instruções terminam (ou começam) todos os ramos e não dependem de qual ramo rodou de um jeito que mude o comportamento, remova-as de cada ramo e ponha uma cópia depois (ou antes) da condicional. Deslocar para dentro de uma condicional é o inverso e repete o fragmento em cada ramo.
 
 ## Exemplo
-Antes: as linhas do desconto estão misturadas com as do frete, e `shippingCost` é declarada cedo.
+Antes: as linhas do desconto estão misturadas com as da sobretaxa, e `surcharge` é declarada cedo demais.
 
 ```csharp
-public decimal Total(Invoice invoice)
+using System.Collections.Generic;
+using System.Linq;
+
+public class Courier
 {
-    decimal shippingCost;
-    var customer = invoice.Customer;
-    decimal discount = 0m;
-    var subtotal = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
-    shippingCost = invoice.Weight * 0.5m;
-    if (customer.IsPremium) discount = subtotal * 0.1m;
-    if (subtotal > 500m) shippingCost = 0m;
-    return subtotal - discount + shippingCost;
+    public bool IsPartner { get; set; }
+}
+
+public class Parcel
+{
+    public decimal WeightKg { get; set; }
+    public decimal RatePerKg { get; set; }
+}
+
+public class Shipment
+{
+    public Courier Courier { get; set; } = new();
+    public List<Parcel> Parcels { get; set; } = new();
+    public decimal DistanceKm { get; set; }
+}
+
+public class CostCalculator
+{
+    public decimal DeliveryCost(Shipment shipment)
+    {
+        decimal surcharge;
+        var courier = shipment.Courier;
+        decimal discount = 0m;
+        var baseCost = shipment.Parcels.Sum(p => p.WeightKg * p.RatePerKg);
+        surcharge = shipment.DistanceKm * 0.2m;
+        if (courier.IsPartner) discount = baseCost * 0.1m;
+        if (baseCost > 500m) surcharge = 0m;
+        return baseCost - discount + surcharge;
+    }
 }
 ```
 
-Depois: cada declaração fica ao lado do seu uso, e as linhas do desconto estão adjacentes, prontas para Extrair Função (Extract Function).
+Depois: cada declaração fica junto do seu uso, e as linhas do desconto ficam adjacentes, prontas para Extrair Função.
 
 ```csharp
-public decimal Total(Invoice invoice)
+using System.Linq;
+
+public class CostCalculator
 {
-    var subtotal = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
+    public decimal DeliveryCost(Shipment shipment)
+    {
+        var baseCost = shipment.Parcels.Sum(p => p.WeightKg * p.RatePerKg);
 
-    var customer = invoice.Customer;
-    decimal discount = 0m;
-    if (customer.IsPremium) discount = subtotal * 0.1m;
+        var courier = shipment.Courier;
+        decimal discount = 0m;
+        if (courier.IsPartner) discount = baseCost * 0.1m;
 
-    decimal shippingCost = invoice.Weight * 0.5m;
-    if (subtotal > 500m) shippingCost = 0m;
+        decimal surcharge = shipment.DistanceKm * 0.2m;
+        if (baseCost > 500m) surcharge = 0m;
 
-    return subtotal - discount + shippingCost;
+        return baseCost - discount + surcharge;
+    }
 }
 ```
 
-Por que foi seguro: `subtotal` é declarado antes de tudo que o lê, e as linhas do frete leem e escrevem apenas `shippingCost`, `invoice` e `subtotal`, nenhum dos quais as linhas do desconto alteram.
+Por que foi seguro: `baseCost` é declarada antes de tudo o que a lê, e as linhas da sobretaxa leem e escrevem apenas `surcharge`, `shipment` e `baseCost`, nenhum dos quais as linhas do desconto alteram.
 
-Caso da condicional, antes e depois (mesmo comportamento):
+Caso condicional, antes e depois (mesmo comportamento):
 
 ```csharp
-// antes
-if (account.Balance >= amount)
+using System.Collections.Generic;
+
+public class Route
 {
-    account.Debit(amount);
-    auditLog.Add(account.Id);
-}
-else
-{
-    account.Overdraft(amount);
-    auditLog.Add(account.Id);
+    public bool HasCapacity(Parcel parcel) => parcel.WeightKg <= 20m;
+    public void Add(Parcel parcel) { }
+    public void Defer(Parcel parcel) { }
 }
 
-// depois
-if (account.Balance >= amount)
-    account.Debit(amount);
-else
-    account.Overdraft(amount);
-auditLog.Add(account.Id);
+public class Dispatcher
+{
+    private readonly List<string> _auditLog = new();
+
+    public void AssignBefore(Route route, Parcel parcel, string trackingCode)
+    {
+        if (route.HasCapacity(parcel))
+        {
+            route.Add(parcel);
+            _auditLog.Add(trackingCode);
+        }
+        else
+        {
+            route.Defer(parcel);
+            _auditLog.Add(trackingCode);
+        }
+    }
+
+    public void AssignAfter(Route route, Parcel parcel, string trackingCode)
+    {
+        if (route.HasCapacity(parcel))
+            route.Add(parcel);
+        else
+            route.Defer(parcel);
+        _auditLog.Add(trackingCode);
+    }
+}
 ```
 
-Isso só é válido porque os ramos não mudam o que `auditLog.Add(account.Id)` observa.
+Isso só é válido porque os ramos não mudam o que a entrada de auditoria observa.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Se a cobertura do código movido for fraca, adicione testes antes: um deslocamento que passa por estado mutável compartilhado é o tipo de mudança que os testes capturam melhor.
+- Se a cobertura do código movido for fraca, escreva os testes antes: um deslocamento que passa por estado mutável compartilhado é o tipo de mudança que os testes pegam melhor.

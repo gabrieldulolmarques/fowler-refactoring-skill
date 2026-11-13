@@ -25,70 +25,94 @@ Parta de um contêiner (classe ou record) cuja propriedade, o sujeito, pode guar
 Trate o caso especial como um valor: ele não deve mudar após a criação, seja o que for que os objetos reais que ele substitui permitam. Se os clientes só leem, uma instância constante ou literal pode bastar.
 
 ## Exemplo
-Antes: quatro clientes tratam um cliente ausente em uma conta. O exemplo pula a etapa da verificação extraída (passo 3) e vai direto à forma final.
+Antes: quatro clientes tratam um carrinho sem promoção. O exemplo pula a etapa de verificação extraída (passo 3) e vai direto para a forma final.
 
 ```csharp
-public class Account
+public class Promotion
 {
-    private readonly Customer? _customer;
-    public Account(Customer? customer) => _customer = customer;
-    public Customer? Customer => _customer;
+    public string Name { get; }
+    public decimal DiscountRate { get; }
+    public int DaysLeft { get; }
+    public virtual int Redemptions { get; set; }
+
+    public Promotion(string name, decimal discountRate, int daysLeft)
+    {
+        Name = name;
+        DiscountRate = discountRate;
+        DaysLeft = daysLeft;
+    }
 }
 
-public class Customer
+public class Cart
 {
-    public string Name { get; init; } = "";
-    public string PlanCode { get; set; } = "";
-    public int LateInvoicesLastYear { get; init; }
+    private readonly Promotion? _promotion;
+    public Cart(Promotion? promotion) => _promotion = promotion;
+    public Promotion? Promotion => _promotion;
 }
 
-// clientes
-string label = account.Customer == null ? "visitante" : account.Customer.Name;
-string plan = account.Customer == null ? "básico" : account.Customer.PlanCode;
-if (account.Customer != null) account.Customer.PlanCode = newPlan;
-int late = account.Customer == null ? 0 : account.Customer.LateInvoicesLastYear;
+public class PromotionClients
+{
+    public string Label(Cart cart) => cart.Promotion == null ? "no promotion" : cart.Promotion.Name;
+    public decimal Rate(Cart cart) => cart.Promotion == null ? 0m : cart.Promotion.DiscountRate;
+    public int DaysLeft(Cart cart) => cart.Promotion == null ? 0 : cart.Promotion.DaysLeft;
+
+    public void Redeem(Cart cart)
+    {
+        if (cart.Promotion != null) cart.Promotion.Redemptions++;
+    }
+}
 ```
 
-Depois: o cliente ausente é um objeto de caso especial.
+Depois: a promoção ausente vira um objeto de caso especial.
 
 ```csharp
-public class Customer
+public class Promotion
 {
     public virtual bool IsMissing => false;
-    public virtual string Name { get; init; } = "";
-    public virtual string PlanCode { get; set; } = "";
-    public virtual int LateInvoicesLastYear { get; init; }
+    public string Name { get; }
+    public decimal DiscountRate { get; }
+    public int DaysLeft { get; }
+    public virtual int Redemptions { get; set; }
+
+    public Promotion(string name, decimal discountRate, int daysLeft)
+    {
+        Name = name;
+        DiscountRate = discountRate;
+        DaysLeft = daysLeft;
+    }
 }
 
-public sealed class MissingCustomer : Customer
+public sealed class MissingPromotion : Promotion
 {
+    public MissingPromotion() : base("no promotion", 0m, 0) { }
     public override bool IsMissing => true;
-    public override string Name { get => "visitante"; init { } }
-    public override string PlanCode { get => "básico"; set { /* ignorado */ } }
-    public override int LateInvoicesLastYear { get => 0; init { } }
+    public override int Redemptions { get => 0; set { /* ignorado */ } }
 }
 
-public class Account
+public class Cart
 {
-    private readonly Customer? _customer;
-    public Account(Customer? customer) => _customer = customer;
-    public Customer Customer => _customer ?? new MissingCustomer();
+    private readonly Promotion? _promotion;
+    public Cart(Promotion? promotion) => _promotion = promotion;
+    public Promotion Promotion => _promotion ?? new MissingPromotion();
 }
 
-// clientes
-string label = account.Customer.Name;
-string plan = account.Customer.PlanCode;
-account.Customer.PlanCode = newPlan;
-int late = account.Customer.LateInvoicesLastYear;
+public class PromotionClients
+{
+    public string Label(Cart cart) => cart.Promotion.Name;
+    public decimal Rate(Cart cart) => cart.Promotion.DiscountRate;
+    public int DaysLeft(Cart cart) => cart.Promotion.DaysLeft;
+    public void Redeem(Cart cart) => cart.Promotion.Redemptions++;
 
-// o único cliente que precisa se comportar de forma diferente mantém um teste explícito
-string greeting = account.Customer.IsMissing ? "Bem-vindo, novo cliente" : $"Olá, {account.Customer.Name}";
+    // o único cliente que deve se comportar de forma diferente mantém um teste explícito
+    public string Banner(Cart cart) =>
+        cart.Promotion.IsMissing ? "Join the newsletter for coupons" : $"{cart.Promotion.Name} ends soon";
+}
 ```
 
-Mesmo comportamento: os chamadores recebem os mesmos valores de antes, e a escrita em um cliente ausente continua sendo uma operação vazia.
+Mesmo comportamento: os chamadores recebem os mesmos valores de antes, e a escrita em uma promoção ausente continua sem efeito.
 
 ## Notas (C#)
-- Com tipos de referência anuláveis habilitados, o caso especial remove `?` e as verificações de null nos pontos de chamada: a propriedade passa a ser não anulável e nunca retorna null.
+- Com tipos de referência anuláveis ativados, o caso especial remove o `?` e as verificações de null nos pontos de chamada: a propriedade passa a não ser anulável e nunca retorna null.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

@@ -27,53 +27,75 @@ Smells: Generalidade Especulativa (Speculative Generality).
 Antes:
 
 ```csharp
-public class InvoiceService
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class TrackingEvent
 {
-    private const bool UseLegacyRounding = false;
-
-    public decimal Total(Invoice invoice)
+    public TrackingEvent(DateTime at, string status)
     {
-        decimal total = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
+        At = at;
+        Status = status;
+    }
 
-        if (UseLegacyRounding)
+    public DateTime At { get; }
+    public string Status { get; }
+}
+
+public class Shipment
+{
+    public Shipment(string carrier, List<TrackingEvent> events)
+    {
+        Carrier = carrier;
+        Events = events;
+    }
+
+    public string Carrier { get; }
+    public List<TrackingEvent> Events { get; }
+}
+
+public class TrackingService
+{
+    private const bool UseLegacyCodes = false;
+
+    public string LatestStatus(Shipment shipment)
+    {
+        string status = shipment.Events.OrderByDescending(e => e.At).First().Status;
+
+        if (UseLegacyCodes)
         {
-            total = Math.Floor(total * 10m) / 10m;
+            status = status.Substring(0, 3).ToUpperInvariant();
         }
 
-        // total = total - invoice.Discount;
-        return Math.Round(total, 2);
+        // status = status + " (" + shipment.Carrier + ")";
+        return status.Trim();
     }
 
-    private decimal ApplyLegacyFee(decimal total) => total * 1.02m;
+    private string ToLegacyCode(string status) => status.Substring(0, 3).ToUpperInvariant();
 }
 ```
 
-Depois (uma busca não encontrou nenhum chamador de `ApplyLegacyFee`, e `UseLegacyRounding` é uma constante
-que nunca é verdadeira):
+Depois (uma busca não encontrou chamadores de `ToLegacyCode`, e `UseLegacyCodes` é uma constante que nunca é verdadeira):
 
 ```csharp
-public class InvoiceService
+using System.Linq;
+
+public class TrackingService
 {
-    public decimal Total(Invoice invoice)
+    public string LatestStatus(Shipment shipment)
     {
-        decimal total = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
-        return Math.Round(total, 2);
+        string status = shipment.Events.OrderByDescending(e => e.At).First().Status;
+        return status.Trim();
     }
 }
 ```
 
-O comportamento é o mesmo: o ramo removido nunca rodava, o comentário nunca foi executado e o
-método privado não tinha chamadores.
+O comportamento é o mesmo: o ramo removido nunca executava, o comentário nunca era executado, e o método privado não tinha chamadores.
 
 ## Notas (C#)
-- Código sem chamadores estáticos ainda pode ser alcançado por reflexão, injeção de dependência ou
-  serialização. Antes de apagar um tipo ou membro que parece não usado, verifique: tipos
-  registrados ou resolvidos por um contêiner (inclusive por varredura de assemblies), membros
-  descobertos por reflexão ou por convenção de nomes, propriedades lidas ou escritas por um
-  serializador ou ORM, manipuladores de eventos ligados por nome e membros usados apenas em arquivos de configuração
-  ou views.
-- Um membro `public` ou `protected` de uma biblioteca pode ser usado por projetos que você não vê.
-  Trate-o como morto apenas se conhecer todos os consumidores.
+- Código sem chamadores estáticos ainda pode ser alcançado por reflexão, injeção de dependência ou serialização. Antes de apagar um tipo ou membro que parece não usado, verifique: tipos registrados ou resolvidos por um contêiner (inclusive por varredura de assemblies), membros descobertos por reflexão ou por convenção de nome, propriedades lidas ou gravadas por um serializador ou ORM, manipuladores de eventos ligados pelo nome, e membros usados apenas em arquivos de configuração ou views.
+- Um membro `public` ou `protected` de uma biblioteca pode ser usado por projetos que você não enxerga. Trate-o como morto só se conhecer todos os consumidores.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
