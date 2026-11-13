@@ -20,88 +20,92 @@ Identify the embellished class. First check that the set of public methods a dec
 4. The delegating class creates its own delegate in the constructor. Apply Extract Parameter ([extract-parameter.md](../utilities/extract-parameter.md)) so the caller passes the object to wrap, then remove constructor parameters that became useless with [change-function-declaration.md](../../fowler/first-set/change-function-declaration.md). Compile and test.
 
 ## Example
-Before: one class both processes payments and optionally writes an audit trail, deciding with a flag in every method.
+Before: one class both moves money and optionally sends status notifications, deciding with a flag in every method.
 
 ```csharp
-using System.Collections.Generic;
+using System;
 
-public record PaymentResult(bool Approved, string Reference);
-
-public class PaymentProcessor
+public class PaymentResult
 {
-    private readonly bool _audited;
-    private readonly List<string> _audit;
+    public bool Approved { get; }
+    public string Reference { get; }
 
-    public PaymentProcessor(bool audited, List<string> audit)
+    public PaymentResult(bool approved, string reference)
     {
-        _audited = audited;
-        _audit = audit;
+        Approved = approved;
+        Reference = reference;
+    }
+}
+
+public class PaymentGateway
+{
+    private readonly bool _notify;
+    private readonly Action<string>? _notifier;
+
+    public PaymentGateway(bool notify, Action<string>? notifier)
+    {
+        _notify = notify;
+        _notifier = notifier;
     }
 
-    public PaymentResult Charge(string account, decimal amount)
+    public PaymentResult Authorize(string account, decimal amount)
     {
-        if (_audited) _audit.Add($"charge {amount} to {account}");
-        var result = new PaymentResult(amount > 0, $"ref-{account}-{amount}");
-        if (_audited) _audit.Add($"charge approved={result.Approved}");
+        var result = new PaymentResult(amount > 0, $"auth-{account}-{amount}");
+        if (_notify) _notifier!($"authorize {amount} on {account}: approved={result.Approved}");
         return result;
     }
 
     public PaymentResult Refund(string reference, decimal amount)
     {
-        if (_audited) _audit.Add($"refund {amount} of {reference}");
         var result = new PaymentResult(amount > 0, reference);
-        if (_audited) _audit.Add($"refund approved={result.Approved}");
+        if (_notify) _notifier!($"refund {amount} of {reference}: approved={result.Approved}");
         return result;
     }
 }
 ```
 
-After: the core class knows nothing about auditing, and `AuditedPaymentProcessor` wraps any `IPaymentProcessor`. Clients that want an audit wrap the processor when they create it: `IPaymentProcessor p = new AuditedPaymentProcessor(new PaymentProcessor(), log);`. A second decorator (retry, rate limiting) wraps the first the same way, and the order of wrapping then matters.
+After: the core class knows nothing about notifications, and `NotifyingPaymentGateway` wraps any `IPaymentGateway`. Clients that want notifications wrap the gateway when they create it: `IPaymentGateway g = new NotifyingPaymentGateway(new PaymentGateway(), messages.Add);`. A second decorator (retry, rate limiting) wraps the first the same way, and the order of wrapping then matters.
 
 ```csharp
-using System.Collections.Generic;
+using System;
 
-public record PaymentResult(bool Approved, string Reference);
-
-public interface IPaymentProcessor
+public interface IPaymentGateway
 {
-    PaymentResult Charge(string account, decimal amount);
+    PaymentResult Authorize(string account, decimal amount);
     PaymentResult Refund(string reference, decimal amount);
 }
 
-public class PaymentProcessor : IPaymentProcessor
+public class PaymentGateway : IPaymentGateway
 {
-    public PaymentResult Charge(string account, decimal amount) =>
-        new(amount > 0, $"ref-{account}-{amount}");
+    public PaymentResult Authorize(string account, decimal amount) =>
+        new(amount > 0, $"auth-{account}-{amount}");
 
     public PaymentResult Refund(string reference, decimal amount) =>
         new(amount > 0, reference);
 }
 
-public class AuditedPaymentProcessor : IPaymentProcessor
+public class NotifyingPaymentGateway : IPaymentGateway
 {
-    private readonly IPaymentProcessor _inner;
-    private readonly List<string> _audit;
+    private readonly IPaymentGateway _inner;
+    private readonly Action<string> _notifier;
 
-    public AuditedPaymentProcessor(IPaymentProcessor inner, List<string> audit)
+    public NotifyingPaymentGateway(IPaymentGateway inner, Action<string> notifier)
     {
         _inner = inner;
-        _audit = audit;
+        _notifier = notifier;
     }
 
-    public PaymentResult Charge(string account, decimal amount)
+    public PaymentResult Authorize(string account, decimal amount)
     {
-        _audit.Add($"charge {amount} to {account}");
-        var result = _inner.Charge(account, amount);
-        _audit.Add($"charge approved={result.Approved}");
+        var result = _inner.Authorize(account, amount);
+        _notifier($"authorize {amount} on {account}: approved={result.Approved}");
         return result;
     }
 
     public PaymentResult Refund(string reference, decimal amount)
     {
-        _audit.Add($"refund {amount} of {reference}");
         var result = _inner.Refund(reference, amount);
-        _audit.Add($"refund approved={result.Approved}");
+        _notifier($"refund {amount} of {reference}: approved={result.Approved}");
         return result;
     }
 }
@@ -109,5 +113,5 @@ public class AuditedPaymentProcessor : IPaymentProcessor
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
-- The undecorated class has a test with no audit at all, and the decorator has a test with a fake inner processor that checks the calls are forwarded unchanged.
+- The undecorated class has a test with no notifications at all, and the decorator has a test with a fake inner gateway that checks the calls are forwarded unchanged.
 - Search for `is` / `as` / casts to the embellished class: those callers break once the object is wrapped.

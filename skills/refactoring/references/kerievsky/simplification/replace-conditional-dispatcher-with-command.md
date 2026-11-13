@@ -32,35 +32,38 @@ Before: one `switch` does the routing and the work of every handler.
 ```csharp
 using System.Globalization;
 
-public class Order
+public class Payment
 {
-    public int Id { get; init; }
-    public string Status { get; set; } = "new";
-    public string? Carrier { get; set; }
+    public int Id { get; }
+    public string Status { get; set; } = "created";
+    public string? AuthCode { get; set; }
     public decimal Refunded { get; set; }
+
+    public Payment(int id) { Id = id; }
 }
 
-public class OrderDesk
+public class PaymentDesk
 {
-    public string Execute(string command, Order order, string[] args)
+    public string Execute(string command, Payment payment, string[] args)
     {
         switch (command)
         {
-            case "ship":
-                order.Carrier = args[0];
-                order.Status = "shipped";
-                return $"order {order.Id} shipped with {order.Carrier}";
-            case "cancel":
-                if (order.Status == "shipped")
-                    return $"order {order.Id} already shipped";
-                order.Status = "cancelled";
-                return $"order {order.Id} cancelled";
+            case "authorize":
+                payment.AuthCode = args[0];
+                payment.Status = "authorized";
+                return $"payment {payment.Id} authorized with {payment.AuthCode}";
+            case "settle":
+                if (payment.Status != "authorized")
+                    return $"payment {payment.Id} is not authorized";
+                payment.Status = "settled";
+                return $"payment {payment.Id} settled";
             case "refund":
                 var amount = decimal.Parse(args[0], CultureInfo.InvariantCulture);
-                order.Refunded += amount;
-                return $"order {order.Id} refunded {amount}";
-            case "invoice":
-                return $"invoice for order {order.Id}";
+                payment.Refunded += amount;
+                payment.Status = "refunded";
+                return $"payment {payment.Id} refunded {amount}";
+            case "receipt":
+                return $"receipt for payment {payment.Id}";
             default:
                 return $"unknown command {command}";
         }
@@ -74,76 +77,69 @@ After: every request is a command class, and the desk is an invoker with a map. 
 using System.Collections.Generic;
 using System.Globalization;
 
-public class Order
+public interface IPaymentCommand
 {
-    public int Id { get; init; }
-    public string Status { get; set; } = "new";
-    public string? Carrier { get; set; }
-    public decimal Refunded { get; set; }
+    string Execute(Payment payment, string[] args);
 }
 
-public interface IOrderCommand
+public class AuthorizeCommand : IPaymentCommand
 {
-    string Execute(Order order, string[] args);
-}
-
-public class ShipCommand : IOrderCommand
-{
-    public string Execute(Order order, string[] args)
+    public string Execute(Payment payment, string[] args)
     {
-        order.Carrier = args[0];
-        order.Status = "shipped";
-        return $"order {order.Id} shipped with {order.Carrier}";
+        payment.AuthCode = args[0];
+        payment.Status = "authorized";
+        return $"payment {payment.Id} authorized with {payment.AuthCode}";
     }
 }
 
-public class CancelCommand : IOrderCommand
+public class SettleCommand : IPaymentCommand
 {
-    public string Execute(Order order, string[] args)
+    public string Execute(Payment payment, string[] args)
     {
-        if (order.Status == "shipped")
-            return $"order {order.Id} already shipped";
-        order.Status = "cancelled";
-        return $"order {order.Id} cancelled";
+        if (payment.Status != "authorized")
+            return $"payment {payment.Id} is not authorized";
+        payment.Status = "settled";
+        return $"payment {payment.Id} settled";
     }
 }
 
-public class RefundCommand : IOrderCommand
+public class RefundCommand : IPaymentCommand
 {
-    public string Execute(Order order, string[] args)
+    public string Execute(Payment payment, string[] args)
     {
         var amount = decimal.Parse(args[0], CultureInfo.InvariantCulture);
-        order.Refunded += amount;
-        return $"order {order.Id} refunded {amount}";
+        payment.Refunded += amount;
+        payment.Status = "refunded";
+        return $"payment {payment.Id} refunded {amount}";
     }
 }
 
-public class InvoiceCommand : IOrderCommand
+public class ReceiptCommand : IPaymentCommand
 {
-    public string Execute(Order order, string[] args) => $"invoice for order {order.Id}";
+    public string Execute(Payment payment, string[] args) => $"receipt for payment {payment.Id}";
 }
 
-public class OrderDesk
+public class PaymentDesk
 {
-    private readonly Dictionary<string, IOrderCommand> _commands = new()
+    private readonly Dictionary<string, IPaymentCommand> _commands = new()
     {
-        ["ship"] = new ShipCommand(),
-        ["cancel"] = new CancelCommand(),
+        ["authorize"] = new AuthorizeCommand(),
+        ["settle"] = new SettleCommand(),
         ["refund"] = new RefundCommand(),
-        ["invoice"] = new InvoiceCommand(),
+        ["receipt"] = new ReceiptCommand(),
     };
 
-    public void Register(string name, IOrderCommand command) => _commands[name] = command;
+    public void Register(string name, IPaymentCommand command) => _commands[name] = command;
 
-    public string Execute(string command, Order order, string[] args) =>
+    public string Execute(string command, Payment payment, string[] args) =>
         _commands.TryGetValue(command, out var handler)
-            ? handler.Execute(order, args)
+            ? handler.Execute(payment, args)
             : $"unknown command {command}";
 }
 ```
 
 ## C# notes
-- Where handlers are tiny, a `Dictionary<string, Func<Order, string[], string>>` is a lighter command type than a class per handler. Switch to classes when a handler needs its own state, dependencies or tests.
+- Where handlers are tiny, a `Dictionary<string, Func<Payment, string[], string>>` is a lighter command type than a class per handler. Switch to classes when a handler needs its own state, dependencies or tests.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Keep a test for each routed name, one for the unknown name, and (after step 7) one that registers a new command at runtime and runs it.

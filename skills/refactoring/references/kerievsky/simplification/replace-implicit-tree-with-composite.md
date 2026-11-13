@@ -22,26 +22,26 @@ Two paths work: apply refactorings to the existing code (Extract Class and frien
 6. Repeat for the remaining implicit parents. Allow parents inside parents only if the implicit parents really behave alike.
 
 ## Example
-Before: a report over a fixed two-level shape (categories of expenses) built with loops and hard-coded indentation. Adding a sub-category or changing the layout means touching this method.
+Before: a reconciliation report over a fixed two-level shape (settlement batches with their entries) built with loops and hard-coded indentation. Adding a sub-batch or changing the layout means touching this method.
 
 ```csharp
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-public static class ExpenseReport
+public static class ReconciliationReport
 {
-    public static string Render(IReadOnlyDictionary<string, (string Item, decimal Amount)[]> categories)
+    public static string Render(IReadOnlyDictionary<string, (string Reference, decimal Amount)[]> batches)
     {
         var sb = new StringBuilder();
         decimal total = 0m;
-        foreach (var (category, items) in categories)
+        foreach (var (batch, entries) in batches)
         {
-            sb.AppendLine(category);
+            sb.AppendLine(batch);
             decimal subtotal = 0m;
-            foreach (var (item, amount) in items)
+            foreach (var (reference, amount) in entries)
             {
-                sb.AppendLine($"  {item}: {Money(amount)}");
+                sb.AppendLine($"  {reference}: {Money(amount)}");
                 subtotal += amount;
             }
             sb.AppendLine($"  subtotal: {Money(subtotal)}");
@@ -55,7 +55,7 @@ public static class ExpenseReport
 }
 ```
 
-After: `Expense` is the leaf and `ExpenseGroup` the parent, both behind `IExpenseNode`. A group totals and indents its children itself, and a group can hold other groups, so a new level needs no change to the renderer. For the same two-level data the output is identical to the old method.
+After: `Entry` is the leaf and `BatchGroup` the parent, both behind `IReconciliationNode`. A group totals and indents its children itself, and a group can hold other groups, so a new level needs no change to the renderer. For the same two-level data the output is identical to the old method.
 
 ```csharp
 using System.Collections.Generic;
@@ -63,24 +63,33 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-public interface IExpenseNode
+public interface IReconciliationNode
 {
     decimal Amount { get; }
     void Render(StringBuilder sb, int depth);
 }
 
-public record Expense(string Item, decimal Amount) : IExpenseNode
+public class Entry : IReconciliationNode
 {
+    public string Reference { get; }
+    public decimal Amount { get; }
+
+    public Entry(string reference, decimal amount)
+    {
+        Reference = reference;
+        Amount = amount;
+    }
+
     public void Render(StringBuilder sb, int depth) =>
-        sb.AppendLine($"{ExpenseReport.Indent(depth)}{Item}: {ExpenseReport.Money(Amount)}");
+        sb.AppendLine($"{ReconciliationReport.Indent(depth)}{Reference}: {ReconciliationReport.Money(Amount)}");
 }
 
-public class ExpenseGroup : IExpenseNode
+public class BatchGroup : IReconciliationNode
 {
     private readonly string _name;
-    private readonly List<IExpenseNode> _children = new();
+    private readonly List<IReconciliationNode> _children = new();
 
-    public ExpenseGroup(string name, params IExpenseNode[] children)
+    public BatchGroup(string name, params IReconciliationNode[] children)
     {
         _name = name;
         _children.AddRange(children);
@@ -88,20 +97,20 @@ public class ExpenseGroup : IExpenseNode
 
     public decimal Amount => _children.Sum(c => c.Amount);
 
-    public void Add(IExpenseNode child) => _children.Add(child);
+    public void Add(IReconciliationNode child) => _children.Add(child);
 
     public void Render(StringBuilder sb, int depth)
     {
-        sb.AppendLine($"{ExpenseReport.Indent(depth)}{_name}");
+        sb.AppendLine($"{ReconciliationReport.Indent(depth)}{_name}");
         foreach (var child in _children)
             child.Render(sb, depth + 1);
-        sb.AppendLine($"{ExpenseReport.Indent(depth + 1)}subtotal: {ExpenseReport.Money(Amount)}");
+        sb.AppendLine($"{ReconciliationReport.Indent(depth + 1)}subtotal: {ReconciliationReport.Money(Amount)}");
     }
 }
 
-public static class ExpenseReport
+public static class ReconciliationReport
 {
-    public static string Render(IReadOnlyList<IExpenseNode> roots)
+    public static string Render(IReadOnlyList<IReconciliationNode> roots)
     {
         var sb = new StringBuilder();
         foreach (var root in roots)
@@ -116,17 +125,18 @@ public static class ExpenseReport
 }
 ```
 
-The client now builds the tree, and nesting is just another `ExpenseGroup` inside a group:
+The client now builds the tree, and nesting is just another `BatchGroup` inside a group:
 
 ```csharp
-var travel = new ExpenseGroup("Travel",
-    new Expense("Flight", 420m),
-    new ExpenseGroup("Lodging", new Expense("Hotel", 310.5m)));
-string text = ExpenseReport.Render(new IExpenseNode[] { travel });
+// fragment
+var morning = new BatchGroup("Morning batch",
+    new Entry("pay-1001", 420m),
+    new BatchGroup("Late arrivals", new Entry("pay-1002", 310.5m)));
+string text = ReconciliationReport.Render(new IReconciliationNode[] { morning });
 ```
 
 ## C# notes
-- A `record` is a convenient leaf. An interface is enough for the common type unless leaves and parents share code.
+- A `record` is a convenient leaf (C# 9+; on Unity it needs an `IsExternalInit` shim). An interface is enough for the common type unless leaves and parents share code.
 - If the tree needs to be immutable, take the children in the constructor only and expose them as `IReadOnlyList<T>`; drop `Add`.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

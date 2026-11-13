@@ -24,70 +24,80 @@ Identify the context: the class with the calculation method full of conditionals
 5. If the context is built in many places, hide strategy construction behind a creation method ([encapsulate-classes-with-factory.md](../creation/encapsulate-classes-with-factory.md)).
 
 ## Example
-Before: the variant is guessed from which nullable fields are set, and one combination falls through to zero.
+Before: the payment method is guessed from which nullable fields are set, and one combination falls through to zero.
 
 ```csharp
-using System;
-
-public class Order
+public class Payment
 {
-    public decimal Weight { get; init; }
-    public decimal DistanceKm { get; init; }
-    public bool Fragile { get; init; }
-    public DateTime? ExpressDeadline { get; init; }
-    public string? PickupPoint { get; init; }
+    public decimal Amount { get; }
+    public bool CrossBorder { get; }
+    public string? CardToken { get; }
+    public string? TransferAlias { get; }
 
-    public decimal ShippingCost()
+    public Payment(decimal amount, bool crossBorder, string? cardToken, string? transferAlias)
     {
-        if (PickupPoint != null && ExpressDeadline == null)
-            return 2m;
-        if (ExpressDeadline != null && PickupPoint == null)
+        Amount = amount;
+        CrossBorder = crossBorder;
+        CardToken = cardToken;
+        TransferAlias = transferAlias;
+    }
+
+    public decimal Fee()
+    {
+        if (TransferAlias != null && CardToken == null)
+            return 0.5m;
+        if (CardToken != null && TransferAlias == null)
         {
-            decimal cost = Weight * 3m + DistanceKm * 0.5m;
-            return Fragile ? cost + 10m : cost;
+            decimal fee = Amount * 0.029m + 0.3m;
+            return CrossBorder ? fee + Amount * 0.01m : fee;
         }
-        if (PickupPoint == null && ExpressDeadline == null)
-            return Weight * 1.2m + DistanceKm * 0.1m;
+        if (CardToken == null && TransferAlias == null)
+            return Amount * 0.008m;
         return 0m;
     }
 }
 ```
 
-After: each variant is a strategy and the order is handed one. The order passes itself because the strategies read several of its properties. The impossible "both set" case is gone, because the caller now chooses the variant explicitly. Swapping is a property assignment.
+After: each method is a strategy and the payment is handed one. The payment passes itself because the strategies read several of its properties. The impossible "both set" case is gone, because the caller now chooses the method explicitly. Swapping is a property assignment.
 
 ```csharp
-public interface IShippingStrategy
+public interface IFeeStrategy
 {
-    decimal Cost(Order order);
+    decimal Fee(Payment payment);
 }
 
-public class PickupShipping : IShippingStrategy
+public class TransferFee : IFeeStrategy
 {
-    public decimal Cost(Order order) => 2m;
+    public decimal Fee(Payment payment) => 0.5m;
 }
 
-public class ExpressShipping : IShippingStrategy
+public class CardFee : IFeeStrategy
 {
-    public decimal Cost(Order order)
+    public decimal Fee(Payment payment)
     {
-        decimal cost = order.Weight * 3m + order.DistanceKm * 0.5m;
-        return order.Fragile ? cost + 10m : cost;
+        decimal fee = payment.Amount * 0.029m + 0.3m;
+        return payment.CrossBorder ? fee + payment.Amount * 0.01m : fee;
     }
 }
 
-public class StandardShipping : IShippingStrategy
+public class DebitFee : IFeeStrategy
 {
-    public decimal Cost(Order order) => order.Weight * 1.2m + order.DistanceKm * 0.1m;
+    public decimal Fee(Payment payment) => payment.Amount * 0.008m;
 }
 
-public class Order
+public class Payment
 {
-    public decimal Weight { get; init; }
-    public decimal DistanceKm { get; init; }
-    public bool Fragile { get; init; }
-    public IShippingStrategy Shipping { get; set; } = new StandardShipping();
+    public decimal Amount { get; }
+    public bool CrossBorder { get; }
+    public IFeeStrategy FeeStrategy { get; set; } = new DebitFee();
 
-    public decimal ShippingCost() => Shipping.Cost(this);
+    public Payment(decimal amount, bool crossBorder)
+    {
+        Amount = amount;
+        CrossBorder = crossBorder;
+    }
+
+    public decimal Fee() => FeeStrategy.Fee(this);
 }
 ```
 
