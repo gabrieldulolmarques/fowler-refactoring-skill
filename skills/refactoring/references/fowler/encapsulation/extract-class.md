@@ -24,74 +24,81 @@ responsibility to name. Also skip it for a class that is small and cohesive.
 7. Decide whether to expose the new object to clients. If so, consider making it a value object ([change-reference-to-value.md](../organizing-data/change-reference-to-value.md)) first.
 
 ## Example
-Before: an invoice class that also holds the billing address data.
+Before: a subscription class that also holds the usage allowance data and its overage rule.
 
 ```csharp
-public class Invoice
-{
-    private decimal _amount;
-    private string _billingStreet;
-    private string _billingCity;
-    private string _billingZip;
+using System;
 
-    public Invoice(decimal amount, string street, string city, string zip)
+public class Subscription
+{
+    private string _planName;
+    private int _includedUnits;
+    private int _usedUnits;
+    private decimal _overageRate;
+
+    public Subscription(string planName, int includedUnits, int usedUnits, decimal overageRate)
     {
-        _amount = amount;
-        _billingStreet = street;
-        _billingCity = city;
-        _billingZip = zip;
+        _planName = planName;
+        _includedUnits = includedUnits;
+        _usedUnits = usedUnits;
+        _overageRate = overageRate;
     }
 
-    public decimal Amount => _amount;
-    public string BillingStreet => _billingStreet;
-    public string BillingCity => _billingCity;
-    public string BillingZip => _billingZip;
+    public string PlanName => _planName;
+    public int IncludedUnits => _includedUnits;
+    public int UsedUnits => _usedUnits;
+    public decimal OverageRate => _overageRate;
 
-    public string BillingLabel => $"{_billingStreet}, {_billingCity} {_billingZip}";
+    public int OverageUnits => Math.Max(0, _usedUnits - _includedUnits);
+    public decimal OverageCharge => OverageUnits * _overageRate;
 }
 ```
 
-After: the address data and behavior live in `Address`; `Invoice` keeps its public members
-as delegates, so callers do not change.
+After: the allowance data and behavior live in `UsageAllowance`; `Subscription` keeps its public
+members as delegates, so callers do not change.
 
 ```csharp
-public class Address
+using System;
+
+public class UsageAllowance
 {
-    public Address(string street, string city, string zip)
+    public UsageAllowance(int includedUnits, int usedUnits, decimal overageRate)
     {
-        Street = street;
-        City = city;
-        Zip = zip;
+        IncludedUnits = includedUnits;
+        UsedUnits = usedUnits;
+        OverageRate = overageRate;
     }
 
-    public string Street { get; }
-    public string City { get; }
-    public string Zip { get; }
+    public int IncludedUnits { get; }
+    public int UsedUnits { get; }
+    public decimal OverageRate { get; }
 
-    public override string ToString() => $"{Street}, {City} {Zip}";
+    public int OverageUnits => Math.Max(0, UsedUnits - IncludedUnits);
+    public decimal OverageCharge => OverageUnits * OverageRate;
 }
 
-public class Invoice
+public class Subscription
 {
-    private readonly decimal _amount;
-    private readonly Address _billingAddress;
+    private readonly string _planName;
+    private readonly UsageAllowance _allowance;
 
-    public Invoice(decimal amount, string street, string city, string zip)
+    public Subscription(string planName, int includedUnits, int usedUnits, decimal overageRate)
     {
-        _amount = amount;
-        _billingAddress = new Address(street, city, zip);
+        _planName = planName;
+        _allowance = new UsageAllowance(includedUnits, usedUnits, overageRate);
     }
 
-    public decimal Amount => _amount;
-    public string BillingStreet => _billingAddress.Street;
-    public string BillingCity => _billingAddress.City;
-    public string BillingZip => _billingAddress.Zip;
+    public string PlanName => _planName;
+    public int IncludedUnits => _allowance.IncludedUnits;
+    public int UsedUnits => _allowance.UsedUnits;
+    public decimal OverageRate => _allowance.OverageRate;
 
-    public string BillingLabel => _billingAddress.ToString();
+    public int OverageUnits => _allowance.OverageUnits;
+    public decimal OverageCharge => _allowance.OverageCharge;
 }
 ```
 
-A later step can expose `Address` to clients and drop the `Billing*` delegates.
+A later step can expose `UsageAllowance` to clients and drop the delegates.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

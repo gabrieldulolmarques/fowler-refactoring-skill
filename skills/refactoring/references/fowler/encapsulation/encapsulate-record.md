@@ -21,7 +21,7 @@ is cheap and a plain record is fine.
 
 ## Mechanics
 1. Apply Encapsulate Variable ([encapsulate-variable.md](../first-set/encapsulate-variable.md)) to the variable that holds the
-   record. Give the getter a temporary, grep-friendly name such as `GetRawContact`; it is
+   record. Give the getter a temporary, grep-friendly name such as `GetRawProfile`; it is
    removed in step 5.
 2. Introduce a small class that holds the record, and store an instance of it in the variable.
    Give it a property that exposes the underlying record (a `RawData` property in the C#
@@ -50,58 +50,58 @@ the data (simple, but costs time and surprises callers who expect to modify the 
 measure first); or recurse into smaller classes (most control, most work). A mix is fine.
 
 ## Example
-Before: a shared contact record kept as a dictionary.
+Before: a shared billing profile kept as a dictionary.
 
 ```csharp
 using System.Collections.Generic;
 
 public static class Billing
 {
-    public static Dictionary<string, string> Contact =
-        new() { ["name"] = "Ana Souza", ["email"] = "ana@example.com" };
+    public static Dictionary<string, string> Profile =
+        new() { ["plan"] = "Team", ["billingEmail"] = "finance@example.com" };
 }
 
 public static class InvoiceHeader
 {
-    public static string Render() => $"Bill to: {Billing.Contact["name"]}";
+    public static string Render() => $"Plan: {Billing.Profile["plan"]}";
 }
 
-public static class ContactForm
+public static class ProfileForm
 {
-    public static void ChangeEmail(string email) => Billing.Contact["email"] = email;
+    public static void ChangeEmail(string email) => Billing.Profile["billingEmail"] = email;
 }
 ```
 
 Intermediate state (steps 1 to 3): wrapper class, raw accessor, object accessor. Step 1 also
-makes `InvoiceHeader` and `ContactForm` call the raw accessor.
+makes `InvoiceHeader` and `ProfileForm` call the raw accessor.
 
 ```csharp
 using System.Collections.Generic;
 
-public class BillingContact
+public class BillingProfile
 {
     private readonly Dictionary<string, string> _data;
-    public BillingContact(Dictionary<string, string> data) => _data = data;
+    public BillingProfile(Dictionary<string, string> data) => _data = data;
     public Dictionary<string, string> RawData => _data;
 }
 
 public static class Billing
 {
-    private static BillingContact _contact = new(
-        new() { ["name"] = "Ana Souza", ["email"] = "ana@example.com" });
+    private static BillingProfile _profile = new(
+        new() { ["plan"] = "Team", ["billingEmail"] = "finance@example.com" });
 
-    public static Dictionary<string, string> GetRawContact() => _contact.RawData;
-    public static BillingContact GetContact() => _contact;
+    public static Dictionary<string, string> GetRawProfile() => _profile.RawData;
+    public static BillingProfile GetProfile() => _profile;
 }
 
 public static class InvoiceHeader
 {
-    public static string Render() => $"Bill to: {Billing.GetRawContact()["name"]}";
+    public static string Render() => $"Plan: {Billing.GetRawProfile()["plan"]}";
 }
 
-public static class ContactForm
+public static class ProfileForm
 {
-    public static void ChangeEmail(string email) => Billing.GetRawContact()["email"] = email;
+    public static void ChangeEmail(string email) => Billing.GetRawProfile()["billingEmail"] = email;
 }
 ```
 
@@ -111,34 +111,34 @@ folded into properties.
 ```csharp
 using System.Collections.Generic;
 
-public class BillingContact
+public class BillingProfile
 {
-    public BillingContact(Dictionary<string, string> data)
+    public BillingProfile(Dictionary<string, string> data)
     {
-        Name = data["name"];
-        Email = data["email"];
+        Plan = data["plan"];
+        BillingEmail = data["billingEmail"];
     }
 
-    public string Name { get; set; }
-    public string Email { get; set; }
+    public string Plan { get; set; }
+    public string BillingEmail { get; set; }
 }
 
 public static class Billing
 {
-    private static BillingContact _contact = new(
-        new() { ["name"] = "Ana Souza", ["email"] = "ana@example.com" });
+    private static BillingProfile _profile = new(
+        new() { ["plan"] = "Team", ["billingEmail"] = "finance@example.com" });
 
-    public static BillingContact GetContact() => _contact;
+    public static BillingProfile GetProfile() => _profile;
 }
 
 public static class InvoiceHeader
 {
-    public static string Render() => $"Bill to: {Billing.GetContact().Name}";
+    public static string Render() => $"Plan: {Billing.GetProfile().Plan}";
 }
 
-public static class ContactForm
+public static class ProfileForm
 {
-    public static void ChangeEmail(string email) => Billing.GetContact().Email = email;
+    public static void ChangeEmail(string email) => Billing.GetProfile().BillingEmail = email;
 }
 ```
 

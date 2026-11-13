@@ -28,65 +28,77 @@ so the forwarders go through the public accessor, then Inline Function on each f
 replace all its callers at once ([encapsulate-variable.md](../first-set/encapsulate-variable.md), [inline-function.md](../first-set/inline-function.md)).
 
 ## Example
-Before: `Customer` hides its `Account` and forwards to it.
+Before: `Workspace` hides its `BillingAccount` and forwards to it.
 
 ```csharp
-public class Account
+public class BillingAccount
 {
-    public string Manager { get; }
-    public decimal CreditLimit { get; }
+    public string BillingEmail { get; }
+    public decimal CreditBalance { get; }
 
-    public Account(string manager, decimal creditLimit)
+    public BillingAccount(string billingEmail, decimal creditBalance)
     {
-        Manager = manager;
-        CreditLimit = creditLimit;
+        BillingEmail = billingEmail;
+        CreditBalance = creditBalance;
     }
 }
 
-public class Customer
+public class Workspace
 {
-    private readonly Account _account;
+    private readonly BillingAccount _billingAccount;
 
-    public Customer(Account account) => _account = account;
+    public Workspace(BillingAccount billingAccount) => _billingAccount = billingAccount;
 
-    public string Manager => _account.Manager;
-    public decimal CreditLimit => _account.CreditLimit;
+    public string BillingEmail => _billingAccount.BillingEmail;
+    public decimal CreditBalance => _billingAccount.CreditBalance;
 }
 
-// client
-string manager = customer.Manager;
+public static class Client
+{
+    public static string Email(Workspace workspace)
+    {
+        string email = workspace.BillingEmail;
+        return email;
+    }
+}
 ```
 
 Step 1: expose the delegate.
 
 ```csharp
-public class Customer
+public class Workspace
 {
-    private readonly Account _account;
+    private readonly BillingAccount _billingAccount;
 
-    public Customer(Account account) => _account = account;
+    public Workspace(BillingAccount billingAccount) => _billingAccount = billingAccount;
 
-    public Account Account => _account;
-    public string Manager => _account.Manager;
-    public decimal CreditLimit => _account.CreditLimit;
+    public BillingAccount BillingAccount => _billingAccount;
+    public string BillingEmail => _billingAccount.BillingEmail;
+    public decimal CreditBalance => _billingAccount.CreditBalance;
 }
 ```
 
 Steps 2 and 3: update each client, then delete the forwarders that are no longer used.
 
 ```csharp
-// client
-string manager = customer.Account.Manager;
-
-public class Customer
+public class Workspace
 {
-    public Customer(Account account) => Account = account;
+    public Workspace(BillingAccount billingAccount) => BillingAccount = billingAccount;
 
-    public Account Account { get; }
+    public BillingAccount BillingAccount { get; }
+}
+
+public static class Client
+{
+    public static string Email(Workspace workspace)
+    {
+        string email = workspace.BillingAccount.BillingEmail;
+        return email;
+    }
 }
 ```
 
-Behavior is the same; `Customer` no longer needs a new member each time `Account` gains one.
+Behavior is the same; `Workspace` no longer needs a new member each time `BillingAccount` gains one.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

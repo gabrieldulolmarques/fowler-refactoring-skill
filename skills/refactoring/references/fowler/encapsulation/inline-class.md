@@ -31,66 +31,106 @@ Smells: Lazy Element, Speculative Generality, Shotgun Surgery.
 8. When the source class is empty and nothing references it, delete it. Compile and test.
 
 ## Example
-Before: `PaymentTerms` holds little and is only used by `Invoice`.
+Before: `TrialTerms` holds little and is only used by `Subscription`.
 
 ```csharp
-public class PaymentTerms
+using System;
+
+public class TrialTerms
 {
-    public int NetDays { get; set; }
+    public int Days { get; set; }
     public string Label { get; set; } = "";
 
-    public string Describe() => $"{Label} (net {NetDays} days)";
+    public string Describe() => $"{Label} ({Days} days)";
 }
 
-public class Invoice
+public class Subscription
 {
-    public PaymentTerms Terms { get; } = new PaymentTerms();
-    public DateTime IssuedOn { get; init; }
+    public Subscription(DateTime startedOn) => StartedOn = startedOn;
 
-    public DateTime DueDate => IssuedOn.AddDays(Terms.NetDays);
-    public string TermsSummary => Terms.Describe();
+    public TrialTerms Trial { get; } = new TrialTerms();
+    public DateTime StartedOn { get; }
+
+    public DateTime TrialEnd => StartedOn.AddDays(Trial.Days);
+    public string TrialSummary => Trial.Describe();
 }
 
-// client
-invoice.Terms.NetDays = 30;
-invoice.Terms.Label = "Standard";
+public static class Client
+{
+    public static void Configure(Subscription subscription)
+    {
+        subscription.Trial.Days = 14;
+        subscription.Trial.Label = "Standard";
+    }
+}
 ```
 
-Step 2 and 4: add delegators to `Invoice`, then change clients to use them.
+Step 2 and 4: add delegators to `Subscription`, then change clients to use them.
 
 ```csharp
-public int NetDays
+using System;
+
+public class Subscription
 {
-    get => Terms.NetDays;
-    set => Terms.NetDays = value;
+    public Subscription(DateTime startedOn) => StartedOn = startedOn;
+
+    public TrialTerms Trial { get; } = new TrialTerms();
+    public DateTime StartedOn { get; }
+
+    public int TrialDays
+    {
+        get => Trial.Days;
+        set => Trial.Days = value;
+    }
+
+    public string TrialLabel
+    {
+        get => Trial.Label;
+        set => Trial.Label = value;
+    }
+
+    public DateTime TrialEnd => StartedOn.AddDays(Trial.Days);
+    public string TrialSummary => Trial.Describe();
 }
 
-public string TermsLabel
+public static class Client
 {
-    get => Terms.Label;
-    set => Terms.Label = value;
+    public static void Configure(Subscription subscription)
+    {
+        subscription.TrialDays = 14;
+        subscription.TrialLabel = "Standard";
+    }
 }
-
-// client
-invoice.NetDays = 30;
-invoice.TermsLabel = "Standard";
 ```
 
-Steps 5 to 8: move the data and the behavior, then delete `PaymentTerms`.
+Steps 5 to 8: move the data and the behavior, then delete `TrialTerms`.
 
 ```csharp
-public class Invoice
-{
-    public DateTime IssuedOn { get; init; }
-    public int NetDays { get; set; }
-    public string TermsLabel { get; set; } = "";
+using System;
 
-    public DateTime DueDate => IssuedOn.AddDays(NetDays);
-    public string TermsSummary => $"{TermsLabel} (net {NetDays} days)";
+public class Subscription
+{
+    public Subscription(DateTime startedOn) => StartedOn = startedOn;
+
+    public DateTime StartedOn { get; }
+    public int TrialDays { get; set; }
+    public string TrialLabel { get; set; } = "";
+
+    public DateTime TrialEnd => StartedOn.AddDays(TrialDays);
+    public string TrialSummary => $"{TrialLabel} ({TrialDays} days)";
+}
+
+public static class Client
+{
+    public static void Configure(Subscription subscription)
+    {
+        subscription.TrialDays = 14;
+        subscription.TrialLabel = "Standard";
+    }
 }
 ```
 
-Behavior is unchanged. Only the client code that reached through `Terms` changed shape, and
+Behavior is unchanged. Only the client code that reached through `Trial` changed shape, and
 that happened before the class disappeared.
 
 ## Verification

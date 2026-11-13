@@ -20,74 +20,78 @@ Do it as soon as you want to do more with the value than print or store it. The 
 Next, optionally: add an accessor that returns the new object and migrate callers to it one at a time, then move validation, comparison and formatting onto the type, making it immutable with value equality. Each of those is its own small, tested change.
 
 ## Example
-Before: a customer's phone is a string, and callers pick it apart.
+Before: a subscription's coupon is a string, and callers pick it apart.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public class Customer
+public class Subscription
 {
-    public string Phone { get; set; } = "";
+    public string Coupon { get; set; } = "";
 }
 
 public static class Reports
 {
-    public static int CountInArea(IEnumerable<Customer> customers, string areaCode) =>
-        customers.Count(c => c.Phone.StartsWith(areaCode));
+    public static int CountByCampaign(IEnumerable<Subscription> subscriptions, string campaign) =>
+        subscriptions.Count(s => s.Coupon.StartsWith(campaign + "-"));
 }
 ```
 
-After: a value type owns validation and the area code.
+After: a value type owns validation and the campaign.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed record PhoneNumber
+public sealed class CouponCode
 {
-    private readonly string _digits;
+    private readonly string _value;
 
-    public PhoneNumber(string value)
+    public CouponCode(string value)
     {
-        if (value is null || value.Length != 10 || !value.All(char.IsDigit))
-            throw new ArgumentException($"'{value}' is not a 10-digit phone number");
-        _digits = value;
+        var parts = (value ?? "").Split('-');
+        if (parts.Length != 2 || parts[0].Length == 0
+            || !int.TryParse(parts[1], out var percent) || percent < 1 || percent > 100)
+            throw new ArgumentException($"'{value}' is not a coupon code like SPRING-15");
+        _value = value!;
+        Campaign = parts[0];
+        PercentOff = percent;
     }
 
-    public string AreaCode => _digits[..2];
-    public string Formatted() => $"({AreaCode}) {_digits[2..6]}-{_digits[6..]}";
-    public override string ToString() => _digits;
+    public string Campaign { get; }
+    public int PercentOff { get; }
+    public override string ToString() => _value;
 }
 
-public class Customer
+public class Subscription
 {
-    private PhoneNumber _phone;
+    private CouponCode _coupon;
 
-    public Customer(string phone) => _phone = new PhoneNumber(phone);
+    public Subscription(string coupon) => _coupon = new CouponCode(coupon);
 
-    public PhoneNumber Phone => _phone;
+    public CouponCode Coupon => _coupon;
 
     // Old accessor kept for existing callers, renamed because it now returns text.
-    public string PhoneText
+    public string CouponText
     {
-        get => _phone.ToString();
-        set => _phone = new PhoneNumber(value);
+        get => _coupon.ToString();
+        set => _coupon = new CouponCode(value);
     }
 }
 
 public static class Reports
 {
-    public static int CountInArea(IEnumerable<Customer> customers, string areaCode) =>
-        customers.Count(c => c.Phone.AreaCode == areaCode);
+    public static int CountByCampaign(IEnumerable<Subscription> subscriptions, string campaign) =>
+        subscriptions.Count(s => s.Coupon.Campaign == campaign);
 }
 ```
 
-Same behavior for valid 10-digit input; a malformed number is now rejected when it is assigned, not discovered later. The customer is always built with a phone, so `Phone` is never null.
+Same behavior for valid codes; a malformed code is now rejected when it is assigned, not discovered later. The subscription is always built with a coupon, so `Coupon` is never null.
 
 ## C# notes
-- A meaningful `string` or `int` becomes its own type: a `record`, or a `readonly record struct` for small values. If the legal values are a fixed closed set with no extra behavior, an `enum` may be enough.
+- A meaningful `string` or `int` becomes its own type: a `record`, or a `readonly record struct` for small values (C# 9+ for `record`, C# 10 for `readonly record struct`; on Unity it needs an `IsExternalInit` shim). If the legal values are a fixed closed set with no extra behavior, an `enum` may be enough.
 - A `record` gives value equality for free; keep the state immutable.
 - A `readonly record struct` can be `default`, which skips the constructor and its validation. A `with` expression on a record also copies state without running validation. Use a `sealed class` when either matters.
 - An `enum` is weaker than a wrapper: any integer can be cast to it without a check.

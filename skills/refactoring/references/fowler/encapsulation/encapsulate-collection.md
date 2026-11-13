@@ -39,57 +39,74 @@ safe collection, and pick one protection (copy or read-only view) for every gett
 Before:
 
 ```csharp
-public class OrderLine
+using System.Collections.Generic;
+using System.Linq;
+
+public class Coupon
 {
-    public OrderLine(string sku, int quantity) { Sku = sku; Quantity = quantity; }
-    public string Sku { get; }
-    public int Quantity { get; }
+    public Coupon(string code, decimal percentOff) { Code = code; PercentOff = percentOff; }
+    public string Code { get; }
+    public decimal PercentOff { get; }
 }
 
-public class Order
+public class Subscription
 {
-    public List<OrderLine> Lines { get; set; } = new();
+    public List<Coupon> Coupons { get; set; } = new();
 }
 
-// callers
-order.Lines.Add(new OrderLine("A-1", 2));
-order.Lines = LoadLines(id);
-var total = order.Lines.Sum(l => l.Quantity);
+public static class Client
+{
+    public static void Run(Subscription subscription, List<Coupon> loaded)
+    {
+        subscription.Coupons.Add(new Coupon("WELCOME10", 10m));
+        subscription.Coupons = loaded;
+        var totalOff = subscription.Coupons.Sum(c => c.PercentOff);
+    }
+}
 ```
 
 After:
 
 ```csharp
-public class Order
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Subscription
 {
-    private readonly List<OrderLine> _lines = new();
+    private readonly List<Coupon> _coupons = new();
 
-    public IReadOnlyList<OrderLine> Lines => _lines.ToArray();
+    public IReadOnlyList<Coupon> Coupons => _coupons.ToArray();
 
-    public void AddLine(OrderLine line) => _lines.Add(line);
+    public void AddCoupon(Coupon coupon) => _coupons.Add(coupon);
 
-    public void RemoveLine(OrderLine line)
+    public void RemoveCoupon(Coupon coupon)
     {
-        if (!_lines.Remove(line))
-            throw new InvalidOperationException("The order does not contain this line.");
+        if (!_coupons.Remove(coupon))
+            throw new InvalidOperationException("The subscription does not have this coupon.");
     }
 
-    public void ReplaceLines(IEnumerable<OrderLine> lines)
+    public void ReplaceCoupons(IEnumerable<Coupon> coupons)
     {
-        var copy = lines.ToList();
-        _lines.Clear();
-        _lines.AddRange(copy);
+        var copy = coupons.ToList();
+        _coupons.Clear();
+        _coupons.AddRange(copy);
     }
 }
 
-// callers (usings and LoadLines omitted, as in Before)
-order.AddLine(new OrderLine("A-1", 2));
-order.ReplaceLines(LoadLines(id)); // the setter is gone
-var total = order.Lines.Sum(l => l.Quantity);
+public static class Client
+{
+    public static void Run(Subscription subscription, List<Coupon> loaded)
+    {
+        subscription.AddCoupon(new Coupon("WELCOME10", 10m));
+        subscription.ReplaceCoupons(loaded); // the setter is gone
+        var totalOff = subscription.Coupons.Sum(c => c.PercentOff);
+    }
+}
 ```
 
-Reads keep working with LINQ. Writes now go through `Order`, so a rule such as "no more than
-50 lines" has one place to live.
+Reads keep working with LINQ. Writes now go through `Subscription`, so a rule such as "no more
+than 3 coupons per subscription" has one place to live.
 
 ## C# notes
 - Expose `IReadOnlyList<T>` or `IReadOnlyCollection<T>`, with `Add`/`Remove` methods on the

@@ -24,39 +24,51 @@ Smells: Message Chains, Insider Trading.
 5. Compile and test.
 
 ## Example
-Before: the client navigates through the account to its owner's billing contact.
+Before: the client navigates through the subscription to its plan's monthly price.
 
 ```csharp
-public class Customer
+public class Plan
 {
-    public string BillingContact { get; set; }
+    public decimal MonthlyPrice { get; set; }
 }
 
-public class Account
+public class Subscription
 {
-    public Customer Owner { get; set; }
+    public Plan Plan { get; set; }
 }
 
-// client
-string contact = account.Owner.BillingContact;
+public static class Client
+{
+    public static decimal Price(Subscription subscription)
+    {
+        decimal price = subscription.Plan.MonthlyPrice;
+        return price;
+    }
+}
 ```
 
-After: `Account` hides `Customer`.
+After: `Subscription` hides `Plan`.
 
 ```csharp
-public class Account
+public class Subscription
 {
-    private Customer _owner;
+    private Plan _plan;
 
-    public Customer Owner { get => _owner; set => _owner = value; } // removed in step 4
-    public string BillingContact => _owner.BillingContact;
+    public Plan Plan { get => _plan; set => _plan = value; } // removed in step 4
+    public decimal MonthlyPrice => _plan.MonthlyPrice;
 }
 
-// client
-string contact = account.BillingContact;
+public static class Client
+{
+    public static decimal Price(Subscription subscription)
+    {
+        decimal price = subscription.MonthlyPrice;
+        return price;
+    }
+}
 ```
 
-Once every client uses `BillingContact`, delete the public `Owner` accessor (or make it
+Once every client uses `MonthlyPrice`, delete the public `Plan` accessor (or make it
 private), so the delegate can no longer be reached from outside.
 
 ## Verification

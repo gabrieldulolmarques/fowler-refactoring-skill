@@ -39,63 +39,65 @@ Do not use it when:
 Before:
 
 ```csharp
-public class Invoice
+public class UsageInvoice
 {
-    private readonly int _hours;
-    private readonly Consultant _consultant;
+    private readonly int _units;
+    private readonly PricingPlan _plan;
 
-    public Invoice(int hours, Consultant consultant)
+    public UsageInvoice(int units, PricingPlan plan)
     {
-        _hours = hours;
-        _consultant = consultant;
+        _units = units;
+        _plan = plan;
     }
 
     public decimal Total()
     {
-        var fees = _hours * _consultant.HourlyRate;
-        var surchargeRate = 0.02m;
-        if (fees > 5000m) surchargeRate = 0.05m;
-        return fees + fees * surchargeRate;
+        var charge = _units * _plan.UnitPrice;
+        var discountRate = 0.05m;
+        if (charge > 5000m) discountRate = 0.10m;
+        return charge - charge * discountRate;
     }
 }
 
-public record Consultant(decimal HourlyRate);
+public class PricingPlan
+{
+    public PricingPlan(decimal unitPrice) => UnitPrice = unitPrice;
+    public decimal UnitPrice { get; }
+}
 ```
 
-Step by step: `fees` is already assigned once, so extract its
-right-hand side into `Fees`, inline the variable. Then extract `surchargeRate`, keeping both of its
+Step by step: `charge` is already assigned once, so extract its
+right-hand side into `Charge`, inline the variable. Then extract `discountRate`, keeping both of its
 assignments inside the new method, and inline it.
 
 After:
 
 ```csharp
-public class Invoice
+public class UsageInvoice
 {
-    private readonly int _hours;
-    private readonly Consultant _consultant;
+    private readonly int _units;
+    private readonly PricingPlan _plan;
 
-    public Invoice(int hours, Consultant consultant)
+    public UsageInvoice(int units, PricingPlan plan)
     {
-        _hours = hours;
-        _consultant = consultant;
+        _units = units;
+        _plan = plan;
     }
 
-    public decimal Total() => Fees + Fees * SurchargeRate;
+    public decimal Total() => Charge - Charge * DiscountRate;
 
-    private decimal Fees => _hours * _consultant.HourlyRate;
+    private decimal Charge => _units * _plan.UnitPrice;
 
-    private decimal SurchargeRate => Fees > 5000m ? 0.05m : 0.02m;
+    private decimal DiscountRate => Charge > 5000m ? 0.10m : 0.05m;
 }
-
-public record Consultant(decimal HourlyRate);
 ```
 
-Behavior is the same. `Fees` is now reusable by other methods, and `Total` no longer carries
+Behavior is the same. `Charge` is now reusable by other methods, and `Total` no longer carries
 temps that would block further extraction.
 
 ## C# notes
-- A read-only property (`private decimal Fees => ...`) fits cheap, side-effect-free calculations.
-- Keep expensive queries as methods (`ComputeFees()`), so the cost is visible at the call site.
+- A read-only property (`private decimal Charge => ...`) fits cheap, side-effect-free calculations.
+- Keep expensive queries as methods (`ComputeCharge()`), so the cost is visible at the call site.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
