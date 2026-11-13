@@ -98,7 +98,7 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 **Tente:**
 - Mover Função ([move-function.md](fowler/moving-features/move-function.md)), para colocá-la junto dos dados
 - Extrair Função ([extract-function.md](fowler/first-set/extract-function.md)), quando só parte da função tem inveja, e então mover essa parte
-- Quando a função toca vários módulos, coloque-a junto do que guarda mais dados. Alguns padrões mantêm de propósito o comportamento separado dos dados, para que cada um possa variar por conta própria (Strategy, Visitor e Self Delegation, de Kent Beck); trate-os como exceções legítimas, e como remédios para Alteração Divergente.
+- Quando a função toca vários módulos, coloque-a junto do que guarda mais dados. Alguns padrões mantêm de propósito o comportamento separado dos dados, para que cada um possa variar por conta própria (Strategy, Visitor e Self Delegation); trate-os como exceções legítimas, e como remédios para Alteração Divergente.
 
 ## Agrupamentos de Dados (Data Clumps, p. 78)
 **Sintomas:** os mesmos poucos valores aparecem juntos como campos em várias classes e como parâmetros em muitas assinaturas. Verificação rápida: se um valor perde o significado quando tomado sozinho, o grupo é um conceito esperando para virar objeto.

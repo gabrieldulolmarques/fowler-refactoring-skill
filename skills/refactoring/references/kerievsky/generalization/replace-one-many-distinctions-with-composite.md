@@ -1,6 +1,6 @@
 # Substituir Distinções Um/Muitos por Composite (Replace One/Many Distinctions with Composite)
 
-Kerievsky (2004), cap. 8, p. 224. Direção: até. Padrão: Composite (GoF, p. 163).
+Kerievsky (2004), cap. 8, p. 224. Padrão: Composite. Direção: até.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code).
@@ -122,9 +122,7 @@ public class OrderChecker
 Um composite irmão, como `AnyOf` (passa quando pelo menos um filho passa), agora pode ser acrescentado sem tocar em `OrderChecker`; é o caso "(A e B) ou C" que a versão com lista não conseguia expressar em uma chamada.
 
 ## Notas (C#)
-- O tipo compartilhado pode ser uma interface, como aqui, ou uma classe base abstrata. Prefira uma interface quando as classes de um-objeto já tiverem bases diferentes.
 - Quando um método recebe `IEnumerable<T>` apenas para percorrer, verifique se um composite compensa: se os clientes nunca precisarem de aninhamento ou de outros combinadores, uma sobrecarga com `params`/`IEnumerable` e código compartilhado pode bastar.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - As falhas relatadas para um grupo são as mesmas, na mesma ordem, que `CheckAll` retornava antes, e `Check` com uma regra só não muda.

@@ -1,6 +1,6 @@
 # Encapsular Classes com Factory (Encapsulate Classes with Factory)
 
-Kerievsky (2004), cap. 6, p. 80. Direção: até. Padrão: Factory (fora do GoF).
+Kerievsky (2004), cap. 6, p. 80. Padrão: Factory. Direção: até.
 
 ## Quando usar
 Smells: Exposição Indecente (Indecent Exposure).
@@ -56,9 +56,7 @@ O mesmo formato aparece nos wrappers da biblioteca padrão que tornam uma coleç
 
 ## Notas (C#)
 - Classes `private` aninhadas são a forma mais estrita. Quando as subclasses estão em arquivos separados, torne-as `internal` com construtores `internal`, e coloque os Creation Methods em uma classe pública no mesmo assembly.
-- Marque as classes escondidas como `sealed` se não forem feitas para ser estendidas.
 - Testes que precisam de um tipo concreto podem usar `InternalsVisibleTo`, ou testar pela factory.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhum código fora do assembly (ou fora da classe base, para tipos aninhados) se refere às classes concretas.

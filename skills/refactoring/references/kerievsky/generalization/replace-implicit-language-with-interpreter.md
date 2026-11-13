@@ -1,6 +1,6 @@
 # Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter)
 
-Kerievsky (2004), cap. 8, p. 269. Direção: até. Padrão: Interpreter (GoF, p. 243).
+Kerievsky (2004), cap. 8, p. 269. Padrão: Interpreter. Direção: até.
 
 ## Quando usar
 Smells: Explosão Combinatória (Combinatorial Explosion), Classe Grande (Large Class), Obsessão por Primitivos (Primitive Obsession), Código Duplicado (Duplicated Code).
@@ -140,8 +140,6 @@ public class OrderFinder
 ## Notas (C#)
 - Em C#, um `Func<Order, bool>` (e combinadores sobre ele) ou o `Where` do LINQ costumam bastar para filtragem em memória. Classes se justificam quando os critérios precisam ser inspecionados, impressos, serializados ou traduzidos (por exemplo, para SQL).
 - Se o alvo é um banco de dados, `Expression<Func<T, bool>>` permite que o provedor traduza os critérios; criar as suas próprias classes de especificação duplicaria o que o provedor já faz.
-- Faça as especificações imutáveis e baratas de construir; elas são valores que descrevem uma pergunta, não serviços.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Para cada método antigo do localizador, um teste monta a especificação equivalente e confirma que ela retorna os mesmos pedidos, na mesma ordem, antes de o método antigo ser internalizado.

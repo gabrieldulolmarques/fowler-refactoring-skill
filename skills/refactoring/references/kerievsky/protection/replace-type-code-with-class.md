@@ -1,6 +1,6 @@
 # Substituir Código de Tipo por Classe (Replace Type Code with Class)
 
-Kerievsky (2004), cap. 9, p. 286. Direção: —. Padrão: — (sobreposição com Fowler; o livro aponta para o Type-Safe Enum de Bloch).
+Kerievsky (2004), cap. 9, p. 286. Padrão: —. Direção: —.
 
 ## Quando usar
 Smells: Obsessão por Primitivos (Primitive Obsession).
@@ -28,8 +28,6 @@ O exemplo está no arquivo de Fowler; o formato do resultado é a classe sealed 
 ## Notas (C#)
 - Um `enum` do C# é apenas um inteiro por baixo: `(OrderStatus)42` compila e executa. Se o conjunto precisar ser fechado e o tipo precisar carregar comportamento, use uma classe sealed com construtor privado. Se nenhuma dessas coisas importar, um enum está bom e esta refatoração não é necessária.
 - Com construtor privado as instâncias são únicas, então `==` sobre referências basta. Sem ele, sobrescreva `Equals` e `GetHashCode` (ou use um record).
-- Valores persistidos ou serializados precisam de um nome ou código estável na classe; mantenha a string antiga como esse código.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhuma constante `string` ou `int` da família permanece, e não há forma pública de criar um valor fora da família se ela for feita para ser fechada.

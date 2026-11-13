@@ -1,6 +1,6 @@
 # Limitar Instanciação com Singleton (Limit Instantiation with Singleton)
 
-Kerievsky (2004), cap. 9, p. 296. Direção: até. Padrão: Singleton (GoF, p. 127).
+Kerievsky (2004), cap. 9, p. 296. Padrão: Singleton. Direção: até.
 
 ## Quando usar
 Smells: —. O motivo do livro é o desempenho, não um smell.
@@ -62,8 +62,6 @@ public class Order
 ## Notas (C#)
 - Um inicializador de campo `static readonly` é thread-safe e preguiçoso o suficiente na maioria dos casos: o CLR o executa uma vez. Quando a construção é cara ou precisa de um gatilho posterior, use `Lazy<T>`: `private static readonly Lazy<TaxTable> Instance = new(() => new TaxTable());`.
 - Em uma aplicação que já usa um contêiner de injeção de dependência, um registro de tempo de vida singleton (`AddSingleton`) geralmente faz esse trabalho sem campo estático e sem acesso global, e a classe continua sendo uma classe comum que os testes podem construir. Prefira-o onde houver um contêiner.
-- Uma instância compartilhada precisa ser segura para uso concorrente. Objetos imutáveis ou sem estado são.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Os chamadores recebem a mesma instância sempre (`ReferenceEquals(a, b)`), e um perfil ou uma medição feita antes e depois mostra um ganho real.

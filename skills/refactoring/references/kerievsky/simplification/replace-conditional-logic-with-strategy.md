@@ -1,6 +1,6 @@
 # Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy)
 
-Kerievsky (2004), cap. 7, p. 129. Direção: até, rumo a. Padrão: Strategy (GoF, p. 315).
+Kerievsky (2004), cap. 7, p. 129. Padrão: Strategy. Direção: até, rumo a.
 
 ## Quando usar
 Smells: Complexidade Condicional (Conditional Complexity), Método Longo (Long Method), Obsessão por Primitivos (Primitive Obsession).
@@ -94,8 +94,6 @@ public class Order
 ## Notas (C#)
 - Uma interface basta quando as strategies não compartilham código. Use uma classe abstrata se elas compartilham auxiliares.
 - Strategies sem estado podem ser compartilhadas como instâncias `static readonly`. Faça isso quando um profiler pedir, não antes.
-- Com injeção de dependência, registre as strategies e deixe uma fábrica ou o chamador escolher uma pela chave.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Um teste por strategy concreta, mais um que troca a strategy de um contexto existente e verifica o novo resultado.

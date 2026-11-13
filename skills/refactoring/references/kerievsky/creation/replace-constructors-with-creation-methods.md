@@ -1,6 +1,6 @@
 # Substituir Construtores por Métodos de Criação (Replace Constructors with Creation Methods)
 
-Kerievsky (2004), cap. 6, p. 57. Direção: até. Padrão: Creation Method (fora do GoF).
+Kerievsky (2004), cap. 6, p. 57. Padrão: Creation Method. Direção: até.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code), Obsessão por Primitivos (Primitive Obsession).
@@ -8,7 +8,7 @@ Smells: Código Duplicado (Duplicated Code), Obsessão por Primitivos (Primitive
 - Uma classe tem vários construtores, e os chamadores precisam ler listas de parâmetros ou corpos de construtores para escolher o certo. Uma chamada como `new Subscription("Acme", 20m, 6)` não diz que tipo de assinatura constrói.
 - Dois tipos de instância precisam dos mesmos tipos de parâmetro, então o segundo construtor não pode ser escrito. Métodos com nome não têm esse limite.
 - Construtores que ninguém chama tendem a sobreviver porque são difíceis de buscar. Um método de criação com nome é fácil de buscar, então código de criação morto fica mais fácil de achar e apagar.
-- Um Creation Method é qualquer método estático ou de instância que devolve uma nova instância. Todo Factory Method do GoF é um, mas o inverso não vale (veja [introduce-polymorphic-creation-with-factory-method.md](introduce-polymorphic-creation-with-factory-method.md)).
+- Um Creation Method é qualquer método estático ou de instância que devolve uma nova instância. Todo Factory Method é um, mas o inverso não vale (veja [introduce-polymorphic-creation-with-factory-method.md](introduce-polymorphic-creation-with-factory-method.md)).
 - Relação com Fowler: [replace-constructor-with-factory-function.md](../../fowler/refactoring-apis/replace-constructor-with-factory-function.md) é a versão de construtor único do mesmo movimento (um construtor, uma factory com nome). Este arquivo serve para uma classe com muitos construtores: você escolhe quais tipos de instância merecem um nome, faz todos passarem por um único construtor geral, e esconde o resto.
 - Desvantagem: a criação fica não padronizada, porque algumas classes usam `new` e outras usam um Creation Method. Se a classe tem construtores demais porque faz coisas demais, aplique antes Extrair Classe (Extract Class) ([extract-class.md](../../fowler/encapsulation/extract-class.md)). Se a maioria das instâncias usa só uma pequena parte de seus campos, considere dividi-la com subclasses. Uma classe que precisaria de dezenas de Creation Methods pode manter alguns construtores públicos para casos raros, ou receber parâmetros nos seus Creation Methods.
 - Se os Creation Methods começarem a ofuscar o propósito real da classe, mova-os para uma factory separada (o livro chama isso de Extrair Factory (Extract Factory); veja [move-creation-knowledge-to-factory.md](move-creation-knowledge-to-factory.md)).
@@ -76,7 +76,6 @@ var b = Subscription.AnnualWithDiscount("Acme", 20m, 0.1m);
 ## Notas (C#)
 - Parâmetros opcionais ou inicializadores de objeto podem substituir alguns construtores encadeados, mas não dão nome ao tipo de instância. Use-os quando as variantes diferem apenas por um valor opcional, e Creation Methods quando as variantes significam coisas diferentes.
 - Um `record` com construtor privado mais métodos estáticos funciona do mesmo jeito.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Uma busca pelo construtor não encontra chamadores fora da classe, e nenhum Creation Method fica sem uso.

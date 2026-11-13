@@ -1,6 +1,6 @@
 # Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command)
 
-Kerievsky (2004), cap. 7, p. 191. Direção: até, rumo a. Padrão: Command (GoF, p. 233).
+Kerievsky (2004), cap. 7, p. 191. Padrão: Command. Direção: até, rumo a.
 
 ## Quando usar
 Smells: Comandos Switch (Switch Statements), Classe Grande (Large Class), Método Longo (Long Method).
@@ -23,7 +23,7 @@ Smells: Comandos Switch (Switch Statements), Classe Grande (Large Class), Métod
 
    Você pode começar aplicando [extract-superclass.md](../../fowler/inheritance/extract-superclass.md) ou Extrair Interface (Extract Interface; só na 1ª ed.; sem link) a um comando concreto. Compile.
 5. Faça cada comando concreto implementar o tipo de comando, e faça todo o código cliente usá-los por meio dele. Compile e teste.
-6. Na classe do despachante, crie e preencha um mapa de comandos: um dicionário de instâncias de comando indexado pelo identificador da requisição. Se houver tantos comandos que registrá-los dá uma lista longa, carregue-os de uma configuração (o padrão Plugin, de *Patterns of Enterprise Application Architecture*, de Fowler). Compile.
+6. Na classe do despachante, crie e preencha um mapa de comandos: um dicionário de instâncias de comando indexado pelo identificador da requisição. Se houver tantos comandos que registrá-los dá uma lista longa, carregue-os de uma configuração. Compile.
 7. Substitua o despacho condicional por uma busca no mapa seguida de uma chamada ao método de execução do comando. A classe agora é o invocador. Compile e teste.
 
 ## Exemplo
@@ -144,9 +144,6 @@ public class OrderDesk
 
 ## Notas (C#)
 - Onde os handlers são minúsculos, um `Dictionary<string, Func<Order, string[], string>>` é um tipo de comando mais leve do que uma classe por handler. Passe para classes quando um handler precisar de estado, dependências ou testes próprios.
-- Com injeção de dependência, injete `IEnumerable<IOrderCommand>` e deixe cada comando expor seu nome, em vez de uma longa lista de registro.
-- Os argumentos chegam como `string[]` aqui porque a assinatura antiga era assim; um objeto de requisição tipado por comando fica para um passo posterior.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Mantenha um teste para cada nome roteado, um para o nome desconhecido e (após o passo 7) um que registra um novo comando em tempo de execução e o executa.

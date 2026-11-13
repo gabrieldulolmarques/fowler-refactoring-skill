@@ -1,6 +1,6 @@
 # Unificar Interfaces com Adapter (Unify Interfaces with Adapter)
 
-Kerievsky (2004), cap. 8, p. 247. Direção: até, rumo a. Padrão: Adapter (GoF, p. 139).
+Kerievsky (2004), cap. 8, p. 247. Padrão: Adapter. Direção: até, rumo a.
 
 ## Quando usar
 Smells: Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces), Solução Destoante (Oddball Solution), Código Duplicado (Duplicated Code).
@@ -107,12 +107,6 @@ public class ReceiptNotifier
 ```
 
 A flag `useEmail` mostra o que ainda é diferente: como obter o endereço. Se isso incomodar, dê à interface um membro que escolha o endereço, ou deixe o chamador passar a lista de endereços. Isso é um passo separado.
-
-## Notas (C#)
-- Prefira composição (um campo que guarda o adaptado, como acima) a herdar da classe de terceiros, que pode ser `sealed` e prende você à API dela.
-- Mantenha o construtor do adaptador rigoroso: valide que o adaptado não é nulo, e coloque a tradução (nomes, unidades, tratamento de erros) no adaptador, não no cliente.
-- Se a interface deve ser implementada por muitas classes que você controla, uma interface é o certo. Se você só precisa de um formato de função, `Action<...>` ou `Func<...>` podem substituir uma interface de um método.
-- Registre o adaptador e a interface no seu container de DI, se usar um, para que os clientes recebam `IMessageSender` e nunca vejam o adaptado.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

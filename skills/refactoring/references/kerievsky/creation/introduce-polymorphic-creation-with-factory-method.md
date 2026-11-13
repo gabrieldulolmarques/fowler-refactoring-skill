@@ -1,6 +1,6 @@
 # Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method)
 
-Kerievsky (2004), cap. 6, p. 88. Direção: até. Padrão: Factory Method (GoF, p. 107).
+Kerievsky (2004), cap. 6, p. 88. Padrão: Factory Method. Direção: até.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code).
@@ -87,8 +87,6 @@ public class HtmlExporter : Exporter
 
 ## Notas (C#)
 - Torne o factory method `protected abstract`, a menos que chamadores fora da hierarquia precisem dele. Uma implementação padrão é `protected virtual`.
-- Se a variação for apenas uma escolha de classe, um construtor passado como `Func<string, IReport>` pode substituir a hierarquia de subclasses. Use o factory method quando a hierarquia já existir por outros motivos.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - O método semelhante agora existe em um só lugar, e nenhuma subclasse repete seu corpo.

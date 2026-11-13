@@ -1,6 +1,6 @@
 # Internalizar Singleton (Inline Singleton)
 
-Kerievsky (2004), cap. 6, p. 114. Direção: longe. Padrão: Singleton (GoF, p. 127).
+Kerievsky (2004), cap. 6, p. 114. Padrão: Singleton. Direção: longe.
 
 ## Quando usar
 Smells: Classe Preguiçosa (Lazy Class).
@@ -56,8 +56,6 @@ Em passos, `InvoiceCalculator` primeiro ganha uma propriedade `Table` que devolv
 
 ## Notas (C#)
 - Uma `static class` ou uma classe com uma propriedade `Instance` estática são ambas Singletons para este fim. A refatoração é a mesma.
-- Com um contêiner de injeção de dependência, um "tempo de vida singleton" não é o padrão: o objeto continua sendo passado por parâmetro. Não o internalize nesses casos.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Uma busca pelo nome do Singleton não encontra nada, e nenhum teste precisa redefinir o estado compartilhado.

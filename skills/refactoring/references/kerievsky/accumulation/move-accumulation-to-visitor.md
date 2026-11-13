@@ -1,6 +1,6 @@
 # Mover Acumulação para Visitor (Move Accumulation to Visitor)
 
-Kerievsky (2004), cap. 10, p. 320. Direção: até, rumo a (Visitor); longe (Iterator). Padrão: Visitor (GoF, p. 331).
+Kerievsky (2004), cap. 10, p. 320. Padrão: Visitor. Direção: até, rumo a (Visitor); longe (Iterator).
 
 ## Quando usar
 Smells: Método Longo (Long Method), Comandos Switch (Switch Statements).
@@ -137,9 +137,7 @@ public class TotalCalculator : IChargeVisitor
 
 ## Notas (C#)
 - A partir do C# 9, uma expressão `switch` com padrões de tipo costuma resolver o mesmo problema com muito menos código. Use um Visitor apenas quando vários algoritmos precisarem da mesma estrutura, ou quando o conjunto de tipos precisar ser aberto para extensão por outros assemblies.
-- O visitor guarda estado entre as visitas, então uma instância de visitor não é thread-safe e deve ser criada por uso (o exemplo zera os campos no início de `Total`; criar uma nova calculadora por chamada é mais seguro).
 - Um `IChargeVisitor<TResult>` genérico, com valores de retorno, evita campos mutáveis, ao custo de uma interface mais elaborada.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Os resultados são iguais aos do método antigo para cada tipo de fonte, inclusive uma coleção que mistura tipos, e uma coleção com um caso desconhecido ou vazio.

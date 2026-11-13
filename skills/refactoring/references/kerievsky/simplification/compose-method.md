@@ -1,6 +1,6 @@
 # Compor Método (Compose Method)
 
-Kerievsky (2004), cap. 7, p. 123. Direção: até. Padrão: Composed Method (fora do GoF; o livro credita a Kent Beck).
+Kerievsky (2004), cap. 7, p. 123. Padrão: Composed Method. Direção: até.
 
 ## Quando usar
 Smells: Método Longo (Long Method).
@@ -88,7 +88,6 @@ public class Ledger
 
 ## Notas (C#)
 - Membros com corpo de expressão mantêm as partes extraídas curtas. Use uma função local quando a parte servir a um único método.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Leia o método de topo em voz alta: cada linha deve ser um passo que você nomearia em uma frase, sem operadores nem indexação.

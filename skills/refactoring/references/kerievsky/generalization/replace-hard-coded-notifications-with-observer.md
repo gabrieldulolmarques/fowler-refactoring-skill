@@ -1,6 +1,6 @@
 # Substituir Notificações Fixas no Código por Observer (Replace Hard-Coded Notifications with Observer)
 
-Kerievsky (2004), cap. 8, p. 236. Direção: até, rumo a. Padrão: Observer (GoF, p. 293).
+Kerievsky (2004), cap. 8, p. 236. Padrão: Observer. Direção: até, rumo a.
 
 ## Quando usar
 Smells: —.
@@ -148,10 +148,6 @@ public class PaymentDashboard
 - Todo `+=` precisa de um `-=` correspondente, e o sujeito costuma sobreviver ao assinante; assim, um handler que nunca é removido mantém o assinante vivo. Desinscreva em `Dispose`, em um método de fechamento ou quando o observador for substituído. Para um assinante que implementa `IDisposable`, coloque o `-=` ali.
 - Inscrever uma lambda ou método anônimo é fácil, mas `-=` com uma lambda nova e textualmente idêntica não a remove. Guarde o delegate em um campo se você precisar se desinscrever.
 - Só a classe que declara um `event` pode dispará-lo; código externo só pode usar `+=` e `-=`. Isso geralmente é o que você quer. Use `?.Invoke` para que um event sem assinantes não lance exceção.
-- Handlers rodam de forma síncrona, na ordem de inscrição, na thread de quem chamou. Se um deles lançar exceção, os demais são pulados, e um handler lento deixa `Charge` lento. Mantenha os handlers curtos, ou capture e reporte o erro dentro do método que dispara se um observador ruim não puder impedir os outros.
-- Um handler que se desinscreve (ou se inscreve) durante a notificação é seguro com events, porque delegates são imutáveis e `Invoke` trabalha sobre um snapshot. Na versão com lista manual, itere sobre uma cópia, como acima.
-- Se o sujeito precisar viver muito mais que os observadores e você não puder garantir a desinscrição, um padrão de weak event ou um desenho diferente (polling, um barramento de mensagens) é mais seguro do que depender de disciplina.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Um teste com dois observadores verifica que ambos recebem cada evento, na ordem esperada, e que um observador não vê nada depois de se desinscrever.

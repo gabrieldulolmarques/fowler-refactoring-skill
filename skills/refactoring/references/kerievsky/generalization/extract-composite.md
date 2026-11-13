@@ -1,6 +1,6 @@
 # Extrair Composite (Extract Composite)
 
-Kerievsky (2004), cap. 8, p. 214. Direção: até. Padrão: Composite (GoF, p. 163).
+Kerievsky (2004), cap. 8, p. 214. Padrão: Composite. Direção: até.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code).
@@ -91,10 +91,7 @@ public class Pallet : CompositeItem
 ```
 
 ## Notas (C#)
-- Torne o composite `abstract` quando ele não faz sentido sozinho, como acima. Um composite que também faz sentido como contêiner sem folhas pode continuar concreto.
 - Exponha os filhos como `IReadOnlyList<Item>` se subclasses ou clientes precisarem lê-los; mantenha a própria lista privada, como em Encapsular Coleção (Encapsulate Collection) ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)).
-- Um ciclo (um contêiner adicionado a si mesmo ou a um de seus descendentes) faz `Weight` recursar para sempre. Proteja `Add` se os clientes puderem montar árvores arbitrárias.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Os totais de contêineres aninhados (uma caixa dentro de um palete) batem com os resultados antigos, e nenhum contêiner ainda declara seu próprio campo de filhos.

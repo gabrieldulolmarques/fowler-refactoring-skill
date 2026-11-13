@@ -1,6 +1,6 @@
 # Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State)
 
-Kerievsky (2004), cap. 7, p. 166. Direção: até, rumo a. Padrão: State (GoF, p. 305).
+Kerievsky (2004), cap. 7, p. 166. Padrão: State. Direção: até, rumo a.
 
 ## Quando usar
 Smells: Complexidade Condicional (Conditional Complexity), Classe Grande (Large Class), Obsessão por Primitivos (Primitive Obsession).
@@ -218,9 +218,7 @@ Acrescentar um estado (digamos, `Escalated`) agora significa uma nova classe ani
 ## Notas (C#)
 - Os objetos de estado não guardam dados por ticket, então as quatro instâncias `static readonly` são compartilhadas por todos os tickets. Mantenha assim: se um estado precisar de dados próprios, crie uma instância por contexto em vez de uma constante compartilhada.
 - Subclasses aninhadas `private sealed` mantêm as constantes como única forma de obter um estado. Membros `internal` permitem que os estados alterem o contexto sem expor setters publicamente. Se os estados morarem em outro assembly, use uma pequena interface pública no contexto.
-- Uma expressão `switch` sobre o enum antigo, se sobreviver em outro lugar (por exemplo, em um mapeador ou em um rótulo de UI), deve ser substituída por um membro do estado ou por uma comparação de `State` com as constantes.
 - Se o status for persistido, mantenha um código estável (o `Name`, ou o valor antigo do enum) e mapeie-o de volta para a constante ao carregar o objeto.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Escreva a tabela de transições como teste antes do passo 1, cobrindo cada movimento permitido e pelo menos uma chamada rejeitada por estado (incluindo o limite de reabertura), e mantenha-a passando pelos cinco passos.

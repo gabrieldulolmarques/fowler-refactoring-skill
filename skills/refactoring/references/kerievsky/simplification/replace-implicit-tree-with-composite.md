@@ -1,6 +1,6 @@
 # Substituir Árvore Implícita por Composite (Replace Implicit Tree with Composite)
 
-Kerievsky (2004), cap. 7, p. 178. Direção: até. Padrão: Composite (GoF, p. 163).
+Kerievsky (2004), cap. 7, p. 178. Padrão: Composite. Direção: até.
 
 ## Quando usar
 Smells: Obsessão por Primitivos (Primitive Obsession).
@@ -128,8 +128,6 @@ string text = ExpenseReport.Render(new IExpenseNode[] { travel });
 ## Notas (C#)
 - Um `record` é uma folha conveniente. Uma interface basta para o tipo comum, a menos que folhas e pais compartilhem código.
 - Se a árvore precisar ser imutável, receba os filhos só no construtor e exponha-os como `IReadOnlyList<T>`; remova o `Add`.
-- A profundidade da recursão é a profundidade da árvore. Para árvores muito profundas, confirme que nenhum nó renderiza recursando sem limite.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Mantenha um teste que compara a saída antiga com a nova para os mesmos dados (o texto "golden"), e rode-o após cada passo.

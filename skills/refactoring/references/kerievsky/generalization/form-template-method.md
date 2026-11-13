@@ -1,6 +1,6 @@
 # Formar Template Method (Form Template Method)
 
-Kerievsky (2004), cap. 8, p. 205. Direção: até. Padrão: Template Method (GoF, p. 325).
+Kerievsky (2004), cap. 8, p. 205. Padrão: Template Method. Direção: até.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code).
@@ -99,8 +99,6 @@ public class TextOrderExporter : OrderExporter
 ## Notas (C#)
 - `Export` não é `virtual`, então uma subclasse não consegue substituir a sequência por acidente. Um método que nunca foi virtual é o equivalente em C# do `final` do template em Java.
 - Marque os passos obrigatórios como `abstract` e os opcionais como `virtual`, com um padrão útil (o rodapé acima). Use `protected` em ambos, já que quem chama só deve ver o template.
-- Se a variação for de um ou dois pequenos passos, passar delegates ou um objeto Strategy para um único método costuma ser mais leve do que uma hierarquia.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - A saída de cada subclasse é byte a byte igual à anterior (compare as strings em um teste), inclusive a ordem dos passos.

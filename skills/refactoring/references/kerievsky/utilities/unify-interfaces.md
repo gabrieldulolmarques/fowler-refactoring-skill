@@ -1,6 +1,6 @@
 # Unificar Interfaces (Unify Interfaces)
 
-Kerievsky (2004), cap. 11, p. 343. Direção: —. Padrão: —.
+Kerievsky (2004), cap. 11, p. 343. Padrão: —. Direção: —.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code) (a contracapa interna do livro lista Unificar Interfaces com Adapter (Unify Interfaces with Adapter) ali; este utilitário é o passo de baixo nível em que ela se apoia).
@@ -64,8 +64,6 @@ public static class Demo
 ## Notas (C#)
 - O método base precisa ser `virtual` (ou `abstract`) e o método da subclasse `override`. Um método da subclasse com o mesmo nome sem `override` oculta o da base, e `Notify` por uma referência de `Shipment` não faria nada.
 - Para uma interface, adicionar um membro quebra todos os implementadores existentes. Métodos de interface com implementação padrão (C# 8) permitem adicioná-lo com corpo, mas só são acessíveis pelo tipo interface, não pela classe.
-- Um padrão que não faz nada esconde o fato de que a operação não é suportada. Confirme que o silêncio é correto para as outras subclasses.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - As verificações de tipo ou casts que a unificação devia remover podem ser apagadas agora, e os testes que usam só o tipo base passam para cada subclasse.

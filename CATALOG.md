@@ -273,8 +273,6 @@ exclusiva da web, a linha de citação diz "só na edição web" e aponta o resu
 
 Nada na skill nomeia um projeto, framework, engine ou processo de equipe específico.
 
-Não usado como fonte: o pacote de replicação de Chen Kuang Piao et al.
-(`Fowler_catalog.json`). Ele não tem licença e contém texto do livro.
 
 ---
 
@@ -288,42 +286,70 @@ tem só um resumo e um diagrama de cada uma; a mecânica vem do livro.
 
 ### 5.1 As 27 refatorações
 
-**Página** é a página impressa da própria lista de refatorações do livro (segunda capa).
-**Direção** vem da tabela "Refactoring Directions" do livro. **GoF** é a página impressa do
-padrão de destino em Gamma et al., *Design Patterns* (1995), tirada da segunda capa desse
-livro; "—" quando o padrão não está no GoF. A mecânica do livro cita as refatorações de Fowler
-pelos nomes da 1ª edição; os arquivos de referência usam os nomes da 2ª edição (seção 2) e
-apontam para os arquivos delas.
+Conferidas com o livro: **Página** é a página impressa da própria lista de refatorações do livro
+(segunda capa), e **Direção** vem da tabela "Refactoring Directions" dele. A mecânica do livro
+cita as refatorações de Fowler pelos nomes da 1ª edição; os arquivos de referência usam os nomes
+da 2ª edição (seção 2) e apontam para os arquivos delas.
 
-| # | Refatoração | Pasta | Página | Padrão | Direção | GoF |
-|---|---|---|---|---|---|---|
-| 1 | Substituir Construtores por Métodos de Criação (Replace Constructors with Creation Methods) | `creation` (cap. 6) | 57 | Creation Method | até | — |
-| 2 | Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory) | `creation` | 68 | Factory | até | — |
-| 3 | Encapsular Classes com Factory (Encapsulate Classes with Factory) | `creation` | 80 | Factory | até | — |
-| 4 | Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method) | `creation` | 88 | Factory Method | até | 107 |
-| 5 | Encapsular Composite com Builder (Encapsulate Composite with Builder) | `creation` | 96 | Builder (Composite: longe) | até | 97 |
-| 6 | Internalizar Singleton (Inline Singleton) | `creation` | 114 | Singleton | longe | 127 |
-| 7 | Compor Método (Compose Method) | `simplification` (cap. 7) | 123 | Composed Method | até | — |
-| 8 | Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy) | `simplification` | 129 | Strategy | até, rumo a | 315 |
-| 9 | Mover Embelezamento para Decorator (Move Embellishment to Decorator) | `simplification` | 144 | Decorator | até, rumo a | 175 |
-| 10 | Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State) | `simplification` | 166 | State | até, rumo a | 305 |
-| 11 | Substituir Árvore Implícita por Composite (Replace Implicit Tree with Composite) | `simplification` | 178 | Composite | até | 163 |
-| 12 | Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command) | `simplification` | 191 | Command | até, rumo a | 233 |
-| 13 | Formar Template Method (Form Template Method) | `generalization` (cap. 8) | 205 | Template Method | até | 325 |
-| 14 | Extrair Composite (Extract Composite) | `generalization` | 214 | Composite | até | 163 |
-| 15 | Substituir Distinções Um/Muitos por Composite (Replace One/Many Distinctions with Composite) | `generalization` | 224 | Composite | até | 163 |
-| 16 | Substituir Notificações Fixas no Código por Observer (Replace Hard-Coded Notifications with Observer) | `generalization` | 236 | Observer | até, rumo a | 293 |
-| 17 | Unificar Interfaces com Adapter (Unify Interfaces with Adapter) | `generalization` | 247 | Adapter | até, rumo a | 139 |
-| 18 | Extrair Adapter (Extract Adapter) | `generalization` | 258 | Adapter | até | 139 |
-| 19 | Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter) | `generalization` | 269 | Interpreter | até | 243 |
-| 20 | Substituir Código de Tipo por Classe (Replace Type Code with Class) | `protection` (cap. 9) | 286 | — | — | — |
-| 21 | Limitar Instanciação com Singleton (Limit Instantiation with Singleton) | `protection` | 296 | Singleton | até | 127 |
-| 22 | Introduzir Null Object (Introduce Null Object) | `protection` | 301 | Null Object | até | — |
-| 23 | Mover Acumulação para Collecting Parameter (Move Accumulation to Collecting Parameter) | `accumulation` (cap. 10) | 313 | Collecting Parameter | até | — |
-| 24 | Mover Acumulação para Visitor (Move Accumulation to Visitor) | `accumulation` | 320 | Visitor (Iterator: longe) | até, rumo a | 331 |
-| 25 | Encadear Construtores (Chain Constructors) | `utilities` (cap. 11) | 340 | — | — | — |
-| 26 | Unificar Interfaces (Unify Interfaces) | `utilities` | 343 | — | — | — |
-| 27 | Extrair Parâmetro (Extract Parameter) | `utilities` | 346 | — | — | — |
+**Nota C#** é o que o arquivo de referência precisa acrescentar porque os exemplos do livro são
+em Java: só pontos genéricos de C#. Onde está "—", o arquivo não tem seção de notas de C#.
+
+#### Capítulo 6: Criação (`kerievsky/creation`)
+
+| # | Refatoração | Página | Padrão | Direção | Nota C# |
+|---|---|---|---|---|---|
+| 1 | Substituir Construtores por Métodos de Criação (Replace Constructors with Creation Methods) | 57 | Creation Method | até | parâmetros opcionais e inicializadores de objeto não dão nome à variante; um `record` com construtor privado funciona igual |
+| 2 | Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory) | 68 | Factory | até | — |
+| 3 | Encapsular Classes com Factory (Encapsulate Classes with Factory) | 80 | Factory | até | esconda as classes com tipos e construtores `internal` (ou `private` aninhados); os testes podem usar `InternalsVisibleTo` |
+| 4 | Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method) | 88 | Factory Method | até | o factory method é `protected abstract`, ou `protected virtual` com um padrão |
+| 5 | Encapsular Composite com Builder (Encapsulate Composite with Builder) | 96 | Builder | até (Builder); longe (Composite) | — |
+| 6 | Internalizar Singleton (Inline Singleton) | 114 | Singleton | longe | uma `static class` conta como Singleton aqui |
+
+#### Capítulo 7: Simplificação (`kerievsky/simplification`)
+
+| # | Refatoração | Página | Padrão | Direção | Nota C# |
+|---|---|---|---|---|---|
+| 7 | Compor Método (Compose Method) | 123 | Composed Method | até | membros com corpo de expressão e funções locais mantêm as partes curtas |
+| 8 | Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy) | 129 | Strategy | até, rumo a | uma interface, ou uma classe abstrata se as estratégias compartilham código; estratégias sem estado podem ser `static readonly` |
+| 9 | Mover Embelezamento para Decorator (Move Embellishment to Decorator) | 144 | Decorator | até, rumo a | — |
+| 10 | Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State) | 166 | State | até, rumo a | instâncias de estado `static readonly` compartilhadas, subclasses `private sealed` aninhadas; persista um código estável, não o objeto |
+| 11 | Substituir Árvore Implícita por Composite (Replace Implicit Tree with Composite) | 178 | Composite | até | uma folha `record`; exponha os filhos como `IReadOnlyList<T>` |
+| 12 | Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command) | 191 | Command | até, rumo a | um `Dictionary<string, Func<...>>` é um tipo de comando mais leve para handlers pequenos |
+
+#### Capítulo 8: Generalização (`kerievsky/generalization`)
+
+| # | Refatoração | Página | Padrão | Direção | Nota C# |
+|---|---|---|---|---|---|
+| 13 | Formar Template Method (Form Template Method) | 205 | Template Method | até | um template method não `virtual` é o `final` do C#; passos `protected` `abstract` e `virtual` |
+| 14 | Extrair Composite (Extract Composite) | 214 | Composite | até | exponha os filhos como `IReadOnlyList<T>` |
+| 15 | Substituir Distinções Um/Muitos por Composite (Replace One/Many Distinctions with Composite) | 224 | Composite | até | uma sobrecarga com `params`/`IEnumerable<T>` pode bastar |
+| 16 | Substituir Notificações Fixas no Código por Observer (Replace Hard-Coded Notifications with Observer) | 236 | Observer | até, rumo a | `event EventHandler<T>`; todo `+=` precisa do seu `-=` |
+| 17 | Unificar Interfaces com Adapter (Unify Interfaces with Adapter) | 247 | Adapter | até, rumo a | — |
+| 18 | Extrair Adapter (Extract Adapter) | 258 | Adapter | até | — |
+| 19 | Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter) | 269 | Interpreter | até | `Func<T, bool>` ou LINQ podem bastar; `Expression<Func<T, bool>>` quando um provedor traduz os critérios |
+
+#### Capítulo 9: Proteção (`kerievsky/protection`)
+
+| # | Refatoração | Página | Padrão | Direção | Nota C# |
+|---|---|---|---|---|---|
+| 20 | Substituir Código de Tipo por Classe (Replace Type Code with Class) | 286 | — | — | um `enum` aceita qualquer inteiro; use uma classe selada com construtor privado para um conjunto fechado |
+| 21 | Limitar Instanciação com Singleton (Limit Instantiation with Singleton) | 296 | Singleton | até | `static readonly` ou `Lazy<T>`; o tempo de vida singleton de um contêiner de DI muitas vezes substitui o padrão |
+| 22 | Introduzir Null Object (Introduce Null Object) | 301 | Null Object | até | com tipos de referência anuláveis o campo deixa de ser anulável; uma instância estática compartilhada |
+
+#### Capítulo 10: Acumulação (`kerievsky/accumulation`)
+
+| # | Refatoração | Página | Padrão | Direção | Nota C# |
+|---|---|---|---|---|---|
+| 23 | Mover Acumulação para Collecting Parameter (Move Accumulation to Collecting Parameter) | 313 | Collecting Parameter | até | `StringBuilder`, ou um parâmetro `TextWriter` |
+| 24 | Mover Acumulação para Visitor (Move Accumulation to Visitor) | 320 | Visitor | até, rumo a (Visitor); longe (Iterator) | uma expressão `switch` com padrões de tipo muitas vezes basta; um visitor genérico devolve valores |
+
+#### Capítulo 11: Utilitários (`kerievsky/utilities`)
+
+| # | Refatoração | Página | Padrão | Direção | Nota C# |
+|---|---|---|---|---|---|
+| 25 | Encadear Construtores (Chain Constructors) | 340 | — | — | `: this(...)`; parâmetros opcionais como alternativa; construtores primários |
+| 26 | Unificar Interfaces (Unify Interfaces) | 343 | — | — | `virtual`/`override`, sem ocultar; métodos padrão de interface |
+| 27 | Extrair Parâmetro (Extract Parameter) | 346 | — | — | `ArgumentNullException.ThrowIfNull` |
 
 Sobreposições com a 2ª edição de Fowler, mantidas curtas e apontando para o arquivo de Fowler:
 Compor Método (Extrair Função, Deslocar Instruções), Substituir Código de Tipo por Classe
@@ -357,7 +383,7 @@ O mesmo da seção 4.2, com outra linha de citação:
 ```markdown
 # Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State)
 
-Kerievsky (2004), cap. 7, p. 166. Direção: até, rumo a. Padrão: State (GoF, p. 305).
+Kerievsky (2004), cap. 7, p. 166. Padrão: State. Direção: até, rumo a.
 ```
 
 Um passo da mecânica que é uma refatoração de Fowler a cita pelo nome da 2ª edição e aponta

@@ -1,6 +1,6 @@
 # Introduzir Null Object (Introduce Null Object)
 
-Kerievsky (2004), cap. 9, p. 301. Direção: até. Padrão: Null Object (fora do GoF; o livro credita a Bobby Woolf).
+Kerievsky (2004), cap. 9, p. 301. Padrão: Null Object. Direção: até.
 
 ## Quando usar
 Smells: Complexidade Condicional (Conditional Complexity), Código Duplicado (Duplicated Code).
@@ -77,9 +77,7 @@ public class Order
 
 ## Notas (C#)
 - Com tipos de referência anuláveis ativados, o campo muda de `IShipmentNotifier?` para `IShipmentNotifier`, e o compilador então deixa de emitir alerta sobre ele.
-- Prefira uma interface mais uma classe nula `sealed` em vez de subclasse, para que um novo método da interface não possa ser esquecido por herança.
 - Um null object sem estado pode ser uma instância estática compartilhada (`NullShipmentNotifier.Instance`).
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhuma verificação de nulo no campo permanece, e um teste que chama os métodos antes de qualquer objeto real ser anexado passa sem exceção.

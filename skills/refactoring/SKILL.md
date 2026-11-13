@@ -65,7 +65,7 @@ refatorações para padrões que Kerievsky acrescenta.
 
 Cada arquivo tem: Quando usar, Mecânica, Exemplo (C#), Notas (C#) onde o catálogo tem uma, e
 Verificação. "(web)" marca uma refatoração que existe só na edição web do livro, sem página
-no impresso. Um arquivo de Kerievsky também dá o padrão (com a página no GoF) e a direção:
+no impresso. Um arquivo de Kerievsky também dá o padrão de destino e a direção:
 *até* o padrão, *rumo a* ele, ou para *longe* dele.
 
 ### Um primeiro conjunto (cap. 6)
@@ -235,5 +235,5 @@ padrão, avança rumo a ele ou remove um. A coluna Padrão traz a direção.
 Fontes: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed.,
 Addison-Wesley (Pearson Education), 2018, e o catálogo online em
 https://refactoring.com/catalog/; Joshua Kerievsky, *Refactoring to Patterns*, Addison-Wesley
-(Pearson Education), 2004; páginas dos padrões em Gamma, Helm, Johnson e Vlissides, *Design
-Patterns*, Addison-Wesley, 1995. Parafraseado; veja o NOTICE do pacote.
+(Pearson Education), 2004, e o catálogo online em
+https://www.industriallogic.com/refactoring-to-patterns/catalog/. Parafraseado; veja o NOTICE do pacote.

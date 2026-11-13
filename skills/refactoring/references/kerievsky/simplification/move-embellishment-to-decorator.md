@@ -1,6 +1,6 @@
 # Mover Embelezamento para Decorator (Move Embellishment to Decorator)
 
-Kerievsky (2004), cap. 7, p. 144. Direção: até, rumo a. Padrão: Decorator (GoF, p. 175).
+Kerievsky (2004), cap. 7, p. 144. Padrão: Decorator. Direção: até, rumo a.
 
 ## Quando usar
 Smells: Complexidade Condicional (Conditional Complexity), Obsessão por Primitivos (Primitive Obsession).
@@ -106,11 +106,6 @@ public class AuditedPaymentProcessor : IPaymentProcessor
     }
 }
 ```
-
-## Notas (C#)
-- Se a interface crescer depois, todo decorador precisa crescer junto. Mantenha-a pequena.
-- Com um contêiner de DI, registre a cadeia decorada em um só lugar, para que os pontos de chamada não escolham a ordem.
-- Não teste o objeto decorado com `is` nem com casts para a classe concreta; dependa da interface.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

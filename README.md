@@ -62,7 +62,6 @@ pacote **e** aos livros em que ele se baseia:
 
 A licença cobre apenas o conteúdo próprio deste pacote, não os livros (veja [NOTICE](NOTICE)).
 A motivação e a mecânica na skill são parafraseadas, com capítulo e página citados;
-nada é copiado dos livros, de refactoring.com, de industriallogic.com, do *Dive Into
-Refactoring* da Refactoring.Guru, nem do pacote de replicação de Chen Kuang Piao et al. Os nomes das refatorações, os nomes
+nada é copiado dos livros, de refactoring.com nem de industriallogic.com. Os nomes das refatorações, os nomes
 antigos e as inversas vêm dos cabeçalhos de seção do livro e da edição web do livro para as cinco
 refatorações só da web. Os exemplos em C# são originais.

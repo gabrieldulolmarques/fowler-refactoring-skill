@@ -1,13 +1,13 @@
 # Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory)
 
-Kerievsky (2004), cap. 6, p. 68. Direção: até. Padrão: Factory (fora do GoF).
+Kerievsky (2004), cap. 6, p. 68. Padrão: Factory. Direção: até.
 
 ## Quando usar
 Smells: Solução Espalhada (Solution Sprawl).
 
 - Os dados e o código necessários para construir um tipo de objeto estão espalhados por várias classes. O livro chama isso de espalhamento de criação (creation sprawl). Geralmente começa quando um cliente quer configurar um objeto mas não consegue alcançar o código que o cria; então ele entrega suas preferências a um objeto, que as entrega a outro, até que alguma classe distante finalmente as use.
 - Uma Factory reúne a lógica de criação e as preferências em uma única classe. O cliente configura a factory uma vez, e a mesma instância da factory depois faz a criação onde for necessário.
-- A definição do livro: qualquer classe que tenha um ou mais Creation Methods é uma Factory, estática ou não, devolvendo uma interface, uma classe abstrata ou uma classe concreta. Um Factory Method (GoF) é outra coisa, um método polimórfico em uma hierarquia. Uma Abstract Factory é uma Factory que pode ser trocada em tempo de execução para construir uma família de objetos relacionados. Se a lógica de criação da Factory ficar complexa demais, ela pode evoluir para uma.
+- A definição do livro: qualquer classe que tenha um ou mais Creation Methods é uma Factory, estática ou não, devolvendo uma interface, uma classe abstrata ou uma classe concreta. Um Factory Method é outra coisa, um método polimórfico em uma hierarquia. Uma Abstract Factory é uma Factory que pode ser trocada em tempo de execução para construir uma família de objetos relacionados. Se a lógica de criação da Factory ficar complexa demais, ela pode evoluir para uma.
 - Uma Factory pode ser uma classe ou uma interface implementada por uma classe existente. A forma de interface é útil quando outro código deve conversar com essa classe apenas pelo seu papel de criação.
 - Desvantagem: uma Factory acrescenta uma classe. Se todo objeto do sistema é criado por uma factory, há classes demais. Não acrescente uma só para esconder a escolha entre duas classes concretas em um único lugar. Ela precisa eliminar o espalhamento ou permitir uma configuração que o `new` puro não consegue.
 
@@ -71,10 +71,6 @@ public class CheckoutService
     public Order Place(string customer, OrderFactory factory) => factory.CreateOrder(customer);
 }
 ```
-
-## Notas (C#)
-- Se outro código deve depender apenas do papel de criação, extraia uma interface (`IOrderFactory`) e deixe a classe implementá-la.
-- Com injeção de dependência, a factory costuma ser registrada como serviço. A refatoração continua a mesma: mova o conhecimento primeiro, depois decida como a factory é fornecida.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

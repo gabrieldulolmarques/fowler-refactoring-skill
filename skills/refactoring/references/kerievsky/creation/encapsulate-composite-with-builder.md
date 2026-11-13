@@ -1,13 +1,13 @@
 # Encapsular Composite com Builder (Encapsulate Composite with Builder)
 
-Kerievsky (2004), cap. 6, p. 96. Direção: até (Builder); longe (Composite). Padrão: Builder (GoF, p. 97).
+Kerievsky (2004), cap. 6, p. 96. Padrão: Builder. Direção: até (Builder); longe (Composite).
 
 ## Quando usar
 Smells: Obsessão por Primitivos (Primitive Obsession), Código Duplicado (Duplicated Code).
 
 - Construir um Composite leva sempre os mesmos três passos: criar um nó, configurá-lo e anexá-lo ao pai certo. Pular o último passo, ou anexar ao pai errado, é um erro fácil, e o código fica repetitivo.
 - O código cliente fica preso às classes do Composite. Quando a biblioteca de árvore subjacente muda, todo lugar que constrói uma árvore precisa mudar. Um Builder que recebe argumentos simples (strings, números) e não devolve nenhum tipo da biblioteca esconde isso. Depois você pode escrever outro Builder com a mesma interface para uma representação diferente.
-- A intenção do GoF é permitir que um mesmo processo de construção gere representações diferentes. Simplificar a construção e desacoplar o cliente são razões igualmente boas.
+- A intenção original do padrão é permitir que um mesmo processo de construção gere representações diferentes. Simplificar a construção e desacoplar o cliente são razões igualmente boas.
 - Desvantagem: a interface de um Builder às vezes não é óbvia, porque esconde muito trabalho (posição atual, rastreamento do pai). Seus testes ou sua documentação podem ser a melhor forma de aprendê-la.
 - Relacionado: o próprio Composite pode vir de [replace-implicit-tree-with-composite.md](../simplification/replace-implicit-tree-with-composite.md). A direção "longe de Composite" significa que os clientes deixam de tocar diretamente no Composite.
 
@@ -91,10 +91,6 @@ var text = new MenuBuilder("File")
 ```
 
 A árvore é a mesma. `Up` depois de `Recent` volta para `Open`, e `AddSibling("Exit")` então sobe mais uma vez e adiciona sob `File`.
-
-## Notas (C#)
-- Devolver `this` em cada método permite encadeamento. Se você quiser impedir que os chamadores usem uma árvore pela metade, faça `Build` devolver um resultado imutável, ou faça o builder de uso único.
-- Se os clientes não deveriam conhecer o tipo do nó, dê ao builder uma interface e devolva uma interface a partir de `Build`.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

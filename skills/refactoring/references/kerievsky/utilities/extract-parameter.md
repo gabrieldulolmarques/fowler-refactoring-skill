@@ -1,6 +1,6 @@
 # Extrair Parâmetro (Extract Parameter)
 
-Kerievsky (2004), cap. 11, p. 346. Direção: —. Padrão: —.
+Kerievsky (2004), cap. 11, p. 346. Padrão: —. Direção: —.
 
 ## Quando usar
 Smells: — (um passo de baixo nível; o livro precisou dele logo depois de transformar herança em delegação).
@@ -54,10 +54,7 @@ public static class Caller
 ```
 
 ## Notas (C#)
-- Parâmetros de construtor de tipo interface são exatamente o que um contêiner de injeção de dependência preenche; feito isso, a classe está pronta para ser registrada.
-- Se muitos chamadores precisarem do comportamento antigo, mantenha um segundo construtor que forneça o padrão e encaminhe para o novo ([chain-constructors.md](chain-constructors.md)), e remova-o quando os chamadores tiverem migrado.
 - Valide na fronteira: um parâmetro `null` deve falhar com `ArgumentNullException.ThrowIfNull(formatter)` quando, de outra forma, o null apareceria bem mais tarde.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhum código da classe cria mais o valor, e um teste agora pode passar um fake do tipo.

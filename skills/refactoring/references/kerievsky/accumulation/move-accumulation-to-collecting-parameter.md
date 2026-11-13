@@ -1,6 +1,6 @@
 # Mover Acumulação para Collecting Parameter (Move Accumulation to Collecting Parameter)
 
-Kerievsky (2004), cap. 10, p. 313. Direção: até. Padrão: Collecting Parameter (fora do GoF; o livro credita a Kent Beck, Smalltalk Best Practice Patterns).
+Kerievsky (2004), cap. 10, p. 313. Padrão: Collecting Parameter. Direção: até.
 
 ## Quando usar
 Smells: Método Longo (Long Method).
@@ -98,8 +98,6 @@ public class InvoiceRenderer
 ## Notas (C#)
 - `string` é imutável, então o passo 1 geralmente significa `StringBuilder`. Para listas, um `ICollection<T>` ou `List<T>` passado como argumento funciona do mesmo modo.
 - Quando o parâmetro só recebe texto, um parâmetro `TextWriter` permite que o chamador escolha o destino (uma string, um arquivo, um stream) e evita um `ToString()` final.
-- Um método que acrescenta ao seu parâmetro tem efeito colateral; nomeie os métodos extraídos como `Write...` ou `Append...` para deixar isso visível.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - A saída é byte a byte igual à anterior para algumas entradas representativas, incluindo os casos vazio e com desconto.

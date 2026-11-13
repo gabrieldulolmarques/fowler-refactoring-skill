@@ -1,6 +1,6 @@
 # Extrair Adapter (Extract Adapter)
 
-Kerievsky (2004), cap. 8, p. 258. Direção: até. Padrão: Adapter (GoF, p. 139).
+Kerievsky (2004), cap. 8, p. 258. Padrão: Adapter. Direção: até.
 
 ## Quando usar
 Smells: Solução Espalhada (Solution Sprawl).
@@ -104,11 +104,6 @@ public class V2ExchangeRates : ExchangeRates
 ```
 
 Os clientes dependem de `IExchangeRates`; o código de inicialização (ou a configuração) escolhe `LegacyExchangeRates` ou `V2ExchangeRates`. Quando a versão 1 for aposentada, apague uma classe e nada mais.
-
-## Notas (C#)
-- Nomeie cada adaptador pela versão que ele atende, e mantenha os tipos específicos de versão fora da interface.
-- Escolha o adaptador na raiz de composição (uma fábrica ou o container de DI, usando a configuração), não dentro do cliente.
-- Uma classe base abstrata comum, como acima, é uma opção; se os adaptadores não compartilham nada, implemente a interface diretamente e dispense a classe base.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

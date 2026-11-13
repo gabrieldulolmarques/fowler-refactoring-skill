@@ -1,6 +1,6 @@
 # Encadear Construtores (Chain Constructors)
 
-Kerievsky (2004), cap. 11, p. 340. Direção: —. Padrão: —.
+Kerievsky (2004), cap. 11, p. 340. Padrão: —. Direção: —.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code).
@@ -85,7 +85,6 @@ public class Payment
 - C# encadeia com `: this(...)` antes do corpo do construtor, e com `: base(...)` para a superclasse. A chamada encadeada roda primeiro, então uma expressão padrão não pode usar membros da instância.
 - Parâmetros opcionais costumam ser a alternativa mais simples: um só construtor, `Payment(decimal amount, string currency = "USD", DateOnly? dueDate = null, string? reference = null)`, com `dueDate ?? ...` dentro. Use encadeamento quando um padrão for calculado, quando dois padrões precisarem mudar juntos, ou quando a assinatura fizer parte de uma API pública (adicionar um parâmetro opcional muda os pontos de chamada em outros assemblies só depois que eles recompilarem, enquanto as sobrecargas continuam compatíveis em binário).
 - Em C# 12 e versões posteriores, uma classe com construtor primário faz os demais construtores chamarem `this(...)` nele por regra.
-
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Cada campo é atribuído em exatamente um construtor, e cada construtor público produz o mesmo objeto de antes para os mesmos argumentos.
