@@ -26,14 +26,14 @@ Combinar várias refatorações em um passo grande parece mais rápido, mas é m
 
 ## Refatorações compostas e guiadas por testes
 
-- Quase toda refatoração para um padrão é **composta**: uma sequência de refatorações de baixo nível (em sua maioria de Fowler), com os testes executados entre cada uma (cap. 2, pp. 17-20). A mecânica dá uma ordem segura; siga-a.
+- Quase toda refatoração para um padrão é **composta**: uma sequência de refatorações de baixo nível (em sua maioria de Fowler), com os testes executados entre cada uma (cap. 2, pp. 17-20). A mecânica do livro dá uma ordem que funciona; você pode aplicar os passos em outra ordem, se achar melhor.
 - Uma **refatoração guiada por testes** escreve a substituição com desenvolvimento guiado por testes e depois a troca pelo código antigo, mantendo e reexecutando os testes do código antigo (cap. 2, pp. 17-19). Use-a quando o novo design estiver longe demais do atual para chegar apenas movendo código, como ao substituir um algoritmo ou ao introduzir um Builder.
 
 ## Até, rumo a e longe
 
 - Algumas refatorações só ajudam se você for **até** o padrão: meio Template Method não remove duplicação alguma.
 - Outras já melhoram o design no meio do caminho: ir **rumo a** um Decorator ou a um Command pode bastar, e você pode parar assim que o smell sumir.
-- Refatorar para **longe** de um padrão é tão legítimo quanto: remova um Singleton ou um Composite quando o design ficar melhor sem ele.
+- Refatorar para **longe** de um padrão é tão legítimo quanto: remova um Singleton ou um Iterator quando o design ficar melhor sem ele.
 
 Cada arquivo de referência indica sua direção (cap. 3, pp. 29-31).
 

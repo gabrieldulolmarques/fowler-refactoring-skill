@@ -3,7 +3,7 @@
 Kerievsky (2004), cap. 7, p. 191. Padrão: Command. Direção: até, rumo a.
 
 ## Quando usar
-Smells: Comandos Switch (Switch Statements), Classe Grande (Large Class), Método Longo (Long Method).
+Smells: Instruções Switch (Switch Statements), Classe Grande (Large Class), Método Longo (Long Method).
 
 - Um despachante condicional é um `switch` ou uma cadeia de `if` que roteia uma requisição (um nome de comando, um tipo de mensagem, um código de ação) para o código que a trata. Um pequeno, que cabe na tela, com handlers curtos, pode ficar como está.
 - Dois motivos para migrar para Command: o conjunto de requisições ou de handlers precisa ser configurável em tempo de execução (o `switch` fixo no código não pode ser estendido de fora), ou o despachante e seus handlers cresceram tanto que extrair métodos já não ajuda, porque a classe continua grande demais.
@@ -132,7 +132,7 @@ public class PaymentDesk
     public void Register(string name, IPaymentCommand command) => _commands[name] = command;
 
     public string Execute(string command, Payment payment, string[] args) =>
-        _commands.TryGetValue(command, out var handler)
+        command != null && _commands.TryGetValue(command, out var handler)
             ? handler.Execute(payment, args)
             : $"unknown command {command}";
 }

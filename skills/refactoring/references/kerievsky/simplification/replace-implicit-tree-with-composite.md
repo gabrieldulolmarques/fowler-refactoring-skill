@@ -7,7 +7,7 @@ Smells: Obsessão por Primitivos (Primitive Obsession).
 
 - Dados ou lógica formam uma árvore sem serem modelados como tal: laços aninhados que imprimem ou totalizam uma hierarquia, strings montadas com indentação escrita à mão e marcadores de fechamento, tuplas e dicionários fazendo papel de nós. Toda mudança no formato (um nível novo, outro layout) exige editar o código de construção.
 - Um Composite dá uma classe a cada parte e permite que os pais tratem todos os filhos por uma única interface, então formatação, totalização e fechamento são feitos uma vez, pelos próprios nós.
-- Para lógica condicional (uma árvore de testes `&&` / `||`), o refactoring só compensa quando muitas condições parecidas se acumulam; esse caso é [replace-implicit-language-with-interpreter.md](../generalization/replace-implicit-language-with-interpreter.md).
+- Para lógica condicional (uma árvore de testes `&&` / `||`), a refatoração só compensa quando muitas condições parecidas se acumulam; esse caso é [replace-implicit-language-with-interpreter.md](../generalization/replace-implicit-language-with-interpreter.md).
 - Se o cliente precisar montar a mesma árvore em várias formas de saída, adicione depois um Builder por cima ([encapsulate-composite-with-builder.md](../creation/encapsulate-composite-with-builder.md)).
 - Deixe árvores pequenas e estáveis implícitas. Desvantagem: complica o design quando montar a árvore à mão é mais simples. Não tem problema começar implícito e refatorar quando o código começar a inchar.
 

@@ -3,12 +3,12 @@
 Kerievsky (2004), cap. 10, p. 320. Padrão: Visitor. Direção: até, rumo a (Visitor); longe (Iterator).
 
 ## Quando usar
-Smells: Método Longo (Long Method), Comandos Switch (Switch Statements).
+Smells: Método Longo (Long Method), Instruções Switch (Switch Statements).
 
 - Um método reúne informações de várias classes que guardam dados diferentes e expõem interfaces diferentes (classes heterogêneas), geralmente por meio de testes de tipo e conversões (casts).
 - Um Visitor faz isso por double dispatch: cada classe tem um método `Accept(visitor)` que chama de volta o método do visitor para a sua própria classe, passando a si mesma. O visitor então lê o que precisa sem conversões.
 - Vários algoritmos diferentes sobre a mesma estrutura podem ser, cada um, o seu próprio visitor, e um visitor pode atravessar hierarquias de classes.
-- O aviso do livro: na maioria das vezes você não precisa de um Visitor, mas quando precisa, precisa de verdade. Considere soluções mais simples primeiro. Se as classes podem compartilhar uma interface comum (veja Unificar Interfaces (Unify Interfaces) ([unify-interfaces.md](../utilities/unify-interfaces.md))), um Visitor é mais do que você precisa. Compare primeiro com [move-accumulation-to-collecting-parameter.md](move-accumulation-to-collecting-parameter.md).
+- O aviso do livro é que o Visitor raramente é necessário e que, quando é, a necessidade é forte. Tente soluções mais simples primeiro. Se as classes podem compartilhar uma interface comum (veja Unificar Interfaces (Unify Interfaces) ([unify-interfaces.md](../utilities/unify-interfaces.md))), um Visitor é mais do que você precisa. Compare primeiro com [move-accumulation-to-collecting-parameter.md](move-accumulation-to-collecting-parameter.md).
 - Desvantagens: toda nova classe visitável precisa de um método `Accept`, e de um método de visita em cada visitor, e as classes visitadas podem ter de expor mais dos seus dados.
 
 ## Mecânica
@@ -34,7 +34,7 @@ O livro traz três conjuntos, conforme onde fica o código de acumulação. O m�
 6. Para cada fonte, mova o código de acumulação de `Accept` para o método de visita correspondente no visitor, deixando `Accept` como `visitor.VisitX(this)`. Compile e teste.
 
 **Substituição por visitor** (nenhuma das duas formas existe ainda, mas um visitor seria melhor)
-1. Crie uma classe visitor concreta. Se for o segundo, extraia uma superclasse ou interface para ele (Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../../fowler/inheritance/extract-superclass.md))) e use esse tipo nas assinaturas de `Accept`.
+1. Crie uma classe visitor concreta. Se for o segundo, extraia uma superclasse para ele (Extrair Superclasse (Extract Superclass), [extract-superclass.md](../../fowler/inheritance/extract-superclass.md)) e use esse tipo nas assinaturas de `Accept`.
 2. Para cada classe-fonte, acrescente um método de visita ao visitor e um método `Accept` na fonte que o chama com `this`. Isso dá o esqueleto.
 3. Dê ao visitor uma forma de ler o seu resultado acumulado, inicialmente vazio.
 4. No método de acumulação, crie o visitor, chame `Accept` em cada fonte e use o resultado do visitor no lugar do antigo. Os testes agora falham.
@@ -93,7 +93,7 @@ public class SummaryBuilder
 }
 ```
 
-Depois (método de acumulação externo): o construtor de resumo é o visitor; cada registro aceita o visitor e chama de volta o método do seu próprio tipo.
+Depois (método de acumulação externo): o construtor de resumo é o visitor; cada registro aceita o visitor e chama de volta o método do seu próprio tipo. Pré-condição: a coleção não tem elementos `null`; o laço antigo os ignorava, enquanto `record.Accept(this)` lançaria uma exceção.
 
 ```csharp
 public interface IRecordVisitor
@@ -159,7 +159,7 @@ public class SummaryBuilder : IRecordVisitor
 ```
 
 ## Notas (C#)
-- Em C# 9 em diante, uma expressão `switch` com padrões de tipo muitas vezes resolve o mesmo problema com bem menos código. Use um Visitor apenas quando vários algoritmos precisarem da mesma estrutura, ou quando o conjunto de tipos precisar ser aberto para extensão por outros assemblies.
+- Em C# 9 em diante, uma expressão `switch` com padrões de tipo (type patterns) muitas vezes resolve o mesmo problema com bem menos código. Use um Visitor apenas quando vários algoritmos precisarem da mesma estrutura, ou quando o conjunto de tipos precisar ser aberto para extensão por outros assemblies.
 - Um `IRecordVisitor<TResult>` genérico, com valores de retorno, evita campos mutáveis, ao custo de uma interface mais elaborada.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

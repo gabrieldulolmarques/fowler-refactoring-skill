@@ -14,8 +14,6 @@ Smells: Código Duplicado (Duplicated Code).
 2. Repita para cada construtor da classe, incluindo os já alterados, até a duplicação ficar o mais baixa possível.
 3. Revise os chamadores e reduza a visibilidade de qualquer construtor que não precise mais ser público. Compile e teste.
 
-Prefira chamar o construtor abrangente com padrões explícitos em vez de encadear lateralmente entre construtores estreitos, para que exista um único lugar onde os campos são atribuídos.
-
 ## Exemplo
 Antes: três construtores atribuem os campos cada um por conta própria, e dois repetem a mesma data de retenção padrão.
 
@@ -59,7 +57,7 @@ public class UploadRequest
 }
 ```
 
-Depois: só o último construtor atribui campos; os outros passam padrões para ele.
+Depois: só o último construtor atribui campos; cada um dos outros chama um mais geral, passando valores padrão.
 
 ```csharp
 public class UploadRequest
@@ -92,8 +90,8 @@ public class UploadRequest
 ```
 
 ## Notas (C#)
-- O C# encadeia com `: this(...)` antes do corpo do construtor, e `: base(...)` para a superclasse. A chamada encadeada executa primeiro, então uma expressão padrão não pode usar membros da instância.
-- Parâmetros opcionais costumam ser a alternativa mais simples: um só construtor, `UploadRequest(string path, string contentType = "application/octet-stream", StorageTier tier = StorageTier.Hot, DateTime? retainUntil = null, string? notifyUrl = null)`, com `retainUntil ?? ...` dentro. Use o encadeamento quando um padrão for calculado, quando dois padrões precisarem mudar juntos, ou quando a assinatura fizer parte de uma API pública (acrescentar um parâmetro opcional muda os pontos de chamada em outros assemblies só depois que eles são recompilados, enquanto sobrecargas continuam compatíveis em binário).
+- O C# encadeia com `: this(...)` antes do corpo do construtor, e `: base(...)` para a superclasse. A chamada encadeada executa primeiro, então uma expressão de valor padrão não pode usar membros da instância.
+- Parâmetros opcionais costumam ser a alternativa mais simples: um só construtor, `UploadRequest(string path, string contentType = "application/octet-stream", StorageTier tier = StorageTier.Hot, DateTime? retainUntil = null, string? notifyUrl = null)`, com `retainUntil ?? ...` dentro. Use o encadeamento quando um valor padrão for calculado, quando dois valores padrão precisarem mudar juntos, ou quando a assinatura fizer parte de uma API pública (acrescentar um parâmetro opcional muda os pontos de chamada em outros assemblies só depois que eles são recompilados, enquanto sobrecargas continuam compatíveis em binário).
 - No C# 12 em diante, uma classe com construtor primário faz com que os outros construtores tenham de chamar `this(...)` nele, pela regra da linguagem.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

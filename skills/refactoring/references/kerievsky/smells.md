@@ -72,7 +72,7 @@ Um smell é uma pista, não um veredito. A maioria aponta para uma refatoração
 - Substituir Condicionais que Alteram Estado por State ([replace-state-altering-conditionals-with-state.md](simplification/replace-state-altering-conditionals-with-state.md)), quando grande parte da classe é lógica de transição de estado
 - Substituir Linguagem Implícita por Interpreter ([replace-implicit-language-with-interpreter.md](generalization/replace-implicit-language-with-interpreter.md)), quando a classe tem um método para cada combinação de uma linguagem implícita
 
-## Comandos Switch (Switch Statements, p. 44)
+## Instruções Switch (Switch Statements, p. 44)
 **Sintomas:** um switch (ou uma cadeia de `if`/`else if`) que torna o design mais complicado ou rígido do que precisa. Um switch não é ruim em si.
 **Tente:**
 - Substituir Despachante Condicional por Command ([replace-conditional-dispatcher-with-command.md](simplification/replace-conditional-dispatcher-with-command.md)), para quebrar um switch grande em objetos Command buscados por chave
@@ -86,5 +86,5 @@ Um smell é uma pista, não um veredito. A maioria aponta para uma refatoração
 ## Solução Destoante (Oddball Solution, p. 45)
 **Sintomas:** o mesmo problema é resolvido de um jeito na maior parte do sistema e de outro jeito em algum outro lugar; geralmente é uma duplicação escondida.
 **Tente:**
-- Substituir Algoritmo (Substitute Algorithm, de Fowler), para que todo lugar use a solução preferida e depois mover essa solução para um único lugar
+- Substituir Algoritmo (Substitute Algorithm) ([substitute-algorithm.md](../fowler/encapsulation/substitute-algorithm.md)), para que todo lugar use a solução preferida e depois mover essa solução para um único lugar
 - Unificar Interfaces com Adapter ([unify-interfaces-with-adapter.md](generalization/unify-interfaces-with-adapter.md)), quando as classes envolvidas têm interfaces diferentes e por isso não podem ser usadas da mesma forma

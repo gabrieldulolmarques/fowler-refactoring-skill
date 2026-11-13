@@ -9,7 +9,7 @@ Smells: —.
 - Agora uma segunda parte precisa saber dos mesmos eventos, ou o receptor deveria ser outra classe em algumas configurações. Subclasses que existem só para conectar um receptor específico à classe base são o sintoma típico.
 - Com uma interface de observador, o sujeito sabe apenas que há algo escutando, nunca quem é. Qualquer classe que implemente a interface pode se inscrever.
 - Não introduza isso cedo. Uma chamada direta simples é mais simples, e você pode evoluir para Observer quando o segundo ouvinte realmente chegar.
-- Atente para dois problemas. Notificações em cascata (um observador que também é sujeito, notificando outros, e assim por diante) são difíceis de depurar; considere um Mediator. Vazamentos acontecem quando um sujeito de vida longa mantém a referência a um observador que já deveria ter saído, então cada inscrição precisa de uma desinscrição correspondente.
+- Atente para dois problemas. Notificações em cascata (um observador que também é sujeito, notificando outros, e assim por diante) são difíceis de depurar; considere um Mediator. Vazamentos acontecem quando um sujeito de vida longa mantém a referência a um observador que já deveria ter saído, então cada inscrição precisa de um cancelamento de inscrição correspondente.
 
 ## Mecânica
 Termos: o notificador é a classe que chama o receptor; o receptor é a classe que está sendo chamada. Depois da refatoração, a superclasse do notificador é o sujeito, e cada receptor é um observador.
@@ -19,8 +19,7 @@ Termos: o notificador é a classe que chama o receptor; o receptor é a classe q
 3. Faça cada receptor implementar a interface, e faça cada notificador falar com o seu receptor apenas por meio dela. Cada receptor agora é um observador. Compile e teste.
 4. Para um notificador, suba os seus métodos de notificação para a superclasse com Subir Método (Pull Up Method) ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)), incluindo o campo que guarda o observador e o código que o define. A superclasse agora é o sujeito. Repita para cada notificador. Compile.
 5. Mude cada observador para se registrar diretamente no sujeito, e não no notificador, e depois apague a subclasse notificadora. Compile e teste.
-6. Mude o sujeito para guardar uma coleção de observadores em vez de um só: acrescente um método de inscrição (e, se observadores puderem sair, um de desinscrição), e faça cada notificação chegar a todos os observadores da coleção. Compile e teste.
-7. Faça cada inscrição ter uma desinscrição correspondente no momento certo (quando o observador for descartado, fechado ou substituído), e itere sobre uma cópia da coleção ao notificar, para que um observador que se desinscreva dentro do seu callback não quebre o laço.
+6. Mude o sujeito para guardar uma coleção de observadores em vez de um só: acrescente um método de inscrição (e, se observadores puderem sair, um de cancelamento de inscrição), e faça cada notificação chegar a todos os observadores da coleção. Compile e teste.
 
 ## Exemplo
 Antes: `TokenMeter` mede o uso de tokens de uma conversa em relação ao seu orçamento. `DashboardTokenMeter` é uma subclasse cujo único trabalho é reportar cada medição a um `UsageDashboard`, e também monta a linha de texto que o painel mostra.
@@ -178,10 +177,11 @@ public class UsageDashboard
 
 ## Notas (C#)
 - A forma idiomática é um `event` do C# (`event EventHandler<T>`, ou `Action<T>` em casos simples). Use uma interface de observador apenas quando um observador precisar de vários callbacks diferentes ou quando você quiser passá-lo como uma unidade.
-- Todo `+=` precisa de um `-=` correspondente, e o sujeito costuma sobreviver ao assinante; assim, um handler que nunca é removido mantém o assinante vivo. Desinscreva em `Dispose`, em um método de fechamento ou quando o observador for substituído. Para um assinante que implementa `IDisposable`, coloque o `-=` ali.
-- Inscrever uma lambda ou método anônimo é fácil, mas `-=` com uma lambda nova e textualmente idêntica não a remove. Guarde o delegate em um campo se você precisar se desinscrever.
-- Só a classe que declara um `event` pode disparé-lo; código externo só pode usar `+=` e `-=`. Isso geralmente é o que você quer. Use `?.Invoke` para que um `event` sem assinantes não lance exceção.
+- Se os observadores puderem sair, faça cada inscrição ter um cancelamento de inscrição correspondente no momento certo (quando forem descartados, fechados ou substituídos), e itere sobre uma cópia da coleção ao notificar, para que um observador que cancele a inscrição dentro do seu callback não quebre o laço. Isto não é um passo do livro; o livro torna opcional o método de remoção.
+- Todo `+=` precisa de um `-=` correspondente, e o sujeito costuma sobreviver ao inscrito; assim, um handler que nunca é removido mantém o inscrito vivo. Cancele a inscrição em `Dispose`, em um método de fechamento ou quando o observador for substituído. Para um inscrito que implementa `IDisposable`, coloque o `-=` ali.
+- Inscrever uma lambda ou método anônimo é fácil, mas `-=` com uma lambda nova e textualmente idêntica não a remove. Guarde o delegate em um campo se você precisar cancelar a inscrição.
+- Só a classe que declara um `event` pode dispará-lo; código externo só pode usar `+=` e `-=`. Isso geralmente é o que você quer. Use `?.Invoke` para que um `event` sem inscritos não lance exceção.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Um teste com dois observadores verifica que ambos recebem cada evento, na ordem esperada, e que um observador não vê nada depois de se desinscrever.
+- Um teste com dois observadores verifica que ambos recebem cada evento, na ordem esperada, e que um observador não vê nada depois de cancelar a inscrição.
 - Procure cada `Subscribe` ou `+=`: cada um deve ter um `Unsubscribe` ou `-=` alcançável. Depois que o último observador sai, o sujeito não guarda mais nenhuma referência a ele.

@@ -13,7 +13,7 @@ Smells: Código Duplicado (Duplicated Code) (a contracapa interna do livro lista
 ## Mecânica
 Para cada *método faltante*, ou seja, um método público na subclasse que a superclasse ou interface não declara:
 
-1. Adicione uma cópia do método à superclasse ou interface. Na superclasse, dê a ele um corpo que não faz nada, ou que devolve um padrão inofensivo. Compile.
+1. Adicione uma cópia do método à superclasse ou interface. Na superclasse, dê a ele um corpo que não faz nada, ou que devolve um valor padrão inofensivo. Compile.
 2. Repita até que os dois compartilhem a mesma interface pública.
 3. Teste tudo que usa a superclasse.
 
@@ -75,7 +75,7 @@ public static class Demo
 
 ## Notas (C#)
 - O método da base precisa ser `virtual` (ou `abstract`) e o da subclasse `override`. Um método da subclasse com o mesmo nome sem `override` oculta o da base, e chamar `NotifyExpiry` por uma referência a `StoredFile` não faria nada.
-- Para uma interface, acrescentar um membro quebra todas as implementações existentes. Métodos padrão de interface (C# 8) permitem acrescentá-lo com corpo, mas só são acessíveis pelo tipo da interface, não pela classe.
+- Para uma interface, acrescentar um membro quebra todas as implementações existentes. Implementações padrão de interface (C# 8) permitem acrescentá-lo com corpo, mas só são acessíveis pelo tipo da interface, não pela classe.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Os testes de tipo ou casts que a unificação deveria remover agora podem ser apagados, e os testes que usam apenas o tipo base continuam passando para cada subclasse.

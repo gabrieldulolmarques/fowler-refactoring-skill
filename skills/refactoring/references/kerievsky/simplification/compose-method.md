@@ -11,14 +11,15 @@ Smells: Método Longo (Long Method).
 - Desvantagens: pode deixar muitos métodos privados minúsculos (um sinal para aplicar [extract-class.md](../../fowler/encapsulation/extract-class.md)), e o trabalho real fica mais difícil de achar no depurador. Desempenho não é motivo para parar, a menos que um profiler indique o contrário.
 
 ## Mecânica
-Siga o procedimento de Extrair Função (Extract Function) em [extract-function.md](../../fowler/first-set/extract-function.md); não há um procedimento separado. O que Kerievsky acrescenta é como conduzi-lo:
+Siga o procedimento de Extrair Função (Extract Function) em [extract-function.md](../../fowler/first-set/extract-function.md); não há um procedimento separado. O livro dá diretrizes, não passos, e elas podem ser aplicadas em qualquer ordem:
 
-1. Remova antes a duplicação e o código morto ([remove-dead-code.md](../../fowler/moving-features/remove-dead-code.md)), para haver menos o que ler.
-2. Achate o aninhamento quando ele esconde o caminho principal: [replace-nested-conditional-with-guard-clauses.md](../../fowler/conditional-logic/replace-nested-conditional-with-guard-clauses.md) e [consolidate-conditional-expression.md](../../fowler/conditional-logic/consolidate-conditional-expression.md).
-3. Encontre as linhas que estão em um nível de detalhe diferente dos vizinhos (uma condição crua, um laço, uma escrita em array no meio de chamadas). Empurre cada uma para baixo com [extract-function.md](../../fowler/first-set/extract-function.md), nomeada pela sua intenção.
-4. Se não achar um bom nome para o que extraiu, você extraiu demais ou de menos. Desfaça com [inline-function.md](../../fowler/first-set/inline-function.md) e corte em outra linha.
-5. Troque literais mágicos por constantes nomeadas ([replace-magic-literal.md](../../fowler/organizing-data/replace-magic-literal.md)).
-6. Pare quando cada instrução do método disser o quê, e os detalhes estiverem a uma chamada de distância. Compile e teste após cada passo.
+- Pense pequeno: mire em cerca de cinco linhas, raramente mais de dez.
+- Remova a duplicação e o código morto ([remove-dead-code.md](../../fowler/moving-features/remove-dead-code.md)), para haver menos o que ler.
+- Comunique a intenção: nomeie variáveis, métodos e parâmetros pelo seu propósito. Se não achar um bom nome para o que extraiu, desfaça com [inline-function.md](../../fowler/first-set/inline-function.md) e corte em outra linha.
+- Simplifique: questione como algo foi codificado e tente alternativas.
+- Mantenha um só nível de detalhe: encontre as linhas que estão em um nível diferente dos vizinhos (uma condição crua, um laço, uma escrita em array no meio de chamadas) e empurre cada uma para baixo com [extract-function.md](../../fowler/first-set/extract-function.md), nomeada pela sua intenção.
+
+**Além do livro:** achate o aninhamento quando ele esconde o caminho principal ([replace-nested-conditional-with-guard-clauses.md](../../fowler/conditional-logic/replace-nested-conditional-with-guard-clauses.md), [consolidate-conditional-expression.md](../../fowler/conditional-logic/consolidate-conditional-expression.md)), troque literais mágicos por constantes nomeadas ([replace-magic-literal.md](../../fowler/organizing-data/replace-magic-literal.md)), e compile e teste após cada mudança.
 
 ## Exemplo
 Antes: o método de liquidação aninha duas verificações em volta de código de níveis misturados.

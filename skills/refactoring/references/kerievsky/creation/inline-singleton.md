@@ -8,7 +8,7 @@ Smells: Classe Preguiçosa (Lazy Class).
 - O código precisa de um objeto, mas não precisa de um jeito global de alcançá-lo. O livro chama o hábito de criar Singletons demais de Singletonite (Singletonitis), e sua resposta para "quando um Singleton é desnecessário?" é: na maioria das vezes.
 - Passar o objeto como parâmetro costuma ser mais simples do que lê-lo de um global. Um Singleton também é desnecessário quando existe por um pequeno ganho de velocidade ou memória, ou quando um código profundo em uma camada busca um recurso que não pertence àquela camada.
 - Estado global prejudica os testes: cada teste que altera a instância compartilhada precisa salvá-la e restaurá-la. O livro cita uma equipe que gastou meia hora passando uma tabela compartilhada de taxas de câmbio como parâmetro explícito e terminou com um design mais limpo e testes estáveis.
-- Alguns globais são aceitáveis. Se um Singleton ou um Registry (um objeto bem conhecido usado para encontrar outros objetos) realmente for o design certo, mantenha-o. Trate qualquer global como culpado até que se prove necessário.
+- O livro repassa uma opinião que atribui a outros: dados globais merecem suspeita até que a necessidade deles seja demonstrada. Se um Singleton ou um Registry (um objeto bem conhecido usado para encontrar outros objetos) realmente for o design certo, mantenha-o.
 - Benefícios: as colaborações ficam visíveis; não é preciso código para proteger uma única instância. Custo: quando o objeto precisa atravessar muitas camadas, passá-lo fica desajeitado.
 - O movimento oposto é [limit-instantiation-with-singleton.md](../protection/limit-instantiation-with-singleton.md), para o caso raro em que uma única instância é uma necessidade real.
 

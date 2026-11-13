@@ -17,7 +17,7 @@ Smells: Método Longo (Long Method).
 2. Escolha um passo de acumulação e aplique Extrair Função (Extract Function) ([extract-function.md](../../fowler/first-set/extract-function.md)) para movê-lo para um método privado que devolve `void` e recebe o resultado como parâmetro, escrevendo nele. Compile e teste.
 3. Repita o passo 2 para cada passo. O método original agora deve apenas criar o resultado, passá-lo aos métodos extraídos e ler o valor final. Compile e teste.
 
-Quando um passo também produz um valor que o chamador precisa (um subtotal, por exemplo), o método extraído pode devolver esse valor também. O resultado que está sendo construído continua passando pelo parâmetro.
+**Além do livro:** quando um passo também produz um valor que o chamador precisa (um subtotal, por exemplo), o método extraído pode devolver esse valor também. O resultado que está sendo construído continua passando pelo parâmetro.
 
 ## Exemplo
 Antes: um método monta o texto CSV, concatenando em uma string enquanto também calcula o total.
@@ -77,7 +77,7 @@ public class CsvExporter
 }
 ```
 
-Depois: o `StringBuilder` é criado uma vez e passado a cada passo. Os passos que também contribuem para o total devolvem um valor.
+Depois: o `StringBuilder` é criado uma vez e passado a cada passo. Os passos que também contribuem para o total devolvem um valor, o que se afasta da regra do `void` do livro no passo 2 (veja a nota depois da mecânica).
 
 ```csharp
 using System.Text;

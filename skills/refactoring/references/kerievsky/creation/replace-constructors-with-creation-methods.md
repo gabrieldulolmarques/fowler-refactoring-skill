@@ -22,7 +22,7 @@ Smells: Código Duplicado (Duplicated Code), Obsessão por Primitivos (Primitive
 6. Torne não público todo construtor que não tenha chamadores fora da classe. Compile.
 
 ## Exemplo
-Antes: quatro construtores que diferem apenas nos padrões que preenchem. Dois deles recebem um único número, então quem chama precisa observar o tipo (`int` ou `double`) para obter o certo.
+Antes: quatro construtores que diferem apenas nos valores padrão que preenchem. Dois deles recebem um único número, então quem chama precisa observar o tipo (`int` ou `double`) para obter o certo.
 
 ```csharp
 public class ClientOptions
@@ -90,4 +90,4 @@ public static class Caller
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Uma busca pelo construtor não encontra nenhum chamador fora da classe, e nenhum Creation Method fica sem uso.
-- O nome de cada Creation Method diz o que difere do padrão (timeout, backoff), não como os argumentos estão dispostos.
+- O nome de cada Creation Method diz o que difere do valor padrão (timeout, backoff), não como os argumentos estão dispostos.

@@ -16,10 +16,10 @@ Smells: Código Duplicado (Duplicated Code).
 Isto cobre o caso de subclasses irmãs com um *método semelhante*. Uma superclasse e uma subclasse é o mesmo, com menos passos.
 1. Em uma subclasse, altere o método semelhante para que a criação aconteça em um *método de instanciação* separado (aplique Extrair Função (Extract Function), [extract-function.md](../../fowler/first-set/extract-function.md)). Use um nome genérico (`CreateReport`) e devolva o tipo que todas as irmãs podem compartilhar. Compile e teste.
 2. Faça o mesmo em cada irmã. Os métodos de instanciação devem acabar com a mesma assinatura. Compile e teste.
-3. Garanta que as irmãs tenham uma superclasse comum que você possa alterar. Se não tiverem, aplique Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../../fowler/inheritance/extract-superclass.md)). Esta classe desempenha o papel de Creator no padrão. Compile e teste.
-4. Aplique Formar Template Method (Form Template Method) ([form-template-method.md](../generalization/form-template-method.md)) ao método semelhante. Isso usa Subir Método (Pull Up Method) ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)), e o método de instanciação se torna um método abstrato na superclasse: esse é o factory method. Cada irmã agora é um ConcreteCreator. Compile e teste.
+3. Modifique a superclasse comum das irmãs. Se você não puder modificá-la ou preferir não fazê-lo, aplique Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../../fowler/inheritance/extract-superclass.md)) para colocar uma nova classe entre ela e as irmãs. A classe que você modifica desempenha o papel de Creator no padrão. Compile e teste.
+4. Aplique Formar Template Method (Form Template Method) ([form-template-method.md](../generalization/form-template-method.md)) ao método semelhante. Isso usa Subir Método (Pull Up Method) ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)); em uma linguagem fortemente tipada, vale a observação de Subir Método: o método subido chama o método de instanciação, que existe nas irmãs mas não na superclasse, então declare-o como método abstrato na superclasse. Esse método abstrato é o factory method. Cada irmã agora é um ConcreteCreator. Compile e teste.
 5. Repita para outros métodos semelhantes nas irmãs que possam usar o mesmo factory method.
-6. Se a maioria das subclasses cria a mesma classe, dê ao método da superclasse um corpo padrão que cria essa classe, e deixe as outras sobrescrevê-lo. Compile e teste.
+6. Se a maioria das subclasses cria a mesma classe, dê ao método da superclasse uma implementação padrão que cria essa classe, e deixe as outras sobrescrevê-lo. Compile e teste.
 
 ## Exemplo
 Antes: dois clientes repetem o mesmo método. Só a classe de parser muda.

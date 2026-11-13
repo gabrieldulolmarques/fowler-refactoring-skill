@@ -17,7 +17,7 @@ Estes passos supõem que a Factory é uma classe. Uma interface precisa de peque
 2. Crie a classe factory, com nome derivado do que ela cria (`OrderFactory`). Compile.
 3. Mova o Creation Method para a factory com Mover Função (Move Function) ([move-function.md](../../fowler/moving-features/move-function.md)). Se era estático, torne-o um método de instância agora. Compile.
 4. Faça o instanciador criar a factory e chamá-la para obter o produto. Repita para cada instanciador que deixou de compilar. Compile e teste.
-5. Procure dados e métodos nas outras classes que existam apenas para alimentar a criação. Mova-os para a factory com Mover Campo (Move Field) ([move-field.md](../../fowler/moving-features/move-field.md)) e Mover Função, o que também pode mudar quem cria a factory. Compile e teste após cada movimento.
+5. Procure dados e métodos nas outras classes que existam apenas para alimentar a criação. Mova-os para a factory com Mover Campo (Move Field) ([move-field.md](../../fowler/moving-features/move-field.md)) e Mover Função, o que também pode mudar quem cria a factory. Compile e teste (adaptação: após cada movimento, e não só no fim).
 
 ## Exemplo
 Antes: `ApiSession` conhece as opções da requisição, passa-as para `RequestSender`, que apenas as copia para a requisição que cria. As duas classes carregam os mesmos dois campos.
