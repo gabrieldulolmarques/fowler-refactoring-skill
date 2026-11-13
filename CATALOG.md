@@ -3,7 +3,8 @@
 A especificação a partir da qual a skill foi escrita e contra a qual é conferida: uma skill,
 `refactoring`, com um arquivo de referência por refatoração, os code smells e a disciplina,
 e o formato dos arquivos. As seções 1–4 tratam do catálogo de Fowler; a seção 5 trata das
-refatorações para padrões de Kerievsky, acrescentadas na 0.4.0.
+refatorações para padrões de Kerievsky, acrescentadas na 0.4.0; a seção 6, os padrões do GoF, e a
+seção 7, o nível de C# de todos os exemplos (0.5.0).
 
 Fontes: Fowler, *Refactoring*, 2ª ed. (2018), capítulos 2–4 e 6–12, e o catálogo online
 ([refactoring.com/catalog](https://refactoring.com/catalog/), conferido em 2026-10-31), que
@@ -11,7 +12,7 @@ lista **66 refatorações**: as **61 do livro** mais **5 que só existem na edi�
 web** (marcadas como "web" na coluna Página).
 
 A skill é genérica: ela ensina as refatorações, não o processo de nenhum projeto. Os exemplos
-são C# simples com um domínio neutro (pedidos, clientes, faturas, contas), e nada faz referência
+são C# 9 simples com temas atuais e neutros (seção 7), e nada faz referência
 a um projeto, framework, engine ou fluxo de trabalho de equipe específico.
 
 ---
@@ -217,8 +218,9 @@ citada aqui é o arquivo `references/fowler/<chapter>/<slug>.md`.
 | Comentários (Comments) | 84 | Extrair Função, Mudar Declaração de Função, Introduzir Asserção |
 
 Conferido com o cap. 3 em 2026-10-31: toda refatoração que o capítulo cita como "Nome (página)" sob
-cada smell está em sua linha. Classe de Dados não lista Dividir em Fases: o livro a menciona apenas como
-exemplo de exceção (um record de resultado imutável), não como correção.
+cada smell está em sua linha. Classe de Dados lista Dividir em Fases com uma ressalva: a tabela de smells do livro a cita, mas o
+texto do capítulo a menciona como exemplo de exceção (um registro de resultado imutável), não como
+correção.
 
 ---
 
@@ -234,9 +236,9 @@ de smells e uma tabela por capítulo com cada refatoração, um "quando" de uma 
 o seu arquivo. Termina com a linha de Fonte:
 
 ```markdown
-Fonte: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed.,
-Addison-Wesley (Pearson Education), 2018, e o catálogo online em
-https://refactoring.com/catalog/. Parafraseado; veja o NOTICE do pacote.
+Fontes: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed., ...;
+Joshua Kerievsky, *Refactoring to Patterns*, ...; Erich Gamma, Richard Helm, Ralph Johnson e
+John Vlissides, *Design Patterns*, ... Parafraseado; veja o NOTICE do pacote.
 ```
 
 Quando um arquivo de referência é adicionado, renomeado ou removido, sua linha na tabela de `SKILL.md` muda
@@ -251,7 +253,7 @@ Fowler (2018), cap. 7, p. 182. Antes / também: —. Inversa: Internalizar Class
 ([inline-class.md](inline-class.md)).
 
 ## Quando usar
-Smells: Classe Grande, Alteração Divergente, Agrupamentos de Dados. (paráfrase, 2 a 5 linhas, mais quando
+Smells: Classe Grande, Alteração Divergente, Agrupamentos de Dados. (paráfrase, alguns itens, mais quando
 não usar, se o livro disser)
 
 ## Mecânica
@@ -278,9 +280,9 @@ exclusiva da web, a linha de citação diz "só na edição web" e aponta o resu
 |---|---|---|
 | Nome, antes / também, inversa | o cabeçalho de seção do livro (seção 2); a edição web para as exclusivas da web | curto: pode ser literal |
 | Quando usar, mecânica | o livro (a edição web para as exclusivas da web) | **paráfrase**, com capítulo e página; nada copiado |
-| Exemplo | escrito para este pacote em C# | domínio neutro (pedidos, clientes, faturas, contas); não o exemplo nem o domínio do livro |
+| Exemplo | escrito para este pacote em C# | tema atual e neutro por capítulo, C# 9 (seção 7); não o exemplo nem o domínio do livro |
 | Notas (C#) | seção 2, coluna "Nota de C#" | só onde houver algo a dizer |
-| Verificação | cap. 4 + `references/fowler/discipline.md` | igual em todos os arquivos |
+| Verificação | cap. 4 + `references/fowler/discipline.md` | a checagem comum, mais uma ou duas próprias da refatoração |
 | Linha de Fonte | esta especificação (4.1) | uma vez, no fim de `SKILL.md`; credita o autor e a editora |
 
 Nada na skill nomeia um projeto, framework, engine ou processo de equipe específico.
@@ -384,7 +386,7 @@ ponte que o índice rápido do `SKILL.md` usa; os dois `smells.md` não citam um
 | Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces) | 43 | o mesmo | Unificar Interfaces com Adapter |
 | Classe Preguiçosa (Lazy Class) | 43 | Elemento Ocioso | Internalizar Singleton |
 | Classe Grande (Large Class) | 44 | Classe Grande | Substituir Despachante Condicional por Command, Substituir Condicionais que Alteram Estado por State, Substituir Linguagem Implícita por Interpreter |
-| Comandos Switch (Switch Statements) | 44 | Switches Repetidos | Substituir Despachante Condicional por Command, Mover Acumulação para Visitor |
+| Instruções Switch (Switch Statements) | 44 | Switches Repetidos | Substituir Despachante Condicional por Command, Mover Acumulação para Visitor |
 | Explosão Combinatória (Combinatorial Explosion) | 45 | novo | Substituir Linguagem Implícita por Interpreter |
 | Solução Destoante (Oddball Solution) | 45 | novo | Substituir Algoritmo, Unificar Interfaces com Adapter |
 

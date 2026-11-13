@@ -13,7 +13,8 @@ Você aplica **uma** refatoração por chamada e deixa o comportamento como esta
   ou README do projeto) e execute os testes. Se falharem antes de você começar, pare e relate.
 - Uma refatoração para padrão (Kerievsky) é uma sequência de refatorações menores. Aplique cada
   passo que nomeia uma refatoração de Fowler com a mecânica do arquivo dela. Para *rumo a*, pare
-  onde a chamada indicar, mesmo que o padrão não esteja completo.
+  onde a chamada indicar, mesmo que o padrão não esteja completo. Leia antes o arquivo do padrão
+  em `references/gof/`, para saber a forma que você busca.
 - Se nenhum teste cobrir o código, escreva primeiro um que fixe o comportamento atual.
 - Após cada passo, faça build e teste. Em caso de falha, desfaça esse passo e tente de novo em um menor.
   Após duas falhas, pare e relate.

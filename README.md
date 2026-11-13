@@ -5,7 +5,7 @@ Dois catálogos de refatoração e um catálogo de padrões de projeto empacotad
 2018), o *Refactoring to Patterns* de Joshua Kerievsky (2004) e os 23 padrões do *Design Patterns* de
 Gamma et al. (GoF, 1995). Uma skill, `refactoring`, relaciona 29 code smells às 66 refatorações e às
 27 refatorações para padrões que os corrigem, e liga cada padrão às refatorações que levam a ele.
-Todo arquivo tem um exemplo em C# 9.
+Todo arquivo de refatoração e de padrão tem um exemplo em C# 9.
 
 **Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (inglês e português).
 
@@ -14,8 +14,8 @@ Todo arquivo tem um exemplo em C# 9.
 ```
 .claude-plugin/plugin.json # transforma o pacote em um plugin do Claude Code
 LICENSE # CC BY 4.0
-NOTICE # crédito a Fowler, Kerievsky e à Addison-Wesley; o que a licença cobre
-CATALOG.md # a especificação: 66 + 27 refatorações, 29 smells, formato dos arquivos
+NOTICE # crédito a Fowler, Kerievsky, aos autores do GoF e à Addison-Wesley; o que a licença cobre
+CATALOG.md # a especificação: 66 + 27 refatorações, 29 smells, 23 padrões, formato dos arquivos, nível de C#
 agents/
 ├── refactoring-analyst.md # somente leitura: encontra smells e devolve um plano curto
 └── refactoring-implementer.md # aplica uma refatoração, testando após cada passo

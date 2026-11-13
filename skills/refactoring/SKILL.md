@@ -37,46 +37,52 @@ nomear um padrão de projeto, ou perguntar qual padrão serve para um problema d
 
 | Smell | Fowler | Kerievsky |
 |---|---|---|
-| Nome Misterioso (Mysterious Name) | [change-function-declaration](references/fowler/first-set/change-function-declaration.md), [rename-variable](references/fowler/first-set/rename-variable.md), [rename-field](references/fowler/organizing-data/rename-field.md) | — |
-| Código Duplicado (Duplicated Code) | [extract-function](references/fowler/first-set/extract-function.md), [pull-up-method](references/fowler/inheritance/pull-up-method.md) (mesmo código em subclasses irmãs) | [form-template-method](references/kerievsky/generalization/form-template-method.md), [chain-constructors](references/kerievsky/utilities/chain-constructors.md) |
-| Função Longa (Long Function; Kerievsky: Método Longo) | [extract-function](references/fowler/first-set/extract-function.md) | [compose-method](references/kerievsky/simplification/compose-method.md), [move-accumulation-to-collecting-parameter](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) |
-| Lista Longa de Parâmetros (Long Parameter List) | [introduce-parameter-object](references/fowler/first-set/introduce-parameter-object.md), [preserve-whole-object](references/fowler/refactoring-apis/preserve-whole-object.md) | — |
-| Dados Globais (Global Data) | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md) | — |
-| Dados Mutáveis (Mutable Data) | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md), [split-variable](references/fowler/organizing-data/split-variable.md) | — |
-| Alteração Divergente (Divergent Change) | [split-phase](references/fowler/first-set/split-phase.md), [extract-class](references/fowler/encapsulation/extract-class.md) | — |
-| Cirurgia com Espingarda (Shotgun Surgery) | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) | — |
-| Inveja de Recursos (Feature Envy) | [move-function](references/fowler/moving-features/move-function.md) | — |
-| Agrupamentos de Dados (Data Clumps) | [extract-class](references/fowler/encapsulation/extract-class.md) | — |
-| Obsessão por Primitivos (Primitive Obsession) | [replace-primitive-with-object](references/fowler/encapsulation/replace-primitive-with-object.md) | [replace-type-code-with-class](references/kerievsky/protection/replace-type-code-with-class.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) |
-| Switches Repetidos (Repeated Switches; Kerievsky: Comandos Switch) | [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md), [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
-| Laços (Loops) | [replace-loop-with-pipeline](references/fowler/moving-features/replace-loop-with-pipeline.md) | — |
-| Elemento Ocioso (Lazy Element; Kerievsky: Classe Preguiçosa) | [inline-function](references/fowler/first-set/inline-function.md), [inline-class](references/fowler/encapsulation/inline-class.md) | [inline-singleton](references/kerievsky/creation/inline-singleton.md) |
-| Generalidade Especulativa (Speculative Generality) | [collapse-hierarchy](references/fowler/inheritance/collapse-hierarchy.md), [remove-dead-code](references/fowler/moving-features/remove-dead-code.md) | — |
-| Campo Temporário (Temporary Field) | [extract-class](references/fowler/encapsulation/extract-class.md) | — |
-| Cadeias de Mensagens (Message Chains) | [hide-delegate](references/fowler/encapsulation/hide-delegate.md) | — |
-| Intermediário (Middle Man) | [remove-middle-man](references/fowler/encapsulation/remove-middle-man.md) | — |
-| Troca de Informações Privilegiadas (Insider Trading) | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) | — |
-| Classe Grande (Large Class) | [extract-class](references/fowler/encapsulation/extract-class.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) |
-| Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces) | [change-function-declaration](references/fowler/first-set/change-function-declaration.md) | [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
-| Classe de Dados (Data Class) | [encapsulate-record](references/fowler/encapsulation/encapsulate-record.md), [move-function](references/fowler/moving-features/move-function.md) | — |
-| Herança Recusada (Refused Bequest) | [push-down-method](references/fowler/inheritance/push-down-method.md), [push-down-field](references/fowler/inheritance/push-down-field.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md), [replace-superclass-with-delegate](references/fowler/inheritance/replace-superclass-with-delegate.md) | — |
-| Comentários (Comments) | [extract-function](references/fowler/first-set/extract-function.md) | — |
-| Complexidade Condicional (Conditional Complexity) | — | [replace-conditional-logic-with-strategy](references/kerievsky/simplification/replace-conditional-logic-with-strategy.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md), [move-embellishment-to-decorator](references/kerievsky/simplification/move-embellishment-to-decorator.md), [introduce-null-object](references/kerievsky/protection/introduce-null-object.md) |
-| Exposição Indecente (Indecent Exposure) | — | [encapsulate-classes-with-factory](references/kerievsky/creation/encapsulate-classes-with-factory.md) |
-| Solução Espalhada (Solution Sprawl) | — | [move-creation-knowledge-to-factory](references/kerievsky/creation/move-creation-knowledge-to-factory.md) |
-| Explosão Combinatória (Combinatorial Explosion) | — | [replace-implicit-language-with-interpreter](references/kerievsky/generalization/replace-implicit-language-with-interpreter.md) |
-| Solução Destoante (Oddball Solution) | [substitute-algorithm](references/fowler/encapsulation/substitute-algorithm.md) | [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
+| Nome Misterioso (Mysterious Name) | `change-function-declaration`, `rename-variable`, `rename-field` | — |
+| Código Duplicado (Duplicated Code) | `extract-function`, `pull-up-method` (mesmo código em subclasses irmãs) | `form-template-method`, `chain-constructors` |
+| Função Longa (Long Function; Kerievsky: Método Longo) | `extract-function` | `compose-method`, `move-accumulation-to-collecting-parameter` |
+| Lista Longa de Parâmetros (Long Parameter List) | `introduce-parameter-object`, `preserve-whole-object` | — |
+| Dados Globais (Global Data) | `encapsulate-variable` | — |
+| Dados Mutáveis (Mutable Data) | `encapsulate-variable`, `split-variable` | — |
+| Alteração Divergente (Divergent Change) | `split-phase`, `extract-class` | — |
+| Cirurgia com Espingarda (Shotgun Surgery) | `move-function`, `move-field` | — |
+| Inveja de Recursos (Feature Envy) | `move-function` | — |
+| Agrupamentos de Dados (Data Clumps) | `extract-class` | — |
+| Obsessão por Primitivos (Primitive Obsession) | `replace-primitive-with-object` | `replace-type-code-with-class`, `replace-state-altering-conditionals-with-state` |
+| Switches Repetidos (Repeated Switches; Kerievsky: Instruções Switch) | `replace-conditional-with-polymorphism` | `replace-conditional-dispatcher-with-command`, `move-accumulation-to-visitor` |
+| Laços (Loops) | `replace-loop-with-pipeline` | — |
+| Elemento Ocioso (Lazy Element; Kerievsky: Classe Preguiçosa) | `inline-function`, `inline-class` | `inline-singleton` |
+| Generalidade Especulativa (Speculative Generality) | `collapse-hierarchy`, `remove-dead-code` | — |
+| Campo Temporário (Temporary Field) | `extract-class` | — |
+| Cadeias de Mensagens (Message Chains) | `hide-delegate` | — |
+| Intermediário (Middle Man) | `remove-middle-man` | — |
+| Troca de Informações Privilegiadas (Insider Trading) | `move-function`, `move-field` | — |
+| Classe Grande (Large Class) | `extract-class` | `replace-conditional-dispatcher-with-command`, `replace-state-altering-conditionals-with-state` |
+| Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces) | `change-function-declaration` | `unify-interfaces-with-adapter` |
+| Classe de Dados (Data Class) | `encapsulate-record`, `move-function` | — |
+| Herança Recusada (Refused Bequest) | `push-down-method`, `push-down-field`, `replace-subclass-with-delegate`, `replace-superclass-with-delegate` | — |
+| Comentários (Comments) | `extract-function` | — |
+| Complexidade Condicional (Conditional Complexity) | — | `replace-conditional-logic-with-strategy`, `replace-state-altering-conditionals-with-state`, `move-embellishment-to-decorator`, `introduce-null-object` |
+| Exposição Indecente (Indecent Exposure) | — | `encapsulate-classes-with-factory` |
+| Solução Espalhada (Solution Sprawl) | — | `move-creation-knowledge-to-factory` |
+| Explosão Combinatória (Combinatorial Explosion) | — | `replace-implicit-language-with-interpreter` |
+| Solução Destoante (Oddball Solution) | — | `substitute-algorithm` (de Fowler), `unify-interfaces-with-adapter` |
 
 Os 24 primeiros smells são de Fowler e os cinco últimos, de Kerievsky. Sete dos doze de
 Kerievsky correspondem a um smell de Fowler; onde o nome dele é outro, está entre parênteses. O
-`smells.md` de cada livro lista todas as opções.
+`smells.md` de cada livro lista todas as opções. Cada slug é um arquivo de referência; as tabelas abaixo dão o caminho.
+
+## Arquivos de referência
+
+- **Fowler e Kerievsky:** Quando usar, Mecânica, Exemplo (C#), Notas (C#) (só onde há algo próprio
+  de C#), Verificação. O que um arquivo acrescenta além do livro vem marcado como **Além do livro**.
+  Um arquivo de Kerievsky também diz o padrão de destino e a direção: *até* o padrão, *rumo a* ele,
+  ou para *longe* dele. "(web)" marca uma refatoração de Fowler que existe só na edição web do
+  livro, sem página no impresso.
+- **GoF:** Intenção, Quando compensa, Participantes em C#, Exemplo (C#), Variações, Riscos e
+  alternativas em C#, Padrões relacionados, Verificação.
 
 ## Fowler: as refatorações
 
-Cada arquivo tem: Quando usar, Mecânica, Exemplo (C#), Notas (C#) onde o catálogo tem uma, e
-Verificação. "(web)" marca uma refatoração que existe só na edição web do livro, sem página
-no impresso. Um arquivo de Kerievsky também dá o padrão de destino e a direção:
-*até* o padrão, *rumo a* ele, ou para *longe* dele.
 
 ### Um primeiro conjunto (cap. 6)
 
@@ -193,7 +199,7 @@ padrão, avança rumo a ele ou remove um. A coluna Padrão traz a direção.
 | Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory) | Factory (até) | os dados e o código usados para criar um objeto estão espalhados por muitas classes | [move-creation-knowledge-to-factory.md](references/kerievsky/creation/move-creation-knowledge-to-factory.md) |
 | Encapsular Classes com Factory (Encapsulate Classes with Factory) | Factory (até) | os clientes instanciam classes de um pacote que compartilham uma interface e poderiam ficar ocultas | [encapsulate-classes-with-factory.md](references/kerievsky/creation/encapsulate-classes-with-factory.md) |
 | Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method) | Factory Method (até) | classes irmãs repetem um método, exceto pelo objeto que ele cria | [introduce-polymorphic-creation-with-factory-method.md](references/kerievsky/creation/introduce-polymorphic-creation-with-factory-method.md) |
-| Encapsular Composite com Builder (Encapsulate Composite with Builder) | Builder (até) | montar um Composite é repetitivo, complicado ou sujeito a erros | [encapsulate-composite-with-builder.md](references/kerievsky/creation/encapsulate-composite-with-builder.md) |
+| Encapsular Composite com Builder (Encapsulate Composite with Builder) | Builder (até); Composite (longe) | montar um Composite é repetitivo, complicado ou sujeito a erros | [encapsulate-composite-with-builder.md](references/kerievsky/creation/encapsulate-composite-with-builder.md) |
 | Internalizar Singleton (Inline Singleton) | Singleton (longe) | o código precisa de um objeto, mas não de acesso global a ele | [inline-singleton.md](references/kerievsky/creation/inline-singleton.md) |
 
 ### Simplificação (Kerievsky, cap. 7)
@@ -232,7 +238,7 @@ padrão, avança rumo a ele ou remove um. A coluna Padrão traz a direção.
 | Refatoração | Padrão | Quando | Arquivo |
 |---|---|---|---|
 | Mover Acumulação para Collecting Parameter (Move Accumulation to Collecting Parameter) | Collecting Parameter (até) | um método grande junta informação em uma variável local | [move-accumulation-to-collecting-parameter.md](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) |
-| Mover Acumulação para Visitor (Move Accumulation to Visitor) | Visitor (até, rumo a) | um método junta informação de classes com interfaces diferentes | [move-accumulation-to-visitor.md](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
+| Mover Acumulação para Visitor (Move Accumulation to Visitor) | Visitor (até, rumo a); Iterator (longe) | um método junta informação de classes com interfaces diferentes | [move-accumulation-to-visitor.md](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
 
 ### Utilitários (Kerievsky, cap. 11)
 
@@ -251,38 +257,38 @@ chegar a ele a partir do código existente, ou como sair dele.
 | Padrão | Arquivo do GoF | Refatorações de Kerievsky (direção) | Refatorações de Fowler |
 |---|---|---|---|
 | Abstract Factory | [abstract-factory.md](references/gof/creational/abstract-factory.md) | — | — |
-| Builder | [builder.md](references/gof/creational/builder.md) | [encapsulate-composite-with-builder](references/kerievsky/creation/encapsulate-composite-with-builder.md) (até) | — |
-| Factory Method | [factory-method.md](references/gof/creational/factory-method.md) | [introduce-polymorphic-creation-with-factory-method](references/kerievsky/creation/introduce-polymorphic-creation-with-factory-method.md) (até) | — |
+| Builder | [builder.md](references/gof/creational/builder.md) | `encapsulate-composite-with-builder` (até) | — |
+| Factory Method | [factory-method.md](references/gof/creational/factory-method.md) | `introduce-polymorphic-creation-with-factory-method` (até) | — |
 | Prototype | [prototype.md](references/gof/creational/prototype.md) | — | — |
-| Singleton | [singleton.md](references/gof/creational/singleton.md) | [limit-instantiation-with-singleton](references/kerievsky/protection/limit-instantiation-with-singleton.md) (até), [inline-singleton](references/kerievsky/creation/inline-singleton.md) (longe) | — |
-| Adapter | [adapter.md](references/gof/structural/adapter.md) | [extract-adapter](references/kerievsky/generalization/extract-adapter.md) (até), [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) (até) | — |
+| Singleton | [singleton.md](references/gof/creational/singleton.md) | `limit-instantiation-with-singleton` (até), `inline-singleton` (longe) | — |
+| Adapter | [adapter.md](references/gof/structural/adapter.md) | `extract-adapter` (até), `unify-interfaces-with-adapter` (até, rumo a) | — |
 | Bridge | [bridge.md](references/gof/structural/bridge.md) | — | — |
-| Composite | [composite.md](references/gof/structural/composite.md) | [replace-one-many-distinctions-with-composite](references/kerievsky/generalization/replace-one-many-distinctions-with-composite.md) (até), [extract-composite](references/kerievsky/generalization/extract-composite.md) (até), [replace-implicit-tree-with-composite](references/kerievsky/simplification/replace-implicit-tree-with-composite.md) (até), [encapsulate-composite-with-builder](references/kerievsky/creation/encapsulate-composite-with-builder.md) (longe) | — |
-| Decorator | [decorator.md](references/gof/structural/decorator.md) | [move-embellishment-to-decorator](references/kerievsky/simplification/move-embellishment-to-decorator.md) (até) | — |
+| Composite | [composite.md](references/gof/structural/composite.md) | `replace-one-many-distinctions-with-composite` (até), `extract-composite` (até), `replace-implicit-tree-with-composite` (até), `encapsulate-composite-with-builder` (longe) | — |
+| Decorator | [decorator.md](references/gof/structural/decorator.md) | `move-embellishment-to-decorator` (até, rumo a) | — |
 | Facade | [facade.md](references/gof/structural/facade.md) | — | — |
 | Flyweight | [flyweight.md](references/gof/structural/flyweight.md) | — | — |
 | Proxy | [proxy.md](references/gof/structural/proxy.md) | — | — |
 | Chain of Responsibility | [chain-of-responsibility.md](references/gof/behavioral/chain-of-responsibility.md) | — | — |
-| Command | [command.md](references/gof/behavioral/command.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md) (até) | [replace-function-with-command](references/fowler/refactoring-apis/replace-function-with-command.md), [replace-command-with-function](references/fowler/refactoring-apis/replace-command-with-function.md) |
-| Interpreter | [interpreter.md](references/gof/behavioral/interpreter.md) | [replace-implicit-language-with-interpreter](references/kerievsky/generalization/replace-implicit-language-with-interpreter.md) (até) | — |
-| Iterator | [iterator.md](references/gof/behavioral/iterator.md) | [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) (longe) | — |
+| Command | [command.md](references/gof/behavioral/command.md) | `replace-conditional-dispatcher-with-command` (até, rumo a) | `replace-function-with-command`, `replace-command-with-function` |
+| Interpreter | [interpreter.md](references/gof/behavioral/interpreter.md) | `replace-implicit-language-with-interpreter` (até) | — |
+| Iterator | [iterator.md](references/gof/behavioral/iterator.md) | `move-accumulation-to-visitor` (longe) | — |
 | Mediator | [mediator.md](references/gof/behavioral/mediator.md) | — | — |
 | Memento | [memento.md](references/gof/behavioral/memento.md) | — | — |
-| Observer | [observer.md](references/gof/behavioral/observer.md) | [replace-hard-coded-notifications-with-observer](references/kerievsky/generalization/replace-hard-coded-notifications-with-observer.md) (até) | — |
-| State | [state.md](references/gof/behavioral/state.md) | [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) (até) | [replace-type-code-with-subclasses](references/fowler/inheritance/replace-type-code-with-subclasses.md), [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md) |
-| Strategy | [strategy.md](references/gof/behavioral/strategy.md) | [replace-conditional-logic-with-strategy](references/kerievsky/simplification/replace-conditional-logic-with-strategy.md) (até) | [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md) |
-| Template Method | [template-method.md](references/gof/behavioral/template-method.md) | [form-template-method](references/kerievsky/generalization/form-template-method.md) (até) | — |
-| Visitor | [visitor.md](references/gof/behavioral/visitor.md) | [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) (até) | — |
+| Observer | [observer.md](references/gof/behavioral/observer.md) | `replace-hard-coded-notifications-with-observer` (até, rumo a) | — |
+| State | [state.md](references/gof/behavioral/state.md) | `replace-state-altering-conditionals-with-state` (até, rumo a) | `replace-type-code-with-subclasses`, `replace-conditional-with-polymorphism`, `replace-subclass-with-delegate` |
+| Strategy | [strategy.md](references/gof/behavioral/strategy.md) | `replace-conditional-logic-with-strategy` (até, rumo a) | `replace-conditional-with-polymorphism`, `replace-subclass-with-delegate` |
+| Template Method | [template-method.md](references/gof/behavioral/template-method.md) | `form-template-method` (até) | — |
+| Visitor | [visitor.md](references/gof/behavioral/visitor.md) | `move-accumulation-to-visitor` (até, rumo a) | — |
 
 Kerievsky também refatora para cinco padrões que não estão no GoF; os arquivos de referência dele os descrevem:
 
 | Padrão | Arquivo do GoF | Refatorações de Kerievsky (direção) | Refatorações de Fowler |
 |---|---|---|---|
-| Creation Method | — | [replace-constructors-with-creation-methods](references/kerievsky/creation/replace-constructors-with-creation-methods.md) (até) | — |
-| Factory | — | [move-creation-knowledge-to-factory](references/kerievsky/creation/move-creation-knowledge-to-factory.md) (até), [encapsulate-classes-with-factory](references/kerievsky/creation/encapsulate-classes-with-factory.md) (até) | — |
-| Composed Method | — | [compose-method](references/kerievsky/simplification/compose-method.md) (até) | — |
-| Collecting Parameter | — | [move-accumulation-to-collecting-parameter](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) (até) | — |
-| Null Object | — | [introduce-null-object](references/kerievsky/protection/introduce-null-object.md) (até) | [introduce-special-case](references/fowler/conditional-logic/introduce-special-case.md) |
+| Creation Method | — | `replace-constructors-with-creation-methods` (até) | — |
+| Factory | — | `move-creation-knowledge-to-factory` (até), `encapsulate-classes-with-factory` (até) | — |
+| Composed Method | — | `compose-method` (até) | — |
+| Collecting Parameter | — | `move-accumulation-to-collecting-parameter` (até) | — |
+| Null Object | — | `introduce-null-object` (até) | `introduce-special-case` |
 
 Fontes: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed.,
 Addison-Wesley (Pearson Education), 2018, e o catálogo online em

@@ -1,6 +1,6 @@
 ---
 name: refactoring-analyst
-description: Encontra code smells no código indicado e devolve um plano curto de refatoração baseado nos catálogos de Fowler e Kerievsky (a skill refactoring). Somente leitura, nunca edita. Use antes de refatorar, para decidir o que mudar e em que ordem.
+description: Encontra code smells no código indicado e devolve um plano curto de refatoração baseado nos catálogos de Fowler e Kerievsky e nos padrões do GoF (a skill refactoring). Somente leitura, nunca edita. Use antes de refatorar, para decidir o que mudar e em que ordem.
 tools: Read, Glob, Grep
 skills: refactoring
 ---
@@ -18,7 +18,8 @@ não altera nada.
 - Prefira a refatoração mais simples que remova o smell. Proponha uma refatoração para padrão
   (Kerievsky) só quando o smell pedir, como condicionais de transição de estado ou um grande
   despachante, e dê a direção: *até* o padrão completo, *rumo a* ele (pare assim que o smell
-  sumir), ou para *longe* de um padrão que não compensa mais.
+  sumir), ou para *longe* de um padrão que não compensa mais. Confira o arquivo do padrão em
+  `references/gof/` para ver se ele serve.
 - Ordene o plano: primeiro o que destrava outros itens, depois risco baixo antes de alto.
 - Diga se há testes cobrindo cada item. Onde não houver, o item começa com um teste que
   fixa o comportamento atual.
