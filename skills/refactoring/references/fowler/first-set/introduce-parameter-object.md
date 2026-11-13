@@ -31,56 +31,71 @@ Smells: Data Clumps, Long Parameter List, Long Function, Primitive Obsession.
    and for other places where the same group appears, and use the new type there too.
 
 ## Example
-Before: three values travel together through two functions.
+Before: the same pair of bounds travels together through two functions.
 
 ```csharp
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record Order(string Id, decimal Total, DateTime PlacedOn);
-
-public class OrderReport
+public class CartLine
 {
-    public decimal TotalBetween(IEnumerable<Order> orders, DateTime from, DateTime to) =>
-        orders.Where(o => o.PlacedOn >= from && o.PlacedOn <= to).Sum(o => o.Total);
+    public string Sku { get; }
+    public decimal Price { get; }
 
-    public int CountBetween(IEnumerable<Order> orders, DateTime from, DateTime to) =>
-        orders.Count(o => o.PlacedOn >= from && o.PlacedOn <= to);
+    public CartLine(string sku, decimal price)
+    {
+        Sku = sku;
+        Price = price;
+    }
+}
+
+public class CartReport
+{
+    public decimal TotalBetween(IEnumerable<CartLine> lines, decimal min, decimal max) =>
+        lines.Where(l => l.Price >= min && l.Price <= max).Sum(l => l.Price);
+
+    public int CountBetween(IEnumerable<CartLine> lines, decimal min, decimal max) =>
+        lines.Count(l => l.Price >= min && l.Price <= max);
 }
 
 // caller
-// var total = report.TotalBetween(orders, quarter.Start, quarter.End);
-// var count = report.CountBetween(orders, quarter.Start, quarter.End);
+// var total = report.TotalBetween(lines, band.Min, band.Max);
+// var count = report.CountBetween(lines, band.Min, band.Max);
 ```
 
-After: the pair is a `DateRange`, and the containment check moved into it.
+After: the pair is a `PriceRange`, and the containment check moved into it.
 
 ```csharp
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record Order(string Id, decimal Total, DateTime PlacedOn);
-
-public record DateRange(DateTime From, DateTime To)
+public class PriceRange
 {
-    public bool Contains(DateTime value) => value >= From && value <= To;
+    public decimal Min { get; }
+    public decimal Max { get; }
+
+    public PriceRange(decimal min, decimal max)
+    {
+        Min = min;
+        Max = max;
+    }
+
+    public bool Contains(decimal value) => value >= Min && value <= Max;
 }
 
-public class OrderReport
+public class CartReport
 {
-    public decimal TotalBetween(IEnumerable<Order> orders, DateRange range) =>
-        orders.Where(o => range.Contains(o.PlacedOn)).Sum(o => o.Total);
+    public decimal TotalBetween(IEnumerable<CartLine> lines, PriceRange range) =>
+        lines.Where(l => range.Contains(l.Price)).Sum(l => l.Price);
 
-    public int CountBetween(IEnumerable<Order> orders, DateRange range) =>
-        orders.Count(o => range.Contains(o.PlacedOn));
+    public int CountBetween(IEnumerable<CartLine> lines, PriceRange range) =>
+        lines.Count(l => range.Contains(l.Price));
 }
 
 // caller
-// var period = new DateRange(quarter.Start, quarter.End);
-// var total = report.TotalBetween(orders, period);
-// var count = report.CountBetween(orders, period);
+// var range = new PriceRange(band.Min, band.Max);
+// var total = report.TotalBetween(lines, range);
+// var count = report.CountBetween(lines, range);
 ```
 
 Behavior is unchanged. The intermediate states (both the old parameters and the new one in the
@@ -88,7 +103,7 @@ signature) compiled and passed the tests at each step.
 
 ## C# notes
 - The new type can be a class, a `record` or a `record struct`. A `record` gives value equality
-  and immutability (`init` or positional properties) for free, which suits a value object.
+  and immutability (`init` or positional properties) for free, which suits a value object (C# 9+; on Unity it needs an `IsExternalInit` shim).
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

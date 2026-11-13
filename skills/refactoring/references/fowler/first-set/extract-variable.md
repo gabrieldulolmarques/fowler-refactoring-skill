@@ -33,12 +33,34 @@ case for Inline Variable).
 Before:
 
 ```csharp
-public bool CanApproveCredit(Customer customer, Account account)
+public class Cart
 {
-    // adult, using over half the limit, and not frozen
-    return customer.Age >= 18
-        && account.Balance > account.Limit * 0.5m
-        && !account.IsFrozen;
+    public decimal Subtotal { get; }
+    public decimal WeightKg { get; }
+
+    public Cart(decimal subtotal, decimal weightKg)
+    {
+        Subtotal = subtotal;
+        WeightKg = weightKg;
+    }
+}
+
+public class ShippingOption
+{
+    public bool IsExpress { get; }
+
+    public ShippingOption(bool isExpress) => IsExpress = isExpress;
+}
+
+public class ShippingPolicy
+{
+    public bool OffersFreeShipping(Cart cart, ShippingOption option)
+    {
+        // spends at least 50, is light enough, and is not express
+        return cart.Subtotal >= 50m
+            && cart.WeightKg <= 20m
+            && !option.IsExpress;
+    }
 }
 ```
 
@@ -46,16 +68,19 @@ After extracting each condition, one at a time with the tests run after each ste
 end state):
 
 ```csharp
-public bool CanApproveCredit(Customer customer, Account account)
+public class ShippingPolicy
 {
-    var isAdult = customer.Age >= 18;
-    var usesOverHalfOfLimit = account.Balance > account.Limit * 0.5m;
-    var isActive = !account.IsFrozen;
-    return isAdult && usesOverHalfOfLimit && isActive;
+    public bool OffersFreeShipping(Cart cart, ShippingOption option)
+    {
+        var meetsMinimumSpend = cart.Subtotal >= 50m;
+        var isLightEnough = cart.WeightKg <= 20m;
+        var isStandardSpeed = !option.IsExpress;
+        return meetsMinimumSpend && isLightEnough && isStandardSpeed;
+    }
 }
 ```
 
-If a name such as `isActive` is also meaningful to other members of `Account`, make it a
+If a name such as `meetsMinimumSpend` is also meaningful to other members of `Cart`, make it a
 read-only property of the class instead of a local.
 
 ## Verification

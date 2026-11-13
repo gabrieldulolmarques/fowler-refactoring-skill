@@ -23,35 +23,43 @@ Do not use it when the function is polymorphic (overridden), is recursive, has s
 7. If a step breaks the tests and the cause is not obvious, revert to the last green state and redo it in smaller steps.
 
 ## Example
-Before: `IsLargeOrder` only wraps one comparison.
+Before: `IsBulkOrder` only wraps one comparison.
 
 ```csharp
-public record Order(int Id, decimal Total);
-
-public class Shipping
+public class Cart
 {
-    public decimal Fee(Order order)
+    public int Id { get; }
+    public int Units { get; }
+
+    public Cart(int id, int units)
     {
-        return IsLargeOrder(order) ? 0m : 9.90m;
+        Id = id;
+        Units = units;
+    }
+}
+
+public class Discounts
+{
+    public decimal UnitDiscount(Cart cart)
+    {
+        return IsBulkOrder(cart) ? 1.50m : 0m;
     }
 
-    private bool IsLargeOrder(Order o)
+    private bool IsBulkOrder(Cart c)
     {
-        return o.Total > 500m;
+        return c.Units >= 10;
     }
 }
 ```
 
-After: the call is replaced (parameter `o` becomes the argument `order`) and the helper is removed.
+After: the call is replaced (parameter `c` becomes the argument `cart`) and the helper is removed.
 
 ```csharp
-public record Order(int Id, decimal Total);
-
-public class Shipping
+public class Discounts
 {
-    public decimal Fee(Order order)
+    public decimal UnitDiscount(Cart cart)
     {
-        return order.Total > 500m ? 0m : 9.90m;
+        return cart.Units >= 10 ? 1.50m : 0m;
     }
 }
 ```
@@ -62,19 +70,24 @@ A case that needs more fitting: the helper writes into an object the caller owns
 using System.Linq;
 using System.Text;
 
-public record Cart(int[] ItemPrices);
+public class PricedCart
+{
+    public decimal[] ItemPrices { get; }
+
+    public PricedCart(decimal[] itemPrices) => ItemPrices = itemPrices;
+}
 
 public class CartSummary
 {
     // Before
-    public string BuildSummary(Cart cart)
+    public string BuildSummary(PricedCart cart)
     {
         var sb = new StringBuilder();
         AppendTotals(sb, cart);
         return sb.ToString();
     }
 
-    private void AppendTotals(StringBuilder target, Cart source)
+    private void AppendTotals(StringBuilder target, PricedCart source)
     {
         target.Append($"items: {source.ItemPrices.Length}; ");
         target.Append($"total: {source.ItemPrices.Sum()}");
@@ -84,7 +97,7 @@ public class CartSummary
 public class CartSummaryAfter
 {
     // After
-    public string BuildSummary(Cart cart)
+    public string BuildSummary(PricedCart cart)
     {
         var sb = new StringBuilder();
         sb.Append($"items: {cart.ItemPrices.Length}; ");

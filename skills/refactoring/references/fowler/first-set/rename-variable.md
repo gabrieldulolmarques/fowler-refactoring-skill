@@ -28,67 +28,68 @@ refactoring does not apply as is.
 A widely used mutable value. Before:
 
 ```csharp
-public static class Settings
+public static class ShippingSettings
 {
-    public static string dflCur = "USD";
+    public static string dflMethod = "standard";
 
-    public static string Format(decimal amount) => $"{amount:0.00} {dflCur}";
+    public static string Describe(decimal fee) => $"{fee:0.00} via {dflMethod}";
 }
 
 // elsewhere
-Settings.dflCur = account.Currency;
+// ShippingSettings.dflMethod = cart.PreferredMethod;
 ```
 
 Step 1, encapsulate so there is one place to rename:
 
 ```csharp
-public static class Settings
+public static class ShippingSettings
 {
-    private static string dflCur = "USD";
+    private static string dflMethod = "standard";
 
-    public static string DefaultCurrency
+    public static string DefaultMethod
     {
-        get => dflCur;
-        set => dflCur = value;
+        get => dflMethod;
+        set => dflMethod = value;
     }
 
-    public static string Format(decimal amount) => $"{amount:0.00} {DefaultCurrency}";
+    public static string Describe(decimal fee) => $"{fee:0.00} via {DefaultMethod}";
 }
 
 // elsewhere
-Settings.DefaultCurrency = account.Currency;
+// ShippingSettings.DefaultMethod = cart.PreferredMethod;
 ```
 
 Step 2, rename the now-private field. Keep the property rather than inlining it: the value
 is widely used, so the encapsulation is worth keeping.
 
 ```csharp
-public static class Settings
+public static class ShippingSettings
 {
-    private static string defaultCurrency = "USD";
+    private static string defaultMethod = "standard";
 
-    public static string DefaultCurrency
+    public static string DefaultMethod
     {
-        get => defaultCurrency;
-        set => defaultCurrency = value;
+        get => defaultMethod;
+        set => defaultMethod = value;
     }
 
-    public static string Format(decimal amount) => $"{amount:0.00} {DefaultCurrency}";
+    public static string Describe(decimal fee) => $"{fee:0.00} via {DefaultMethod}";
 }
 ```
 
 Renaming a constant gradually, by copy:
 
 ```csharp
+// fragment
 // before
-public const decimal tx = 0.2m;
+public const decimal fst = 50m;
 
 // during: both exist, callers move over a few at a time
-public const decimal StandardTaxRate = 0.2m;
-public const decimal tx = StandardTaxRate;
+public const decimal FreeShippingThreshold = 50m;
+public const decimal fst = FreeShippingThreshold;
 
 // after: the old name is deleted once nothing uses it
-public const decimal StandardTaxRate = 0.2m;
+public const decimal FreeShippingThreshold = 50m;
 ```
 
 ## Verification

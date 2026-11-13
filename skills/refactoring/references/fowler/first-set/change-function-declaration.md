@@ -37,51 +37,54 @@ Polymorphism: each binding that callers can reach needs the forwarding function.
 Published API: stop after creating the new function, mark the old one deprecated and keep it forwarding to the new one until clients have moved; delete it only when you are confident (or never, if you cannot reach them).
 
 ## Example
-Goal: `Overdue(Invoice)` should take only the due date, so it also works for anything with a due date. Migration route, with a temporary name.
+Goal: `QualifiesForFreeShipping(Cart)` should take only the subtotal, so it also works for anything that has a subtotal (a quote, a saved basket). Migration route, with a temporary name.
 
 Before:
 
 ```csharp
-using System;
-
-public class Invoice
+public class Cart
 {
-    public DateTime DueDate { get; init; }
+    public decimal Subtotal { get; }
+
+    public Cart(decimal subtotal) => Subtotal = subtotal;
 }
 
-public static class Billing
+public static class Shipping
 {
-    public static bool Overdue(Invoice invoice) =>
-        invoice.DueDate < DateTime.Today;
+    public static bool QualifiesForFreeShipping(Cart cart) =>
+        cart.Subtotal >= 50m;
 }
 
 // caller
-// var late = invoices.Where(i => Billing.Overdue(i));
+// var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping(c));
 ```
 
 Step 1, extract the body into a new function with a temporary name and the wanted parameter:
 
 ```csharp
-public static bool Overdue(Invoice invoice) =>
-    Overdue_new(invoice.DueDate);
+// fragment
+public static bool QualifiesForFreeShipping(Cart cart) =>
+    QualifiesForFreeShipping_new(cart.Subtotal);
 
-public static bool Overdue_new(DateTime dueDate) =>
-    dueDate < DateTime.Today;
+public static bool QualifiesForFreeShipping_new(decimal subtotal) =>
+    subtotal >= 50m;
 ```
 
-Step 2, inline `Overdue` into each caller (test after each one), then delete it:
+Step 2, inline `QualifiesForFreeShipping` into each caller (test after each one), then delete it:
 
 ```csharp
-// var late = invoices.Where(i => Billing.Overdue_new(i.DueDate));
+// fragment
+// var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping_new(c.Subtotal));
 ```
 
-Step 3, rename `Overdue_new` back to `Overdue`:
+Step 3, rename `QualifiesForFreeShipping_new` back to `QualifiesForFreeShipping`:
 
 ```csharp
-public static bool Overdue(DateTime dueDate) =>
-    dueDate < DateTime.Today;
+// fragment
+public static bool QualifiesForFreeShipping(decimal subtotal) =>
+    subtotal >= 50m;
 
-// var late = invoices.Where(i => Billing.Overdue(i.DueDate));
+// var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping(c.Subtotal));
 ```
 
 Same behavior throughout; the build stays green after every step.

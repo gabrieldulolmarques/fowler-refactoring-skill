@@ -26,78 +26,103 @@ Smells: Divergent Change, Shotgun Surgery.
 
 ## Example
 
-Before: one method both gathers statistics and renders the text.
+Before: one method both computes the totals and renders the text.
 
 ```csharp
 using System.Collections.Generic;
 using System.Text;
 
-public record Order(string Id, decimal Amount);
-
-public class ReportService
+public class CartLine
 {
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    public string Sku { get; }
+    public int Quantity { get; }
+    public decimal UnitPrice { get; }
+
+    public CartLine(string sku, int quantity, decimal unitPrice)
     {
-        var count = orders.Count;
-        decimal total = 0m;
-        decimal largest = 0m;
-        foreach (var order in orders)
+        Sku = sku;
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+    }
+}
+
+public class CheckoutSummary
+{
+    public string Summary(IReadOnlyList<CartLine> lines, decimal taxRate, string currencySymbol)
+    {
+        decimal subtotal = 0m;
+        foreach (var line in lines)
         {
-            total += order.Amount;
-            if (order.Amount > largest) largest = order.Amount;
+            subtotal += line.Quantity * line.UnitPrice;
         }
+        decimal tax = subtotal * taxRate;
+        decimal shipping = subtotal >= 50m ? 0m : 4.90m;
 
         var sb = new StringBuilder();
-        sb.AppendLine($"Orders: {count}");
-        sb.AppendLine($"Total: {currencySymbol}{total:F2}");
-        sb.AppendLine($"Largest: {currencySymbol}{largest:F2}");
+        sb.AppendLine($"Items: {lines.Count}");
+        sb.AppendLine($"Subtotal: {currencySymbol}{subtotal:F2}");
+        sb.AppendLine($"Tax: {currencySymbol}{tax:F2}");
+        sb.AppendLine($"Shipping: {currencySymbol}{shipping:F2}");
         return sb.ToString();
     }
 }
 ```
 
-After: statistics and rendering are separate phases, linked by a `record`.
+After: totals and rendering are separate phases, linked by a `CartTotals` object.
 
 ```csharp
 using System.Collections.Generic;
 using System.Text;
 
-public record Order(string Id, decimal Amount);
-
-public record OrderStats(int Count, decimal Total, decimal Largest);
-
-public class ReportService
+public class CartTotals
 {
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    public int ItemCount { get; }
+    public decimal Subtotal { get; }
+    public decimal Tax { get; }
+    public decimal Shipping { get; }
+
+    public CartTotals(int itemCount, decimal subtotal, decimal tax, decimal shipping)
     {
-        var stats = ComputeStats(orders);
-        return Render(stats, currencySymbol);
+        ItemCount = itemCount;
+        Subtotal = subtotal;
+        Tax = tax;
+        Shipping = shipping;
+    }
+}
+
+public class CheckoutSummary
+{
+    public string Summary(IReadOnlyList<CartLine> lines, decimal taxRate, string currencySymbol)
+    {
+        var totals = ComputeTotals(lines, taxRate);
+        return Render(totals, currencySymbol);
     }
 
-    private static OrderStats ComputeStats(IReadOnlyList<Order> orders)
+    private static CartTotals ComputeTotals(IReadOnlyList<CartLine> lines, decimal taxRate)
     {
-        decimal total = 0m;
-        decimal largest = 0m;
-        foreach (var order in orders)
+        decimal subtotal = 0m;
+        foreach (var line in lines)
         {
-            total += order.Amount;
-            if (order.Amount > largest) largest = order.Amount;
+            subtotal += line.Quantity * line.UnitPrice;
         }
-        return new OrderStats(orders.Count, total, largest);
+        decimal tax = subtotal * taxRate;
+        decimal shipping = subtotal >= 50m ? 0m : 4.90m;
+        return new CartTotals(lines.Count, subtotal, tax, shipping);
     }
 
-    private static string Render(OrderStats stats, string currencySymbol)
+    private static string Render(CartTotals totals, string currencySymbol)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"Orders: {stats.Count}");
-        sb.AppendLine($"Total: {currencySymbol}{stats.Total:F2}");
-        sb.AppendLine($"Largest: {currencySymbol}{stats.Largest:F2}");
+        sb.AppendLine($"Items: {totals.ItemCount}");
+        sb.AppendLine($"Subtotal: {currencySymbol}{totals.Subtotal:F2}");
+        sb.AppendLine($"Tax: {currencySymbol}{totals.Tax:F2}");
+        sb.AppendLine($"Shipping: {currencySymbol}{totals.Shipping:F2}");
         return sb.ToString();
     }
 }
 ```
 
-Same output for the same input. Now a new output format touches only `Render`, and a new statistic touches `ComputeStats` plus the fields it feeds.
+Same output for the same input. Now a new output format touches only `Render`, and a new total touches `ComputeTotals` plus the fields it feeds.
 
 ### Variation: the first phase as a transformer object
 
@@ -106,37 +131,71 @@ When the first phase needs several helpers over the same input, a small class ke
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
-public class OrderStatsCalculator
+public class CartTotals
 {
-    private readonly IReadOnlyList<Order> _orders;
+    public int ItemCount { get; }
+    public decimal Subtotal { get; }
+    public decimal Tax { get; }
+    public decimal Shipping { get; }
 
-    public OrderStatsCalculator(IReadOnlyList<Order> orders) => _orders = orders;
-
-    public OrderStats Run() => new(_orders.Count, Total(), Largest());
-
-    private decimal Total() => _orders.Sum(o => o.Amount);
-
-    private decimal Largest() => _orders.Aggregate(0m, (max, o) => o.Amount > max ? o.Amount : max);
+    public CartTotals(int itemCount, decimal subtotal, decimal tax, decimal shipping)
+    {
+        ItemCount = itemCount;
+        Subtotal = subtotal;
+        Tax = tax;
+        Shipping = shipping;
+    }
 }
 
-public class ReportService
+public class CartTotalsCalculator
 {
-    public string OrdersReport(IReadOnlyList<Order> orders, string currencySymbol)
+    private readonly IReadOnlyList<CartLine> _lines;
+    private readonly decimal _taxRate;
+
+    public CartTotalsCalculator(IReadOnlyList<CartLine> lines, decimal taxRate)
     {
-        var stats = new OrderStatsCalculator(orders).Run();
-        return Render(stats, currencySymbol);
+        _lines = lines;
+        _taxRate = taxRate;
     }
 
-    // Render as above.
+    public CartTotals Run()
+    {
+        var subtotal = Subtotal();
+        return new(_lines.Count, subtotal, subtotal * _taxRate, ShippingFor(subtotal));
+    }
+
+    private decimal Subtotal() => _lines.Sum(l => l.Quantity * l.UnitPrice);
+
+    private static decimal ShippingFor(decimal subtotal) => subtotal >= 50m ? 0m : 4.90m;
+}
+
+public class CheckoutSummary
+{
+    public string Summary(IReadOnlyList<CartLine> lines, decimal taxRate, string currencySymbol)
+    {
+        var totals = new CartTotalsCalculator(lines, taxRate).Run();
+        return Render(totals, currencySymbol);
+    }
+
+    private static string Render(CartTotals totals, string currencySymbol)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Items: {totals.ItemCount}");
+        sb.AppendLine($"Subtotal: {currencySymbol}{totals.Subtotal:F2}");
+        sb.AppendLine($"Tax: {currencySymbol}{totals.Tax:F2}");
+        sb.AppendLine($"Shipping: {currencySymbol}{totals.Shipping:F2}");
+        return sb.ToString();
+    }
 }
 ```
 
-Same output as before, including an empty list and negative amounts (`Largest` still starts at `0`).
+Same output as before, including an empty cart (shipping is still `4.90`, as in the original).
 
 ## C# notes
 
-- The intermediate data structure is usually a `record` (or a `readonly record struct` for small, hot data). Immutability keeps the phases from reaching into each other's state.
+- The intermediate data structure is usually a `record` (or a `readonly record struct` for small, hot data; C# 9+, and on Unity it needs an `IsExternalInit` shim). Immutability keeps the phases from reaching into each other's state.
 
 ## Verification
 

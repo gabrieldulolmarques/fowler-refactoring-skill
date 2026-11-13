@@ -28,14 +28,32 @@ Fowler (2018), ch. 6, p. 123. Formerly / aka: Inline Temp. Inverse: Extract Vari
 Before:
 
 ```csharp
-public record Invoice(DateTime DueDate);
+using System.Collections.Generic;
+using System.Linq;
 
-public class CollectionsPolicy
+public class CartLine
 {
-    public bool IsSeriouslyOverdue(Invoice invoice, DateTime today)
+    public string Sku { get; }
+    public int Quantity { get; }
+
+    public CartLine(string sku, int quantity)
     {
-        int daysLate = (today - invoice.DueDate).Days;
-        return daysLate > 30;
+        Sku = sku;
+        Quantity = quantity;
+    }
+}
+
+public class Cart
+{
+    public List<CartLine> Lines { get; } = new();
+}
+
+public class WholesalePolicy
+{
+    public bool QualifiesForWholesale(Cart cart)
+    {
+        int units = cart.Lines.Sum(l => l.Quantity);
+        return units > 20;
     }
 }
 ```
@@ -43,13 +61,13 @@ public class CollectionsPolicy
 After:
 
 ```csharp
-public record Invoice(DateTime DueDate);
+using System.Linq;
 
-public class CollectionsPolicy
+public class WholesalePolicy
 {
-    public bool IsSeriouslyOverdue(Invoice invoice, DateTime today)
+    public bool QualifiesForWholesale(Cart cart)
     {
-        return (today - invoice.DueDate).Days > 30;
+        return cart.Lines.Sum(l => l.Quantity) > 20;
     }
 }
 ```

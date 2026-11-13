@@ -38,23 +38,37 @@ Before: two places compute the same subtotal.
 ```csharp
 using System;
 
-public record Order(string Customer, int Units, decimal UnitPrice, int Year);
+public class Cart
+{
+    public string Customer { get; }
+    public int Units { get; }
+    public decimal UnitPrice { get; }
+    public bool IsMember { get; }
+
+    public Cart(string customer, int units, decimal unitPrice, bool isMember)
+    {
+        Customer = customer;
+        Units = units;
+        UnitPrice = unitPrice;
+        IsMember = isMember;
+    }
+}
 
 public static class Reports
 {
-    private static decimal TaxFreeAllowance(int year) => year >= 2024 ? 100m : 50m;
+    private static decimal DiscountThreshold(bool isMember) => isMember ? 50m : 100m;
 
-    public static decimal InvoiceTotal(Order order)
+    public static decimal ItemsTotal(Cart cart)
     {
-        var subtotal = order.Units * order.UnitPrice;
+        var subtotal = cart.Units * cart.UnitPrice;
         return subtotal;
     }
 
-    public static decimal TaxDue(Order order)
+    public static decimal DiscountGiven(Cart cart)
     {
-        var subtotal = order.Units * order.UnitPrice;
-        var taxable = Math.Max(0, subtotal - TaxFreeAllowance(order.Year));
-        return taxable * 0.2m;
+        var subtotal = cart.Units * cart.UnitPrice;
+        var discountable = Math.Max(0, subtotal - DiscountThreshold(cart.IsMember));
+        return discountable * 0.2m;
     }
 }
 ```
@@ -64,45 +78,66 @@ After: one transform holds both derivations; clients read fields.
 ```csharp
 using System;
 
-public record Order(string Customer, int Units, decimal UnitPrice, int Year);
-
-public record EnrichedOrder(
-    string Customer, int Units, decimal UnitPrice, int Year,
-    decimal Subtotal, decimal TaxableAmount);
-
-public static class OrderEnricher
+public class Cart
 {
-    private static decimal TaxFreeAllowance(int year) => year >= 2024 ? 100m : 50m;
+    public string Customer { get; }
+    public int Units { get; }
+    public decimal UnitPrice { get; }
+    public bool IsMember { get; }
 
-    public static EnrichedOrder Enrich(Order order)
+    public Cart(string customer, int units, decimal unitPrice, bool isMember)
     {
-        var subtotal = order.Units * order.UnitPrice;
-        var taxable = Math.Max(0, subtotal - TaxFreeAllowance(order.Year));
-        return new EnrichedOrder(
-            order.Customer, order.Units, order.UnitPrice, order.Year,
-            subtotal, taxable);
+        Customer = customer;
+        Units = units;
+        UnitPrice = unitPrice;
+        IsMember = isMember;
+    }
+}
+
+public class EnrichedCart : Cart
+{
+    public decimal Subtotal { get; }
+    public decimal DiscountableAmount { get; }
+
+    public EnrichedCart(Cart source, decimal subtotal, decimal discountableAmount)
+        : base(source.Customer, source.Units, source.UnitPrice, source.IsMember)
+    {
+        Subtotal = subtotal;
+        DiscountableAmount = discountableAmount;
+    }
+}
+
+public static class CartEnricher
+{
+    private static decimal DiscountThreshold(bool isMember) => isMember ? 50m : 100m;
+
+    public static EnrichedCart Enrich(Cart cart)
+    {
+        var subtotal = cart.Units * cart.UnitPrice;
+        var discountable = Math.Max(0, subtotal - DiscountThreshold(cart.IsMember));
+        return new EnrichedCart(cart, subtotal, discountable);
     }
 }
 
 public static class Reports
 {
-    public static decimal InvoiceTotal(Order order) => OrderEnricher.Enrich(order).Subtotal;
+    public static decimal ItemsTotal(Cart cart) => CartEnricher.Enrich(cart).Subtotal;
 
-    public static decimal TaxDue(Order order) => OrderEnricher.Enrich(order).TaxableAmount * 0.2m;
+    public static decimal DiscountGiven(Cart cart) => CartEnricher.Enrich(cart).DiscountableAmount * 0.2m;
 }
 ```
 
 Behavior is the same. The formulas now live in `Enrich`; a new derived value is one more
-field there. If the enriched type should extend `Order` instead of repeating its fields, make
-`Order` a non-sealed record and derive from it. The derived record takes the source in a copy
-constructor (`EnrichedOrder(Order o, decimal subtotal, decimal taxable) : base(o)`), because a
-`with` expression on an `Order` returns an `Order`, not an `EnrichedOrder`.
+field there. `EnrichedCart` derives from `Cart` and passes the source's values to the base
+constructor, so it can be used wherever a `Cart` is expected. If it should not inherit, make
+it a standalone type that repeats the fields.
 
 ## C# notes
 - This refactoring is idiomatic in JavaScript. In C# the transform is usually a function that
   returns a new enriched `record` (built with a constructor, or a copy constructor when it
   derives from the source record; `with` only fits when the enriched type is the same type),
-  so the original is never mutated and no deep copy is needed.
+  so the original is never mutated and no deep copy is needed (C# 9+; on Unity a positional
+  `record` needs an `IsExternalInit` shim).
 - Records are shallow: if the source holds mutable collections or objects, copy them too.
 - If the data does get mutated, or the derivations need the object's behavior, prefer
   Combine Functions into Class.

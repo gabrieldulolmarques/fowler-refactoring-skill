@@ -47,19 +47,19 @@ Options when callers should not mutate the shared object:
 Before: a static field read and written from many classes.
 
 ```csharp
-public class Billing
+public class CheckoutSettings
 {
     public static decimal TaxRate = 0.18m;
 }
 
-public class InvoiceCalculator
+public class PriceCalculator
 {
-    public decimal Total(decimal subtotal) => subtotal * (1 + Billing.TaxRate);
+    public decimal Total(decimal subtotal) => subtotal * (1 + CheckoutSettings.TaxRate);
 }
 
 public class SettingsScreen
 {
-    public void Apply(decimal rate) => Billing.TaxRate = rate;
+    public void Apply(decimal rate) => CheckoutSettings.TaxRate = rate;
 }
 ```
 
@@ -67,7 +67,7 @@ After: the field is renamed and private, and a property with the old name forwar
 Behavior is unchanged.
 
 ```csharp
-public class Billing
+public class CheckoutSettings
 {
     private static decimal _taxRate = 0.18m;
 
@@ -78,7 +78,7 @@ public class Billing
     }
 }
 
-// Callers keep the same syntax: Billing.TaxRate and Billing.TaxRate = rate.
+// Callers keep the same syntax: CheckoutSettings.TaxRate and CheckoutSettings.TaxRate = rate.
 ```
 
 Follow-up change, not part of the refactoring because it changes behavior: with the setter
@@ -88,7 +88,7 @@ that used to be accepted now throws.
 ```csharp
 using System;
 
-public class Billing
+public class CheckoutSettings
 {
     private static decimal _taxRate = 0.18m;
 
@@ -110,12 +110,12 @@ Encapsulating the value: a shared list handed out as a copy.
 using System.Collections.Generic;
 using System.Linq;
 
-public class Customers
+public class CouponRegistry
 {
-    private static List<string> _blocked = new();
+    private static List<string> _redeemed = new();
 
-    public static IReadOnlyList<string> Blocked => _blocked.ToList();
-    public static void Block(string id) => _blocked.Add(id);
+    public static IReadOnlyList<string> Redeemed => _redeemed.ToList();
+    public static void MarkRedeemed(string code) => _redeemed.Add(code);
 }
 ```
 
