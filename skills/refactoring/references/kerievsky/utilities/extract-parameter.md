@@ -15,46 +15,46 @@ Smells: — (a low-level step; the book needed it right after turning inheritanc
 3. If the old arguments of the method are no longer used, remove them with Change Function Declaration too.
 
 ## Example
-Before: the exporter creates its own CSV formatter, so a different format means editing the class.
+Before: the uploader creates its own cool-tier store, so uploading to another tier means editing the class.
 
 ```csharp
-public interface IFormatter { string Format(string name, decimal total); }
+public interface IBlobStore { string Put(string key, byte[] data, string contentType); }
 
-public class CsvFormatter : IFormatter
+public class CoolBlobStore : IBlobStore
 {
-    public string Format(string name, decimal total) => $"{name},{total:F2}";
+    public string Put(string key, byte[] data, string contentType) => $"cool/{key}";
 }
 
-public class OrderExporter
+public class Uploader
 {
-    private readonly IFormatter _formatter;
+    private readonly IBlobStore _store;
 
-    public OrderExporter() => _formatter = new CsvFormatter();
+    public Uploader() => _store = new CoolBlobStore();
 
-    public string Export(string name, decimal total) => _formatter.Format(name, total);
+    public string Upload(string key, byte[] data) => _store.Put(key, data, "application/octet-stream");
 }
 ```
 
-After: the formatter comes from the client. The old behavior lives in the call site that builds the exporter.
+After: the store comes from the client. The old behavior lives in the call site that builds the uploader.
 
 ```csharp
-public class OrderExporter
+public class Uploader
 {
-    private readonly IFormatter _formatter;
+    private readonly IBlobStore _store;
 
-    public OrderExporter(IFormatter formatter) => _formatter = formatter;
+    public Uploader(IBlobStore store) => _store = store;
 
-    public string Export(string name, decimal total) => _formatter.Format(name, total);
+    public string Upload(string key, byte[] data) => _store.Put(key, data, "application/octet-stream");
 }
 
 public static class Caller
 {
-    public static OrderExporter Make() => new(new CsvFormatter());
+    public static Uploader Make() => new(new CoolBlobStore());
 }
 ```
 
 ## C# notes
-- Validate at the boundary: a `null` parameter should fail with `ArgumentNullException.ThrowIfNull(formatter)` where a null would otherwise show up much later.
+- Validate at the boundary: a `null` parameter should fail with `ArgumentNullException.ThrowIfNull(store)` where a null would otherwise show up much later.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No code in the class creates the value any more, and a test can now pass in a fake of the type.

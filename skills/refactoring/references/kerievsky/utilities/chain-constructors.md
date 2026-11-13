@@ -17,36 +17,44 @@ Smells: Duplicated Code.
 Prefer calling the catch-all constructor with explicit defaults rather than chaining sideways between narrow constructors, so there is one place where fields are assigned.
 
 ## Example
-Before: three constructors each assign the fields themselves, and two repeat the same default due date.
+Before: three constructors each assign the fields themselves, and two repeat the same default retention date.
 
 ```csharp
-public class Payment
+using System;
+
+public enum StorageTier { Hot, Cool, Archive }
+
+public class UploadRequest
 {
-    private readonly decimal _amount;
-    private readonly string _currency;
-    private readonly DateOnly _dueDate;
-    private readonly string? _reference;
+    private readonly string _path;
+    private readonly string _contentType;
+    private readonly StorageTier _tier;
+    private readonly DateTime _retainUntil;
+    private readonly string? _notifyUrl;
 
-    public Payment(decimal amount)
+    public UploadRequest(string path)
     {
-        _amount = amount;
-        _currency = "USD";
-        _dueDate = DateOnly.FromDateTime(DateTime.Today).AddDays(30);
+        _path = path;
+        _contentType = "application/octet-stream";
+        _tier = StorageTier.Hot;
+        _retainUntil = DateTime.UtcNow.AddDays(30);
     }
 
-    public Payment(decimal amount, string currency)
+    public UploadRequest(string path, string contentType)
     {
-        _amount = amount;
-        _currency = currency;
-        _dueDate = DateOnly.FromDateTime(DateTime.Today).AddDays(30);
+        _path = path;
+        _contentType = contentType;
+        _tier = StorageTier.Hot;
+        _retainUntil = DateTime.UtcNow.AddDays(30);
     }
 
-    public Payment(decimal amount, string currency, DateOnly dueDate, string? reference)
+    public UploadRequest(string path, string contentType, StorageTier tier, DateTime retainUntil, string? notifyUrl)
     {
-        _amount = amount;
-        _currency = currency;
-        _dueDate = dueDate;
-        _reference = reference;
+        _path = path;
+        _contentType = contentType;
+        _tier = tier;
+        _retainUntil = retainUntil;
+        _notifyUrl = notifyUrl;
     }
 }
 ```
@@ -54,36 +62,38 @@ public class Payment
 After: only the last constructor assigns fields; the others pass defaults to it.
 
 ```csharp
-public class Payment
+public class UploadRequest
 {
-    private readonly decimal _amount;
-    private readonly string _currency;
-    private readonly DateOnly _dueDate;
-    private readonly string? _reference;
+    private readonly string _path;
+    private readonly string _contentType;
+    private readonly StorageTier _tier;
+    private readonly DateTime _retainUntil;
+    private readonly string? _notifyUrl;
 
-    public Payment(decimal amount)
-        : this(amount, "USD")
+    public UploadRequest(string path)
+        : this(path, "application/octet-stream")
     {
     }
 
-    public Payment(decimal amount, string currency)
-        : this(amount, currency, DateOnly.FromDateTime(DateTime.Today).AddDays(30), null)
+    public UploadRequest(string path, string contentType)
+        : this(path, contentType, StorageTier.Hot, DateTime.UtcNow.AddDays(30), null)
     {
     }
 
-    public Payment(decimal amount, string currency, DateOnly dueDate, string? reference)
+    public UploadRequest(string path, string contentType, StorageTier tier, DateTime retainUntil, string? notifyUrl)
     {
-        _amount = amount;
-        _currency = currency;
-        _dueDate = dueDate;
-        _reference = reference;
+        _path = path;
+        _contentType = contentType;
+        _tier = tier;
+        _retainUntil = retainUntil;
+        _notifyUrl = notifyUrl;
     }
 }
 ```
 
 ## C# notes
 - C# chains with `: this(...)` before the constructor body, and `: base(...)` for the superclass. The chained call runs first, so a default expression cannot use instance members.
-- Optional parameters are often the simpler alternative: one constructor, `Payment(decimal amount, string currency = "USD", DateOnly? dueDate = null, string? reference = null)`, with `dueDate ?? ...` inside. Use chaining instead when a default is computed, when two defaults must change together, or when the signature is part of a public API (adding an optional parameter changes call sites in other assemblies only after they recompile, while overloads stay binary compatible).
+- Optional parameters are often the simpler alternative: one constructor, `UploadRequest(string path, string contentType = "application/octet-stream", StorageTier tier = StorageTier.Hot, DateTime? retainUntil = null, string? notifyUrl = null)`, with `retainUntil ?? ...` inside. Use chaining instead when a default is computed, when two defaults must change together, or when the signature is part of a public API (adding an optional parameter changes call sites in other assemblies only after they recompile, while overloads stay binary compatible).
 - On C# 12 and later, a class with a primary constructor makes the other constructors call `this(...)` on it by rule.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

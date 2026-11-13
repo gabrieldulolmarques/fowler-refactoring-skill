@@ -17,51 +17,63 @@ For each *missing method*, a public method on the subclass that the superclass o
 3. Test everything that uses the superclass.
 
 ## Example
-Before: only the express subclass can notify the customer, so a loop over shipments has to check the type.
+Before: only the archived subclass can warn about its retention expiry, so a loop over stored files has to check the type.
 
 ```csharp
-public interface ICustomerNotifier { void Send(string message); }
+using System.Collections.Generic;
 
-public class Shipment
+public interface IUploadNotifier { void Send(string message); }
+
+public class StoredFile
 {
-    public string Id { get; init; } = "";
-    public virtual decimal Cost() => 5m;
+    public string Name { get; }
+
+    public StoredFile(string name) => Name = name;
+
+    public virtual decimal MonthlyCostPerGb() => 0.02m;
 }
 
-public class ExpressShipment : Shipment
+public class ArchivedFile : StoredFile
 {
-    public override decimal Cost() => 15m;
-    public void Notify(ICustomerNotifier notifier) => notifier.Send($"Shipment {Id} is on its way");
+    public ArchivedFile(string name) : base(name) { }
+
+    public override decimal MonthlyCostPerGb() => 0.004m;
+    public void NotifyExpiry(IUploadNotifier notifier) => notifier.Send($"File {Name} is close to its retention limit");
 }
 ```
 
-After: `Notify` is declared on the base class with null behavior and overridden in the subclass, so callers use `Shipment` alone.
+After: `NotifyExpiry` is declared on the base class with null behavior and overridden in the subclass, so callers use `StoredFile` alone.
 
 ```csharp
-public class Shipment
+public class StoredFile
 {
-    public string Id { get; init; } = "";
-    public virtual decimal Cost() => 5m;
-    public virtual void Notify(ICustomerNotifier notifier) { }
+    public string Name { get; }
+
+    public StoredFile(string name) => Name = name;
+
+    public virtual decimal MonthlyCostPerGb() => 0.02m;
+    public virtual void NotifyExpiry(IUploadNotifier notifier) { }
 }
 
-public class ExpressShipment : Shipment
+public class ArchivedFile : StoredFile
 {
-    public override decimal Cost() => 15m;
-    public override void Notify(ICustomerNotifier notifier) => notifier.Send($"Shipment {Id} is on its way");
+    public ArchivedFile(string name) : base(name) { }
+
+    public override decimal MonthlyCostPerGb() => 0.004m;
+    public override void NotifyExpiry(IUploadNotifier notifier) => notifier.Send($"File {Name} is close to its retention limit");
 }
 
 public static class Demo
 {
-    public static void NotifyAll(IEnumerable<Shipment> shipments, ICustomerNotifier notifier)
+    public static void NotifyAll(IEnumerable<StoredFile> files, IUploadNotifier notifier)
     {
-        foreach (var s in shipments) s.Notify(notifier);
+        foreach (var f in files) f.NotifyExpiry(notifier);
     }
 }
 ```
 
 ## C# notes
-- The base method must be `virtual` (or `abstract`) and the subclass method `override`. A subclass method of the same name without `override` hides the base one and `Notify` through a `Shipment` reference would do nothing.
+- The base method must be `virtual` (or `abstract`) and the subclass method `override`. A subclass method of the same name without `override` hides the base one and `NotifyExpiry` through a `StoredFile` reference would do nothing.
 - For an interface, adding a member breaks every existing implementor. Default interface methods (C# 8) let you add it with a body, but they are only reachable through the interface type, not the class.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
