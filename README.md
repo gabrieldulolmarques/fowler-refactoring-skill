@@ -9,6 +9,11 @@ Todo arquivo de refatoração e de padrão tem um exemplo em C# 9.
 
 **Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (inglês e português).
 
+**Vai usar?** Se esta skill ajudar você em um projeto, um artigo ou uma postagem, por favor mencione:
+coloque o link deste repositório e dê o crédito a Gabriel R. Marques
+([gabrieldulolmarques](https://github.com/gabrieldulolmarques) no GitHub). Também gostaria de saber como
+foi, então fique à vontade para abrir uma issue.
+
 ## Estrutura
 
 ```
