@@ -7,7 +7,7 @@ Smells: — (a low-level step; the book needed it right after turning inheritanc
 
 - A field is assigned from an object created inside the class (in a constructor or method), and you would rather let the client decide which object it gets.
 - Split the assignment in two: the client supplies the right-hand side, the class keeps the left-hand side.
-- The book used it in [move-embellishment-to-decorator.md](../simplification/move-embellishment-to-decorator.md), after Replace Inheritance with Delegation ([replace-superclass-with-delegate.md](../inheritance/replace-superclass-with-delegate.md)): the class that delegates created its own delegate, but a client needed to supply it.
+- The book used it in [move-embellishment-to-decorator.md](../simplification/move-embellishment-to-decorator.md), after Replace Superclass with Delegate ([replace-superclass-with-delegate.md](../inheritance/replace-superclass-with-delegate.md)): the class that delegates created its own delegate, but a client needed to supply it.
 
 ## Mechanics
 1. The assignment must be in a constructor or method. If it is not (a field initializer, for example), move it into one first.
