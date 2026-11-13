@@ -1,26 +1,26 @@
-# Move Embellishment to Decorator
+# Mover Embelezamento para Decorator (Move Embellishment to Decorator)
 
-Kerievsky (2004), ch. 7, p. 144. Direction: to, towards. Pattern: Decorator (GoF, p. 175).
+Kerievsky (2004), cap. 7, p. 144. Direção: até, rumo a. Padrão: Decorator (GoF, p. 175).
 
-## When to use
-Smells: Conditional Complexity, Primitive Obsession.
+## Quando usar
+Smells: Complexidade Condicional (Conditional Complexity), Obsessão por Primitivos (Primitive Obsession).
 
-- A class has accumulated an embellishment around its core job (extra fields, methods and flags used only some of the time, such as auditing or retrying) and conditionals decide whether to apply it.
-- Each embellishment goes into its own class that wraps an object of the same type. Clients stack them at runtime only where they are needed.
-- Do not use it when the class has dozens of public methods: a Decorator must implement every public method of the type it wraps. Consider [replace-conditional-logic-with-strategy.md](replace-conditional-logic-with-strategy.md) instead.
-- Against Strategy: a Decorator wraps an object and shares its interface, so one decorator can wrap many classes but cannot be shared between objects; a Strategy lives inside an object and may have any interface, but the host class must know about it.
-- Liabilities: the decorated object has a different identity (type checks and casts on the original fail), several decorators can interfere with each other depending on their order, and debugging has to step through the wrappers. If the embellishment only guards access, the structure is a Protection Proxy.
+- Uma classe acumulou um embelezamento em torno de seu trabalho central (campos, métodos e flags extras, usados só às vezes, como auditoria ou retentativas), e condicionais decidem se ele é aplicado.
+- Cada embelezamento vai para sua própria classe, que envolve um objeto do mesmo tipo. Os clientes os empilham em tempo de execução, só onde são necessários.
+- Não use quando a classe tem dezenas de métodos públicos: um Decorator precisa implementar todo método público do tipo que envolve. Considere [replace-conditional-logic-with-strategy.md](replace-conditional-logic-with-strategy.md) no lugar.
+- Contra Strategy: um Decorator envolve um objeto e compartilha sua interface, então um decorador pode envolver muitas classes, mas não ser compartilhado entre objetos; uma Strategy vive dentro de um objeto e pode ter qualquer interface, mas a classe hospedeira precisa conhecê-la.
+- Desvantagens: o objeto decorado tem identidade diferente (verificações de tipo e casts no original falham), vários decoradores podem interferir uns com os outros dependendo da ordem, e a depuração precisa passar pelos invólucros. Se o embelezamento só protege o acesso, a estrutura é um Protection Proxy.
 
-## Mechanics
-Identify the embellished class. First check that the set of public methods a decorator would need to implement is small. If not, shrink it or choose another refactoring.
+## Mecânica
+Identifique a classe embelezada. Primeiro, confirme que o conjunto de métodos públicos que um decorador precisaria implementar é pequeno. Se não for, reduza-o ou escolha outra refatoração.
 
-1. Find or create the enclosure type: an interface (or class) that declares every public method clients use on the embellished class. Prefer an interface, since a base class with state would pass that state on to the decorators. Create it with Unify Interfaces ([unify-interfaces.md](../utilities/unify-interfaces.md)) and/or Extract Interface (1st ed. only; no link). Make the embellished class implement it and change clients to depend on it.
-2. Remove the conditional that applies the embellishment with [replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md), which usually starts with [replace-type-code-with-subclasses.md](../inheritance/replace-type-code-with-subclasses.md). If a creation method is needed to hide the type code, make it return the enclosure type. If the embellishment must run before and after the core logic, form a template method first ([form-template-method.md](../generalization/form-template-method.md)). Compile and test.
-3. Each subclass from step 2 now holds one embellishment. Turn it into a delegating class with Replace Inheritance with Delegation ([replace-superclass-with-delegate.md](../inheritance/replace-superclass-with-delegate.md)). The delegating class implements the enclosure type, its delegate field has the enclosure type, and you decide whether the embellishment runs before or after each delegated call. If the template method needs non-public members of the embellished class, make them public and unify the interface again. If a delegated method can return an undecorated instance, decorate it before handing it out. Compile and test.
-4. The delegating class creates its own delegate in the constructor. Apply Extract Parameter ([extract-parameter.md](../utilities/extract-parameter.md)) so the caller passes the object to wrap, then remove constructor parameters that became useless with [change-function-declaration.md](../first-set/change-function-declaration.md). Compile and test.
+1. Encontre ou crie o tipo de envoltório: uma interface (ou classe) que declare todo método público que os clientes usam na classe embelezada. Prefira uma interface, já que uma classe base com estado repassaria esse estado aos decoradores. Crie-a com Unificar Interfaces (Unify Interfaces) ([unify-interfaces.md](../utilities/unify-interfaces.md)) e/ou Extrair Interface (Extract Interface; só na 1ª ed.; sem link). Faça a classe embelezada implementá-la e mude os clientes para depender dela.
+2. Remova o condicional que aplica o embelezamento com [replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md), que geralmente começa com [replace-type-code-with-subclasses.md](../inheritance/replace-type-code-with-subclasses.md). Se for preciso um método de criação para ocultar o código de tipo, faça-o retornar o tipo de envoltório. Se o embelezamento precisar rodar antes e depois da lógica central, forme primeiro um template method ([form-template-method.md](../generalization/form-template-method.md)). Compile e teste.
+3. Cada subclasse do passo 2 agora guarda um embelezamento. Transforme-a em uma classe que delega com Substituir Superclasse por Delegação (Replace Superclass with Delegate) ([replace-superclass-with-delegate.md](../inheritance/replace-superclass-with-delegate.md)). A classe delegadora implementa o tipo de envoltório, seu campo delegado tem o tipo de envoltório, e você decide se o embelezamento roda antes ou depois de cada chamada delegada. Se o template method precisar de membros não públicos da classe embelezada, torne-os públicos e unifique a interface de novo. Se um método delegado puder devolver uma instância não decorada, decore-a antes de entregá-la. Compile e teste.
+4. A classe delegadora cria o próprio delegado no construtor. Aplique Extrair Parâmetro (Extract Parameter) ([extract-parameter.md](../utilities/extract-parameter.md)) para que o chamador passe o objeto a ser envolvido, e depois remova os parâmetros do construtor que ficaram inúteis com [change-function-declaration.md](../first-set/change-function-declaration.md). Compile e teste.
 
-## Example
-Before: one class both processes payments and optionally writes an audit trail, deciding with a flag in every method.
+## Exemplo
+Antes: uma classe ao mesmo tempo processa pagamentos e, opcionalmente, grava uma trilha de auditoria, decidindo com uma flag em cada método.
 
 ```csharp
 using System.Collections.Generic;
@@ -56,7 +56,7 @@ public class PaymentProcessor
 }
 ```
 
-After: the core class knows nothing about auditing, and `AuditedPaymentProcessor` wraps any `IPaymentProcessor`. Clients that want an audit wrap the processor when they create it: `IPaymentProcessor p = new AuditedPaymentProcessor(new PaymentProcessor(), log);`. A second decorator (retry, rate limiting) wraps the first the same way, and the order of wrapping then matters.
+Depois: a classe central não sabe nada sobre auditoria, e `AuditedPaymentProcessor` envolve qualquer `IPaymentProcessor`. Os clientes que querem auditoria envolvem o processador na hora de criá-lo: `IPaymentProcessor p = new AuditedPaymentProcessor(new PaymentProcessor(), log);`. Um segundo decorador (retentativa, limitação de taxa) envolve o primeiro da mesma forma, e aí a ordem de envolvimento passa a importar.
 
 ```csharp
 using System.Collections.Generic;
@@ -107,12 +107,12 @@ public class AuditedPaymentProcessor : IPaymentProcessor
 }
 ```
 
-## C# notes
-- If the interface grows later, every decorator must grow with it. Keep it small.
-- With a DI container, register the decorated chain in one place so call sites do not pick the order.
-- Do not test the decorated object with `is` or casts to the concrete class; depend on the interface.
+## Notas (C#)
+- Se a interface crescer depois, todo decorador precisa crescer junto. Mantenha-a pequena.
+- Com um contêiner de DI, registre a cadeia decorada em um só lugar, para que os pontos de chamada não escolham a ordem.
+- Não teste o objeto decorado com `is` nem com casts para a classe concreta; dependa da interface.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The undecorated class has a test with no audit at all, and the decorator has a test with a fake inner processor that checks the calls are forwarded unchanged.
-- Search for `is` / `as` / casts to the embellished class: those callers break once the object is wrapped.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- A classe não decorada tem um teste sem auditoria nenhuma, e o decorador tem um teste com um processador interno falso que verifica se as chamadas são repassadas sem alteração.
+- Procure `is` / `as` / casts para a classe embelezada: esses chamadores quebram quando o objeto é envolvido.

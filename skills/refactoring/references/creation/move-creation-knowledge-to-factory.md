@@ -1,26 +1,26 @@
-# Move Creation Knowledge to Factory
+# Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory)
 
-Kerievsky (2004), ch. 6, p. 68. Direction: to. Pattern: Factory (not in GoF).
+Kerievsky (2004), cap. 6, p. 68. Direção: até. Padrão: Factory (fora do GoF).
 
-## When to use
-Smells: Solution Sprawl.
+## Quando usar
+Smells: Solução Espalhada (Solution Sprawl).
 
-- The data and code needed to build one kind of object are spread over several classes. The book calls this creation sprawl. It usually starts when a client wants to configure an object but cannot reach the code that creates it, so it hands its preferences to one object, which hands them to another, until some distant class finally uses them.
-- A Factory gathers both the creation logic and the preferences in one class. The client sets up the factory once, and the same factory instance later does the creation wherever it is needed.
-- The book's definition: any class that has one or more Creation Methods is a Factory, static or not, returning an interface, an abstract class or a concrete class. A Factory Method (GoF) is a different thing, a polymorphic method in a hierarchy. An Abstract Factory is a Factory that can be swapped at run time to build a family of related objects. If the Factory's creation logic grows too complex, it can evolve into one.
-- A Factory can be a class or an interface implemented by an existing class. The interface form is useful when other code should talk to that class only through its creation role.
-- Liability: a Factory adds a class. If every object in the system is created through a factory, there are too many. Do not add one only to hide a choice between two concrete classes in one place. It has to remove sprawl or allow a configuration that plain `new` cannot.
+- Os dados e o código necessários para construir um tipo de objeto estão espalhados por várias classes. O livro chama isso de espalhamento de criação (creation sprawl). Geralmente começa quando um cliente quer configurar um objeto mas não consegue alcançar o código que o cria; então ele entrega suas preferências a um objeto, que as entrega a outro, até que alguma classe distante finalmente as use.
+- Uma Factory reúne a lógica de criação e as preferências em uma única classe. O cliente configura a factory uma vez, e a mesma instância da factory depois faz a criação onde for necessário.
+- A definição do livro: qualquer classe que tenha um ou mais Creation Methods é uma Factory, estática ou não, devolvendo uma interface, uma classe abstrata ou uma classe concreta. Um Factory Method (GoF) é outra coisa, um método polimórfico em uma hierarquia. Uma Abstract Factory é uma Factory que pode ser trocada em tempo de execução para construir uma família de objetos relacionados. Se a lógica de criação da Factory ficar complexa demais, ela pode evoluir para uma.
+- Uma Factory pode ser uma classe ou uma interface implementada por uma classe existente. A forma de interface é útil quando outro código deve conversar com essa classe apenas pelo seu papel de criação.
+- Desvantagem: uma Factory acrescenta uma classe. Se todo objeto do sistema é criado por uma factory, há classes demais. Não acrescente uma só para esconder a escolha entre duas classes concretas em um único lugar. Ela precisa eliminar o espalhamento ou permitir uma configuração que o `new` puro não consegue.
 
-## Mechanics
-These steps assume the Factory is a class. An interface needs small changes.
-1. The *instantiator* is the class that collaborates with others to create the *product*. Make sure it creates the product through a Creation Method ([replace-constructors-with-creation-methods.md](replace-constructors-with-creation-methods.md)), changing the product class if needed. Compile and test.
-2. Create the factory class, named after what it creates (`OrderFactory`). Compile.
-3. Move the Creation Method to the factory with Move Function ([move-function.md](../moving-features/move-function.md)). If it was static, make it an instance method now. Compile.
-4. Make the instantiator create the factory and call it to get the product. Repeat for every instantiator that stopped compiling. Compile and test.
-5. Look for data and methods in the other classes that exist only to feed the creation. Move them into the factory with Move Field ([move-field.md](../moving-features/move-field.md)) and Move Function, which may also change who creates the factory. Compile and test after each move.
+## Mecânica
+Estes passos supõem que a Factory é uma classe. Uma interface precisa de pequenas mudanças.
+1. O *instanciador* é a classe que colabora com outras para criar o *produto*. Garanta que ele crie o produto por meio de um Creation Method ([replace-constructors-with-creation-methods.md](replace-constructors-with-creation-methods.md)), alterando a classe do produto se necessário. Compile e teste.
+2. Crie a classe factory, com nome derivado do que ela cria (`OrderFactory`). Compile.
+3. Mova o Creation Method para a factory com Mover Função (Move Function) ([move-function.md](../moving-features/move-function.md)). Se era estático, torne-o um método de instância agora. Compile.
+4. Faça o instanciador criar a factory e chamá-la para obter o produto. Repita para cada instanciador que deixou de compilar. Compile e teste.
+5. Procure dados e métodos nas outras classes que existam apenas para alimentar a criação. Mova-os para a factory com Mover Campo (Move Field) ([move-field.md](../moving-features/move-field.md)) e Mover Função, o que também pode mudar quem cria a factory. Compile e teste após cada movimento.
 
-## Example
-Before: `CheckoutPage` knows the order options, passes them to `CheckoutService`, which only copies them onto the order it creates. Both classes carry the same two fields.
+## Exemplo
+Antes: `CheckoutPage` conhece as opções do pedido, passa-as para `CheckoutService`, que apenas as copia para o pedido que cria. As duas classes carregam os mesmos dois campos.
 
 ```csharp
 public class Order
@@ -48,7 +48,7 @@ public class CheckoutService
 }
 ```
 
-After: `OrderFactory` holds the options and builds the order. The page configures it once. The service no longer knows what the options are.
+Depois: `OrderFactory` guarda as opções e constrói o pedido. A página a configura uma vez. O serviço não sabe mais quais são as opções.
 
 ```csharp
 public class OrderFactory
@@ -72,11 +72,11 @@ public class CheckoutService
 }
 ```
 
-## C# notes
-- If other code should depend only on the creation role, extract an interface (`IOrderFactory`) and let the class implement it.
-- With dependency injection, the factory is often registered as a service. The refactoring is still the same: move the knowledge first, then decide how the factory is supplied.
+## Notas (C#)
+- Se outro código deve depender apenas do papel de criação, extraia uma interface (`IOrderFactory`) e deixe a classe implementá-la.
+- Com injeção de dependência, a factory costuma ser registrada como serviço. A refatoração continua a mesma: mova o conhecimento primeiro, depois decida como a factory é fornecida.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The options now live in one class. A search for the fields that used to be copied between classes finds only the factory.
-- The factory removes real sprawl. If it only wraps a single `new`, undo it.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- As opções agora ficam em uma só classe. Uma busca pelos campos que antes eram copiados entre classes encontra apenas a factory.
+- A factory elimina espalhamento real. Se ela apenas envolve um único `new`, desfaça.

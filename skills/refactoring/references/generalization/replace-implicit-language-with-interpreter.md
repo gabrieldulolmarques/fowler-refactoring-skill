@@ -1,28 +1,28 @@
-# Replace Implicit Language with Interpreter
+# Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter)
 
-Kerievsky (2004), ch. 8, p. 269. Direction: to. Pattern: Interpreter (GoF, p. 243).
+Kerievsky (2004), cap. 8, p. 269. Direção: até. Padrão: Interpreter (GoF, p. 243).
 
-## When to use
-Smells: Combinatorial Explosion, Large Class, Primitive Obsession, Duplicated Code.
+## Quando usar
+Smells: Explosão Combinatória (Combinatorial Explosion), Classe Grande (Large Class), Obsessão por Primitivos (Primitive Obsession), Código Duplicado (Duplicated Code).
 
-- A class has many methods that are really combinations of a few ideas: `ByStatus`, `ByMinTotal`, `ByStatusAndMinTotal`, `ByCustomerAndStatus`... The language of "find orders that are X and Y, but not Z" is there, but never written down as such. Each new combination means a new method, and the methods repeat the same filtering code.
-- Modeling the language with a few small classes (the criteria, plus and/or/not) lets callers build any combination at run time with no new code, and lets behavior be configured dynamically, for example from a search form.
-- This is the Specification pattern and the Query Object pattern, which are interpreters for object selection.
-- It fits small grammars (fewer than about a dozen classes). For a large language, a parser generator is better. For a tiny uniform one, plain code may be enough.
-- There is a start-up cost: defining the classes and changing callers to compose them. It pays off when the alternative is a growing list of near-duplicate methods.
+- Uma classe tem muitos métodos que são, na prática, combinações de algumas ideias: `ByStatus`, `ByMinTotal`, `ByStatusAndMinTotal`, `ByCustomerAndStatus`... A linguagem de "encontre pedidos que são X e Y, mas não Z" está ali, mas nunca foi escrita como tal. Cada nova combinação exige um novo método, e os métodos repetem o mesmo código de filtragem.
+- Modelar a linguagem com algumas classes pequenas (os critérios, mais and/or/not) permite que os chamadores montem qualquer combinação em tempo de execução, sem código novo, e permite configurar o comportamento dinamicamente, por exemplo a partir de um formulário de busca.
+- Isso é o padrão Specification e o padrão Query Object, que são interpretadores para seleção de objetos.
+- Serve para gramáticas pequenas (menos de cerca de uma dúzia de classes). Para uma linguagem grande, um gerador de parsers é melhor. Para uma linguagem pequena e uniforme, código simples pode bastar.
+- Há um custo inicial: definir as classes e mudar os chamadores para compô-las. Ele se paga quando a alternativa é uma lista crescente de métodos quase duplicados.
 
-## Mechanics
-These steps assume object selection: several methods each loop over a collection and pick the objects that match.
+## Mecânica
+Estes passos assumem seleção de objetos: vários métodos percorrem uma coleção e escolhem os objetos que casam.
 
-1. Find a selection method that uses one criterion argument (for example a minimum total). Create a concrete specification class for that criterion: its constructor takes the value and it exposes a getter. In the selection method, create an instance and read the criterion through the getter. Name the class for what it does (`MinTotalSpec`). If a method uses several criteria, do steps 1 and 2 for each one. Compile and test that selection still works.
-2. Apply Extract Function ([extract-function.md](../first-set/extract-function.md)) to the condition inside the loop, giving a boolean method `IsSatisfiedBy`, and move it to the concrete specification with Move Function ([move-function.md](../moving-features/move-function.md)). If no specification superclass exists yet, create one with Extract Superclass ([extract-superclass.md](../inheritance/extract-superclass.md)), abstract, declaring only `IsSatisfiedBy`. Compile and test.
-3. Repeat steps 1 and 2 for the other selection methods.
-4. For a selection method that now builds several concrete specifications, create a composite specification that holds them (via constructor or an `Add` method), move the combined condition into its `IsSatisfiedBy`, and make it extend the specification superclass (see [replace-one-many-distinctions-with-composite.md](replace-one-many-distinctions-with-composite.md) and [extract-composite.md](extract-composite.md)). Add `Or` and `Not` specifications when callers need them.
-5. Every selection method now takes one specification and the methods are identical except for how the specification is built. Extract the shared loop into `SelectBy(spec)` and make each selection method call it. Compile and test after each.
-6. Inline the old selection methods with Inline Function ([inline-function.md](../first-set/inline-function.md)) so callers build the specification and call `SelectBy`. Compile and test.
+1. Encontre um método de seleção que use um argumento de critério (por exemplo, um total mínimo). Crie uma classe de especificação concreta para esse critério: o construtor recebe o valor e expõe um getter. No método de seleção, crie uma instância e leia o critério pelo getter. Dê à classe o nome do que ela faz (`MinTotalSpec`). Se um método usa vários critérios, faça os passos 1 e 2 para cada um. Compile e teste se a seleção ainda funciona.
+2. Aplique Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) à condição dentro do laço, criando um método booleano `IsSatisfiedBy`, e mova-o para a especificação concreta com Mover Função (Move Function) ([move-function.md](../moving-features/move-function.md)). Se ainda não existir uma superclasse de especificação, crie uma com Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../inheritance/extract-superclass.md)), abstrata, declarando apenas `IsSatisfiedBy`. Compile e teste.
+3. Repita os passos 1 e 2 para os outros métodos de seleção.
+4. Para um método de seleção que agora monta várias especificações concretas, crie uma especificação composta que as contenha (via construtor ou método `Add`), mova a condição combinada para o seu `IsSatisfiedBy` e faça-a estender a superclasse de especificação (veja [replace-one-many-distinctions-with-composite.md](replace-one-many-distinctions-with-composite.md) e [extract-composite.md](extract-composite.md)). Acrescente especificações `Or` e `Not` quando os chamadores precisarem delas.
+5. Todo método de seleção agora recebe uma única especificação, e os métodos são idênticos, exceto pela forma como a especificação é montada. Extraia o laço compartilhado para `SelectBy(spec)` e faça cada método de seleção chamá-lo. Compile e teste após cada passo.
+6. Internalize os métodos de seleção antigos com Internalizar Função (Inline Function) ([inline-function.md](../first-set/inline-function.md)), para que os chamadores montem a especificação e chamem `SelectBy`. Compile e teste.
 
-## Example
-Before: an order finder with one method per combination.
+## Exemplo
+Antes: um localizador de pedidos, com um método por combinação.
 
 ```csharp
 using System.Collections.Generic;
@@ -69,7 +69,7 @@ public class OrderFinder
 }
 ```
 
-After: a small set of specification classes and one `SelectBy`. Any combination is built by the caller.
+Depois: um pequeno conjunto de classes de especificação e um único `SelectBy`. Qualquer combinação é montada pelo chamador.
 
 ```csharp
 using System.Collections.Generic;
@@ -133,15 +133,15 @@ public class OrderFinder
     public List<Order> SelectBy(OrderSpec spec) => _orders.Where(spec.IsSatisfiedBy).ToList();
 }
 
-// Old ByCustomerNotStatus(c, s) is now:
+// O antigo ByCustomerNotStatus(c, s) agora é:
 //   finder.SelectBy(new AndSpec(new CustomerSpec(c), new NotSpec(new StatusSpec(s))));
 ```
 
-## C# notes
-- In C#, a `Func<Order, bool>` (and combinators over it) or LINQ `Where` is often all you need for in-memory filtering. Classes earn their place when the criteria must be inspected, printed, serialized or translated (for instance to SQL).
-- If the target is a database, `Expression<Func<T, bool>>` lets a provider translate the criteria; building your own specification classes would then duplicate what the provider already does.
-- Make specifications immutable and cheap to construct; they are values describing a question, not services.
+## Notas (C#)
+- Em C#, um `Func<Order, bool>` (e combinadores sobre ele) ou o `Where` do LINQ costumam bastar para filtragem em memória. Classes se justificam quando os critérios precisam ser inspecionados, impressos, serializados ou traduzidos (por exemplo, para SQL).
+- Se o alvo é um banco de dados, `Expression<Func<T, bool>>` permite que o provedor traduza os critérios; criar as suas próprias classes de especificação duplicaria o que o provedor já faz.
+- Faça as especificações imutáveis e baratas de construir; elas são valores que descrevem uma pergunta, não serviços.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- For each old finder method, a test builds the equivalent specification and returns the same orders in the same order before the old method is inlined.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Para cada método antigo do localizador, um teste monta a especificação equivalente e confirma que ela retorna os mesmos pedidos, na mesma ordem, antes de o método antigo ser internalizado.

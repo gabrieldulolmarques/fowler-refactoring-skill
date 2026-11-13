@@ -1,44 +1,44 @@
-# Replace State-Altering Conditionals with State
+# Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State)
 
-Kerievsky (2004), ch. 7, p. 166. Direction: to, towards. Pattern: State (GoF, p. 305).
+Kerievsky (2004), cap. 7, p. 166. Direção: até, rumo a. Padrão: State (GoF, p. 305).
 
-## When to use
-Smells: Conditional Complexity, Large Class, Primitive Obsession.
+## Quando usar
+Smells: Complexidade Condicional (Conditional Complexity), Classe Grande (Large Class), Obsessão por Primitivos (Primitive Obsession).
 
-- An object has a status field (an enum, constants, strings) and its methods check that field to decide what is allowed and what the next status is. The same checks are repeated in every method that moves the object between states, and the transitions are scattered through the class.
-- Each state becomes a class that knows which transitions it allows and where they lead. The object (the context) forwards state-dependent calls to its current state object and switches states by pointing at a different one. The state classes together give a readable map of the whole machine.
-- This is not Replace Type Code with Subclasses. There the type is fixed for the object's life, so subclasses of the object itself are enough. Here the object changes state while it lives, so the variation must sit in a separate object it can swap. It is also not [replace-conditional-logic-with-strategy.md](replace-conditional-logic-with-strategy.md): a Strategy is chosen from outside to run an algorithm, while states choose their own successor.
-- If the transition logic is still easy to follow, do not do it. Try [extract-function.md](../first-set/extract-function.md) first. Two or three states with a couple of transitions are usually better left as a field and a few `if`s. Do it when the logic is hard to follow, or when many more transitions are coming.
-- Liability: more classes, and the rules for one transition now live in the state class that starts it, not in the context.
+- Um objeto tem um campo de status (um enum, constantes, strings) e seus métodos verificam esse campo para decidir o que é permitido e qual é o próximo status. As mesmas verificações se repetem em todo método que move o objeto entre estados, e as transições ficam espalhadas pela classe.
+- Cada estado vira uma classe que sabe quais transições permite e para onde elas levam. O objeto (o contexto) repassa as chamadas dependentes de estado ao seu objeto de estado atual e troca de estado apontando para outro. As classes de estado juntas formam um mapa legível de toda a máquina.
+- Isto não é Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses). Ali o tipo é fixo durante a vida do objeto, então subclasses do próprio objeto bastam. Aqui o objeto muda de estado enquanto vive, então a variação precisa morar em um objeto separado que ele possa trocar. Também não é [replace-conditional-logic-with-strategy.md](replace-conditional-logic-with-strategy.md): uma Strategy é escolhida de fora para executar um algoritmo, enquanto os estados escolhem o próprio sucessor.
+- Se a lógica de transição ainda é fácil de seguir, não faça. Tente antes [extract-function.md](../first-set/extract-function.md). Dois ou três estados com algumas transições costumam ficar melhor como um campo e alguns `if`s. Faça quando a lógica for difícil de seguir, ou quando muitas outras transições estiverem a caminho.
+- Desvantagem: mais classes, e as regras de uma transição agora ficam na classe de estado que a inicia, não no contexto.
 
-## Mechanics
-The context is the class that owns the status field (the original state field). It is assigned or compared against a set of constants as transitions happen.
+## Mecânica
+O contexto é a classe que possui o campo de status (o campo de estado original). Ele é atribuído ou comparado com um conjunto de constantes conforme as transições acontecem.
 
-1. Apply Replace Type Code with Class ([replace-type-code-with-class.md](../protection/replace-type-code-with-class.md)) to the status field, so its type is a new class: the state superclass. Callers and every `switch` on the old type must now compare against the class's constants. Compile.
-2. Each constant is now an instance of the state superclass. Create one subclass per constant (Replace Type Code with Subclasses, [replace-type-code-with-subclasses.md](../inheritance/replace-type-code-with-subclasses.md), whose second step is what the book calls Extract Subclass), and make each constant refer to its subclass instance. Declare the state superclass `abstract`. Compile.
-3. Take one context method that changes the status according to the transition rules. Copy it to the state superclass with the fewest changes that make it work (usually add the context as a parameter and call its members through it). Replace the context method's body with a call to the copy. Compile and test. Repeat for every method that changes the status.
-4. Take one state. Find which of the copied superclass methods make a transition out of that state. Copy each into that state's subclass (as an override) and delete everything unrelated from the copy: the check of the current state and the branches that belong to other states. Compile and test. Repeat for every state.
-5. Replace the body of each method copied in step 3 with the default behavior: usually reject the call or do nothing. Compile and test.
-6. If other methods branch on the status (not only the ones that change it), move them too, with [replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md): a virtual member on the state with the common answer, overridden by the states that differ.
+1. Aplique Substituir Código de Tipo por Classe (Replace Type Code with Class) ([replace-type-code-with-class.md](../protection/replace-type-code-with-class.md)) ao campo de status, para que o tipo dele seja uma nova classe: a superclasse de estado. Chamadores e todo `switch` sobre o tipo antigo agora comparam com as constantes da classe. Compile.
+2. Cada constante agora é uma instância da superclasse de estado. Crie uma subclasse por constante (Substituir Código de Tipo por Subclasses, [replace-type-code-with-subclasses.md](../inheritance/replace-type-code-with-subclasses.md), cujo segundo passo é o que o livro chama de Extrair Subclasse (Extract Subclass)), e faça cada constante referenciar a instância da sua subclasse. Declare a superclasse de estado como `abstract`. Compile.
+3. Pegue um método do contexto que muda o status de acordo com as regras de transição. Copie-o para a superclasse de estado com as menores mudanças que o façam funcionar (normalmente adicionando o contexto como parâmetro e chamando seus membros por ele). Substitua o corpo do método do contexto por uma chamada à cópia. Compile e teste. Repita para cada método que altera o status.
+4. Pegue um estado. Encontre quais dos métodos copiados na superclasse fazem uma transição a partir desse estado. Copie cada um para a subclasse daquele estado (como override) e apague da cópia tudo que não tem relação: a verificação do estado atual e os ramos que pertencem a outros estados. Compile e teste. Repita para cada estado.
+5. Substitua o corpo de cada método copiado no passo 3 pelo comportamento padrão: normalmente rejeitar a chamada ou não fazer nada. Compile e teste.
+6. Se outros métodos ramificam pelo status (não só os que o alteram), mova-os também, com [replace-conditional-with-polymorphism.md](../conditional-logic/replace-conditional-with-polymorphism.md): um membro virtual no estado com a resposta comum, sobrescrito pelos estados que diferem.
 
-Data that belongs to the object (who is assigned, how many times it was reopened) stays in the context. States read and write it through the context they receive.
+Dados que pertencem ao objeto (quem está atribuído, quantas vezes foi reaberto) ficam no contexto. Os estados leem e escrevem esses dados pelo contexto que recebem.
 
-## Example
-The domain is a support ticket with four states and these transitions. Anything not in the table is rejected with an `InvalidOperationException`.
+## Exemplo
+O domínio é um chamado de suporte com quatro estados e estas transições. Qualquer coisa fora da tabela é rejeitada com uma `InvalidOperationException`.
 
-| From | Call | To |
+| De | Chamada | Para |
 |---|---|---|
 | Open | Assign | Assigned |
 | Open | Close | Closed |
 | Assigned | Unassign | Open |
 | Assigned | Resolve | Resolved |
-| Resolved | Reopen (at most twice) | Assigned |
+| Resolved | Reopen (no máximo duas vezes) | Assigned |
 | Resolved | Close | Closed |
-| Closed | (none) | |
+| Closed | (nenhuma) | |
 
-Comments are accepted in every state except Closed.
+Comentários são aceitos em todo estado, exceto Closed.
 
-Before: every method repeats a status check and sets the next status.
+Antes: todo método repete uma verificação de status e define o próximo status.
 
 ```csharp
 using System;
@@ -96,12 +96,12 @@ public class Ticket
 }
 ```
 
-After steps 1 and 2, the enum is a class with four constants, each an instance of a private nested subclass of an abstract `TicketState`. The context keeps a `State` property (now with an internal setter) instead of `_status`. Nothing else has changed yet.
+Depois dos passos 1 e 2, o enum é uma classe com quatro constantes, cada uma instância de uma subclasse aninhada privada de um `TicketState` abstrato. O contexto mantém uma propriedade `State` (agora com setter interno) no lugar de `_status`. Nada mais mudou ainda.
 
-During step 3, `Assign` is copied to the state superclass with the context as a parameter, and the context method only delegates:
+No passo 3, `Assign` é copiado para a superclasse de estado com o contexto como parâmetro, e o método do contexto apenas delega:
 
 ```csharp
-// in TicketState
+// em TicketState
 internal virtual void Assign(Ticket ticket, string agent)
 {
     if (ticket.State != Open)
@@ -110,14 +110,14 @@ internal virtual void Assign(Ticket ticket, string agent)
     ticket.State = Assigned;
 }
 
-// in Ticket
+// em Ticket
 public void Assign(string agent) => State.Assign(this, agent);
 ```
 
-In step 4, `OpenState` gets the only branch that applies to it. The check and the other states' branches are gone from the override:
+No passo 4, `OpenState` recebe apenas o ramo que se aplica a ele. A verificação e os ramos dos outros estados saem do override:
 
 ```csharp
-// in OpenState
+// em OpenState
 internal override void Assign(Ticket ticket, string agent)
 {
     ticket.Assignee = agent;
@@ -125,7 +125,7 @@ internal override void Assign(Ticket ticket, string agent)
 }
 ```
 
-In step 5, the base `Assign` shrinks to the default, `throw NotAllowed("assign")`. Doing this for every method gives the final code. Each state lists exactly the transitions it allows, and a state that does not override a method rejects it.
+No passo 5, o `Assign` base encolhe para o padrão, `throw NotAllowed("assign")`. Fazendo isso para todos os métodos, chega-se ao código final. Cada estado lista exatamente as transições que permite, e um estado que não sobrescreve um método o rejeita.
 
 ```csharp
 using System;
@@ -213,16 +213,16 @@ public abstract class TicketState
 }
 ```
 
-Adding a state (say, `Escalated`) now means one new nested class and the transitions that lead to it. The existing methods on `Ticket` do not change.
+Acrescentar um estado (digamos, `Escalated`) agora significa uma nova classe aninhada e as transições que levam a ele. Os métodos existentes em `Ticket` não mudam.
 
-## C# notes
-- The state objects hold no per-ticket data, so the four `static readonly` instances are shared by all tickets. Keep it that way: if a state needs its own data, create an instance per context instead of a shared constant.
-- Nested `private sealed` subclasses keep the constants as the only way to obtain a state. `internal` members let the states change the context without exposing setters publicly. If the states live in another assembly, use a small public interface on the context instead.
-- A `switch` expression on the old enum, if one survives elsewhere (for example in a mapper or a UI label), must be replaced by a state member or compare `State` to the constants.
-- If the status is persisted, keep a stable code (the `Name`, or the old enum value) and map it back to the constant when the object is loaded.
+## Notas (C#)
+- Os objetos de estado não guardam dados por ticket, então as quatro instâncias `static readonly` são compartilhadas por todos os tickets. Mantenha assim: se um estado precisar de dados próprios, crie uma instância por contexto em vez de uma constante compartilhada.
+- Subclasses aninhadas `private sealed` mantêm as constantes como única forma de obter um estado. Membros `internal` permitem que os estados alterem o contexto sem expor setters publicamente. Se os estados morarem em outro assembly, use uma pequena interface pública no contexto.
+- Uma expressão `switch` sobre o enum antigo, se sobreviver em outro lugar (por exemplo, em um mapeador ou em um rótulo de UI), deve ser substituída por um membro do estado ou por uma comparação de `State` com as constantes.
+- Se o status for persistido, mantenha um código estável (o `Name`, ou o valor antigo do enum) e mapeie-o de volta para a constante ao carregar o objeto.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Write the transition table as a test before step 1, covering every allowed move and at least one rejected call per state (including the reopen limit), and keep it passing through all five steps.
-- After step 4, temporarily make the base methods throw (step 5 early) on a branch: any test that fails shows a state you forgot to give an override.
-- Check that no code outside the context and the states reads `State` to branch on it. That would recreate the conditional somewhere else.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Escreva a tabela de transições como teste antes do passo 1, cobrindo cada movimento permitido e pelo menos uma chamada rejeitada por estado (incluindo o limite de reabertura), e mantenha-a passando pelos cinco passos.
+- Após o passo 4, faça temporariamente os métodos base lançarem exceção (o passo 5 antecipado) em uma branch: qualquer teste que falhar aponta um estado para o qual você esqueceu um override.
+- Confirme que nenhum código fora do contexto e dos estados lê `State` para ramificar. Isso recriaria o condicional em outro lugar.

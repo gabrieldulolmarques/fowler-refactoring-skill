@@ -1,27 +1,27 @@
-# Compose Method
+# Compor Método (Compose Method)
 
-Kerievsky (2004), ch. 7, p. 123. Direction: to. Pattern: Composed Method (not in GoF; the book credits Kent Beck).
+Kerievsky (2004), cap. 7, p. 123. Direção: até. Padrão: Composed Method (fora do GoF; o livro credita a Kent Beck).
 
-## When to use
-Smells: Long Method.
+## Quando usar
+Smells: Método Longo (Long Method).
 
-- You cannot grasp what a method does without reading every line, because high-level calls sit next to loops, conditionals and index arithmetic.
-- The goal is a method of about five lines (rarely over ten) made of calls to well-named methods, all at the same level of detail. The name says what, the body says how.
-- This is the same work as [extract-function.md](../first-set/extract-function.md) and [slide-statements.md](../moving-features/slide-statements.md), aimed at one result. The book gives no fixed recipe, only guidelines.
-- Liabilities: it can leave many tiny private methods (a hint to apply [extract-class.md](../encapsulation/extract-class.md)), and the real work becomes harder to find in a debugger. Performance is not a reason to stop unless a profiler says so.
+- Você não consegue entender o que um método faz sem ler cada linha, porque chamadas de alto nível ficam ao lado de laços, condicionais e aritmética de índices.
+- O objetivo é um método de cerca de cinco linhas (raramente mais de dez), feito de chamadas a métodos bem nomeados, todos no mesmo nível de detalhe. O nome diz o quê; o corpo diz como.
+- Este é o mesmo trabalho de [extract-function.md](../first-set/extract-function.md) e [slide-statements.md](../moving-features/slide-statements.md), voltado a um único resultado. O livro não dá uma receita fixa, apenas diretrizes.
+- Desvantagens: pode deixar muitos métodos privados minúsculos (um sinal para aplicar [extract-class.md](../encapsulation/extract-class.md)), e o trabalho real fica mais difícil de achar no depurador. Desempenho não é motivo para parar, a menos que um profiler indique o contrário.
 
-## Mechanics
-Follow [extract-function.md](../first-set/extract-function.md); there is no separate procedure. What Kerievsky adds is how to steer it:
+## Mecânica
+Siga o procedimento de Extrair Função (Extract Function) em [extract-function.md](../first-set/extract-function.md); não há um procedimento separado. O que Kerievsky acrescenta é como conduzi-lo:
 
-1. Remove duplication and dead code first ([remove-dead-code.md](../moving-features/remove-dead-code.md)), so there is less to read.
-2. Flatten nesting where it hides the main path: [replace-nested-conditional-with-guard-clauses.md](../conditional-logic/replace-nested-conditional-with-guard-clauses.md) and [consolidate-conditional-expression.md](../conditional-logic/consolidate-conditional-expression.md).
-3. Find the lines that are at a different level of detail from their neighbors (a raw condition, a loop, an array write among calls). Push each one down with [extract-function.md](../first-set/extract-function.md), named for its intention.
-4. If you cannot find a good name for what you extracted, you took too much or too little. Undo it with [inline-function.md](../first-set/inline-function.md) and cut along a different line.
-5. Replace magic literals with named constants ([replace-magic-literal.md](../organizing-data/replace-magic-literal.md)).
-6. Stop when every statement in the method says what, and the details live one call down. Compile and test after each step.
+1. Remova antes a duplicação e o código morto ([remove-dead-code.md](../moving-features/remove-dead-code.md)), para haver menos o que ler.
+2. Achate o aninhamento quando ele esconde o caminho principal: [replace-nested-conditional-with-guard-clauses.md](../conditional-logic/replace-nested-conditional-with-guard-clauses.md) e [consolidate-conditional-expression.md](../conditional-logic/consolidate-conditional-expression.md).
+3. Encontre as linhas que estão em um nível de detalhe diferente dos vizinhos (uma condição crua, um laço, uma escrita em array no meio de chamadas). Empurre cada uma para baixo com [extract-function.md](../first-set/extract-function.md), nomeada pela sua intenção.
+4. Se não achar um bom nome para o que extraiu, você extraiu demais ou de menos. Desfaça com [inline-function.md](../first-set/inline-function.md) e corte em outra linha.
+5. Troque literais mágicos por constantes nomeadas ([replace-magic-literal.md](../organizing-data/replace-magic-literal.md)).
+6. Pare quando cada instrução do método disser o quê, e os detalhes estiverem a uma chamada de distância. Compile e teste após cada passo.
 
-## Example
-Before: the posting method nests two checks around mixed-level code.
+## Exemplo
+Antes: o método de lançamento aninha duas verificações em volta de código de níveis misturados.
 
 ```csharp
 using System;
@@ -53,7 +53,7 @@ public class Ledger
 }
 ```
 
-After: a guard clause first, then two steps at the same level. The overdue rule has a name.
+Depois: uma cláusula de guarda primeiro, depois dois passos no mesmo nível. A regra de atraso ganha um nome.
 
 ```csharp
 using System;
@@ -86,9 +86,9 @@ public class Ledger
 }
 ```
 
-## C# notes
-- Expression-bodied members keep the extracted pieces short. Use a local function when a piece serves one method only.
+## Notas (C#)
+- Membros com corpo de expressão mantêm as partes extraídas curtas. Use uma função local quando a parte servir a um único método.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Read the top method aloud: each line should be a step you would name in a sentence, with no operators or indexing left in it.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Leia o método de topo em voz alta: cada linha deve ser um passo que você nomearia em uma frase, sem operadores nem indexação.

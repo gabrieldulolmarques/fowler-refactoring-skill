@@ -1,28 +1,28 @@
-# Introduce Polymorphic Creation with Factory Method
+# Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method)
 
-Kerievsky (2004), ch. 6, p. 88. Direction: to. Pattern: Factory Method (GoF, p. 107).
+Kerievsky (2004), cap. 6, p. 88. Direção: até. Padrão: Factory Method (GoF, p. 107).
 
-## When to use
-Smells: Duplicated Code.
+## Quando usar
+Smells: Código Duplicado (Duplicated Code).
 
-- Classes in a hierarchy implement a method almost identically, and the only difference is which class they instantiate. The rest of the method is the same.
-- A Factory Method needs three things: a type (interface or base class) for what gets created, the classes that implement that type, and several classes that each decide locally which one to create.
-- It is usually found where a Template Method calls a Factory Method for its one varying step. Removing duplicated methods in a hierarchy often ends up in this combination.
-- Frameworks use it the same way: they declare a creation method and let your subclass override it to plug in your own object.
-- Costs: the signature is shared by all implementers, so some of them may receive parameters they do not need. The pattern is harder to set up than `new`, but the code that uses it is shorter than the duplicated methods it replaces.
-- Compare [replace-constructors-with-creation-methods.md](replace-constructors-with-creation-methods.md): a plain Creation Method is not polymorphic, a Factory Method is.
+- Classes em uma hierarquia implementam um método quase de forma idêntica, e a única diferença é qual classe elas instanciam. O resto do método é o mesmo.
+- Um Factory Method precisa de três coisas: um tipo (interface ou classe base) para o que é criado, as classes que implementam esse tipo, e várias classes que decidem localmente qual delas criar.
+- Costuma aparecer onde um Template Method chama um Factory Method para seu único passo variável. Remover métodos duplicados em uma hierarquia costuma terminar nessa combinação.
+- Frameworks usam do mesmo jeito: declaram um método de criação e deixam sua subclasse sobrescrevê-lo para encaixar o seu próprio objeto.
+- Custos: a assinatura é compartilhada por todos os implementadores, então alguns deles podem receber parâmetros de que não precisam. O padrão é mais difícil de montar do que `new`, mas o código que o usa é mais curto do que os métodos duplicados que substitui.
+- Compare com [replace-constructors-with-creation-methods.md](replace-constructors-with-creation-methods.md): um Creation Method comum não é polimórfico; um Factory Method é.
 
-## Mechanics
-This covers the case of sibling subclasses with a *similar method*. A superclass and one subclass is the same with fewer steps.
-1. In one subclass, change the similar method so the creation happens in a separate *instantiation method* (apply Extract Function, [extract-function.md](../first-set/extract-function.md)). Use a generic name (`CreateReport`) and return the type that all siblings can share. Compile and test.
-2. Do the same in each sibling. The instantiation methods must end up with the same signature. Compile and test.
-3. Make sure the siblings have a common superclass you can change. If not, apply Extract Superclass ([extract-superclass.md](../inheritance/extract-superclass.md)). This class plays the Creator role in the pattern. Compile and test.
-4. Apply Form Template Method ([form-template-method.md](../generalization/form-template-method.md)) to the similar method. This uses Pull Up Method ([pull-up-method.md](../inheritance/pull-up-method.md)), and the instantiation method becomes an abstract method on the superclass: that is the factory method. Each sibling is now a ConcreteCreator. Compile and test.
-5. Repeat for other similar methods in the siblings that can use the same factory method.
-6. If most subclasses create the same class, give the superclass method a default body creating that class, and let the others override it. Compile and test.
+## Mecânica
+Isto cobre o caso de subclasses irmãs com um *método semelhante*. Uma superclasse e uma subclasse é o mesmo, com menos passos.
+1. Em uma subclasse, altere o método semelhante para que a criação aconteça em um *método de instanciação* separado (aplique Extrair Função (Extract Function), [extract-function.md](../first-set/extract-function.md)). Use um nome genérico (`CreateReport`) e devolva o tipo que todas as irmãs podem compartilhar. Compile e teste.
+2. Faça o mesmo em cada irmã. Os métodos de instanciação devem acabar com a mesma assinatura. Compile e teste.
+3. Garanta que as irmãs tenham uma superclasse comum que você possa alterar. Se não tiverem, aplique Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../inheritance/extract-superclass.md)). Esta classe desempenha o papel de Creator no padrão. Compile e teste.
+4. Aplique Formar Template Method (Form Template Method) ([form-template-method.md](../generalization/form-template-method.md)) ao método semelhante. Isso usa Subir Método (Pull Up Method) ([pull-up-method.md](../inheritance/pull-up-method.md)), e o método de instanciação se torna um método abstrato na superclasse: esse é o factory method. Cada irmã agora é um ConcreteCreator. Compile e teste.
+5. Repita para outros métodos semelhantes nas irmãs que possam usar o mesmo factory method.
+6. Se a maioria das subclasses cria a mesma classe, dê ao método da superclasse um corpo padrão que cria essa classe, e deixe as outras sobrescrevê-lo. Compile e teste.
 
-## Example
-Before: two exporters repeat the same method. Only the report class differs.
+## Exemplo
+Antes: dois exportadores repetem o mesmo método. Só a classe de relatório muda.
 
 ```csharp
 public interface IReport { string Render(); }
@@ -59,7 +59,7 @@ public class HtmlExporter
 }
 ```
 
-After: `Export` exists once in `Exporter`. It calls `CreateReport`, and each subclass decides what to build.
+Depois: `Export` existe uma única vez em `Exporter`. Ele chama `CreateReport`, e cada subclasse decide o que construir.
 
 ```csharp
 public abstract class Exporter
@@ -85,11 +85,11 @@ public class HtmlExporter : Exporter
 }
 ```
 
-## C# notes
-- Make the factory method `protected abstract` unless callers outside the hierarchy need it. A default implementation is `protected virtual`.
-- If the variation is only a choice of class, a constructor passed as `Func<string, IReport>` can replace the subclass hierarchy. Use the factory method when the hierarchy already exists for other reasons.
+## Notas (C#)
+- Torne o factory method `protected abstract`, a menos que chamadores fora da hierarquia precisem dele. Uma implementação padrão é `protected virtual`.
+- Se a variação for apenas uma escolha de classe, um construtor passado como `Func<string, IReport>` pode substituir a hierarquia de subclasses. Use o factory method quando a hierarquia já existir por outros motivos.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The similar method now exists in one place, and no subclass repeats its body.
-- Each subclass overrides only the creation step.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- O método semelhante agora existe em um só lugar, e nenhuma subclasse repete seu corpo.
+- Cada subclasse sobrescreve apenas o passo de criação.

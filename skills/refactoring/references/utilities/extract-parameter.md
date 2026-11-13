@@ -1,21 +1,21 @@
-# Extract Parameter
+# Extrair Parâmetro (Extract Parameter)
 
-Kerievsky (2004), ch. 11, p. 346. Direction: —. Pattern: —.
+Kerievsky (2004), cap. 11, p. 346. Direção: —. Padrão: —.
 
-## When to use
-Smells: — (a low-level step; the book needed it right after turning inheritance into delegation).
+## Quando usar
+Smells: — (um passo de baixo nível; o livro precisou dele logo depois de transformar herança em delegação).
 
-- A field is assigned from an object created inside the class (in a constructor or method), and you would rather let the client decide which object it gets.
-- Split the assignment in two: the client supplies the right-hand side, the class keeps the left-hand side.
-- The book used it in [move-embellishment-to-decorator.md](../simplification/move-embellishment-to-decorator.md), after Replace Inheritance with Delegation ([replace-superclass-with-delegate.md](../inheritance/replace-superclass-with-delegate.md)): the class that delegates created its own delegate, but a client needed to supply it.
+- Um campo é atribuído a partir de um objeto criado dentro da classe (em um construtor ou método), e você prefere deixar o cliente decidir qual objeto recebe.
+- Divida a atribuição em duas: o cliente fornece o lado direito, a classe mantém o lado esquerdo.
+- O livro usou em [move-embellishment-to-decorator.md](../simplification/move-embellishment-to-decorator.md), depois de Substituir Superclasse por Delegação (Replace Superclass with Delegate) ([replace-superclass-with-delegate.md](../inheritance/replace-superclass-with-delegate.md)): a classe que delega criava o próprio delegado, mas um cliente precisava fornecê-lo.
 
-## Mechanics
-1. The assignment must be in a constructor or method. If it is not (a field initializer, for example), move it into one first.
-2. Add a parameter for the value ([change-function-declaration.md](../first-set/change-function-declaration.md)), typed as the field's type. Pass at each call site the expression that used to sit in the assignment, and change the assignment to use the parameter. Compile and test.
-3. If the old arguments of the method are no longer used, remove them with Change Function Declaration too.
+## Mecânica
+1. A atribuição precisa estar em um construtor ou método. Se não estiver (um inicializador de campo, por exemplo), mova-a primeiro para dentro de um.
+2. Adicione um parâmetro para o valor ([change-function-declaration.md](../first-set/change-function-declaration.md)), tipado como o tipo do campo. Em cada ponto de chamada, passe a expressão que antes estava na atribuição, e troque a atribuição para usar o parâmetro. Compile e teste.
+3. Se os argumentos antigos do método não forem mais usados, remova-os também com Mudar Declaração de Função (Change Function Declaration). Compile e teste.
 
-## Example
-Before: the exporter creates its own CSV formatter, so a different format means editing the class.
+## Exemplo
+Antes: o exportador cria o próprio formatador CSV, então um formato diferente exige editar a classe.
 
 ```csharp
 public interface IFormatter { string Format(string name, decimal total); }
@@ -35,7 +35,7 @@ public class OrderExporter
 }
 ```
 
-After: the formatter comes from the client. The old behavior lives in the call site that builds the exporter.
+Depois: o formatador vem do cliente. O comportamento antigo passa a viver no ponto de chamada que constrói o exportador.
 
 ```csharp
 public class OrderExporter
@@ -53,11 +53,11 @@ public static class Caller
 }
 ```
 
-## C# notes
-- Constructor parameters of an interface type are exactly what a dependency injection container fills in; once this is done the class is ready to be registered.
-- If many callers need the old behavior, keep a second constructor that supplies the default and chains to the new one ([chain-constructors.md](chain-constructors.md)), then remove it when callers have moved.
-- Validate at the boundary: a `null` parameter should fail with `ArgumentNullException.ThrowIfNull(formatter)` where a null would otherwise show up much later.
+## Notas (C#)
+- Parâmetros de construtor de tipo interface são exatamente o que um contêiner de injeção de dependência preenche; feito isso, a classe está pronta para ser registrada.
+- Se muitos chamadores precisarem do comportamento antigo, mantenha um segundo construtor que forneça o padrão e encaminhe para o novo ([chain-constructors.md](chain-constructors.md)), e remova-o quando os chamadores tiverem migrado.
+- Valide na fronteira: um parâmetro `null` deve falhar com `ArgumentNullException.ThrowIfNull(formatter)` quando, de outra forma, o null apareceria bem mais tarde.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- No code in the class creates the value any more, and a test can now pass in a fake of the type.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Nenhum código da classe cria mais o valor, e um teste agora pode passar um fake do tipo.

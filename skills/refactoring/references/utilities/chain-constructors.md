@@ -1,23 +1,23 @@
-# Chain Constructors
+# Encadear Construtores (Chain Constructors)
 
-Kerievsky (2004), ch. 11, p. 340. Direction: —. Pattern: —.
+Kerievsky (2004), cap. 11, p. 340. Direção: —. Padrão: —.
 
-## When to use
-Smells: Duplicated Code.
+## Quando usar
+Smells: Código Duplicado (Duplicated Code).
 
-- Two or more constructors repeat the same assignments. When someone adds a field and updates only one constructor, the others silently leave it unset.
-- Let the more specific constructors call a more general one, until you reach a catch-all constructor that handles every case. It usually takes the most parameters.
-- If a class has so many constructors that it is hard to use, consider [replace-constructors-with-creation-methods.md](../creation/replace-constructors-with-creation-methods.md), which itself relies on this refactoring.
+- Dois ou mais construtores repetem as mesmas atribuições. Quando alguém adiciona um campo e atualiza só um construtor, os outros deixam o campo sem valor, em silêncio.
+- Faça os construtores mais específicos chamarem um mais geral, até chegar a um construtor abrangente que trate todos os casos. Ele geralmente recebe mais parâmetros.
+- Se uma classe tem tantos construtores que é difícil de usar, considere [replace-constructors-with-creation-methods.md](../creation/replace-constructors-with-creation-methods.md), que depende desta refatoração.
 
-## Mechanics
-1. Find two constructors with duplicate code, and check whether one can call the other so the duplicated lines can be deleted from the caller. Make it call it. Compile and test.
-2. Repeat for every constructor in the class, including those already changed, until duplication is as low as possible.
-3. Re-check callers and reduce the visibility of any constructor that no longer needs to be public. Compile and test.
+## Mecânica
+1. Encontre dois construtores com código duplicado e verifique se um pode chamar o outro, para que as linhas duplicadas possam ser apagadas do chamador. Faça-o chamar. Compile e teste.
+2. Repita para cada construtor da classe, incluindo os já alterados, até a duplicação ficar o mais baixa possível.
+3. Revise os chamadores e reduza a visibilidade de qualquer construtor que não precise mais ser público. Compile e teste.
 
-Prefer calling the catch-all constructor with explicit defaults rather than chaining sideways between narrow constructors, so there is one place where fields are assigned.
+Prefira chamar o construtor abrangente com padrões explícitos em vez de encadear lateralmente entre construtores estreitos, para que exista um único lugar onde os campos são atribuídos.
 
-## Example
-Before: three constructors each assign the fields themselves, and two repeat the same default due date.
+## Exemplo
+Antes: três construtores atribuem os campos cada um por conta própria, e dois repetem a mesma data de vencimento padrão.
 
 ```csharp
 public class Payment
@@ -51,7 +51,7 @@ public class Payment
 }
 ```
 
-After: only the last constructor assigns fields; the others pass defaults to it.
+Depois: só o último construtor atribui campos; os outros passam os padrões para ele.
 
 ```csharp
 public class Payment
@@ -81,11 +81,11 @@ public class Payment
 }
 ```
 
-## C# notes
-- C# chains with `: this(...)` before the constructor body, and `: base(...)` for the superclass. The chained call runs first, so a default expression cannot use instance members.
-- Optional parameters are often the simpler alternative: one constructor, `Payment(decimal amount, string currency = "USD", DateOnly? dueDate = null, string? reference = null)`, with `dueDate ?? ...` inside. Use chaining instead when a default is computed, when two defaults must change together, or when the signature is part of a public API (adding an optional parameter changes call sites in other assemblies only after they recompile, while overloads stay binary compatible).
-- On C# 12 and later, a class with a primary constructor makes the other constructors call `this(...)` on it by rule.
+## Notas (C#)
+- C# encadeia com `: this(...)` antes do corpo do construtor, e com `: base(...)` para a superclasse. A chamada encadeada roda primeiro, então uma expressão padrão não pode usar membros da instância.
+- Parâmetros opcionais costumam ser a alternativa mais simples: um só construtor, `Payment(decimal amount, string currency = "USD", DateOnly? dueDate = null, string? reference = null)`, com `dueDate ?? ...` dentro. Use encadeamento quando um padrão for calculado, quando dois padrões precisarem mudar juntos, ou quando a assinatura fizer parte de uma API pública (adicionar um parâmetro opcional muda os pontos de chamada em outros assemblies só depois que eles recompilarem, enquanto as sobrecargas continuam compatíveis em binário).
+- Em C# 12 e versões posteriores, uma classe com construtor primário faz os demais construtores chamarem `this(...)` nele por regra.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Every field is assigned in exactly one constructor, and each public constructor produces the same object as before for the same arguments.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Cada campo é atribuído em exatamente um construtor, e cada construtor público produz o mesmo objeto de antes para os mesmos argumentos.

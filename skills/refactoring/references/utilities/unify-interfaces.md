@@ -1,23 +1,24 @@
-# Unify Interfaces
+# Unificar Interfaces (Unify Interfaces)
 
-Kerievsky (2004), ch. 11, p. 343. Direction: —. Pattern: —.
+Kerievsky (2004), cap. 11, p. 343. Direção: —. Padrão: —.
 
-## When to use
-Smells: Duplicated Code (the book's inside back cover lists Unify Interfaces with Adapter there; this utility is the low-level step it builds on).
+## Quando usar
+Smells: Código Duplicado (Duplicated Code) (a contracapa interna do livro lista Unificar Interfaces com Adapter (Unify Interfaces with Adapter) ali; este utilitário é o passo de baixo nível em que ela se apoia).
 
-- A superclass or interface lacks public methods that a subclass has, so code cannot treat them all the same way and falls back on type checks or casts.
-- Add the missing methods to the base type, with do-nothing (null) behavior in a class, so the subclass can override them and callers can use the base type everywhere.
-- The book needed it twice: when a Decorator needed the same interface as the class it embellishes ([move-embellishment-to-decorator.md](../simplification/move-embellishment-to-decorator.md)), and when a Visitor needed its sources to accept it polymorphically ([move-accumulation-to-visitor.md](../accumulation/move-accumulation-to-visitor.md)).
-- It is often a temporary step. Later refactorings may let you remove the added methods again, or you may extract a stand-alone interface so that implementors do not inherit the base class's fields.
+- Uma superclasse ou interface não tem métodos públicos que uma subclasse tem, então o código não consegue tratar todos da mesma forma e recorre a verificações de tipo ou casts.
+- Adicione os métodos que faltam ao tipo base, com comportamento vazio (null) em uma classe, para que a subclasse possa sobrescrevê-los e os chamadores possam usar o tipo base em qualquer lugar.
+- O livro precisou disso duas vezes: quando um Decorator precisava da mesma interface da classe que embeleza ([move-embellishment-to-decorator.md](../simplification/move-embellishment-to-decorator.md)), e quando um Visitor precisava que suas fontes o aceitassem polimorficamente ([move-accumulation-to-visitor.md](../accumulation/move-accumulation-to-visitor.md)).
+- Muitas vezes é um passo temporário. Refatorações posteriores podem permitir remover de novo os métodos acrescentados, ou você pode extrair uma interface independente, para que os implementadores não herdem os campos da classe base.
 
-## Mechanics
-For each *missing method*, a public method on the subclass that the superclass or interface does not declare:
-1. Add a copy of the method to the superclass or interface. In a superclass, give it a body that does nothing, or returns a harmless default. Compile.
-2. Repeat until the two share the same public interface.
-3. Test everything that uses the superclass.
+## Mecânica
+Para cada *método faltante*, ou seja, um método público na subclasse que a superclasse ou interface não declara:
 
-## Example
-Before: only the express subclass can notify the customer, so a loop over shipments has to check the type.
+1. Adicione uma cópia do método à superclasse ou interface. Na superclasse, dê a ele um corpo que não faz nada, ou que devolve um padrão inofensivo. Compile.
+2. Repita até que os dois compartilhem a mesma interface pública.
+3. Teste tudo que usa a superclasse.
+
+## Exemplo
+Antes: só a subclasse expressa pode notificar o cliente, então um laço sobre os envios precisa verificar o tipo.
 
 ```csharp
 public interface ICustomerNotifier { void Send(string message); }
@@ -35,7 +36,7 @@ public class ExpressShipment : Shipment
 }
 ```
 
-After: `Notify` is declared on the base class with null behavior and overridden in the subclass, so callers use `Shipment` alone.
+Depois: `Notify` é declarado na classe base com comportamento nulo e sobrescrito na subclasse, então os chamadores usam apenas `Shipment`.
 
 ```csharp
 public class Shipment
@@ -60,11 +61,11 @@ public static class Demo
 }
 ```
 
-## C# notes
-- The base method must be `virtual` (or `abstract`) and the subclass method `override`. A subclass method of the same name without `override` hides the base one and `Notify` through a `Shipment` reference would do nothing.
-- For an interface, adding a member breaks every existing implementor. Default interface methods (C# 8) let you add it with a body, but they are only reachable through the interface type, not the class.
-- A do-nothing default hides the fact that an operation is not supported. Check that silence is correct for the other subclasses.
+## Notas (C#)
+- O método base precisa ser `virtual` (ou `abstract`) e o método da subclasse `override`. Um método da subclasse com o mesmo nome sem `override` oculta o da base, e `Notify` por uma referência de `Shipment` não faria nada.
+- Para uma interface, adicionar um membro quebra todos os implementadores existentes. Métodos de interface com implementação padrão (C# 8) permitem adicioná-lo com corpo, mas só são acessíveis pelo tipo interface, não pela classe.
+- Um padrão que não faz nada esconde o fato de que a operação não é suportada. Confirme que o silêncio é correto para as outras subclasses.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The type checks or casts the unification was meant to remove can now be deleted, and tests that use only the base type still pass for each subclass.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- As verificações de tipo ou casts que a unificação devia remover podem ser apagadas agora, e os testes que usam só o tipo base passam para cada subclasse.

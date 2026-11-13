@@ -1,50 +1,50 @@
-# Move Accumulation to Visitor
+# Mover Acumulação para Visitor (Move Accumulation to Visitor)
 
-Kerievsky (2004), ch. 10, p. 320. Direction: to, towards (Visitor); away (Iterator). Pattern: Visitor (GoF, p. 331).
+Kerievsky (2004), cap. 10, p. 320. Direção: até, rumo a (Visitor); longe (Iterator). Padrão: Visitor (GoF, p. 331).
 
-## When to use
-Smells: Long Method, Switch Statements.
+## Quando usar
+Smells: Método Longo (Long Method), Comandos Switch (Switch Statements).
 
-- A method gathers information from several classes that hold different data and expose different interfaces (heterogeneous classes), usually through type tests and casts.
-- A Visitor does this through double dispatch: each class has an `Accept(visitor)` method that calls back the visitor's method for that class, passing itself. The visitor then reads what it needs without casts.
-- Several different algorithms over the same structure can each be their own visitor, and a visitor can cross class hierarchies.
-- The book's warning: most of the time you do not need a Visitor, but when you do you really need it. Consider simpler solutions first. If the classes can share a common interface (see [unify-interfaces.md](../utilities/unify-interfaces.md)), a Visitor is more than you need. Compare with [move-accumulation-to-collecting-parameter.md](move-accumulation-to-collecting-parameter.md) first.
-- Liabilities: every new visitable class needs an `Accept` method and a visit method on every visitor, and visited classes may have to expose more of their data.
+- Um método reúne informações de várias classes que guardam dados diferentes e expõem interfaces diferentes (classes heterogêneas), geralmente por meio de testes de tipo e conversões (casts).
+- Um Visitor faz isso por double dispatch: cada classe tem um método `Accept(visitor)` que chama de volta o método do visitor para a sua própria classe, passando a si mesma. O visitor então lê o que precisa sem conversões.
+- Vários algoritmos diferentes sobre a mesma estrutura podem ser, cada um, o seu próprio visitor, e um visitor pode atravessar hierarquias de classes.
+- O aviso do livro: na maioria das vezes você não precisa de um Visitor, mas quando precisa, precisa de verdade. Considere soluções mais simples primeiro. Se as classes podem compartilhar uma interface comum (veja Unificar Interfaces (Unify Interfaces) ([unify-interfaces.md](../utilities/unify-interfaces.md))), um Visitor é mais do que você precisa. Compare primeiro com [move-accumulation-to-collecting-parameter.md](move-accumulation-to-collecting-parameter.md).
+- Desvantagens: toda nova classe visitável precisa de um método `Accept`, e de um método de visita em cada visitor, e as classes visitadas podem ter de expor mais dos seus dados.
 
-## Mechanics
-The book gives three sets, depending on where the accumulation code lives. The accumulation method gathers data from the *accumulation sources* (the visited classes).
+## Mecânica
+O livro traz três conjuntos, conforme onde fica o código de acumulação. O método de acumulação reúne dados das *fontes de acumulação* (as classes visitadas).
 
-**External accumulation method** (the code lives in a class that is not one of the sources, the *host*)
-1. If the host already has too many jobs, move the method into a new host first with Replace Function with Command ([replace-function-with-command.md](../refactoring-apis/replace-function-with-command.md)).
-2. Turn the local variables used across the accumulation logic into fields of the host. Compile and test.
-3. For each source class, apply Extract Function ([extract-function.md](../first-set/extract-function.md)) on its piece of the logic into a method taking that source as the argument, named `Accept`. Compile and test.
-4. Extract the body of each `Accept` into a `VisitSourceName(source)` method.
-5. Move each `Accept` method to its source class with Move Function ([move-function.md](../moving-features/move-function.md)); it now takes the host as its argument. Compile and test.
-6. Inline the `Accept` calls in the accumulation method ([inline-function.md](../first-set/inline-function.md)). Compile and test.
-7. Apply [../utilities/unify-interfaces.md](../utilities/unify-interfaces.md) on the sources' base class or interface so `Accept` can be called polymorphically.
-8. Rewrite the accumulation method to call `Accept` on every source. Compile and test.
-9. Extract an interface from the host declaring the visit methods (Extract Interface, 1st ed. only), and change every `Accept` to take that interface. Compile and test. The host is now a visitor.
+**Método de acumulação externo** (o código fica numa classe que não é uma das fontes, o *hospedeiro*)
+1. Se o hospedeiro já tem trabalho demais, mova o método para um novo hospedeiro primeiro, com Substituir Função por Comando (Replace Function with Command) ([replace-function-with-command.md](../refactoring-apis/replace-function-with-command.md)).
+2. Transforme as variáveis locais usadas na lógica de acumulação em campos do hospedeiro. Compile e teste.
+3. Para cada classe-fonte, aplique Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) à sua parte da lógica, em um método que recebe essa fonte como argumento, chamado `Accept`. Compile e teste.
+4. Extraia o corpo de cada `Accept` para um método `VisitSourceName(source)`, em que `SourceName` é o nome da fonte.
+5. Mova cada método `Accept` para a sua classe-fonte com Mover Função (Move Function) ([move-function.md](../moving-features/move-function.md)); ele agora recebe o hospedeiro como argumento. Compile e teste.
+6. Internalize as chamadas a `Accept` no método de acumulação com Internalizar Função (Inline Function) ([inline-function.md](../first-set/inline-function.md)). Compile e teste.
+7. Aplique Unificar Interfaces ([unify-interfaces.md](../utilities/unify-interfaces.md)) à classe base ou interface das fontes, para que `Accept` possa ser chamado polimorficamente.
+8. Reescreva o método de acumulação para chamar `Accept` em cada fonte. Compile e teste.
+9. Extraia uma interface do hospedeiro declarando os métodos de visita (Extrair Interface (Extract Interface) (só na 1ª ed.)), e altere cada `Accept` para receber essa interface. Compile e teste. O hospedeiro agora é um visitor.
 
-**Internal accumulation method** (the method is implemented by the source classes themselves, in a hierarchy)
-1. Create a new visitor class. Compile.
-2. For each source class, add a `VisitSourceName(source)` method to the visitor, returning `void`. Compile.
-3. In each source class, extract the body of the accumulation method into an `Accept` method with the same signature everywhere, so the accumulation methods become identical. Compile and test.
-4. Pull the now identical accumulation method up to the base class ([pull-up-method.md](../inheritance/pull-up-method.md)). Compile and test.
-5. Add a visitor parameter to every `Accept` ([change-function-declaration.md](../first-set/change-function-declaration.md)); the accumulation method passes a new visitor. Compile.
-6. For each source, move the accumulation code from `Accept` into the matching visit method on the visitor, leaving `Accept` as `visitor.VisitX(this)`. Compile and test.
+**Método de acumulação interno** (o método é implementado pelas próprias classes-fonte, em uma hierarquia)
+1. Crie uma nova classe visitor. Compile.
+2. Para cada classe-fonte, acrescente ao visitor um método `VisitSourceName(source)` que devolve `void`. Compile.
+3. Em cada classe-fonte, extraia o corpo do método de acumulação para um método `Accept` com a mesma assinatura em todas, de modo que os métodos de acumulação fiquem idênticos. Compile e teste.
+4. Suba o método de acumulação, agora idêntico, para a classe base com Subir Método (Pull Up Method) ([pull-up-method.md](../inheritance/pull-up-method.md)). Compile e teste.
+5. Acrescente um parâmetro visitor a cada `Accept` com Mudar Declaração de Função (Change Function Declaration) ([change-function-declaration.md](../first-set/change-function-declaration.md)); o método de acumulação passa um novo visitor. Compile.
+6. Para cada fonte, mova o código de acumulação de `Accept` para o método de visita correspondente no visitor, deixando `Accept` como `visitor.VisitX(this)`. Compile e teste.
 
-**Visitor replacement** (neither form exists yet, but a visitor would be better)
-1. Create a concrete visitor class. If it is the second one, extract a superclass or interface for it (Extract Superclass, [extract-superclass.md](../inheritance/extract-superclass.md)) and use that type in the `Accept` signatures.
-2. For each source class, add a visit method on the visitor and an `Accept` method on the source that calls it with `this`. This gives the skeleton.
-3. Give the visitor a way to read its accumulated result, initially empty.
-4. In the accumulation method, create the visitor, call `Accept` on every source and use the visitor's result instead of the old one. Tests now fail.
-5. Fill in each visit method by moving the code from the accumulation method. Give visit methods access to what they need, move variables used by several visit methods into visitor fields, and pass inputs through the visitor's constructor. Compile and test that results match.
-6. Remove the old code from the accumulation method. Compile and test.
-7. What remains iterates over objects and passes the visitor. If some of them have no `Accept`, give them a do-nothing one so the loop needs no type check.
-8. Extract that loop into a method that takes the visitor and move it where other clients can reach it. Compile and test.
+**Substituição por visitor** (nenhuma das duas formas existe ainda, mas um visitor seria melhor)
+1. Crie uma classe visitor concreta. Se for o segundo, extraia uma superclasse ou interface para ele (Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../inheritance/extract-superclass.md))) e use esse tipo nas assinaturas de `Accept`.
+2. Para cada classe-fonte, acrescente um método de visita ao visitor e um método `Accept` na fonte que o chama com `this`. Isso dá o esqueleto.
+3. Dê ao visitor uma forma de ler o seu resultado acumulado, inicialmente vazio.
+4. No método de acumulação, crie o visitor, chame `Accept` em cada fonte e use o resultado do visitor no lugar do antigo. Os testes agora falham.
+5. Preencha cada método de visita movendo o código do método de acumulação. Dê aos métodos de visita acesso ao que precisam, mova variáveis usadas por vários métodos de visita para campos do visitor, e passe as entradas pelo construtor do visitor. Compile e teste se os resultados batem.
+6. Remova o código antigo do método de acumulação. Compile e teste.
+7. O que sobra percorre os objetos e passa o visitor. Se alguns deles não tiverem `Accept`, dê a eles um `Accept` que não faz nada, para que o laço não precise de verificação de tipo.
+8. Extraia esse laço para um método que recebe o visitor e mova-o para onde outros clientes possam alcançá-lo. Compile e teste.
 
-## Example
-Before: a calculator walks charges of different kinds and tests the type of each, reading different data from each.
+## Exemplo
+Antes: uma calculadora percorre cobranças de tipos diferentes e testa o tipo de cada uma, lendo dados diferentes de cada uma.
 
 ```csharp
 public abstract class Charge { }
@@ -82,7 +82,7 @@ public class TotalCalculator
 }
 ```
 
-After (external accumulation method): the calculator is the visitor; each charge accepts it and calls back the method for its own type.
+Depois (método de acumulação externo): a calculadora é o visitor; cada cobrança aceita o visitor e chama de volta o método do seu próprio tipo.
 
 ```csharp
 public interface IChargeVisitor
@@ -135,12 +135,12 @@ public class TotalCalculator : IChargeVisitor
 }
 ```
 
-## C# notes
-- On C# 9 and later, a `switch` expression with type patterns often solves the same problem with much less code. Use a Visitor only when several algorithms need the same structure, or when the type set is open to extension by other assemblies.
-- The visitor holds state between visits, so a visitor instance is not thread-safe and should be created per use (the example resets its fields at the start of `Total`; creating a new calculator per call is safer).
-- A generic `IChargeVisitor<TResult>` with return values avoids mutable fields, at the cost of a more elaborate interface.
+## Notas (C#)
+- A partir do C# 9, uma expressão `switch` com padrões de tipo costuma resolver o mesmo problema com muito menos código. Use um Visitor apenas quando vários algoritmos precisarem da mesma estrutura, ou quando o conjunto de tipos precisar ser aberto para extensão por outros assemblies.
+- O visitor guarda estado entre as visitas, então uma instância de visitor não é thread-safe e deve ser criada por uso (o exemplo zera os campos no início de `Total`; criar uma nova calculadora por chamada é mais seguro).
+- Um `IChargeVisitor<TResult>` genérico, com valores de retorno, evita campos mutáveis, ao custo de uma interface mais elaborada.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Results equal the old method for every kind of source, including a collection that mixes kinds, and a collection with an unknown or empty case.
-- Adding a new source class fails to compile until each visitor handles it.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Os resultados são iguais aos do método antigo para cada tipo de fonte, inclusive uma coleção que mistura tipos, e uma coleção com um caso desconhecido ou vazio.
+- Acrescentar uma nova classe-fonte falha na compilação até que cada visitor a trate.

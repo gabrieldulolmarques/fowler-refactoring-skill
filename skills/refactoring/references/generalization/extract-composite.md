@@ -1,27 +1,27 @@
-# Extract Composite
+# Extrair Composite (Extract Composite)
 
-Kerievsky (2004), ch. 8, p. 214. Direction: to. Pattern: Composite (GoF, p. 163).
+Kerievsky (2004), cap. 8, p. 214. Direção: até. Padrão: Composite (GoF, p. 163).
 
-## When to use
-Smells: Duplicated Code.
+## Quando usar
+Smells: Código Duplicado (Duplicated Code).
 
-- Several subclasses in one hierarchy each keep a collection of children from that same hierarchy, and each repeats the code that adds, removes and totals them.
-- Moving that code into one superclass cuts the duplicated child handling, and the superclass name tells the next developer that child handling can be inherited instead of rewritten.
-- This is Extract Superclass ([extract-superclass.md](../inheritance/extract-superclass.md)) aimed only at the child-handling part. Once it is done, if more shared behavior remains that has nothing to do with children, continue with Extract Superclass.
+- Várias subclasses de uma mesma hierarquia mantêm, cada uma, uma coleção de filhos vindos dessa mesma hierarquia, e cada uma repete o código que adiciona, remove e totaliza esses filhos.
+- Mover esse código para uma superclasse comum reduz o tratamento duplicado de filhos, e o nome da superclasse avisa o próximo desenvolvedor que o tratamento de filhos pode ser herdado em vez de reescrito.
+- Isso é Extrair Superclasse (Extract Superclass) ([extract-superclass.md](../inheritance/extract-superclass.md)) voltado apenas para a parte de tratamento de filhos. Feito isso, se restar comportamento compartilhado que não tem nada a ver com filhos, continue com Extrair Superclasse.
 
-## Mechanics
-1. Create the composite: a new class in the hierarchy, named for what it contains (for example `CompositeItem`). Compile.
-2. Make each class that holds duplicated child-handling code (a child container) a subclass of the composite. Compile.
-3. Take one child-processing method that is duplicated, fully or partially, across the containers.
-   - If its name differs between containers, make it consistent with Change Function Declaration ([change-function-declaration.md](../first-set/change-function-declaration.md)).
-   - Fully duplicated: move the children field it uses to the composite with Pull Up Field ([pull-up-field.md](../inheritance/pull-up-field.md)), renaming it if the old name fits only one container, then move the method with Pull Up Method ([pull-up-method.md](../inheritance/pull-up-method.md)). If it depends on constructor code in the containers, pull that up into the composite's constructor ([pull-up-constructor-body.md](../inheritance/pull-up-constructor-body.md)).
-   - Partially duplicated: first try to make the bodies identical with Substitute Algorithm ([substitute-algorithm.md](../encapsulation/substitute-algorithm.md)) and treat it as fully duplicated. Otherwise extract the common part with Extract Function ([extract-function.md](../first-set/extract-function.md)) and pull it up. If the method has the same steps with different implementations, use Form Template Method ([form-template-method.md](form-template-method.md)).
-   Compile and test after each step.
-4. Repeat step 3 for every other duplicated child-processing method.
-5. Check each client of a container: if it can talk to the container through the composite type, change it to do so. Compile and test.
+## Mecânica
+1. Crie o composite: uma nova classe na hierarquia, com nome que diga o que ela contém (por exemplo `CompositeItem`). Compile.
+2. Torne cada classe que mantém código duplicado de filhos (um contêiner de filhos) subclasse do composite. Compile.
+3. Pegue um método de processamento de filhos que esteja duplicado, total ou parcialmente, entre os contêineres.
+   - Se o nome dele difere entre os contêineres, uniformize-o com Mudar Declaração de Função (Change Function Declaration) ([change-function-declaration.md](../first-set/change-function-declaration.md)).
+   - Totalmente duplicado: mova o campo de filhos que ele usa para o composite com Subir Campo (Pull Up Field) ([pull-up-field.md](../inheritance/pull-up-field.md)), renomeando-o se o nome antigo servir a apenas um contêiner. Depois mova o método com Subir Método (Pull Up Method) ([pull-up-method.md](../inheritance/pull-up-method.md)). Se ele depender de código do construtor nos contêineres, suba esse código para o construtor do composite com Subir Corpo do Construtor (Pull Up Constructor Body) ([pull-up-constructor-body.md](../inheritance/pull-up-constructor-body.md)).
+   - Parcialmente duplicado: primeiro tente tornar os corpos idênticos com Substituir Algoritmo (Substitute Algorithm) ([substitute-algorithm.md](../encapsulation/substitute-algorithm.md)) e trate o método como totalmente duplicado. Caso contrário, extraia a parte comum com Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) e suba-a. Se o método tem os mesmos passos com implementações diferentes, use Formar Template Method (Form Template Method) ([form-template-method.md](form-template-method.md)).
+   Compile e teste após cada passo.
+4. Repita o passo 3 para cada outro método duplicado de processamento de filhos.
+5. Verifique cada cliente de um contêiner: se ele puder falar com o contêiner pelo tipo do composite, troque para isso. Compile e teste.
 
-## Example
-Before: `Box` and `Pallet` each keep their own list of child items, with the same `Add` and a near-identical `Weight`.
+## Exemplo
+Antes: `Box` e `Pallet` mantêm, cada um, a sua própria lista de itens filhos, com o mesmo `Add` e um `Weight` quase idêntico.
 
 ```csharp
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ public class Pallet : Item
 }
 ```
 
-After: `CompositeItem` owns the children, `Add` and the sum. Each container adds only its own tare weight.
+Depois: `CompositeItem` é dono dos filhos, do `Add` e da soma. Cada contêiner acrescenta apenas o seu próprio peso de tara.
 
 ```csharp
 using System.Collections.Generic;
@@ -90,11 +90,11 @@ public class Pallet : CompositeItem
 }
 ```
 
-## C# notes
-- Make the composite `abstract` when it has no meaning alone, as above. A composite that is also a valid leaf-less container can stay concrete.
-- Expose the children as `IReadOnlyList<Item>` if subclasses or clients need to read them; keep the list itself private ([encapsulate-collection.md](../encapsulation/encapsulate-collection.md)).
-- A cycle (a container added to itself or to one of its own descendants) makes `Weight` recurse forever. Guard `Add` if clients can build arbitrary trees.
+## Notas (C#)
+- Torne o composite `abstract` quando ele não faz sentido sozinho, como acima. Um composite que também faz sentido como contêiner sem folhas pode continuar concreto.
+- Exponha os filhos como `IReadOnlyList<Item>` se subclasses ou clientes precisarem lê-los; mantenha a própria lista privada, como em Encapsular Coleção (Encapsulate Collection) ([encapsulate-collection.md](../encapsulation/encapsulate-collection.md)).
+- Um ciclo (um contêiner adicionado a si mesmo ou a um de seus descendentes) faz `Weight` recursar para sempre. Proteja `Add` se os clientes puderem montar árvores arbitrárias.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Totals for nested containers (a box inside a pallet) match the old results, and no container still declares its own children field.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Os totais de contêineres aninhados (uma caixa dentro de um palete) batem com os resultados antigos, e nenhum contêiner ainda declara seu próprio campo de filhos.

@@ -1,28 +1,28 @@
-# Replace One/Many Distinctions with Composite
+# Substituir Distinções Um/Muitos por Composite (Replace One/Many Distinctions with Composite)
 
-Kerievsky (2004), ch. 8, p. 224. Direction: to. Pattern: Composite (GoF, p. 163).
+Kerievsky (2004), cap. 8, p. 224. Direção: até. Padrão: Composite (GoF, p. 163).
 
-## When to use
-Smells: Duplicated Code.
+## Quando usar
+Smells: Código Duplicado (Duplicated Code).
 
-- A class has one method that processes a single object and a near-twin that processes a collection of them. The two repeat the same logic.
-- Clients must pass different shapes of data depending on how many objects they have, so their code is not uniform.
-- Results cannot be combined well: for example, "A and B" is easy with a list, but "(A and B) or C" needs several calls and a manual merge of the results.
-- A composite lets one method handle one object, many objects, or a tree of them, so clients make a single call.
-- Do not use it when only the duplication bothers you and uniform clients and richer combinations do not matter: extracting the shared code may be enough, and a Composite would be overkill. The composite may also need runtime checks on what gets added, since the type system alone may not stop invalid children.
+- Uma classe tem um método que processa um único objeto e um quase gêmeo que processa uma coleção deles. Os dois repetem a mesma lógica.
+- Os clientes precisam passar formatos de dados diferentes conforme quantos objetos têm, então o código deles não é uniforme.
+- Os resultados não se combinam bem: por exemplo, "A e B" é fácil com uma lista, mas "(A e B) ou C" exige várias chamadas e uma mescla manual dos resultados.
+- Um composite permite que um único método trate um objeto, muitos objetos ou uma árvore deles, então os clientes fazem uma única chamada.
+- Não use quando só a duplicação incomoda e clientes uniformes e combinações mais ricas não importam: extrair o código compartilhado pode bastar, e um Composite seria exagero. O composite também pode precisar de checagens em tempo de execução sobre o que é adicionado, já que o sistema de tipos sozinho pode não impedir filhos inválidos.
 
-## Mechanics
-Call the method that takes one object the one-object method, and the one that takes a collection the many-object method.
+## Mecânica
+Chame o método que recebe um objeto de método de um-objeto, e o que recebe uma coleção de método de muitos-objetos.
 
-1. Create a composite class whose constructor takes the collection and which exposes it through a getter. In the many-object method, create an instance of it and read the collection only through that getter. Compile and test.
-2. Apply Extract Function ([extract-function.md](../first-set/extract-function.md)) to the code in the many-object method that works on the collection, make the new method public, and move it to the composite with Move Function ([move-function.md](../moving-features/move-function.md)). Compile and test.
-3. The many-object method should now be almost the same as the one-object method, except that it builds the composite. Remove any other differences. Compile and test.
-4. Reduce the many-object method to one line: a call to the one-object method with the composite as argument. For that, the composite must share a type with what the one-object method accepts: make it implement the same interface or base class (extract an interface if none exists; Extract Interface has no 2nd-edition counterpart, 1st ed. only). Compile and test.
-5. Inline the many-object method with Inline Function ([inline-function.md](../first-set/inline-function.md)). Compile and test.
-6. Apply Encapsulate Collection ([encapsulate-collection.md](../encapsulation/encapsulate-collection.md)) to the composite: clients now call `Add` instead of passing a collection to the constructor, and the getter returns a read-only view. Compile and test.
+1. Crie uma classe composite cujo construtor recebe a coleção e a expõe por um getter. No método de muitos-objetos, crie uma instância dela e leia a coleção somente pelo getter. Compile e teste.
+2. Aplique Extrair Função (Extract Function) ([extract-function.md](../first-set/extract-function.md)) ao código do método de muitos-objetos que trabalha sobre a coleção, torne o novo método público e mova-o para o composite com Mover Função (Move Function) ([move-function.md](../moving-features/move-function.md)). Compile e teste.
+3. O método de muitos-objetos agora deve ser quase igual ao de um-objeto, exceto por montar o composite. Remova quaisquer outras diferenças. Compile e teste.
+4. Reduza o método de muitos-objetos a uma linha: uma chamada ao método de um-objeto com o composite como argumento. Para isso, o composite precisa compartilhar um tipo com o que o método de um-objeto aceita: faça-o implementar a mesma interface ou classe base (extraia uma interface se não existir nenhuma; Extrair Interface (Extract Interface) só existe na 1ª ed., sem equivalente na 2ª). Compile e teste.
+5. Internalize o método de muitos-objetos com Internalizar Função (Inline Function) ([inline-function.md](../first-set/inline-function.md)). Compile e teste.
+6. Aplique Encapsular Coleção (Encapsulate Collection) ([encapsulate-collection.md](../encapsulation/encapsulate-collection.md)) ao composite: os clientes agora chamam `Add` em vez de passar uma coleção ao construtor, e o getter devolve uma visão somente leitura. Compile e teste.
 
-## Example
-Before: an order checker has a one-rule method and a many-rule method that repeat the same work.
+## Exemplo
+Antes: um verificador de pedidos tem um método para uma regra e outro para muitas regras, que repetem o mesmo trabalho.
 
 ```csharp
 using System.Collections.Generic;
@@ -65,7 +65,7 @@ public class OrderChecker
 }
 ```
 
-After: `AllOf` is a composite rule. `CheckAll` is gone and callers pass one rule, whether it is a single rule or a group.
+Depois: `AllOf` é uma regra composta. `CheckAll` deixou de existir, e os chamadores passam uma regra só, seja uma regra simples ou um grupo.
 
 ```csharp
 using System.Collections.Generic;
@@ -114,17 +114,17 @@ public class OrderChecker
     }
 }
 
-// A client now builds a group and makes one call:
+// Um cliente agora monta um grupo e faz uma chamada:
 //   var rules = new AllOf(); rules.Add(new MinimumTotal()); rules.Add(new DomesticOnly());
 //   var result = new OrderChecker().Check(order, rules);
 ```
 
-A sibling composite such as `AnyOf` (passes when at least one child passes) can now be added without touching `OrderChecker`; this is the "(A and B) or C" case the list version could not express in one call.
+Um composite irmão, como `AnyOf` (passa quando pelo menos um filho passa), agora pode ser acrescentado sem tocar em `OrderChecker`; é o caso "(A e B) ou C" que a versão com lista não conseguia expressar em uma chamada.
 
-## C# notes
-- The shared type can be an interface, as here, or an abstract base class. Prefer an interface when the single-object classes already have different bases.
-- Where a method takes `IEnumerable<T>` only to loop, check whether a composite is worth it: if clients never need nesting or other combinators, a `params`/`IEnumerable` overload with shared code may be enough.
+## Notas (C#)
+- O tipo compartilhado pode ser uma interface, como aqui, ou uma classe base abstrata. Prefira uma interface quando as classes de um-objeto já tiverem bases diferentes.
+- Quando um método recebe `IEnumerable<T>` apenas para percorrer, verifique se um composite compensa: se os clientes nunca precisarem de aninhamento ou de outros combinadores, uma sobrecarga com `params`/`IEnumerable` e código compartilhado pode bastar.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- The failures reported for a group are the same, in the same order, as `CheckAll` gave before, and `Check` with a single rule is unchanged.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- As falhas relatadas para um grupo são as mesmas, na mesma ordem, que `CheckAll` retornava antes, e `Check` com uma regra só não muda.

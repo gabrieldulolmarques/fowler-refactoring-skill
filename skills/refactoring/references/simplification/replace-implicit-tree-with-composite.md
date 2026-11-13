@@ -1,28 +1,28 @@
-# Replace Implicit Tree with Composite
+# Substituir Árvore Implícita por Composite (Replace Implicit Tree with Composite)
 
-Kerievsky (2004), ch. 7, p. 178. Direction: to. Pattern: Composite (GoF, p. 163).
+Kerievsky (2004), cap. 7, p. 178. Direção: até. Padrão: Composite (GoF, p. 163).
 
-## When to use
-Smells: Primitive Obsession.
+## Quando usar
+Smells: Obsessão por Primitivos (Primitive Obsession).
 
-- Data or logic forms a tree without being modeled as one: nested loops that print or total a hierarchy, strings assembled with hand-written indentation and closing markers, tuples and dictionaries standing in for nodes. Every change to the shape (a new level, a different format) means editing the construction code.
-- A Composite gives each part a class and lets parents treat all children through one interface, so formatting, totaling and closing are done once, by the nodes.
-- For conditional logic (a tree of `&&` / `||` tests) the refactoring only pays off when many similar conditions are piling up; that case is [replace-implicit-language-with-interpreter.md](../generalization/replace-implicit-language-with-interpreter.md).
-- If the client must build the same tree in several output forms, add a Builder on top afterwards ([encapsulate-composite-with-builder.md](../creation/encapsulate-composite-with-builder.md)).
-- Leave small, stable trees implicit. Liability: it complicates the design when building the tree by hand is simpler. It is fine to start implicit and refactor when the code starts to bloat.
+- Dados ou lógica formam uma árvore sem serem modelados como tal: laços aninhados que imprimem ou totalizam uma hierarquia, strings montadas com indentação escrita à mão e marcadores de fechamento, tuplas e dicionários fazendo papel de nós. Toda mudança no formato (um nível novo, outro layout) exige editar o código de construção.
+- Um Composite dá uma classe a cada parte e permite que os pais tratem todos os filhos por uma única interface, então formatação, totalização e fechamento são feitos uma vez, pelos próprios nós.
+- Para lógica condicional (uma árvore de testes `&&` / `||`), o refactoring só compensa quando muitas condições parecidas se acumulam; esse caso é [replace-implicit-language-with-interpreter.md](../generalization/replace-implicit-language-with-interpreter.md).
+- Se o cliente precisar montar a mesma árvore em várias formas de saída, adicione depois um Builder por cima ([encapsulate-composite-with-builder.md](../creation/encapsulate-composite-with-builder.md)).
+- Deixe árvores pequenas e estáveis implícitas. Desvantagem: complica o design quando montar a árvore à mão é mais simples. Não tem problema começar implícito e refatorar quando o código começar a inchar.
 
-## Mechanics
-Two paths work: apply refactorings to the existing code (Extract Class and friends), or grow the new classes test-first and then replace the old code. Use the second when the old code does not lend itself to extraction (for example, text built by concatenation).
+## Mecânica
+Dois caminhos funcionam: aplicar refatorações ao código existente (Extrair Classe e afins), ou fazer as novas classes crescerem guiadas por testes e depois substituir o código antigo. Use o segundo quando o código antigo não se presta a extração (por exemplo, texto montado por concatenação).
 
-1. Find an implicit leaf: a part of the tree that a class could represent. Create the leaf class, by [extract-class.md](../encapsulation/extract-class.md) or test-first. If the leaf has attributes, give the class the same ones so its full representation matches the old output. Compile and test.
-2. Replace each occurrence of the implicit leaf with an instance of the leaf class. Compile and test that the tree still behaves the same.
-3. Repeat for every other kind of leaf. Give all leaf classes a common interface with [extract-superclass.md](../inheritance/extract-superclass.md) or Extract Interface (1st ed. only; no link).
-4. Find an implicit parent: a part that holds leaves. Create the parent class, by extraction or test-first. Clients add children through the constructor or an `Add` method, and the parent treats every child only through the common interface. Make the parent implement that interface too if parents must contain parents, or if clients should not care which kind of node they hold.
-5. Replace each occurrence of the implicit parent with a parent instance holding the right leaves. Compile and test.
-6. Repeat for the remaining implicit parents. Allow parents inside parents only if the implicit parents really behave alike.
+1. Encontre uma folha implícita: uma parte da árvore que uma classe poderia representar. Crie a classe da folha, por [extract-class.md](../encapsulation/extract-class.md) ou guiado por testes. Se a folha tiver atributos, dê à classe os mesmos atributos, para que a representação completa corresponda à saída antiga. Compile e teste.
+2. Substitua cada ocorrência da folha implícita por uma instância da classe da folha. Compile e teste se a árvore ainda se comporta igual.
+3. Repita para cada outro tipo de folha. Dê a todas as classes de folha uma interface comum com [extract-superclass.md](../inheritance/extract-superclass.md) ou Extrair Interface (Extract Interface; só na 1ª ed.; sem link).
+4. Encontre um pai implícito: uma parte que guarda folhas. Crie a classe do pai, por extração ou guiado por testes. Os clientes adicionam filhos pelo construtor ou por um método `Add`, e o pai trata cada filho apenas pela interface comum. Faça o pai implementar essa interface também se pais precisarem conter pais, ou se os clientes não devem se importar com o tipo de nó que seguram.
+5. Substitua cada ocorrência do pai implícito por uma instância de pai contendo as folhas certas. Compile e teste.
+6. Repita para os demais pais implícitos. Permita pais dentro de pais só se os pais implícitos realmente se comportarem do mesmo jeito.
 
-## Example
-Before: a report over a fixed two-level shape (categories of expenses) built with loops and hard-coded indentation. Adding a sub-category or changing the layout means touching this method.
+## Exemplo
+Antes: um relatório sobre uma forma fixa de dois níveis (categorias de despesas) montado com laços e indentação fixa no código. Adicionar uma subcategoria ou mudar o layout exige mexer neste método.
 
 ```csharp
 using System.Collections.Generic;
@@ -55,7 +55,7 @@ public static class ExpenseReport
 }
 ```
 
-After: `Expense` is the leaf and `ExpenseGroup` the parent, both behind `IExpenseNode`. A group totals and indents its children itself, and a group can hold other groups, so a new level needs no change to the renderer. For the same two-level data the output is identical to the old method.
+Depois: `Expense` é a folha e `ExpenseGroup` é o pai, ambos atrás de `IExpenseNode`. Um grupo totaliza e indenta os próprios filhos, e um grupo pode conter outros grupos, então um novo nível não exige mudança no renderizador. Para os mesmos dados de dois níveis, a saída é idêntica à do método antigo.
 
 ```csharp
 using System.Collections.Generic;
@@ -116,7 +116,7 @@ public static class ExpenseReport
 }
 ```
 
-The client now builds the tree, and nesting is just another `ExpenseGroup` inside a group:
+O cliente agora monta a árvore, e aninhar é só mais um `ExpenseGroup` dentro de um grupo:
 
 ```csharp
 var travel = new ExpenseGroup("Travel",
@@ -125,12 +125,12 @@ var travel = new ExpenseGroup("Travel",
 string text = ExpenseReport.Render(new IExpenseNode[] { travel });
 ```
 
-## C# notes
-- A `record` is a convenient leaf. An interface is enough for the common type unless leaves and parents share code.
-- If the tree needs to be immutable, take the children in the constructor only and expose them as `IReadOnlyList<T>`; drop `Add`.
-- Recursion depth is the tree depth. For very deep trees, check that no node renders by recursing unboundedly.
+## Notas (C#)
+- Um `record` é uma folha conveniente. Uma interface basta para o tipo comum, a menos que folhas e pais compartilhem código.
+- Se a árvore precisar ser imutável, receba os filhos só no construtor e exponha-os como `IReadOnlyList<T>`; remova o `Add`.
+- A profundidade da recursão é a profundidade da árvore. Para árvores muito profundas, confirme que nenhum nó renderiza recursando sem limite.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Keep a test that compares the old output with the new for the same data (the "golden" text), and run it after each step.
-- Add one test with a nested parent, to prove the tree really composes.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Mantenha um teste que compara a saída antiga com a nova para os mesmos dados (o texto "golden"), e rode-o após cada passo.
+- Adicione um teste com um pai aninhado, para provar que a árvore realmente compõe.

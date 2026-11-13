@@ -1,33 +1,33 @@
-# Replace Conditional Dispatcher with Command
+# Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command)
 
-Kerievsky (2004), ch. 7, p. 191. Direction: to, towards. Pattern: Command (GoF, p. 233).
+Kerievsky (2004), cap. 7, p. 191. Direção: até, rumo a. Padrão: Command (GoF, p. 233).
 
-## When to use
-Smells: Switch Statements, Large Class, Long Method.
+## Quando usar
+Smells: Comandos Switch (Switch Statements), Classe Grande (Large Class), Método Longo (Long Method).
 
-- A conditional dispatcher is a `switch` or `if` chain that routes a request (a command name, a message type, an action code) to the code that handles it. A small one that fits on a screen, with short handlers, is fine as it is.
-- Two reasons to move to Command: the set of requests or handlers must be configurable at runtime (the hard-coded `switch` cannot be extended from outside), or the dispatcher and its handlers have grown so large that extracting methods no longer helps because the class is still too big.
-- Each handler becomes a command class with one common execution method. A map from request name to command instance replaces the `switch`, and the old class becomes the invoker.
-- Command also gives a place to add undo, queuing or logging later, but do not build for that before it is needed: this refactoring is easy to do when the need shows up.
-- Liability: it complicates the design when a plain dispatcher was enough.
+- Um despachante condicional é um `switch` ou uma cadeia de `if` que roteia uma requisição (um nome de comando, um tipo de mensagem, um código de ação) para o código que a trata. Um pequeno, que cabe na tela, com handlers curtos, pode ficar como está.
+- Dois motivos para migrar para Command: o conjunto de requisições ou de handlers precisa ser configurável em tempo de execução (o `switch` fixo no código não pode ser estendido de fora), ou o despachante e seus handlers cresceram tanto que extrair métodos já não ajuda, porque a classe continua grande demais.
+- Cada handler vira uma classe de comando com um método de execução comum. Um mapa do nome da requisição para a instância do comando substitui o `switch`, e a classe antiga passa a ser o invocador.
+- Command também abre espaço para desfazer, enfileirar ou registrar operações depois, mas não construa isso antes de precisar: esta refatoração é fácil de fazer quando a necessidade aparecer.
+- Desvantagem: complica o design quando um despachante simples bastaria.
 
-## Mechanics
-1. In the class that holds the dispatcher, take the code that handles one request and apply [extract-function.md](../first-set/extract-function.md) until one method runs that behavior: the execution method. Compile and test.
-2. Do the same for the remaining requests.
-3. Apply [extract-class.md](../encapsulation/extract-class.md) to each execution method, so each handler is a class: a concrete command. Its execution method will usually need to be public. If the method is long, apply [compose-method.md](compose-method.md). Compile and test. When all are done, look for duplication among the commands and, if you find it, apply [form-template-method.md](../generalization/form-template-method.md).
-4. Define the command type (an interface or abstract class) with the one execution signature all commands share. To choose it, compare the concrete commands:
-   - which data must be passed to the common method?
-   - which could be given to each command's constructor instead?
-   - which could the command fetch by calling back on a parameter?
-   - what is the simplest signature that fits all of them?
+## Mecânica
+1. Na classe que guarda o despachante, pegue o código que trata uma requisição e aplique [extract-function.md](../first-set/extract-function.md) até que um método execute esse comportamento: o método de execução. Compile e teste.
+2. Faça o mesmo com as demais requisições.
+3. Aplique [extract-class.md](../encapsulation/extract-class.md) a cada método de execução, para que cada handler seja uma classe: um comando concreto. O método de execução geralmente precisará ser público. Se o método for longo, aplique [compose-method.md](compose-method.md). Compile e teste. Quando todos estiverem prontos, procure duplicação entre os comandos e, se encontrar, aplique [form-template-method.md](../generalization/form-template-method.md).
+4. Defina o tipo de comando (uma interface ou classe abstrata) com a única assinatura de execução que todos os comandos compartilham. Para escolhê-la, compare os comandos concretos:
+   - quais dados precisam ser passados ao método comum?
+   - quais poderiam ser dados ao construtor de cada comando?
+   - quais o comando poderia buscar chamando de volta um parâmetro?
+   - qual é a assinatura mais simples que serve a todos?
 
-   You can start by applying [extract-superclass.md](../inheritance/extract-superclass.md) or Extract Interface (1st ed. only; no link) to one concrete command. Compile.
-5. Make every concrete command implement the command type, and make all client code use them through it. Compile and test.
-6. In the dispatcher's class, create and fill a command map: a dictionary of command instances keyed by the request identifier. If you have so many commands that registering them is a long list, load them from configuration instead (the Plugin pattern from Fowler's *Patterns of Enterprise Application Architecture*). Compile.
-7. Replace the conditional dispatch with a lookup in the map followed by a call to the command's execution method. The class is now the invoker. Compile and test.
+   Você pode começar aplicando [extract-superclass.md](../inheritance/extract-superclass.md) ou Extrair Interface (Extract Interface; só na 1ª ed.; sem link) a um comando concreto. Compile.
+5. Faça cada comando concreto implementar o tipo de comando, e faça todo o código cliente usá-los por meio dele. Compile e teste.
+6. Na classe do despachante, crie e preencha um mapa de comandos: um dicionário de instâncias de comando indexado pelo identificador da requisição. Se houver tantos comandos que registrá-los dá uma lista longa, carregue-os de uma configuração (o padrão Plugin, de *Patterns of Enterprise Application Architecture*, de Fowler). Compile.
+7. Substitua o despacho condicional por uma busca no mapa seguida de uma chamada ao método de execução do comando. A classe agora é o invocador. Compile e teste.
 
-## Example
-Before: one `switch` does the routing and the work of every handler.
+## Exemplo
+Antes: um único `switch` faz o roteamento e o trabalho de todos os handlers.
 
 ```csharp
 using System.Globalization;
@@ -68,7 +68,7 @@ public class OrderDesk
 }
 ```
 
-After: every request is a command class, and the desk is an invoker with a map. New commands can be registered at runtime, even from another assembly. The map keeps the old exact-match lookup (change the comparer on purpose, not as a side effect).
+Depois: cada requisição é uma classe de comando, e a mesa é um invocador com um mapa. Novos comandos podem ser registrados em tempo de execução, até de outro assembly. O mapa mantém a busca exata de antes (troque o comparador de propósito, não como efeito colateral).
 
 ```csharp
 using System.Collections.Generic;
@@ -142,12 +142,12 @@ public class OrderDesk
 }
 ```
 
-## C# notes
-- Where handlers are tiny, a `Dictionary<string, Func<Order, string[], string>>` is a lighter command type than a class per handler. Switch to classes when a handler needs its own state, dependencies or tests.
-- With dependency injection, inject `IEnumerable<IOrderCommand>` and let each command expose its name, instead of a long registration list.
-- Arguments come in as `string[]` here because the old signature did; a typed request object per command is a later step.
+## Notas (C#)
+- Onde os handlers são minúsculos, um `Dictionary<string, Func<Order, string[], string>>` é um tipo de comando mais leve do que uma classe por handler. Passe para classes quando um handler precisar de estado, dependências ou testes próprios.
+- Com injeção de dependência, injete `IEnumerable<IOrderCommand>` e deixe cada comando expor seu nome, em vez de uma longa lista de registro.
+- Os argumentos chegam como `string[]` aqui porque a assinatura antiga era assim; um objeto de requisição tipado por comando fica para um passo posterior.
 
-## Verification
-- Compiles and the tests pass after every step; one commit per refactoring.
-- Keep a test for each routed name, one for the unknown name, and (after step 7) one that registers a new command at runtime and runs it.
-- Check that no handler kept a reference to the dispatcher's private fields: commands should get what they need through the arguments.
+## Verificação
+- Compila e os testes passam após cada passo; um commit por refatoração.
+- Mantenha um teste para cada nome roteado, um para o nome desconhecido e (após o passo 7) um que registra um novo comando em tempo de execução e o executa.
+- Confirme que nenhum handler guardou referência aos campos privados do despachante: os comandos devem receber o que precisam pelos argumentos.
