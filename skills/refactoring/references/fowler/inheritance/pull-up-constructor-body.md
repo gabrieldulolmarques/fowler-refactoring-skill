@@ -154,7 +154,7 @@ prefix and detail, and each constructor calls it once its own field is set.
 public abstract class MediaItem
 {
     protected readonly string Title;
-    public string Label { get; private set; }
+    public string Label { get; private set; } = "";
 
     protected MediaItem(string title)
     {

@@ -21,8 +21,8 @@ With several independent flags, one method per combination is impractical, so ke
    - If the parameter is tangled through the body, make each explicit method a thin wrapper that calls the original with a fixed value.
 2. Compile and test.
 3. Replace each caller that passes a literal with a call to the matching explicit method. Compile and test after each caller (or small group).
-4. When no caller uses the parameter any more, delete the original method. If it stays as a wrapper target, reduce its visibility or rename it so it signals "internal" (for example a `Core` or `Impl` suffix).
-5. Compile and test.
+
+**Beyond the book:** when no caller uses the parameter any more, delete the original method. If it stays as a wrapper target, reduce its visibility or rename it so it signals "internal" (for example a `Core` or `Impl` suffix), then compile and test.
 
 ## Example
 Before:

@@ -109,7 +109,7 @@ public class PromotionClients
 }
 ```
 
-Same behavior: callers get the same values as before, and the write to a missing promotion is still a no-op.
+`Banner` is a fifth client that is not in the Before; it is added only to show a client that keeps its own explicit test. Apart from it, the behavior is the same: callers get the same values as before, and the write to a missing promotion is still a no-op.
 
 ## C# notes
 - With nullable reference types enabled, the special case removes `?` and null checks at the call sites: the property becomes non-nullable and never returns null.

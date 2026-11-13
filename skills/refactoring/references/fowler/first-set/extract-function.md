@@ -43,7 +43,7 @@ Envy, Message Chains, Data Class.
      function return it, as a query.
    - Several written values: do not extract yet. Simplify first with Split Variable
      ([split-variable.md](../organizing-data/split-variable.md)) or Replace Temp with Query ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)),
-     or choose another fragment. As a last resort, return a tuple or a small record.
+     or choose another fragment.
    - A parameter that the fragment reassigns: apply Split Variable first, so it becomes a
      temporary.
 4. Compile. This reveals any variable you missed.
@@ -52,8 +52,8 @@ Envy, Message Chains, Data Class.
 6. Run the tests.
 7. Search for the same or similar code elsewhere and replace it with a call
    ([replace-inline-code-with-function-call.md](../moving-features/replace-inline-code-with-function-call.md)).
-8. Optional closing touch: with the call in context, check the name again and tidy the
-   extracted function's local names.
+
+**Beyond the book:** if no other fragment works, a tuple or a small record can return several written values. After the call is in place, check the new name again in context and tidy the extracted function's local names.
 
 ## Example
 

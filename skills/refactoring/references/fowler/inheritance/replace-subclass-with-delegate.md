@@ -13,7 +13,7 @@ Smells: Insider Trading, Refused Bequest, Middle Man.
 - The subclass and superclass are so entangled that changing the parent keeps breaking the
   child, especially across modules or teams.
 
-When not to use: if inheritance fits well and none of the above applies, keep it. The result
+**Beyond the book:** if inheritance fits well and none of the above applies, keep it. The result
 has dispatch logic and a two-way reference, so the refactoring alone rarely makes the code
 simpler; the payoff is the freedom it buys. Prefer inheritance first and move to a delegate
 when it starts to hurt.
@@ -36,16 +36,16 @@ when it starts to hurt.
    its own method that the delegate can call, or turn the delegate method into an extension of
    the base result (the host passes its result in). Do not call the host's own virtual
    method from the delegate: that recurses forever. If the method exists only in the subclass,
-   dispatch with a sensible default for the no-delegate case. Test.
+   dispatch with a sensible default for the no-delegate case. If there is more than one
+   subclass and the delegates start duplicating code, apply Extract Superclass
+   ([extract-superclass.md](extract-superclass.md)) on the delegates. Test.
 7. If the method has no outside callers, just remove the subclass method (Remove Dead Code,
    [remove-dead-code.md](../moving-features/remove-dead-code.md)). Test.
 8. Repeat steps 5 to 7 for every member of the subclass.
-9. When several subclasses become delegates and defaults get duplicated, apply Extract
-   Superclass ([extract-superclass.md](extract-superclass.md)) on the delegates and always create some delegate,
-   so the host's dispatch needs no null check and delegates keep the default behavior.
-   Never branch on the delegate's concrete type.
-10. Change every construction of the subclass to build the superclass. Test.
-11. Delete the now empty subclass.
+9. Change every construction of the subclass to build the superclass. Test.
+10. Delete the now empty subclass.
+
+**Beyond the book:** when the delegates share a superclass, creating a delegate in every case lets the host dispatch without a null check, and the default delegate holds the default behavior. Do not branch on the delegate's concrete type.
 
 ## Example
 Before: student subscriptions are a subclass.

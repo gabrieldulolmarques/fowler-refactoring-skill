@@ -27,10 +27,8 @@ what you need.
 4. Move the arguments to the constructor one at a time: add a field and a constructor
    parameter, pass it from the forwarder, remove it from the method's parameter list and
    update its uses in the body. Compile and test after each one.
-5. Optionally, to enable decomposition: promote the local variables to fields, one at a time,
-   compiling and testing after each.
-6. Now apply Extract Function ([extract-function.md](../first-set/extract-function.md)) to the body; the new methods read
-   and write the fields directly.
+
+**Beyond the book:** to break the body up, as the example does, promote the local variables to fields one at a time, compiling and testing after each. Then apply Extract Function ([extract-function.md](../first-set/extract-function.md)) to the body; the new methods read and write the fields directly.
 
 ## Example
 Before: a function that prices a campaign, with several interacting locals.
@@ -86,7 +84,7 @@ public static class Billing
 }
 ```
 
-After steps 1 to 4 (the forwarder stays, the command owns the arguments):
+After step 4 (the forwarder stays, the command owns the arguments):
 
 ```csharp
 public static class Billing
@@ -124,7 +122,7 @@ public class CampaignCostCalculator
 }
 ```
 
-After steps 5 and 6 (locals promoted to fields, then pieces extracted):
+After promoting the locals and extracting (locals promoted to fields, then pieces extracted):
 
 ```csharp
 public class CampaignCostCalculator
@@ -164,7 +162,7 @@ public class CampaignCostCalculator
 ```
 
 Behavior is the same at every stage. Note that `Execute` now mutates fields, so a command
-instance is single-use unless the fields are reset at the start of `Execute`.
+instance can be run again, since `Execute` resets every field it reads, but it is not thread-safe.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

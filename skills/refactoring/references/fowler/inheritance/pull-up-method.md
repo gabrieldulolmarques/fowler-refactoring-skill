@@ -17,7 +17,7 @@ the copies are hard to find later.
 - If the methods share an overall flow but differ in some steps, the right tool is a template
   method in the superclass, with the varying steps left as overridable members.
 
-Do not use it when the behavior is genuinely different per subclass, or when the superclass
+**Beyond the book:** do not use it when the behavior is genuinely different per subclass, or when the superclass
 should not know the concept (the method would then be a Refused Bequest for other siblings).
 
 ## Mechanics

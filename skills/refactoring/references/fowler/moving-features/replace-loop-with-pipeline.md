@@ -84,7 +84,7 @@ public class DelayReport
 }
 ```
 
-The limit counts results, not items read, so `Take` goes after the filters.
+The limit counts results, not items read, so `Take` goes after the filters. Precondition: `limit >= 0`; for a negative limit the loop returned every match, while `Take` returns none.
 
 ## C# notes
 - Use LINQ: `Where` for filter, `Select` for map, `Skip`/`Take` for slice, `ToList()` or

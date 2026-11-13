@@ -17,7 +17,7 @@ Assigning to an input parameter is a common case: the parameter is both the inpu
 1. Pick the first value the variable holds. At its declaration and first assignment, rename the variable to a name that describes only that first use.
 2. Update every reference that reads this first value, stopping before the second assignment.
 3. Compile and test.
-4. At the second assignment, declare a new variable and name it for that second use.
+4. At the second assignment, declare a new variable and name it for that second use. If the language allows, declare it immutable (C# has no immutable locals; see the C# notes).
 5. Repeat steps 2 to 4 for each later assignment, testing after each stage. At the final assignment the original name has no references left.
 6. For a parameter: declare a local initialized from the parameter at the top of the function, rename the parameter to say it is the original input, and point the reads that mean the original input at the parameter. Then continue with the steps above on the local, renaming it to say what it holds.
 

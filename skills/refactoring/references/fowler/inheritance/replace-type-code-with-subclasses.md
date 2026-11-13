@@ -21,9 +21,9 @@ Do not use it when the code is only data that no behavior depends on; a plain en
 3. Add selection logic that maps the incoming code to the subclass. With direct inheritance, make construction a factory ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)) and put the selection there. With indirect inheritance, the selection can stay in the owner's constructor or setter. While some codes still lack a subclass, keep the base class concrete and let the selection fall back to it.
 4. Build and test. To be sure the tests exercise the new subclass, change its returned value for a moment and check that a test fails, then restore it.
 5. Repeat steps 2 to 4 for each remaining code value, testing after each. The base class stays concrete until the last one is done.
-6. Once every value has a subclass, remove the stored type code field and the base getter. Make unknown codes fail in the selection logic (default branch throws), then drop any separate validation. Build and test.
+6. Once every value has a subclass, remove the stored type code field. Keep the getter for now: the subclasses override it, so in C# it becomes `abstract` (or stays `virtual`) on the base class. Make unknown codes fail in the selection logic (default branch throws), then drop any separate validation. Build and test.
 7. Remove the now unused code parameter from the constructor ([change-function-declaration.md](../first-set/change-function-declaration.md)).
-8. For each method that uses the type getter, push it down into the subclasses and replace the conditional with polymorphism. When nothing reads the getter any more, delete it ([remove-dead-code.md](../moving-features/remove-dead-code.md)). Test after each method.
+8. For each method that uses the type getter, push it down into the subclasses and replace the conditional with polymorphism. When nothing reads the getter any more, delete it, including the overrides in the subclasses ([remove-dead-code.md](../moving-features/remove-dead-code.md)). Test after each method.
 
 With indirect inheritance, a mutable kind means a setter that re-runs the selection and swaps the type object. With it, the empty type base class may stay: it documents the family and is a natural home for logic shared by the kinds.
 

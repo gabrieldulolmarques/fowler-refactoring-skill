@@ -25,13 +25,13 @@ Mostly opportunistically, as part of other work (ch. 2, pp. 50-53):
 - **Preparatory:** just before adding a feature or fixing a bug, reshape the code so the change becomes easy.
 - **Comprehension:** when you had to puzzle over code, put what you learned back into the code (names, structure).
 - **Litter pickup:** small cleanups on the way; note larger ones and come back.
-- **Planned/long-term:** rare; spread large efforts across everyday changes instead of one block of time.
+- **Planned/long-term:** not always wrong, but the book prefers spreading large efforts across everyday changes instead of one block of time.
 
 ## The loop
 
 1. **Green baseline.** Run the tests. Do not begin or carry on while any test fails. If a failure shows up mid-way, go back to the last passing version.
 2. **One small step** from the refactoring's mechanics.
-3. **Compile and run the tests.** Compiling alone is not enough: references by name, reflection and serialized data are invisible to the compiler.
+3. **Compile and run the tests.**
 4. **Commit** after each refactoring that is done and green. Commit more often if a step is risky. Keeping refactoring commits apart from feature commits is a default, not a law: the book (p. 53) leaves it to the team. The default has a practical payoff, since each refactoring commit becomes a safe point to revert to.
 5. **Repeat** with the next smell.
 
@@ -54,11 +54,14 @@ Refactoring needs self-checking tests: they run on their own and report pass/fai
 
 - Code you do not need to change: ugly but stable code can stay as it is.
 - Code that is easier to rewrite than to reshape: start over instead of a long chain of steps (ch. 2, p. 55).
-- Renaming or changing a published interface (used by code you cannot edit, such as a package or other teams) needs a transition: keep the old one forwarding to the new one for a while (ch. 2, p. 57).
+
+A published interface (used by code you cannot edit, such as a package or other teams) is not a reason to skip refactoring, but changing it needs a transition: keep the old one forwarding to the new one for a while (ch. 2, p. 57).
 
 ## Beyond the book: legacy code without tests
 
 Not from Fowler's ch. 2-4.
+
+Compiling alone is not enough after a step: references by name, reflection and serialized data are invisible to the compiler, so run the tests too.
 
 A **characterization test** pins down what code does today (assert the current output), even if that output looks odd. Use it before restructuring code that has no tests.
 

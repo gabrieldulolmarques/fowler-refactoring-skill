@@ -8,9 +8,10 @@ Smell: Mutable Data. A variable holds a value that is fully determined by other 
 has to remember to update the variable. Miss one update and the two disagree. Computing the
 value when it is read removes that whole class of bugs and often states what the value means.
 
-Do not apply it when the source data is immutable and the derived result can be immutable
-too: building a new structure from it once is fine to keep. Also reconsider when the
-calculation is expensive and read very often; measure before giving up the stored value.
+The exception is when the source data is immutable and the derived result can be immutable
+too: building a new structure from it once is fine to keep.
+
+**Beyond the book:** reconsider when the calculation is expensive and read very often; measure before giving up the stored value.
 
 ## Mechanics
 1. Find every place that assigns or updates the variable. If one variable mixes several
@@ -71,7 +72,7 @@ public double UsedKwh
     get
     {
         Debug.Assert(_usedKwh == CalculatedUsedKwh);
-        return CalculatedUsedKwh;
+        return _usedKwh;
     }
 }
 

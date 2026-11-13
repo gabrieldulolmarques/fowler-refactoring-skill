@@ -90,7 +90,7 @@ Scope drives severity: a variable mutated within a couple of lines is harmless; 
 - Extract Class ([extract-class.md](encapsulation/extract-class.md)), on the fields first
 - Introduce Parameter Object ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), then on signatures
 - Preserve Whole Object ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), then on signatures
-- Prefer a class (or record) that can later gain behavior, not a bare data holder or tuple
+- Beyond the book: prefer a class (or record) that can later gain behavior, not a bare data holder or tuple
 - Still worth extracting when a caller needs only part of the new object, provided the object absorbs two or more of that caller's fields or arguments
 
 ## Primitive Obsession (p. 78)
@@ -175,6 +175,7 @@ Scope drives severity: a variable mutated within a couple of lines is harmless; 
 - Remove Setting Method ([remove-setting-method.md](refactoring-apis/remove-setting-method.md)), for fields that must not change
 - Move Function ([move-function.md](moving-features/move-function.md)), to bring client behavior into the class
 - Extract Function ([extract-function.md](first-set/extract-function.md)), to isolate a movable piece first
+- Split Phase ([split-phase.md](first-set/split-phase.md)), listed for this smell in the book's table, but the chapter treats the result record of a Split Phase as an exception to it, so it is not a remedy for an ordinary data class
 
 ## Refused Bequest (p. 83)
 **Symptoms:** a subclass uses little of what it inherits. Usually a faint smell; strong when the subclass refuses the parent's interface and not just its implementation.

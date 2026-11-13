@@ -44,7 +44,7 @@ using System;
 
 public class Device
 {
-    public string Rev;       // actually the firmware version
+    public string Rev = "";     // actually the firmware version
     public int SamplingSeconds;
 }
 
@@ -64,7 +64,7 @@ caller keeps compiling because it goes through the property setters:
 ```csharp
 public class Device
 {
-    private string _firmwareVersion;
+    private string _firmwareVersion = "";
     private int _samplingSeconds;
 
     public string Rev
@@ -87,7 +87,7 @@ mechanics step 4 has nothing to do here:
 ```csharp
 public class Device
 {
-    private string _firmwareVersion;
+    private string _firmwareVersion = "";
     private int _samplingSeconds;
 
     public string FirmwareVersion

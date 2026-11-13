@@ -11,15 +11,14 @@ Smells: Repeated Switches, Primitive Obsession, Long Function.
 A plain `if`/`switch` is usually enough. Use this when the same conditional is repeated or hard to follow and the cases are real kinds.
 
 ## Mechanics
-1. Optional first step: if the logic is spread over free functions, group them first with [combine-functions-into-class.md](../first-set/combine-functions-into-class.md).
-2. If no classes exist for the cases, create them: a base class (or interface) with one subclass per case, plus a factory function that returns the right instance.
-3. Change callers to get the object from the factory instead of constructing it or passing the type code around. Compile and test.
-4. If the conditional is not already a self-contained method, isolate it with [extract-function.md](../first-set/extract-function.md), then place that method on the base class.
-5. Pick one case. Add an override in its subclass containing that branch's logic, adjusted to use the subclass's own members. Optionally make the matching branch in the base method throw, so a test fails if it is still reached. Compile and test.
-6. Repeat step 5 for every branch, testing after each.
-7. Decide what the base method does. Keep the default branch as the base implementation, or, if the base class should never be used alone, make the method `abstract`. If the base stays concrete, the factory must return the base class for unknown values; if it is abstract, the factory must reject them.
-8. Remove the now-empty `switch` and, if nothing else uses it, the type code. Keep the code as a property until its last reader is gone.
-9. For a base-and-variant case, you may need to extract the varying part of a large method first, so the subclass can override only that part and call `base` for the rest. Name the extracted pieces after what they mean, not after the case.
+1. If no classes exist for the cases, create them: a base class (or interface) with one subclass per case, plus a factory function that returns the right instance.
+2. Change callers to get the object from the factory instead of constructing it or passing the type code around. Compile and test.
+3. If the conditional is not already a self-contained method, isolate it with [extract-function.md](../first-set/extract-function.md), then place that method on the base class.
+4. Pick one case. Add an override in its subclass containing that branch's logic, adjusted to use the subclass's own members. Optionally make the matching branch in the base method throw, so a test fails if it is still reached. Compile and test.
+5. Repeat step 4 for every branch, testing after each.
+6. Decide what the base method does. Keep the default branch as the base implementation, or, if the base class should never be used alone, make the method `abstract`. If the base stays concrete, the factory must return the base class for unknown values; if it is abstract, the factory must reject them.
+
+**Beyond the book:** if the logic is spread over free functions, group them first with [combine-functions-into-class.md](../first-set/combine-functions-into-class.md). When the last branch has moved, remove the now-empty `switch` and, if nothing else uses it, the type code; keep the code as a property until its last reader is gone. For a base-and-variant case, you may need to extract the varying part of a large method first, so the subclass can override only that part and call `base` for the rest; name the extracted pieces after what they mean, not after the case.
 
 ## Example
 Before: two methods switch on the same shipping method.
@@ -140,4 +139,4 @@ public class OversizedParcelQuote : ParcelQuote
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
-- Each moved branch has a test that fails if the override is removed (if you used the optional throw in step 5, the base method throws until the last branch is moved).
+- Each moved branch has a test that fails if the override is removed (if you used the optional throw in step 4, the base method throws until the last branch is moved).

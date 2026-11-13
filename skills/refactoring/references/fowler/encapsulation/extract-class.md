@@ -11,8 +11,8 @@ Smells: Large Class, Divergent Change, Data Clumps, Primitive Obsession, Tempora
 - Test: remove one field or method in your head. If other members become meaningless, they belong in the same extracted class.
 - Subtyping or variation affects only some of the class's features, or different features vary in different ways.
 
-Do not use it when the pieces are tightly entangled with the rest and there is no clear
-responsibility to name. Also skip it for a class that is small and cohesive.
+**Beyond the book:** do not use it when the pieces are tightly entangled with the rest and there is no clear
+responsibility to name, or for a class that is small and cohesive.
 
 ## Mechanics
 1. Decide which responsibility to split off and name it.

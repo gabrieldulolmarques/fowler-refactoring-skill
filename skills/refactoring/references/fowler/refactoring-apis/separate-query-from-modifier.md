@@ -8,9 +8,8 @@ is hard to trust: a caller cannot call it freely, repeat it, move it, or test it
 triggering the effect. A function with no observable side effects can be called any number
 of times and in any order.
 
-Follow command-query separation: a method that returns a value should not change
-observable state, and a method that changes state should not return a computed answer. Split
-any method that does both.
+Follow command-query separation, at least most of the time: a method that returns a value
+should not have observable side effects. Split a method that does both.
 
 Not a violation: a query that updates a private cache for speed. The change is not
 observable, since every sequence of calls returns the same results. Leave those alone.
@@ -101,7 +100,7 @@ public class MailingListService
 // Console.WriteLine($"First bouncing: {id}");
 ```
 
-Note that the command now runs the search again. That is the usual cost of the split; if
+Assumption: no subscriber has an empty `Id`, since `""` means "none found". Note that the command now runs the search again. That is the usual cost of the split; if
 the query is expensive, accept it, cache it invisibly, or pass the found value to the
 command instead.
 

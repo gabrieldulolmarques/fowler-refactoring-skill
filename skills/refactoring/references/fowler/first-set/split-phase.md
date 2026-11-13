@@ -9,7 +9,7 @@ Smells: Divergent Change, Shotgun Surgery.
 - A fragment does two different things in sequence, and the output of the first is the input of the second: parse then compute, compute then format, validate then execute.
 - The inputs do not match the model the main logic needs, so the logic is cluttered with conversion work.
 - If the first lines and the last lines touch unrelated variables and helper calls, they are probably two phases.
-- Worth it when changes are coming to either concern. If the two parts will never change independently, a plain Extract Function may be enough.
+- Worth it when changes are coming to either concern.
 - The phases can be functions, or larger modules. A phase may also be a small object (for example a transformer) instead of a function.
 
 ## Mechanics
@@ -22,7 +22,8 @@ Smells: Divergent Change, Shotgun Surgery.
    - If a parameter should not be known to the second phase at all, compute the value it feeds in the first phase, store the result in a field, and move the line that fills it back to the caller ([move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)).
    - Parameters used only by the second phase stay as parameters.
 6. What remains in the original function is now the first phase. Turn it into a function of its own whose result is the intermediate structure ([extract-function.md](extract-function.md)), then compile and test. If the first phase grows helpers that share its inputs, it can be an object instead (a transformer) whose method returns the intermediate structure; see the variation below.
-7. Optionally tidy: inline leftover temporaries in the orchestrating function so it reads as "run phase one, feed phase two".
+
+**Beyond the book:** if the two parts will never change independently, a plain Extract Function may be enough. Afterwards, inline leftover temporaries in the orchestrating function so it reads as "run phase one, feed phase two".
 
 ## Example
 
@@ -195,7 +196,7 @@ Same output as before, including an empty cart (shipping is still `4.90`, as in 
 
 ## C# notes
 
-- The intermediate data structure is usually a `record` (or a `readonly record struct` for small, hot data; C# 9+, and on Unity it needs an `IsExternalInit` shim). Immutability keeps the phases from reaching into each other's state.
+- The intermediate data structure is usually a `record` (`record` is C# 9; `record struct` and `readonly record struct`, for small, hot data, are C# 10; on Unity `record` needs an `IsExternalInit` shim). Immutability keeps the phases from reaching into each other's state.
 
 ## Verification
 

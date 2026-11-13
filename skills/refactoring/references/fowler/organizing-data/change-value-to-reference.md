@@ -21,10 +21,8 @@ Not worth it when the entity is never updated: copies are then harmless, and a v
    instance, usually the identifier already present in its input.
 3. Change the host's constructor (or the code that creates it) to ask the repository for the
    instance instead of calling `new`. Compile and test after each constructor you change.
-4. Decide how the repository is filled: created on first request, or pre-loaded so that an
-   unknown id is an error. Make the host's behavior match that choice.
-5. If the repository is a global, consider passing it in as a constructor parameter so the host
-   is not coupled to shared state.
+
+**Beyond the book:** decide how the repository is filled: created on first request, or pre-loaded so that an unknown id is an error, and make the host's behavior match that choice. If the repository is a global, consider passing it in as a constructor parameter so the host is not coupled to shared state.
 
 ## Example
 Before: every reading builds its own `Sensor`, so two readings from the same sensor hold two

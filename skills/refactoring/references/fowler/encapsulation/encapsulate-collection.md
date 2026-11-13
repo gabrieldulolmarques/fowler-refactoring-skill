@@ -32,8 +32,9 @@ safe collection, and pick one protection (copy or read-only view) for every gett
 6. Search for any remaining `Add`/`Remove` on the getter, then change it to return a
    protected view: a copy, or a read-only wrapper. With a copy, a stray write is lost
    silently, which is why the search comes first.
-7. Run the tests. Anything that still tried to modify the collection now fails to compile
-   or fails loudly.
+7. Run the tests. With a read-only wrapper, anything that still tried to modify the collection
+   now fails visibly. With a copy, the write is lost silently, so only a test that checks the
+   resulting contents catches it.
 
 ## Example
 Before:

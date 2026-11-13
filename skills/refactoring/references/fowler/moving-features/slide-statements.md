@@ -9,7 +9,7 @@ Smells: Duplicated Code, Mutable Data (and as a step inside Long Function).
 - You want to extract a group of lines but they are interleaved with other code. Sliding them together first makes the extraction possible.
 - The same statements appear at the start or end of every branch of a conditional.
 
-Not worth it if the slide cannot be made safe in small steps: do other preparation first (for example Split Variable on a reused variable) and come back.
+**Beyond the book:** not worth it if the slide cannot be made safe in small steps: do other preparation first (for example Split Variable on a reused variable) and come back.
 
 ## Mechanics
 1. Choose the target position for the fragment (the statement or block you will move).

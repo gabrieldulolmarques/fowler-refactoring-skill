@@ -11,12 +11,7 @@ Smells: Long Function.
   parameters. Once the temps are queries, the pieces can be extracted freely.
 - The same value is computed the same way in several methods of a class.
 
-Do not use it when:
-- The variable is a snapshot of a value that changes later (an "old value" kept on purpose). The
-  query would return a different result at the point of use.
-- The variable is assigned in a way that cannot be gathered into one calculation.
-- The code is outside a class and the query would need many parameters; the gain disappears.
-- The calculation is expensive and used many times in a hot path; measure first or keep the temp.
+**Beyond the book:** skip it when the variable is a snapshot of a value that changes later (an "old value" kept on purpose), since the query would return a different result at the point of use; when the variable is assigned in a way that cannot be gathered into one calculation; or when the code is outside a class and the query would need many parameters. If the calculation is expensive and used many times in a hot path, measure first or keep the temp.
 
 ## Mechanics
 1. Make sure the value is settled before its first read and cannot differ on a later read of

@@ -34,7 +34,7 @@ public class Plan
 
 public class Subscription
 {
-    public Plan Plan { get; set; }
+    public Plan Plan { get; set; } = null!;
 }
 
 public static class Client
@@ -52,7 +52,7 @@ After: `Subscription` hides `Plan`.
 ```csharp
 public class Subscription
 {
-    private Plan _plan;
+    private Plan _plan = null!;
 
     public Plan Plan { get => _plan; set => _plan = value; } // removed in step 4
     public decimal MonthlyPrice => _plan.MonthlyPrice;

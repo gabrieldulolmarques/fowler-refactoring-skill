@@ -8,7 +8,7 @@ Smells: Mysterious Name, Alternative Classes with Different Interfaces, Speculat
 - The name does not tell a reader what the function does. Rename as soon as you know a better name; a good trick is to write a comment describing the purpose and turn it into the name.
 - A parameter ties the function to a type it does not really need (pass the value, not the whole object) so it can be reused elsewhere and the coupling drops.
 - The opposite case: a function needs more of an object than one value, and passing the object keeps callers stable when the logic grows.
-- A parameter is unused, or a new one is needed.
+- A new parameter is needed. (An unused parameter as a reason comes from the Speculative Generality smell, not from this refactoring's motivation.)
 
 There is no permanently right choice of parameters; the declaration should follow your current understanding, so expect to change it again.
 
