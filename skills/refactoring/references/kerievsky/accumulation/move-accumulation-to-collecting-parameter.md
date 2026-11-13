@@ -20,32 +20,58 @@ Smells: Método Longo (Long Method).
 Quando um passo também produz um valor que o chamador precisa (um subtotal, por exemplo), o método extraído pode devolver esse valor também. O resultado que está sendo construído continua passando pelo parâmetro.
 
 ## Exemplo
-Antes: um método monta o texto, concatenando em uma string enquanto também calcula o total.
+Antes: um método monta o texto CSV, concatenando em uma string enquanto também calcula o total.
 
 ```csharp
-public record Line(string Sku, int Qty, decimal UnitPrice);
-public record Invoice(string Number, string Customer, IReadOnlyList<Line> Lines, decimal Discount);
+using System.Collections.Generic;
 
-public class InvoiceRenderer
+public class ExportRow
 {
-    public string Render(Invoice invoice)
+    public string Id { get; }
+    public string Label { get; }
+    public decimal Amount { get; }
+
+    public ExportRow(string id, string label, decimal amount)
+    {
+        Id = id;
+        Label = label;
+        Amount = amount;
+    }
+}
+
+public class ExportBatch
+{
+    public string Name { get; }
+    public IReadOnlyList<ExportRow> Rows { get; }
+    public decimal Fee { get; }
+
+    public ExportBatch(string name, IReadOnlyList<ExportRow> rows, decimal fee)
+    {
+        Name = name;
+        Rows = rows;
+        Fee = fee;
+    }
+}
+
+public class CsvExporter
+{
+    public string Export(ExportBatch batch)
     {
         var text = "";
-        text += $"Invoice {invoice.Number}\n";
-        text += $"Customer: {invoice.Customer}\n";
+        text += $"# {batch.Name}\n";
+        text += "id,label,amount\n";
         decimal total = 0m;
-        foreach (var line in invoice.Lines)
+        foreach (var row in batch.Rows)
         {
-            var amount = line.Qty * line.UnitPrice;
-            text += $"{line.Sku} x{line.Qty} = {amount:F2}\n";
-            total += amount;
+            text += $"{row.Id},{row.Label},{row.Amount:F2}\n";
+            total += row.Amount;
         }
-        if (invoice.Discount > 0m)
+        if (batch.Fee > 0m)
         {
-            text += $"Discount: -{invoice.Discount:F2}\n";
-            total -= invoice.Discount;
+            text += $"fee,,-{batch.Fee:F2}\n";
+            total -= batch.Fee;
         }
-        text += $"Total: {total:F2}\n";
+        text += $"total,,{total:F2}\n";
         return text;
     }
 }
@@ -56,48 +82,47 @@ Depois: o `StringBuilder` é criado uma vez e passado a cada passo. Os passos qu
 ```csharp
 using System.Text;
 
-public class InvoiceRenderer
+public class CsvExporter
 {
-    public string Render(Invoice invoice)
+    public string Export(ExportBatch batch)
     {
         var text = new StringBuilder();
-        WriteHeader(invoice, text);
-        var total = WriteLines(invoice, text);
-        total -= WriteDiscount(invoice, text);
-        text.Append($"Total: {total:F2}\n");
+        WriteHeader(batch, text);
+        var total = WriteRows(batch, text);
+        total -= WriteFee(batch, text);
+        text.Append($"total,,{total:F2}\n");
         return text.ToString();
     }
 
-    private static void WriteHeader(Invoice invoice, StringBuilder text)
+    private static void WriteHeader(ExportBatch batch, StringBuilder text)
     {
-        text.Append($"Invoice {invoice.Number}\n");
-        text.Append($"Customer: {invoice.Customer}\n");
+        text.Append($"# {batch.Name}\n");
+        text.Append("id,label,amount\n");
     }
 
-    private static decimal WriteLines(Invoice invoice, StringBuilder text)
+    private static decimal WriteRows(ExportBatch batch, StringBuilder text)
     {
         decimal total = 0m;
-        foreach (var line in invoice.Lines)
+        foreach (var row in batch.Rows)
         {
-            var amount = line.Qty * line.UnitPrice;
-            text.Append($"{line.Sku} x{line.Qty} = {amount:F2}\n");
-            total += amount;
+            text.Append($"{row.Id},{row.Label},{row.Amount:F2}\n");
+            total += row.Amount;
         }
         return total;
     }
 
-    private static decimal WriteDiscount(Invoice invoice, StringBuilder text)
+    private static decimal WriteFee(ExportBatch batch, StringBuilder text)
     {
-        if (invoice.Discount <= 0m) return 0m;
-        text.Append($"Discount: -{invoice.Discount:F2}\n");
-        return invoice.Discount;
+        if (batch.Fee <= 0m) return 0m;
+        text.Append($"fee,,-{batch.Fee:F2}\n");
+        return batch.Fee;
     }
 }
 ```
 
 ## Notas (C#)
-- `string` é imutável, então o passo 1 geralmente significa `StringBuilder`. Para listas, um `ICollection<T>` ou `List<T>` passado como argumento funciona do mesmo modo.
+- `string` é imutável, então o passo 1 normalmente significa `StringBuilder`. Para listas, um `ICollection<T>` ou `List<T>` passado como parâmetro funciona do mesmo jeito.
 - Quando o parâmetro só recebe texto, um parâmetro `TextWriter` permite que o chamador escolha o destino (uma string, um arquivo, um stream) e evita um `ToString()` final.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- A saída é byte a byte igual à anterior para algumas entradas representativas, incluindo os casos vazio e com desconto.
+- A saída é byte a byte igual à anterior para alguns casos representativos, incluindo os casos vazio e com taxa.

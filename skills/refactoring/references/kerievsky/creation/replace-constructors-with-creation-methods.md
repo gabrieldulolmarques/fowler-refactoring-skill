@@ -5,7 +5,7 @@ Kerievsky (2004), cap. 6, p. 57. Padrão: Creation Method. Direção: até.
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code), Obsessão por Primitivos (Primitive Obsession).
 
-- Uma classe tem vários construtores, e os chamadores precisam ler listas de parâmetros ou corpos de construtores para escolher o certo. Uma chamada como `new Subscription("Acme", 20m, 6)` não diz que tipo de assinatura constrói.
+- Uma classe tem vários construtores, e os chamadores precisam ler listas de parâmetros ou corpos de construtores para escolher o certo. Uma chamada como `new ClientOptions("https://api.example.com", 30, 1.5)` não diz que tipo de cliente configura.
 - Dois tipos de instância precisam dos mesmos tipos de parâmetro, então o segundo construtor não pode ser escrito. Métodos com nome não têm esse limite.
 - Construtores que ninguém chama tendem a sobreviver porque são difíceis de buscar. Um método de criação com nome é fácil de buscar, então código de criação morto fica mais fácil de achar e apagar.
 - Um Creation Method é qualquer método estático ou de instância que devolve uma nova instância. Todo Factory Method é um, mas o inverso não vale (veja [introduce-polymorphic-creation-with-factory-method.md](introduce-polymorphic-creation-with-factory-method.md)).
@@ -22,61 +22,72 @@ Smells: Código Duplicado (Duplicated Code), Obsessão por Primitivos (Primitive
 6. Torne não público todo construtor que não tenha chamadores fora da classe. Compile.
 
 ## Exemplo
-Antes: quatro construtores que diferem apenas nos valores padrão que preenchem. Dois deles recebem um número, então os chamadores precisam observar o tipo (`int` ou `decimal`) para obter o certo.
+Antes: quatro construtores que diferem apenas nos padrões que preenchem. Dois deles recebem um único número, então quem chama precisa observar o tipo (`int` ou `double`) para obter o certo.
 
 ```csharp
-public class Subscription
+public class ClientOptions
 {
-    private readonly string _customer;
-    private readonly decimal _monthlyFee;
-    private readonly int _months;
-    private readonly decimal _discount;
+    private readonly string _baseUrl;
+    private readonly int _timeoutSeconds;
+    private readonly double _backoffFactor;
 
-    public Subscription(string customer, decimal monthlyFee) : this(customer, monthlyFee, 12, 0m) { }
-    public Subscription(string customer, decimal monthlyFee, int months) : this(customer, monthlyFee, months, 0m) { }
-    public Subscription(string customer, decimal monthlyFee, decimal discount) : this(customer, monthlyFee, 12, discount) { }
-    public Subscription(string customer, decimal monthlyFee, int months, decimal discount)
+    public ClientOptions(string baseUrl) : this(baseUrl, 30, 2.0) { }
+    public ClientOptions(string baseUrl, int timeoutSeconds) : this(baseUrl, timeoutSeconds, 2.0) { }
+    public ClientOptions(string baseUrl, double backoffFactor) : this(baseUrl, 30, backoffFactor) { }
+    public ClientOptions(string baseUrl, int timeoutSeconds, double backoffFactor)
     {
-        _customer = customer; _monthlyFee = monthlyFee; _months = months; _discount = discount;
+        _baseUrl = baseUrl; _timeoutSeconds = timeoutSeconds; _backoffFactor = backoffFactor;
     }
 
-    public decimal Total => _monthlyFee * _months * (1 - _discount);
+    public string Describe() => $"{_baseUrl} timeout={_timeoutSeconds}s backoff={_backoffFactor}";
 }
 
-var a = new Subscription("Acme", 20m, 6);
-var b = new Subscription("Acme", 20m, 0.1m);
+public static class Caller
+{
+    public static void Run()
+    {
+        var a = new ClientOptions("https://api.example.test", 10);
+        var b = new ClientOptions("https://api.example.test", 1.5);
+    }
+}
 ```
 
-Depois: resta apenas o construtor geral, privado. Cada tipo de assinatura tem um nome.
+Depois: só sobra o construtor geral, privado. Cada tipo de opções tem um nome.
 
 ```csharp
-public class Subscription
+public class ClientOptions
 {
-    private readonly string _customer;
-    private readonly decimal _monthlyFee;
-    private readonly int _months;
-    private readonly decimal _discount;
+    private readonly string _baseUrl;
+    private readonly int _timeoutSeconds;
+    private readonly double _backoffFactor;
 
-    private Subscription(string customer, decimal monthlyFee, int months, decimal discount)
+    private ClientOptions(string baseUrl, int timeoutSeconds, double backoffFactor)
     {
-        _customer = customer; _monthlyFee = monthlyFee; _months = months; _discount = discount;
+        _baseUrl = baseUrl; _timeoutSeconds = timeoutSeconds; _backoffFactor = backoffFactor;
     }
 
-    public static Subscription Annual(string customer, decimal monthlyFee) => new(customer, monthlyFee, 12, 0m);
-    public static Subscription ForMonths(string customer, decimal monthlyFee, int months) => new(customer, monthlyFee, months, 0m);
-    public static Subscription AnnualWithDiscount(string customer, decimal monthlyFee, decimal discount) => new(customer, monthlyFee, 12, discount);
+    public static ClientOptions Default(string baseUrl) => new(baseUrl, 30, 2.0);
+    public static ClientOptions WithTimeout(string baseUrl, int timeoutSeconds) => new(baseUrl, timeoutSeconds, 2.0);
+    public static ClientOptions WithBackoff(string baseUrl, double backoffFactor) => new(baseUrl, 30, backoffFactor);
 
-    public decimal Total => _monthlyFee * _months * (1 - _discount);
+    public string Describe() => $"{_baseUrl} timeout={_timeoutSeconds}s backoff={_backoffFactor}";
 }
 
-var a = Subscription.ForMonths("Acme", 20m, 6);
-var b = Subscription.AnnualWithDiscount("Acme", 20m, 0.1m);
+public static class Caller
+{
+    public static void Run()
+    {
+        var a = ClientOptions.WithTimeout("https://api.example.test", 10);
+        var b = ClientOptions.WithBackoff("https://api.example.test", 1.5);
+    }
+}
 ```
 
 ## Notas (C#)
 - Parâmetros opcionais ou inicializadores de objeto podem substituir alguns construtores encadeados, mas não dão nome ao tipo de instância. Use-os quando as variantes diferem apenas por um valor opcional, e Creation Methods quando as variantes significam coisas diferentes.
-- Um `record` com construtor privado mais métodos estáticos funciona do mesmo jeito.
+- Um `record` com construtor privado mais métodos estáticos funciona do mesmo jeito (C# 9+; no Unity ele precisa de um shim de `IsExternalInit`).
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Uma busca pelo construtor não encontra chamadores fora da classe, e nenhum Creation Method fica sem uso.
-- Cada nome de Creation Method diz o que difere do padrão (meses, desconto), não como os argumentos estão organizados.
+- Uma busca pelo construtor não encontra nenhum chamador fora da classe, e nenhum Creation Method fica sem uso.
+- O nome de cada Creation Method diz o que difere do padrão (timeout, backoff), não como os argumentos estão dispostos.

@@ -20,88 +20,92 @@ Identifique a classe embelezada. Primeiro, confirme que o conjunto de métodos p
 4. A classe delegadora cria o próprio delegado no construtor. Aplique Extrair Parâmetro (Extract Parameter) ([extract-parameter.md](../utilities/extract-parameter.md)) para que o chamador passe o objeto a ser envolvido, e depois remova os parâmetros do construtor que ficaram inúteis com [change-function-declaration.md](../../fowler/first-set/change-function-declaration.md). Compile e teste.
 
 ## Exemplo
-Antes: uma classe ao mesmo tempo processa pagamentos e, opcionalmente, grava uma trilha de auditoria, decidindo com uma flag em cada método.
+Antes: uma classe ao mesmo tempo move dinheiro e, opcionalmente, envia notificações de status, decidindo com uma flag em cada método.
 
 ```csharp
-using System.Collections.Generic;
+using System;
 
-public record PaymentResult(bool Approved, string Reference);
-
-public class PaymentProcessor
+public class PaymentResult
 {
-    private readonly bool _audited;
-    private readonly List<string> _audit;
+    public bool Approved { get; }
+    public string Reference { get; }
 
-    public PaymentProcessor(bool audited, List<string> audit)
+    public PaymentResult(bool approved, string reference)
     {
-        _audited = audited;
-        _audit = audit;
+        Approved = approved;
+        Reference = reference;
+    }
+}
+
+public class PaymentGateway
+{
+    private readonly bool _notify;
+    private readonly Action<string>? _notifier;
+
+    public PaymentGateway(bool notify, Action<string>? notifier)
+    {
+        _notify = notify;
+        _notifier = notifier;
     }
 
-    public PaymentResult Charge(string account, decimal amount)
+    public PaymentResult Authorize(string account, decimal amount)
     {
-        if (_audited) _audit.Add($"charge {amount} to {account}");
-        var result = new PaymentResult(amount > 0, $"ref-{account}-{amount}");
-        if (_audited) _audit.Add($"charge approved={result.Approved}");
+        var result = new PaymentResult(amount > 0, $"auth-{account}-{amount}");
+        if (_notify) _notifier!($"authorize {amount} on {account}: approved={result.Approved}");
         return result;
     }
 
     public PaymentResult Refund(string reference, decimal amount)
     {
-        if (_audited) _audit.Add($"refund {amount} of {reference}");
         var result = new PaymentResult(amount > 0, reference);
-        if (_audited) _audit.Add($"refund approved={result.Approved}");
+        if (_notify) _notifier!($"refund {amount} of {reference}: approved={result.Approved}");
         return result;
     }
 }
 ```
 
-Depois: a classe central não sabe nada sobre auditoria, e `AuditedPaymentProcessor` envolve qualquer `IPaymentProcessor`. Os clientes que querem auditoria envolvem o processador na hora de criá-lo: `IPaymentProcessor p = new AuditedPaymentProcessor(new PaymentProcessor(), log);`. Um segundo decorador (retentativa, limitação de taxa) envolve o primeiro da mesma forma, e aí a ordem de envolvimento passa a importar.
+Depois: a classe central não sabe nada sobre notificações, e `NotifyingPaymentGateway` envolve qualquer `IPaymentGateway`. Os clientes que querem notificações envolvem o gateway na criação: `IPaymentGateway g = new NotifyingPaymentGateway(new PaymentGateway(), messages.Add);`. Um segundo decorator (retentativa, limitação de taxa) envolve o primeiro do mesmo jeito, e então a ordem em que se envolve passa a importar.
 
 ```csharp
-using System.Collections.Generic;
+using System;
 
-public record PaymentResult(bool Approved, string Reference);
-
-public interface IPaymentProcessor
+public interface IPaymentGateway
 {
-    PaymentResult Charge(string account, decimal amount);
+    PaymentResult Authorize(string account, decimal amount);
     PaymentResult Refund(string reference, decimal amount);
 }
 
-public class PaymentProcessor : IPaymentProcessor
+public class PaymentGateway : IPaymentGateway
 {
-    public PaymentResult Charge(string account, decimal amount) =>
-        new(amount > 0, $"ref-{account}-{amount}");
+    public PaymentResult Authorize(string account, decimal amount) =>
+        new(amount > 0, $"auth-{account}-{amount}");
 
     public PaymentResult Refund(string reference, decimal amount) =>
         new(amount > 0, reference);
 }
 
-public class AuditedPaymentProcessor : IPaymentProcessor
+public class NotifyingPaymentGateway : IPaymentGateway
 {
-    private readonly IPaymentProcessor _inner;
-    private readonly List<string> _audit;
+    private readonly IPaymentGateway _inner;
+    private readonly Action<string> _notifier;
 
-    public AuditedPaymentProcessor(IPaymentProcessor inner, List<string> audit)
+    public NotifyingPaymentGateway(IPaymentGateway inner, Action<string> notifier)
     {
         _inner = inner;
-        _audit = audit;
+        _notifier = notifier;
     }
 
-    public PaymentResult Charge(string account, decimal amount)
+    public PaymentResult Authorize(string account, decimal amount)
     {
-        _audit.Add($"charge {amount} to {account}");
-        var result = _inner.Charge(account, amount);
-        _audit.Add($"charge approved={result.Approved}");
+        var result = _inner.Authorize(account, amount);
+        _notifier($"authorize {amount} on {account}: approved={result.Approved}");
         return result;
     }
 
     public PaymentResult Refund(string reference, decimal amount)
     {
-        _audit.Add($"refund {amount} of {reference}");
         var result = _inner.Refund(reference, amount);
-        _audit.Add($"refund approved={result.Approved}");
+        _notifier($"refund {amount} of {reference}: approved={result.Approved}");
         return result;
     }
 }
@@ -109,5 +113,5 @@ public class AuditedPaymentProcessor : IPaymentProcessor
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- A classe não decorada tem um teste sem auditoria nenhuma, e o decorador tem um teste com um processador interno falso que verifica se as chamadas são repassadas sem alteração.
-- Procure `is` / `as` / casts para a classe embelezada: esses chamadores quebram quando o objeto é envolvido.
+- A classe sem decorator tem um teste sem nenhuma notificação, e o decorator tem um teste com um gateway interno falso que verifica se as chamadas são repassadas sem alteração.
+- Busque `is` / `as` / casts para a classe com embelezamento: esses chamadores quebram quando o objeto é envolvido.

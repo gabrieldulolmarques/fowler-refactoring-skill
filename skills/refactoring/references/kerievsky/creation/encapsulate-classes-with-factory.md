@@ -22,41 +22,52 @@ Use quando as classes compartilham uma interface pública ou superclasse e vivem
 5. Repita para cada subclasse que você quiser esconder.
 
 ## Exemplo
-Antes: as três classes de envio são públicas, e os chamadores escolhem uma delas com `new`.
+Antes: as três políticas de retentativa são públicas, e os chamadores escolhem uma delas com `new`.
 
 ```csharp
-public abstract class Shipping { public abstract decimal Cost(decimal kg); }
-public class GroundShipping : Shipping { public override decimal Cost(decimal kg) => 2m * kg; }
-public class AirShipping : Shipping { public override decimal Cost(decimal kg) => 9m * kg; }
-public class PickupShipping : Shipping { public override decimal Cost(decimal kg) => 0m; }
+using System;
 
-Shipping s = new AirShipping();
+public abstract class RetryPolicy { public abstract TimeSpan Delay(int attempt); }
+public class NoRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.Zero; }
+public class FixedRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(2); }
+public class ExponentialRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt)); }
+
+public static class Caller
+{
+    public static RetryPolicy Pick() => new ExponentialRetry();
+}
 ```
 
-Depois: as subclasses são classes aninhadas privadas de `Shipping`, que agora serve como factory. Os chamadores veem apenas o tipo base.
+Depois: as subclasses são classes aninhadas e privadas de `RetryPolicy`, que agora serve como factory. Os chamadores enxergam apenas o tipo base.
 
 ```csharp
-public abstract class Shipping
+using System;
+
+public abstract class RetryPolicy
 {
-    public static Shipping Ground() => new GroundShipping();
-    public static Shipping Air() => new AirShipping();
-    public static Shipping Pickup() => new PickupShipping();
+    public static RetryPolicy None() => new NoRetry();
+    public static RetryPolicy Fixed() => new FixedRetry();
+    public static RetryPolicy Exponential() => new ExponentialRetry();
 
-    public abstract decimal Cost(decimal kg);
+    public abstract TimeSpan Delay(int attempt);
 
-    private sealed class GroundShipping : Shipping { public override decimal Cost(decimal kg) => 2m * kg; }
-    private sealed class AirShipping : Shipping { public override decimal Cost(decimal kg) => 9m * kg; }
-    private sealed class PickupShipping : Shipping { public override decimal Cost(decimal kg) => 0m; }
+    private sealed class NoRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.Zero; }
+    private sealed class FixedRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(2); }
+    private sealed class ExponentialRetry : RetryPolicy { public override TimeSpan Delay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt)); }
 }
 
-Shipping s = Shipping.Air();
+public static class Caller
+{
+    public static RetryPolicy Pick() => RetryPolicy.Exponential();
+}
 ```
 
 O mesmo formato aparece nos wrappers da biblioteca padrão que tornam uma coleção somente leitura: as classes proxy ficam escondidas, e métodos estáticos as devolvem como o tipo de interface comum. O livro chama isso de variação de classe interna.
 
 ## Notas (C#)
-- Classes `private` aninhadas são a forma mais estrita. Quando as subclasses estão em arquivos separados, torne-as `internal` com construtores `internal`, e coloque os Creation Methods em uma classe pública no mesmo assembly.
+- Classes aninhadas `private` são a forma mais estrita. Quando as subclasses estão em arquivos separados, torne-as `internal` com construtores `internal`, e coloque os Creation Methods em uma classe pública no mesmo assembly.
 - Testes que precisam de um tipo concreto podem usar `InternalsVisibleTo`, ou testar pela factory.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhum código fora do assembly (ou fora da classe base, para tipos aninhados) se refere às classes concretas.

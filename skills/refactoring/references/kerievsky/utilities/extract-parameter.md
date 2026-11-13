@@ -15,46 +15,46 @@ Smells: — (um passo de baixo nível; o livro precisou dele logo depois de tran
 3. Se os argumentos antigos do método não forem mais usados, remova-os também com Mudar Declaração de Função (Change Function Declaration). Compile e teste.
 
 ## Exemplo
-Antes: o exportador cria o próprio formatador CSV, então um formato diferente exige editar a classe.
+Antes: o uploader cria seu próprio armazenamento da camada cool, então enviar para outra camada exige editar a classe.
 
 ```csharp
-public interface IFormatter { string Format(string name, decimal total); }
+public interface IBlobStore { string Put(string key, byte[] data, string contentType); }
 
-public class CsvFormatter : IFormatter
+public class CoolBlobStore : IBlobStore
 {
-    public string Format(string name, decimal total) => $"{name},{total:F2}";
+    public string Put(string key, byte[] data, string contentType) => $"cool/{key}";
 }
 
-public class OrderExporter
+public class Uploader
 {
-    private readonly IFormatter _formatter;
+    private readonly IBlobStore _store;
 
-    public OrderExporter() => _formatter = new CsvFormatter();
+    public Uploader() => _store = new CoolBlobStore();
 
-    public string Export(string name, decimal total) => _formatter.Format(name, total);
+    public string Upload(string key, byte[] data) => _store.Put(key, data, "application/octet-stream");
 }
 ```
 
-Depois: o formatador vem do cliente. O comportamento antigo passa a viver no ponto de chamada que constrói o exportador.
+Depois: o armazenamento vem do cliente. O comportamento antigo fica no ponto de chamada que monta o uploader.
 
 ```csharp
-public class OrderExporter
+public class Uploader
 {
-    private readonly IFormatter _formatter;
+    private readonly IBlobStore _store;
 
-    public OrderExporter(IFormatter formatter) => _formatter = formatter;
+    public Uploader(IBlobStore store) => _store = store;
 
-    public string Export(string name, decimal total) => _formatter.Format(name, total);
+    public string Upload(string key, byte[] data) => _store.Put(key, data, "application/octet-stream");
 }
 
 public static class Caller
 {
-    public static OrderExporter Make() => new(new CsvFormatter());
+    public static Uploader Make() => new(new CoolBlobStore());
 }
 ```
 
 ## Notas (C#)
-- Valide na fronteira: um parâmetro `null` deve falhar com `ArgumentNullException.ThrowIfNull(formatter)` quando, de outra forma, o null apareceria bem mais tarde.
+- Valide na fronteira: um parâmetro `null` deve falhar com `ArgumentNullException.ThrowIfNull(store)` quando, sem isso, o nulo apareceria bem mais tarde.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhum código da classe cria mais o valor, e um teste agora pode passar um fake do tipo.

@@ -23,61 +23,59 @@ Siga [introduce-special-case.md](../../fowler/conditional-logic/introduce-specia
 Se muitos null objects forem criados, veja se [limit-instantiation-with-singleton.md](../protection/limit-instantiation-with-singleton.md) vale a pena, depois de medir o desempenho.
 
 ## Exemplo
-Antes: um notificador é anexado quando o canal do cliente é conhecido, então cada uso verifica nulo. Veja o arquivo de Fowler para a forma geral; aqui está o caso de uso precoce.
+Antes: um portão de flags recebe sua loja de flags compartilhada só depois que a configuração é carregada, então cada uso verifica nulo. Veja o arquivo de Fowler para a forma geral; aqui está o caso de uso precoce.
 
 ```csharp
-public interface IShipmentNotifier
+public interface IFlagStore
 {
-    void Dispatched(string orderId);
-    void Delivered(string orderId);
+    void Refresh();
+    void Kill(string flagName);
 }
 
-public class Order
+public class FeatureGate
 {
-    private readonly string _id = "A-1";
-    private IShipmentNotifier? _notifier;
+    private IFlagStore? _store;
 
-    public void AttachNotifier(IShipmentNotifier notifier) => _notifier = notifier;
+    public void AttachStore(IFlagStore store) => _store = store;
 
-    public void Dispatch()
+    public void Refresh()
     {
-        if (_notifier != null)
-            _notifier.Dispatched(_id);
+        if (_store != null)
+            _store.Refresh();
     }
 
-    public void Deliver()
+    public void KillSwitch(string flagName)
     {
-        if (_notifier != null)
-            _notifier.Delivered(_id);
+        if (_store != null)
+            _store.Kill(flagName);
     }
 }
 ```
 
-Depois: o campo começa como um notificador que não faz nada, e as verificações desaparecem.
+Depois: o campo começa como uma loja que não faz nada, e as verificações desaparecem.
 
 ```csharp
-public sealed class NullShipmentNotifier : IShipmentNotifier
+public sealed class NullFlagStore : IFlagStore
 {
-    public void Dispatched(string orderId) { }
-    public void Delivered(string orderId) { }
+    public void Refresh() { }
+    public void Kill(string flagName) { }
 }
 
-public class Order
+public class FeatureGate
 {
-    private readonly string _id = "A-1";
-    private IShipmentNotifier _notifier = new NullShipmentNotifier();
+    private IFlagStore _store = new NullFlagStore();
 
-    public void AttachNotifier(IShipmentNotifier notifier) => _notifier = notifier;
+    public void AttachStore(IFlagStore store) => _store = store;
 
-    public void Dispatch() => _notifier.Dispatched(_id);
+    public void Refresh() => _store.Refresh();
 
-    public void Deliver() => _notifier.Delivered(_id);
+    public void KillSwitch(string flagName) => _store.Kill(flagName);
 }
 ```
 
 ## Notas (C#)
-- Com tipos de referência anuláveis ativados, o campo muda de `IShipmentNotifier?` para `IShipmentNotifier`, e o compilador então deixa de emitir alerta sobre ele.
-- Um null object sem estado pode ser uma instância estática compartilhada (`NullShipmentNotifier.Instance`).
+- Com tipos de referência anuláveis ativados, o campo muda de `IFlagStore?` para `IFlagStore`, e o compilador então deixa de emitir alerta sobre ele.
+- Um null object sem estado pode ser uma instância estática compartilhada (`NullFlagStore.Instance`).
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Nenhuma verificação de nulo no campo permanece, e um teste que chama os métodos antes de qualquer objeto real ser anexado passa sem exceção.

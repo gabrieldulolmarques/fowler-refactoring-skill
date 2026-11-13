@@ -22,26 +22,26 @@ Dois caminhos funcionam: aplicar refatorações ao código existente (Extrair Cl
 6. Repita para os demais pais implícitos. Permita pais dentro de pais só se os pais implícitos realmente se comportarem do mesmo jeito.
 
 ## Exemplo
-Antes: um relatório sobre uma forma fixa de dois níveis (categorias de despesas) montado com laços e indentação fixa no código. Adicionar uma subcategoria ou mudar o layout exige mexer neste método.
+Antes: um relatório de conciliação sobre um formato fixo de dois níveis (lotes de liquidação com seus lançamentos), montado com laços e indentação fixa no código. Adicionar um sublote ou mudar o layout exige mexer neste método.
 
 ```csharp
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-public static class ExpenseReport
+public static class ReconciliationReport
 {
-    public static string Render(IReadOnlyDictionary<string, (string Item, decimal Amount)[]> categories)
+    public static string Render(IReadOnlyDictionary<string, (string Reference, decimal Amount)[]> batches)
     {
         var sb = new StringBuilder();
         decimal total = 0m;
-        foreach (var (category, items) in categories)
+        foreach (var (batch, entries) in batches)
         {
-            sb.AppendLine(category);
+            sb.AppendLine(batch);
             decimal subtotal = 0m;
-            foreach (var (item, amount) in items)
+            foreach (var (reference, amount) in entries)
             {
-                sb.AppendLine($"  {item}: {Money(amount)}");
+                sb.AppendLine($"  {reference}: {Money(amount)}");
                 subtotal += amount;
             }
             sb.AppendLine($"  subtotal: {Money(subtotal)}");
@@ -55,7 +55,7 @@ public static class ExpenseReport
 }
 ```
 
-Depois: `Expense` é a folha e `ExpenseGroup` é o pai, ambos atrás de `IExpenseNode`. Um grupo totaliza e indenta os próprios filhos, e um grupo pode conter outros grupos, então um novo nível não exige mudança no renderizador. Para os mesmos dados de dois níveis, a saída é idêntica à do método antigo.
+Depois: `Entry` é a folha e `BatchGroup` é o pai, ambos atrás de `IReconciliationNode`. Um grupo soma e indenta os próprios filhos, e um grupo pode conter outros grupos, então um nível novo não exige mudança no renderizador. Para os mesmos dados de dois níveis, a saída é idêntica à do método antigo.
 
 ```csharp
 using System.Collections.Generic;
@@ -63,24 +63,33 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-public interface IExpenseNode
+public interface IReconciliationNode
 {
     decimal Amount { get; }
     void Render(StringBuilder sb, int depth);
 }
 
-public record Expense(string Item, decimal Amount) : IExpenseNode
+public class Entry : IReconciliationNode
 {
+    public string Reference { get; }
+    public decimal Amount { get; }
+
+    public Entry(string reference, decimal amount)
+    {
+        Reference = reference;
+        Amount = amount;
+    }
+
     public void Render(StringBuilder sb, int depth) =>
-        sb.AppendLine($"{ExpenseReport.Indent(depth)}{Item}: {ExpenseReport.Money(Amount)}");
+        sb.AppendLine($"{ReconciliationReport.Indent(depth)}{Reference}: {ReconciliationReport.Money(Amount)}");
 }
 
-public class ExpenseGroup : IExpenseNode
+public class BatchGroup : IReconciliationNode
 {
     private readonly string _name;
-    private readonly List<IExpenseNode> _children = new();
+    private readonly List<IReconciliationNode> _children = new();
 
-    public ExpenseGroup(string name, params IExpenseNode[] children)
+    public BatchGroup(string name, params IReconciliationNode[] children)
     {
         _name = name;
         _children.AddRange(children);
@@ -88,20 +97,20 @@ public class ExpenseGroup : IExpenseNode
 
     public decimal Amount => _children.Sum(c => c.Amount);
 
-    public void Add(IExpenseNode child) => _children.Add(child);
+    public void Add(IReconciliationNode child) => _children.Add(child);
 
     public void Render(StringBuilder sb, int depth)
     {
-        sb.AppendLine($"{ExpenseReport.Indent(depth)}{_name}");
+        sb.AppendLine($"{ReconciliationReport.Indent(depth)}{_name}");
         foreach (var child in _children)
             child.Render(sb, depth + 1);
-        sb.AppendLine($"{ExpenseReport.Indent(depth + 1)}subtotal: {ExpenseReport.Money(Amount)}");
+        sb.AppendLine($"{ReconciliationReport.Indent(depth + 1)}subtotal: {ReconciliationReport.Money(Amount)}");
     }
 }
 
-public static class ExpenseReport
+public static class ReconciliationReport
 {
-    public static string Render(IReadOnlyList<IExpenseNode> roots)
+    public static string Render(IReadOnlyList<IReconciliationNode> roots)
     {
         var sb = new StringBuilder();
         foreach (var root in roots)
@@ -116,19 +125,21 @@ public static class ExpenseReport
 }
 ```
 
-O cliente agora monta a árvore, e aninhar é só mais um `ExpenseGroup` dentro de um grupo:
+O cliente agora monta a árvore, e o aninhamento é só mais um `BatchGroup` dentro de um grupo:
 
 ```csharp
-var travel = new ExpenseGroup("Travel",
-    new Expense("Flight", 420m),
-    new ExpenseGroup("Lodging", new Expense("Hotel", 310.5m)));
-string text = ExpenseReport.Render(new IExpenseNode[] { travel });
+// fragment
+var morning = new BatchGroup("Morning batch",
+    new Entry("pay-1001", 420m),
+    new BatchGroup("Late arrivals", new Entry("pay-1002", 310.5m)));
+string text = ReconciliationReport.Render(new IReconciliationNode[] { morning });
 ```
 
 ## Notas (C#)
-- Um `record` é uma folha conveniente. Uma interface basta para o tipo comum, a menos que folhas e pais compartilhem código.
-- Se a árvore precisar ser imutável, receba os filhos só no construtor e exponha-os como `IReadOnlyList<T>`; remova o `Add`.
+- Um `record` é uma folha conveniente (C# 9+; no Unity ele precisa de um shim de `IsExternalInit`). Uma interface basta para o tipo comum, a menos que folhas e pais compartilhem código.
+- Se a árvore precisar ser imutável, receba os filhos apenas no construtor e exponha-os como `IReadOnlyList<T>`; remova `Add`.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Mantenha um teste que compara a saída antiga com a nova para os mesmos dados (o texto "golden"), e rode-o após cada passo.
+- Mantenha um teste que compara a saída antiga com a nova para os mesmos dados (o texto "dourado"), e execute-o após cada passo.
 - Adicione um teste com um pai aninhado, para provar que a árvore realmente compõe.

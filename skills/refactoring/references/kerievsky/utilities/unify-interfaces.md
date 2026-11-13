@@ -18,52 +18,64 @@ Para cada *método faltante*, ou seja, um método público na subclasse que a su
 3. Teste tudo que usa a superclasse.
 
 ## Exemplo
-Antes: só a subclasse expressa pode notificar o cliente, então um laço sobre os envios precisa verificar o tipo.
+Antes: só a subclasse arquivada pode avisar sobre o vencimento da retenção, então um laço sobre os arquivos armazenados precisa testar o tipo.
 
 ```csharp
-public interface ICustomerNotifier { void Send(string message); }
+using System.Collections.Generic;
 
-public class Shipment
+public interface IUploadNotifier { void Send(string message); }
+
+public class StoredFile
 {
-    public string Id { get; init; } = "";
-    public virtual decimal Cost() => 5m;
+    public string Name { get; }
+
+    public StoredFile(string name) => Name = name;
+
+    public virtual decimal MonthlyCostPerGb() => 0.02m;
 }
 
-public class ExpressShipment : Shipment
+public class ArchivedFile : StoredFile
 {
-    public override decimal Cost() => 15m;
-    public void Notify(ICustomerNotifier notifier) => notifier.Send($"Shipment {Id} is on its way");
+    public ArchivedFile(string name) : base(name) { }
+
+    public override decimal MonthlyCostPerGb() => 0.004m;
+    public void NotifyExpiry(IUploadNotifier notifier) => notifier.Send($"File {Name} is close to its retention limit");
 }
 ```
 
-Depois: `Notify` é declarado na classe base com comportamento nulo e sobrescrito na subclasse, então os chamadores usam apenas `Shipment`.
+Depois: `NotifyExpiry` é declarado na classe base com comportamento nulo e sobrescrito na subclasse, então os chamadores usam apenas `StoredFile`.
 
 ```csharp
-public class Shipment
+public class StoredFile
 {
-    public string Id { get; init; } = "";
-    public virtual decimal Cost() => 5m;
-    public virtual void Notify(ICustomerNotifier notifier) { }
+    public string Name { get; }
+
+    public StoredFile(string name) => Name = name;
+
+    public virtual decimal MonthlyCostPerGb() => 0.02m;
+    public virtual void NotifyExpiry(IUploadNotifier notifier) { }
 }
 
-public class ExpressShipment : Shipment
+public class ArchivedFile : StoredFile
 {
-    public override decimal Cost() => 15m;
-    public override void Notify(ICustomerNotifier notifier) => notifier.Send($"Shipment {Id} is on its way");
+    public ArchivedFile(string name) : base(name) { }
+
+    public override decimal MonthlyCostPerGb() => 0.004m;
+    public override void NotifyExpiry(IUploadNotifier notifier) => notifier.Send($"File {Name} is close to its retention limit");
 }
 
 public static class Demo
 {
-    public static void NotifyAll(IEnumerable<Shipment> shipments, ICustomerNotifier notifier)
+    public static void NotifyAll(IEnumerable<StoredFile> files, IUploadNotifier notifier)
     {
-        foreach (var s in shipments) s.Notify(notifier);
+        foreach (var f in files) f.NotifyExpiry(notifier);
     }
 }
 ```
 
 ## Notas (C#)
-- O método base precisa ser `virtual` (ou `abstract`) e o método da subclasse `override`. Um método da subclasse com o mesmo nome sem `override` oculta o da base, e `Notify` por uma referência de `Shipment` não faria nada.
-- Para uma interface, adicionar um membro quebra todos os implementadores existentes. Métodos de interface com implementação padrão (C# 8) permitem adicioná-lo com corpo, mas só são acessíveis pelo tipo interface, não pela classe.
+- O método da base precisa ser `virtual` (ou `abstract`) e o da subclasse `override`. Um método da subclasse com o mesmo nome sem `override` oculta o da base, e chamar `NotifyExpiry` por uma referência a `StoredFile` não faria nada.
+- Para uma interface, acrescentar um membro quebra todas as implementações existentes. Métodos padrão de interface (C# 8) permitem acrescentá-lo com corpo, mas só são acessíveis pelo tipo da interface, não pela classe.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- As verificações de tipo ou casts que a unificação devia remover podem ser apagadas agora, e os testes que usam só o tipo base passam para cada subclasse.
+- Os testes de tipo ou casts que a unificação deveria remover agora podem ser apagados, e os testes que usam apenas o tipo base continuam passando para cada subclasse.

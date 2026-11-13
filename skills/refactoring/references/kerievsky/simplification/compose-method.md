@@ -21,73 +21,86 @@ Siga o procedimento de Extrair Função (Extract Function) em [extract-function.
 6. Pare quando cada instrução do método disser o quê, e os detalhes estiverem a uma chamada de distância. Compile e teste após cada passo.
 
 ## Exemplo
-Antes: o método de lançamento aninha duas verificações em volta de código de níveis misturados.
+Antes: o método de liquidação aninha duas verificações em volta de código de níveis misturados.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(int Id, decimal Amount, bool Paid, DateOnly Due);
-
-public class Ledger
+public class Payment
 {
-    private readonly List<Invoice> _invoices = new();
+    public int Id { get; }
+    public decimal Amount { get; }
+    public DateTime AuthorizationExpires { get; }
+
+    public Payment(int id, decimal amount, DateTime authorizationExpires)
+    {
+        Id = id;
+        Amount = amount;
+        AuthorizationExpires = authorizationExpires;
+    }
+}
+
+public class SettlementDesk
+{
+    private readonly List<Payment> _settled = new();
     private readonly List<string> _log = new();
 
-    public bool Locked { get; set; }
+    public bool Closed { get; set; }
 
-    public void Post(Invoice invoice)
+    public void Settle(Payment payment)
     {
-        if (!Locked)
+        if (!Closed)
         {
-            if (invoice.Amount > 0)
+            if (payment.Amount > 0)
             {
-                _invoices.Add(invoice);
-                if (!invoice.Paid && invoice.Due < DateOnly.FromDateTime(DateTime.Today))
-                    _log.Add($"invoice {invoice.Id} posted overdue");
+                _settled.Add(payment);
+                if (payment.AuthorizationExpires < DateTime.UtcNow.Date)
+                    _log.Add($"payment {payment.Id} settled after authorization expired");
                 else
-                    _log.Add($"invoice {invoice.Id} posted");
+                    _log.Add($"payment {payment.Id} settled");
             }
         }
     }
 }
 ```
 
-Depois: uma cláusula de guarda primeiro, depois dois passos no mesmo nível. A regra de atraso ganha um nome.
+Depois: primeiro uma cláusula de guarda, depois dois passos no mesmo nível. A regra de expiração ganha um nome.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(int Id, decimal Amount, bool Paid, DateOnly Due);
-
-public class Ledger
+public class SettlementDesk
 {
-    private readonly List<Invoice> _invoices = new();
+    private readonly List<Payment> _settled = new();
     private readonly List<string> _log = new();
 
-    public bool Locked { get; set; }
+    public bool Closed { get; set; }
 
-    public void Post(Invoice invoice)
+    public void Settle(Payment payment)
     {
-        if (Locked || invoice.Amount <= 0)
+        if (Closed || payment.Amount <= 0)
             return;
-        Add(invoice);
-        LogPosting(invoice);
+        Add(payment);
+        LogSettlement(payment);
     }
 
-    private void Add(Invoice invoice) => _invoices.Add(invoice);
+    private void Add(Payment payment) => _settled.Add(payment);
 
-    private void LogPosting(Invoice invoice) =>
-        _log.Add(IsOverdue(invoice) ? $"invoice {invoice.Id} posted overdue" : $"invoice {invoice.Id} posted");
+    private void LogSettlement(Payment payment) =>
+        _log.Add(IsExpired(payment)
+            ? $"payment {payment.Id} settled after authorization expired"
+            : $"payment {payment.Id} settled");
 
-    private static bool IsOverdue(Invoice invoice) =>
-        !invoice.Paid && invoice.Due < DateOnly.FromDateTime(DateTime.Today);
+    private static bool IsExpired(Payment payment) =>
+        payment.AuthorizationExpires < DateTime.UtcNow.Date;
 }
 ```
 
 ## Notas (C#)
 - Membros com corpo de expressão mantêm as partes extraídas curtas. Use uma função local quando a parte servir a um único método.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Leia o método de topo em voz alta: cada linha deve ser um passo que você nomearia em uma frase, sem operadores nem indexação.
+- Leia o método de cima em voz alta: cada linha deve ser um passo que você nomearia em uma frase, sem operadores nem índices.

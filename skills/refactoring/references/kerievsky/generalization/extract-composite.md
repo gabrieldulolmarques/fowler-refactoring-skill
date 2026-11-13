@@ -21,77 +21,77 @@ Smells: Código Duplicado (Duplicated Code).
 5. Verifique cada cliente de um contêiner: se ele puder falar com o contêiner pelo tipo do composite, troque para isso. Compile e teste.
 
 ## Exemplo
-Antes: `Box` e `Pallet` mantêm, cada um, a sua própria lista de itens filhos, com o mesmo `Add` e um `Weight` quase idêntico.
+Antes: `SystemPrompt` e `FewShotBlock` mantêm, cada um, a sua própria lista de partes filhas, com o mesmo `Add` e um `Render` quase idêntico.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public abstract class Item
+public abstract class PromptPart
 {
-    public abstract decimal Weight();
+    public abstract string Render();
 }
 
-public class Crate : Item
+public class TextPart : PromptPart
 {
-    private readonly decimal _weight;
-    public Crate(decimal weight) => _weight = weight;
-    public override decimal Weight() => _weight;
+    private readonly string _text;
+    public TextPart(string text) => _text = text;
+    public override string Render() => _text;
 }
 
-public class Box : Item
+public class SystemPrompt : PromptPart
 {
-    private readonly List<Item> _items = new();
-    public void Add(Item item) => _items.Add(item);
-    public override decimal Weight() => 0.5m + _items.Sum(i => i.Weight());
+    private readonly List<PromptPart> _parts = new();
+    public void Add(PromptPart part) => _parts.Add(part);
+    public override string Render() => "[system]\n" + string.Join("\n", _parts.Select(p => p.Render()));
 }
 
-public class Pallet : Item
+public class FewShotBlock : PromptPart
 {
-    private readonly List<Item> _contents = new();
-    public void Add(Item item) => _contents.Add(item);
-    public override decimal Weight() => 20m + _contents.Sum(c => c.Weight());
+    private readonly List<PromptPart> _examples = new();
+    public void Add(PromptPart example) => _examples.Add(example);
+    public override string Render() => "Examples:\n" + string.Join("\n", _examples.Select(e => e.Render()));
 }
 ```
 
-Depois: `CompositeItem` é dono dos filhos, do `Add` e da soma. Cada contêiner acrescenta apenas o seu próprio peso de tara.
+Depois: `CompositePart` é dona dos filhos, do `Add` e da junção. Cada contêiner acrescenta apenas o seu próprio cabeçalho.
 
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
 
-public abstract class Item
+public abstract class PromptPart
 {
-    public abstract decimal Weight();
+    public abstract string Render();
 }
 
-public class Crate : Item
+public class TextPart : PromptPart
 {
-    private readonly decimal _weight;
-    public Crate(decimal weight) => _weight = weight;
-    public override decimal Weight() => _weight;
+    private readonly string _text;
+    public TextPart(string text) => _text = text;
+    public override string Render() => _text;
 }
 
-public abstract class CompositeItem : Item
+public abstract class CompositePart : PromptPart
 {
-    private readonly List<Item> _children = new();
-    public void Add(Item item) => _children.Add(item);
-    protected decimal ChildrenWeight() => _children.Sum(c => c.Weight());
+    private readonly List<PromptPart> _children = new();
+    public void Add(PromptPart part) => _children.Add(part);
+    protected string RenderChildren() => string.Join("\n", _children.Select(c => c.Render()));
 }
 
-public class Box : CompositeItem
+public class SystemPrompt : CompositePart
 {
-    public override decimal Weight() => 0.5m + ChildrenWeight();
+    public override string Render() => "[system]\n" + RenderChildren();
 }
 
-public class Pallet : CompositeItem
+public class FewShotBlock : CompositePart
 {
-    public override decimal Weight() => 20m + ChildrenWeight();
+    public override string Render() => "Examples:\n" + RenderChildren();
 }
 ```
 
 ## Notas (C#)
-- Exponha os filhos como `IReadOnlyList<Item>` se subclasses ou clientes precisarem lê-los; mantenha a própria lista privada, como em Encapsular Coleção (Encapsulate Collection) ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)).
+- Exponha os filhos como `IReadOnlyList<PromptPart>` se subclasses ou clientes precisarem lê-los; mantenha a própria lista privada, como em Encapsular Coleção ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)).
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Os totais de contêineres aninhados (uma caixa dentro de um palete) batem com os resultados antigos, e nenhum contêiner ainda declara seu próprio campo de filhos.
+- Os totais de contêineres aninhados (um bloco few-shot dentro de um prompt de sistema) batem com os resultados antigos, e nenhum contêiner ainda declara seu próprio campo de filhos.

@@ -20,59 +20,59 @@ Estes passos supõem que a Factory é uma classe. Uma interface precisa de peque
 5. Procure dados e métodos nas outras classes que existam apenas para alimentar a criação. Mova-os para a factory com Mover Campo (Move Field) ([move-field.md](../../fowler/moving-features/move-field.md)) e Mover Função, o que também pode mudar quem cria a factory. Compile e teste após cada movimento.
 
 ## Exemplo
-Antes: `CheckoutPage` conhece as opções do pedido, passa-as para `CheckoutService`, que apenas as copia para o pedido que cria. As duas classes carregam os mesmos dois campos.
+Antes: `ApiSession` conhece as opções da requisição, passa-as para `RequestSender`, que apenas as copia para a requisição que cria. As duas classes carregam os mesmos dois campos.
 
 ```csharp
-public class Order
+public class ApiRequest
 {
-    public string Customer { get; }
-    public Order(string customer) { Customer = customer; }
-    public string? Note { get; set; }
-    public bool Express { get; set; }
+    public string Path { get; }
+    public ApiRequest(string path) { Path = path; }
+    public int TimeoutSeconds { get; set; }
+    public int MaxRetries { get; set; }
 }
 
-public class CheckoutPage
+public class ApiSession
 {
-    private readonly bool _express;
-    private readonly string _note;
-    public CheckoutPage(bool express, string note) { _express = express; _note = note; }
-    public Order Submit(string customer) => new CheckoutService(_express, _note).Place(customer);
+    private readonly int _timeoutSeconds;
+    private readonly int _maxRetries;
+    public ApiSession(int timeoutSeconds, int maxRetries) { _timeoutSeconds = timeoutSeconds; _maxRetries = maxRetries; }
+    public ApiRequest Send(string path) => new RequestSender(_timeoutSeconds, _maxRetries).Prepare(path);
 }
 
-public class CheckoutService
+public class RequestSender
 {
-    private readonly bool _express;
-    private readonly string _note;
-    public CheckoutService(bool express, string note) { _express = express; _note = note; }
-    public Order Place(string customer) => new Order(customer) { Note = _note, Express = _express };
+    private readonly int _timeoutSeconds;
+    private readonly int _maxRetries;
+    public RequestSender(int timeoutSeconds, int maxRetries) { _timeoutSeconds = timeoutSeconds; _maxRetries = maxRetries; }
+    public ApiRequest Prepare(string path) => new ApiRequest(path) { TimeoutSeconds = _timeoutSeconds, MaxRetries = _maxRetries };
 }
 ```
 
-Depois: `OrderFactory` guarda as opções e constrói o pedido. A página a configura uma vez. O serviço não sabe mais quais são as opções.
+Depois: `RequestFactory` guarda as opções e monta a requisição. A sessão a configura uma vez. O sender não sabe mais o que são as opções.
 
 ```csharp
-public class OrderFactory
+public class RequestFactory
 {
-    private readonly bool _express;
-    private readonly string _note;
-    public OrderFactory(bool express, string note) { _express = express; _note = note; }
-    public Order CreateOrder(string customer) => new(customer) { Note = _note, Express = _express };
+    private readonly int _timeoutSeconds;
+    private readonly int _maxRetries;
+    public RequestFactory(int timeoutSeconds, int maxRetries) { _timeoutSeconds = timeoutSeconds; _maxRetries = maxRetries; }
+    public ApiRequest CreateRequest(string path) => new(path) { TimeoutSeconds = _timeoutSeconds, MaxRetries = _maxRetries };
 }
 
-public class CheckoutPage
+public class ApiSession
 {
-    private readonly OrderFactory _factory;
-    public CheckoutPage(bool express, string note) { _factory = new OrderFactory(express, note); }
-    public Order Submit(string customer, CheckoutService service) => service.Place(customer, _factory);
+    private readonly RequestFactory _factory;
+    public ApiSession(int timeoutSeconds, int maxRetries) { _factory = new RequestFactory(timeoutSeconds, maxRetries); }
+    public ApiRequest Send(string path, RequestSender sender) => sender.Prepare(path, _factory);
 }
 
-public class CheckoutService
+public class RequestSender
 {
-    public Order Place(string customer, OrderFactory factory) => factory.CreateOrder(customer);
+    public ApiRequest Prepare(string path, RequestFactory factory) => factory.CreateRequest(path);
 }
 ```
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- As opções agora ficam em uma só classe. Uma busca pelos campos que antes eram copiados entre classes encontra apenas a factory.
-- A factory elimina espalhamento real. Se ela apenas envolve um único `new`, desfaça.
+- As opções agora vivem em uma só classe. Uma busca pelos campos que antes eram copiados entre classes encontra apenas a factory.
+- A factory remove um espalhamento real. Se ela apenas envolve um único `new`, desfaça.

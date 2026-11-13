@@ -32,35 +32,38 @@ Antes: um único `switch` faz o roteamento e o trabalho de todos os handlers.
 ```csharp
 using System.Globalization;
 
-public class Order
+public class Payment
 {
-    public int Id { get; init; }
-    public string Status { get; set; } = "new";
-    public string? Carrier { get; set; }
+    public int Id { get; }
+    public string Status { get; set; } = "created";
+    public string? AuthCode { get; set; }
     public decimal Refunded { get; set; }
+
+    public Payment(int id) { Id = id; }
 }
 
-public class OrderDesk
+public class PaymentDesk
 {
-    public string Execute(string command, Order order, string[] args)
+    public string Execute(string command, Payment payment, string[] args)
     {
         switch (command)
         {
-            case "ship":
-                order.Carrier = args[0];
-                order.Status = "shipped";
-                return $"order {order.Id} shipped with {order.Carrier}";
-            case "cancel":
-                if (order.Status == "shipped")
-                    return $"order {order.Id} already shipped";
-                order.Status = "cancelled";
-                return $"order {order.Id} cancelled";
+            case "authorize":
+                payment.AuthCode = args[0];
+                payment.Status = "authorized";
+                return $"payment {payment.Id} authorized with {payment.AuthCode}";
+            case "settle":
+                if (payment.Status != "authorized")
+                    return $"payment {payment.Id} is not authorized";
+                payment.Status = "settled";
+                return $"payment {payment.Id} settled";
             case "refund":
                 var amount = decimal.Parse(args[0], CultureInfo.InvariantCulture);
-                order.Refunded += amount;
-                return $"order {order.Id} refunded {amount}";
-            case "invoice":
-                return $"invoice for order {order.Id}";
+                payment.Refunded += amount;
+                payment.Status = "refunded";
+                return $"payment {payment.Id} refunded {amount}";
+            case "receipt":
+                return $"receipt for payment {payment.Id}";
             default:
                 return $"unknown command {command}";
         }
@@ -68,83 +71,77 @@ public class OrderDesk
 }
 ```
 
-Depois: cada requisição é uma classe de comando, e a mesa é um invocador com um mapa. Novos comandos podem ser registrados em tempo de execução, até de outro assembly. O mapa mantém a busca exata de antes (troque o comparador de propósito, não como efeito colateral).
+Depois: cada pedido é uma classe de comando, e a mesa é um invocador com um mapa. Novos comandos podem ser registrados em tempo de execução, até a partir de outro assembly. O mapa mantém a busca antiga por correspondência exata (troque o comparador de propósito, não por efeito colateral).
 
 ```csharp
 using System.Collections.Generic;
 using System.Globalization;
 
-public class Order
+public interface IPaymentCommand
 {
-    public int Id { get; init; }
-    public string Status { get; set; } = "new";
-    public string? Carrier { get; set; }
-    public decimal Refunded { get; set; }
+    string Execute(Payment payment, string[] args);
 }
 
-public interface IOrderCommand
+public class AuthorizeCommand : IPaymentCommand
 {
-    string Execute(Order order, string[] args);
-}
-
-public class ShipCommand : IOrderCommand
-{
-    public string Execute(Order order, string[] args)
+    public string Execute(Payment payment, string[] args)
     {
-        order.Carrier = args[0];
-        order.Status = "shipped";
-        return $"order {order.Id} shipped with {order.Carrier}";
+        payment.AuthCode = args[0];
+        payment.Status = "authorized";
+        return $"payment {payment.Id} authorized with {payment.AuthCode}";
     }
 }
 
-public class CancelCommand : IOrderCommand
+public class SettleCommand : IPaymentCommand
 {
-    public string Execute(Order order, string[] args)
+    public string Execute(Payment payment, string[] args)
     {
-        if (order.Status == "shipped")
-            return $"order {order.Id} already shipped";
-        order.Status = "cancelled";
-        return $"order {order.Id} cancelled";
+        if (payment.Status != "authorized")
+            return $"payment {payment.Id} is not authorized";
+        payment.Status = "settled";
+        return $"payment {payment.Id} settled";
     }
 }
 
-public class RefundCommand : IOrderCommand
+public class RefundCommand : IPaymentCommand
 {
-    public string Execute(Order order, string[] args)
+    public string Execute(Payment payment, string[] args)
     {
         var amount = decimal.Parse(args[0], CultureInfo.InvariantCulture);
-        order.Refunded += amount;
-        return $"order {order.Id} refunded {amount}";
+        payment.Refunded += amount;
+        payment.Status = "refunded";
+        return $"payment {payment.Id} refunded {amount}";
     }
 }
 
-public class InvoiceCommand : IOrderCommand
+public class ReceiptCommand : IPaymentCommand
 {
-    public string Execute(Order order, string[] args) => $"invoice for order {order.Id}";
+    public string Execute(Payment payment, string[] args) => $"receipt for payment {payment.Id}";
 }
 
-public class OrderDesk
+public class PaymentDesk
 {
-    private readonly Dictionary<string, IOrderCommand> _commands = new()
+    private readonly Dictionary<string, IPaymentCommand> _commands = new()
     {
-        ["ship"] = new ShipCommand(),
-        ["cancel"] = new CancelCommand(),
+        ["authorize"] = new AuthorizeCommand(),
+        ["settle"] = new SettleCommand(),
         ["refund"] = new RefundCommand(),
-        ["invoice"] = new InvoiceCommand(),
+        ["receipt"] = new ReceiptCommand(),
     };
 
-    public void Register(string name, IOrderCommand command) => _commands[name] = command;
+    public void Register(string name, IPaymentCommand command) => _commands[name] = command;
 
-    public string Execute(string command, Order order, string[] args) =>
+    public string Execute(string command, Payment payment, string[] args) =>
         _commands.TryGetValue(command, out var handler)
-            ? handler.Execute(order, args)
+            ? handler.Execute(payment, args)
             : $"unknown command {command}";
 }
 ```
 
 ## Notas (C#)
-- Onde os handlers são minúsculos, um `Dictionary<string, Func<Order, string[], string>>` é um tipo de comando mais leve do que uma classe por handler. Passe para classes quando um handler precisar de estado, dependências ou testes próprios.
+- Quando os handlers são pequenos, um `Dictionary<string, Func<Payment, string[], string>>` é um tipo de comando mais leve do que uma classe por handler. Passe para classes quando um handler precisar de estado, dependências ou testes próprios.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Mantenha um teste para cada nome roteado, um para o nome desconhecido e (após o passo 7) um que registra um novo comando em tempo de execução e o executa.
-- Confirme que nenhum handler guardou referência aos campos privados do despachante: os comandos devem receber o que precisam pelos argumentos.
+- Mantenha um teste para cada nome roteado, um para o nome desconhecido e (depois do passo 7) um que registre um novo comando em tempo de execução e o execute.
+- Confira que nenhum handler guardou referência aos campos privados do despachante: os comandos devem receber o que precisam pelos argumentos.

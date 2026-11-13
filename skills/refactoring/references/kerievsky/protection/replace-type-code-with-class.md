@@ -23,11 +23,11 @@ Siga [replace-primitive-with-object.md](../../fowler/encapsulation/replace-primi
 7. Substitua cada uso das constantes antigas pelas novas, altere o tipo de retorno do getter para a nova classe, e corrija os chamadores. Compare com `==` nas instâncias compartilhadas, ou dê à classe igualdade se ela puder ser criada de fora. Compile e teste.
 8. Apague as constantes antigas.
 
-O exemplo está no arquivo de Fowler; o formato do resultado é a classe sealed com instâncias estáticas mostrada lá, por exemplo uma `OrderStatus` sealed com `Pending`, `Paid` e `Shipped`.
+O exemplo está no arquivo de Fowler; o formato do resultado é a classe sealed com instâncias estáticas mostrada lá, por exemplo uma `FlagEnvironment` sealed com `Development`, `Staging` e `Production`.
 
 ## Notas (C#)
-- Um `enum` do C# é apenas um inteiro por baixo: `(OrderStatus)42` compila e executa. Se o conjunto precisar ser fechado e o tipo precisar carregar comportamento, use uma classe sealed com construtor privado. Se nenhuma dessas coisas importar, um enum está bom e esta refatoração não é necessária.
-- Com construtor privado as instâncias são únicas, então `==` sobre referências basta. Sem ele, sobrescreva `Equals` e `GetHashCode` (ou use um record).
+- Um `enum` em C# é apenas um inteiro por baixo: `(FlagEnvironment)42` compila e executa. Se o conjunto precisar ser fechado e o tipo precisar carregar comportamento, use uma classe sealed com construtor privado. Se nenhuma dessas coisas importar, um enum serve e esta refatoração não é necessária.
+- Com construtor privado as instâncias são únicas, então `==` sobre referências basta. Sem ele, sobrescreva `Equals` e `GetHashCode` (ou use um record, C# 9+; no Unity ele exige um shim de `IsExternalInit`).
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Nenhuma constante `string` ou `int` da família permanece, e não há forma pública de criar um valor fora da família se ela for feita para ser fechada.
+- Nenhuma constante `string` ou `int` da família permanece, e não há forma pública de criar um valor fora da família se ela deve ser fechada.

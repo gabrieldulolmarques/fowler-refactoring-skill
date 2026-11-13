@@ -17,74 +17,84 @@ Smells: Código Duplicado (Duplicated Code).
 Prefira chamar o construtor abrangente com padrões explícitos em vez de encadear lateralmente entre construtores estreitos, para que exista um único lugar onde os campos são atribuídos.
 
 ## Exemplo
-Antes: três construtores atribuem os campos cada um por conta própria, e dois repetem a mesma data de vencimento padrão.
+Antes: três construtores atribuem os campos cada um por conta própria, e dois repetem a mesma data de retenção padrão.
 
 ```csharp
-public class Payment
+using System;
+
+public enum StorageTier { Hot, Cool, Archive }
+
+public class UploadRequest
 {
-    private readonly decimal _amount;
-    private readonly string _currency;
-    private readonly DateOnly _dueDate;
-    private readonly string? _reference;
+    private readonly string _path;
+    private readonly string _contentType;
+    private readonly StorageTier _tier;
+    private readonly DateTime _retainUntil;
+    private readonly string? _notifyUrl;
 
-    public Payment(decimal amount)
+    public UploadRequest(string path)
     {
-        _amount = amount;
-        _currency = "USD";
-        _dueDate = DateOnly.FromDateTime(DateTime.Today).AddDays(30);
+        _path = path;
+        _contentType = "application/octet-stream";
+        _tier = StorageTier.Hot;
+        _retainUntil = DateTime.UtcNow.AddDays(30);
     }
 
-    public Payment(decimal amount, string currency)
+    public UploadRequest(string path, string contentType)
     {
-        _amount = amount;
-        _currency = currency;
-        _dueDate = DateOnly.FromDateTime(DateTime.Today).AddDays(30);
+        _path = path;
+        _contentType = contentType;
+        _tier = StorageTier.Hot;
+        _retainUntil = DateTime.UtcNow.AddDays(30);
     }
 
-    public Payment(decimal amount, string currency, DateOnly dueDate, string? reference)
+    public UploadRequest(string path, string contentType, StorageTier tier, DateTime retainUntil, string? notifyUrl)
     {
-        _amount = amount;
-        _currency = currency;
-        _dueDate = dueDate;
-        _reference = reference;
+        _path = path;
+        _contentType = contentType;
+        _tier = tier;
+        _retainUntil = retainUntil;
+        _notifyUrl = notifyUrl;
     }
 }
 ```
 
-Depois: só o último construtor atribui campos; os outros passam os padrões para ele.
+Depois: só o último construtor atribui campos; os outros passam padrões para ele.
 
 ```csharp
-public class Payment
+public class UploadRequest
 {
-    private readonly decimal _amount;
-    private readonly string _currency;
-    private readonly DateOnly _dueDate;
-    private readonly string? _reference;
+    private readonly string _path;
+    private readonly string _contentType;
+    private readonly StorageTier _tier;
+    private readonly DateTime _retainUntil;
+    private readonly string? _notifyUrl;
 
-    public Payment(decimal amount)
-        : this(amount, "USD")
+    public UploadRequest(string path)
+        : this(path, "application/octet-stream")
     {
     }
 
-    public Payment(decimal amount, string currency)
-        : this(amount, currency, DateOnly.FromDateTime(DateTime.Today).AddDays(30), null)
+    public UploadRequest(string path, string contentType)
+        : this(path, contentType, StorageTier.Hot, DateTime.UtcNow.AddDays(30), null)
     {
     }
 
-    public Payment(decimal amount, string currency, DateOnly dueDate, string? reference)
+    public UploadRequest(string path, string contentType, StorageTier tier, DateTime retainUntil, string? notifyUrl)
     {
-        _amount = amount;
-        _currency = currency;
-        _dueDate = dueDate;
-        _reference = reference;
+        _path = path;
+        _contentType = contentType;
+        _tier = tier;
+        _retainUntil = retainUntil;
+        _notifyUrl = notifyUrl;
     }
 }
 ```
 
 ## Notas (C#)
-- C# encadeia com `: this(...)` antes do corpo do construtor, e com `: base(...)` para a superclasse. A chamada encadeada roda primeiro, então uma expressão padrão não pode usar membros da instância.
-- Parâmetros opcionais costumam ser a alternativa mais simples: um só construtor, `Payment(decimal amount, string currency = "USD", DateOnly? dueDate = null, string? reference = null)`, com `dueDate ?? ...` dentro. Use encadeamento quando um padrão for calculado, quando dois padrões precisarem mudar juntos, ou quando a assinatura fizer parte de uma API pública (adicionar um parâmetro opcional muda os pontos de chamada em outros assemblies só depois que eles recompilarem, enquanto as sobrecargas continuam compatíveis em binário).
-- Em C# 12 e versões posteriores, uma classe com construtor primário faz os demais construtores chamarem `this(...)` nele por regra.
+- O C# encadeia com `: this(...)` antes do corpo do construtor, e `: base(...)` para a superclasse. A chamada encadeada executa primeiro, então uma expressão padrão não pode usar membros da instância.
+- Parâmetros opcionais costumam ser a alternativa mais simples: um só construtor, `UploadRequest(string path, string contentType = "application/octet-stream", StorageTier tier = StorageTier.Hot, DateTime? retainUntil = null, string? notifyUrl = null)`, com `retainUntil ?? ...` dentro. Use o encadeamento quando um padrão for calculado, quando dois padrões precisarem mudar juntos, ou quando a assinatura fizer parte de uma API pública (acrescentar um parâmetro opcional muda os pontos de chamada em outros assemblies só depois que eles são recompilados, enquanto sobrecargas continuam compatíveis em binário).
+- No C# 12 em diante, uma classe com construtor primário faz com que os outros construtores tenham de chamar `this(...)` nele, pela regra da linguagem.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
 - Cada campo é atribuído em exatamente um construtor, e cada construtor público produz o mesmo objeto de antes para os mesmos argumentos.

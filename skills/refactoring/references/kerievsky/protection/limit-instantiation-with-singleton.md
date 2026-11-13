@@ -20,48 +20,48 @@ Estes supõem um único construtor.
 4. Meça de novo. Mantenha a mudança apenas se compensou.
 
 ## Exemplo
-Antes: cada pedido cria sua própria política de envio, que não guarda estado.
+Antes: cada feature flag cria sua própria regra de liberação, que não guarda estado.
 
 ```csharp
-public abstract class ShippingPolicy
+public abstract class RolloutRule
 {
-    public abstract decimal Cost(decimal weightKg);
+    public abstract bool Includes(int userBucket);
 }
 
-public class StandardShipping : ShippingPolicy
+public class AllUsersRollout : RolloutRule
 {
-    public override decimal Cost(decimal weightKg) => 4m + weightKg * 0.5m;
+    public override bool Includes(int userBucket) => true;
 }
 
-public class Order
+public class FeatureFlag
 {
-    public ShippingPolicy Shipping { get; private set; } = new StandardShipping();
+    public RolloutRule Rule { get; private set; } = new AllUsersRollout();
 }
 ```
 
-Depois: um método de criação entrega uma única instância compartilhada, e o construtor é privado para que ninguém possa contorná-lo.
+Depois: um método de criação entrega uma única instância compartilhada, e o construtor é privado para que ninguém o contorne.
 
 ```csharp
-public class StandardShipping : ShippingPolicy
+public class AllUsersRollout : RolloutRule
 {
-    private static readonly ShippingPolicy Instance = new StandardShipping();
+    private static readonly RolloutRule Instance = new AllUsersRollout();
 
-    private StandardShipping() { }
+    private AllUsersRollout() { }
 
-    public static ShippingPolicy Create() => Instance;
+    public static RolloutRule Create() => Instance;
 
-    public override decimal Cost(decimal weightKg) => 4m + weightKg * 0.5m;
+    public override bool Includes(int userBucket) => true;
 }
 
-public class Order
+public class FeatureFlag
 {
-    public ShippingPolicy Shipping { get; private set; } = StandardShipping.Create();
+    public RolloutRule Rule { get; private set; } = AllUsersRollout.Create();
 }
 ```
 
 ## Notas (C#)
-- Um inicializador de campo `static readonly` é thread-safe e preguiçoso o suficiente na maioria dos casos: o CLR o executa uma vez. Quando a construção é cara ou precisa de um gatilho posterior, use `Lazy<T>`: `private static readonly Lazy<TaxTable> Instance = new(() => new TaxTable());`.
-- Em uma aplicação que já usa um contêiner de injeção de dependência, um registro de tempo de vida singleton (`AddSingleton`) geralmente faz esse trabalho sem campo estático e sem acesso global, e a classe continua sendo uma classe comum que os testes podem construir. Prefira-o onde houver um contêiner.
+- Um inicializador de campo `static readonly` é thread-safe e preguiçoso o suficiente para a maioria dos casos: o CLR o executa uma vez. Quando a construção é cara ou precisa de um gatilho posterior, use `Lazy<T>`: `private static readonly Lazy<FlagSchema> Instance = new(() => new FlagSchema());`.
+- Em uma aplicação que já usa um contêiner de injeção de dependência, um registro com tempo de vida singleton (`AddSingleton`) normalmente faz esse trabalho sem campo estático e sem acesso global, e a classe continua sendo uma classe normal que os testes podem construir. Prefira-o onde houver um contêiner.
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Os chamadores recebem a mesma instância sempre (`ReferenceEquals(a, b)`), e um perfil ou uma medição feita antes e depois mostra um ganho real.
+- Os chamadores recebem sempre a mesma instância (`ReferenceEquals(a, b)`), e um perfil ou medição feita antes e depois mostra um ganho real.

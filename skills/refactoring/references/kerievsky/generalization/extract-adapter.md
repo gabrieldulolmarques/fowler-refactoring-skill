@@ -21,90 +21,93 @@ Há várias formas de fazer isso. Se uma classe usa condicionais para tratar ver
 4. Remova a duplicação entre os novos adaptadores com Subir Método (Pull Up Method) ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)) e Formar Template Method (Form Template Method) ([form-template-method.md](form-template-method.md)). Compile e teste.
 
 ## Exemplo
-Antes: `ExchangeRates` adapta duas versões de um serviço de cotações. Tem dois construtores, um campo anulável por versão e um desvio no único método.
+Antes: `AssistantModel` adapta duas versões da API de um provedor de modelos. Tem dois construtores, um campo anulável por versão e um desvio no único método.
 
 ```csharp
-using System;
-
-// Versão antiga do serviço externo.
-public class LegacyRateService
+// Versão antiga da API do provedor: um prompt de texto na entrada, texto na saída.
+public class LegacyCompletionService
 {
-    public decimal Rate(string pair) => pair == "USD/BRL" ? 5m : 1m;
+    public string Complete(string prompt) => $"  reply to [{prompt}]  ";
 }
 
-// Nova versão do serviço externo.
-public record RateQuote(decimal Value, DateTime At);
-public class RateServiceV2
+// Nova versão: os textos de sistema e de usuário são separados, e a resposta é um objeto.
+public class ChatReply
 {
-    public RateQuote Quote(string from, string to) =>
-        new(from == "USD" && to == "BRL" ? 5m : 1m, DateTime.UtcNow);
+    public string Text { get; }
+    public ChatReply(string text) => Text = text;
 }
 
-public class ExchangeRates
+public class ChatServiceV2
 {
-    private readonly LegacyRateService? _legacy;
-    private readonly RateServiceV2? _v2;
+    public ChatReply Send(string system, string user) => new ChatReply($"  reply to [{system}/{user}]  ");
+}
 
-    public ExchangeRates(LegacyRateService legacy) => _legacy = legacy;
-    public ExchangeRates(RateServiceV2 v2) => _v2 = v2;
+public class AssistantModel
+{
+    private readonly LegacyCompletionService? _legacy;
+    private readonly ChatServiceV2? _v2;
 
-    public decimal Convert(decimal amount, string from, string to)
+    public AssistantModel(LegacyCompletionService legacy) => _legacy = legacy;
+    public AssistantModel(ChatServiceV2 v2) => _v2 = v2;
+
+    public string Ask(string question)
     {
-        var rate = _legacy != null
-            ? _legacy.Rate($"{from}/{to}")
-            : _v2!.Quote(from, to).Value;
-        return Math.Round(amount * rate, 2);
+        var raw = _legacy != null
+            ? _legacy.Complete($"User: {question}")
+            : _v2!.Send("assistant", question).Text;
+        return raw.Trim();
     }
 }
 ```
 
-Depois: um adaptador por versão, atrás de uma interface comum. O arredondamento compartilhado fica em uma classe base (o passo de Formar Template Method), e cada adaptador implementa apenas como obter uma cotação.
+Depois: um adaptador por versão, atrás de uma interface comum. A limpeza compartilhada (o `Trim`) fica em uma classe base (o passo de Formar Template Method), e cada adaptador implementa apenas como obter a resposta bruta.
 
 ```csharp
-using System;
-
-public class LegacyRateService
+public class LegacyCompletionService
 {
-    public decimal Rate(string pair) => pair == "USD/BRL" ? 5m : 1m;
+    public string Complete(string prompt) => $"  reply to [{prompt}]  ";
 }
 
-public record RateQuote(decimal Value, DateTime At);
-public class RateServiceV2
+public class ChatReply
 {
-    public RateQuote Quote(string from, string to) =>
-        new(from == "USD" && to == "BRL" ? 5m : 1m, DateTime.UtcNow);
+    public string Text { get; }
+    public ChatReply(string text) => Text = text;
 }
 
-public interface IExchangeRates
+public class ChatServiceV2
 {
-    decimal Convert(decimal amount, string from, string to);
+    public ChatReply Send(string system, string user) => new ChatReply($"  reply to [{system}/{user}]  ");
 }
 
-public abstract class ExchangeRates : IExchangeRates
+public interface IAssistantModel
 {
-    public decimal Convert(decimal amount, string from, string to) =>
-        Math.Round(amount * RateFor(from, to), 2);
-
-    protected abstract decimal RateFor(string from, string to);
+    string Ask(string question);
 }
 
-public class LegacyExchangeRates : ExchangeRates
+public abstract class AssistantModel : IAssistantModel
 {
-    private readonly LegacyRateService _service;
-    public LegacyExchangeRates(LegacyRateService service) => _service = service;
-    protected override decimal RateFor(string from, string to) => _service.Rate($"{from}/{to}");
+    public string Ask(string question) => RawReply(question).Trim();
+
+    protected abstract string RawReply(string question);
 }
 
-public class V2ExchangeRates : ExchangeRates
+public class LegacyAssistantModel : AssistantModel
 {
-    private readonly RateServiceV2 _service;
-    public V2ExchangeRates(RateServiceV2 service) => _service = service;
-    protected override decimal RateFor(string from, string to) => _service.Quote(from, to).Value;
+    private readonly LegacyCompletionService _service;
+    public LegacyAssistantModel(LegacyCompletionService service) => _service = service;
+    protected override string RawReply(string question) => _service.Complete($"User: {question}");
+}
+
+public class V2AssistantModel : AssistantModel
+{
+    private readonly ChatServiceV2 _service;
+    public V2AssistantModel(ChatServiceV2 service) => _service = service;
+    protected override string RawReply(string question) => _service.Send("assistant", question).Text;
 }
 ```
 
-Os clientes dependem de `IExchangeRates`; o código de inicialização (ou a configuração) escolhe `LegacyExchangeRates` ou `V2ExchangeRates`. Quando a versão 1 for aposentada, apague uma classe e nada mais.
+Os clientes dependem de `IAssistantModel`; o código de inicialização (ou a configuração) escolhe `LegacyAssistantModel` ou `V2AssistantModel`. Quando a versão 1 for aposentada, apague uma classe e nada mais.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Cada adaptador tem um teste contra a sua própria versão (ou um fake dela), e a classe antiga sobrecarregada não tem mais campos nem desvios de versão antes de você apagá-la.
+- Cada adaptador tem um teste contra a sua própria versão (ou um fake dela), e a classe sobrecarregada antiga não tem mais campos nem desvios de versão antes de você apagá-la.

@@ -24,203 +24,195 @@ O contexto é a classe que possui o campo de status (o campo de estado original)
 Dados que pertencem ao objeto (quem está atribuído, quantas vezes foi reaberto) ficam no contexto. Os estados leem e escrevem esses dados pelo contexto que recebem.
 
 ## Exemplo
-O domínio é um chamado de suporte com quatro estados e estas transições. Qualquer coisa fora da tabela é rejeitada com uma `InvalidOperationException`.
+O domínio é um pagamento instantâneo com quatro estados e estas transições. Qualquer coisa que não esteja na tabela é rejeitada com uma `InvalidOperationException`.
 
 | De | Chamada | Para |
 |---|---|---|
-| Open | Assign | Assigned |
-| Open | Close | Closed |
-| Assigned | Unassign | Open |
-| Assigned | Resolve | Resolved |
-| Resolved | Reopen (no máximo duas vezes) | Assigned |
-| Resolved | Close | Closed |
-| Closed | (nenhuma) | |
+| Created | Authorize (no máximo 3 tentativas) | Authorized |
+| Authorized | Release | Created |
+| Authorized | Settle | Settled |
+| Settled | Refund | Refunded |
+| Refunded | (nenhuma) | |
 
-Comentários são aceitos em todo estado, exceto Closed.
+A conciliação só é permitida em Settled e Refunded.
 
 Antes: todo método repete uma verificação de status e define o próximo status.
 
 ```csharp
 using System;
 
-public enum TicketStatus { Open, Assigned, Resolved, Closed }
+public enum PaymentStatus { Created, Authorized, Settled, Refunded }
 
-public class Ticket
+public class Payment
 {
-    private TicketStatus _status = TicketStatus.Open;
+    private PaymentStatus _status = PaymentStatus.Created;
 
-    public string? Assignee { get; private set; }
-    public int ReopenCount { get; private set; }
+    public string? AuthCode { get; private set; }
+    public int AuthAttempts { get; private set; }
     public string StatusName => _status.ToString();
-    public bool AcceptsComments => _status != TicketStatus.Closed;
+    public bool AllowsReconciliation => _status == PaymentStatus.Settled || _status == PaymentStatus.Refunded;
 
-    public void Assign(string agent)
+    public void Authorize(string code)
     {
-        if (_status != TicketStatus.Open)
-            throw new InvalidOperationException($"cannot assign a ticket that is {_status}");
-        Assignee = agent;
-        _status = TicketStatus.Assigned;
+        if (_status != PaymentStatus.Created)
+            throw new InvalidOperationException($"cannot authorize a payment that is {_status}");
+        if (AuthAttempts >= 3)
+            throw new InvalidOperationException("authorization attempt limit reached");
+        AuthAttempts++;
+        AuthCode = code;
+        _status = PaymentStatus.Authorized;
     }
 
-    public void Unassign()
+    public void Release()
     {
-        if (_status != TicketStatus.Assigned)
-            throw new InvalidOperationException($"cannot unassign a ticket that is {_status}");
-        Assignee = null;
-        _status = TicketStatus.Open;
+        if (_status != PaymentStatus.Authorized)
+            throw new InvalidOperationException($"cannot release a payment that is {_status}");
+        AuthCode = null;
+        _status = PaymentStatus.Created;
     }
 
-    public void Resolve()
+    public void Settle()
     {
-        if (_status != TicketStatus.Assigned)
-            throw new InvalidOperationException($"cannot resolve a ticket that is {_status}");
-        _status = TicketStatus.Resolved;
+        if (_status != PaymentStatus.Authorized)
+            throw new InvalidOperationException($"cannot settle a payment that is {_status}");
+        _status = PaymentStatus.Settled;
     }
 
-    public void Reopen()
+    public void Refund()
     {
-        if (_status != TicketStatus.Resolved)
-            throw new InvalidOperationException($"cannot reopen a ticket that is {_status}");
-        if (ReopenCount >= 2)
-            throw new InvalidOperationException("reopen limit reached");
-        ReopenCount++;
-        _status = TicketStatus.Assigned;
-    }
-
-    public void Close()
-    {
-        if (_status != TicketStatus.Open && _status != TicketStatus.Resolved)
-            throw new InvalidOperationException($"cannot close a ticket that is {_status}");
-        _status = TicketStatus.Closed;
+        if (_status != PaymentStatus.Settled)
+            throw new InvalidOperationException($"cannot refund a payment that is {_status}");
+        _status = PaymentStatus.Refunded;
     }
 }
 ```
 
-Depois dos passos 1 e 2, o enum é uma classe com quatro constantes, cada uma instância de uma subclasse aninhada privada de um `TicketState` abstrato. O contexto mantém uma propriedade `State` (agora com setter interno) no lugar de `_status`. Nada mais mudou ainda.
+Depois dos passos 1 e 2, o enum vira uma classe com quatro constantes, cada uma uma instância de uma subclasse aninhada e privada de uma `PaymentState` abstrata. O contexto guarda uma propriedade `State` (agora com setter interno) no lugar de `_status`. Nada mais mudou ainda.
 
-No passo 3, `Assign` é copiado para a superclasse de estado com o contexto como parâmetro, e o método do contexto apenas delega:
+No passo 3, `Authorize` é copiado para a superclasse de estado com o contexto como parâmetro, e o método do contexto apenas delega:
 
 ```csharp
-// em TicketState
-internal virtual void Assign(Ticket ticket, string agent)
+// fragment
+// em PaymentState
+internal virtual void Authorize(Payment payment, string code)
 {
-    if (ticket.State != Open)
-        throw new InvalidOperationException($"cannot assign a ticket that is {Name}");
-    ticket.Assignee = agent;
-    ticket.State = Assigned;
+    if (payment.State != Created)
+        throw new InvalidOperationException($"cannot authorize a payment that is {Name}");
+    if (payment.AuthAttempts >= 3)
+        throw new InvalidOperationException("authorization attempt limit reached");
+    payment.AuthAttempts++;
+    payment.AuthCode = code;
+    payment.State = Authorized;
 }
 
-// em Ticket
-public void Assign(string agent) => State.Assign(this, agent);
+// em Payment
+public void Authorize(string code) => State.Authorize(this, code);
 ```
 
-No passo 4, `OpenState` recebe apenas o ramo que se aplica a ele. A verificação e os ramos dos outros estados saem do override:
+No passo 4, `CreatedState` fica com o único ramo que se aplica a ele. A verificação do estado atual e os ramos dos outros estados saem do override:
 
 ```csharp
-// em OpenState
-internal override void Assign(Ticket ticket, string agent)
+// fragment
+// em CreatedState
+internal override void Authorize(Payment payment, string code)
 {
-    ticket.Assignee = agent;
-    ticket.State = Assigned;
+    if (payment.AuthAttempts >= 3)
+        throw new InvalidOperationException("authorization attempt limit reached");
+    payment.AuthAttempts++;
+    payment.AuthCode = code;
+    payment.State = Authorized;
 }
 ```
 
-No passo 5, o `Assign` base encolhe para o padrão, `throw NotAllowed("assign")`. Fazendo isso para todos os métodos, chega-se ao código final. Cada estado lista exatamente as transições que permite, e um estado que não sobrescreve um método o rejeita.
+No passo 5, o `Authorize` da base encolhe para o padrão, `throw NotAllowed("authorize")`. Fazer isso para todos os métodos gera o código final. Cada estado lista exatamente as transições que permite, e um estado que não sobrescreve um método o rejeita.
 
 ```csharp
 using System;
 
-public class Ticket
+public class Payment
 {
-    public TicketState State { get; internal set; } = TicketState.Open;
-    public string? Assignee { get; internal set; }
-    public int ReopenCount { get; internal set; }
+    public PaymentState State { get; internal set; } = PaymentState.Created;
+    public string? AuthCode { get; internal set; }
+    public int AuthAttempts { get; internal set; }
     public string StatusName => State.Name;
-    public bool AcceptsComments => State.AcceptsComments;
+    public bool AllowsReconciliation => State.AllowsReconciliation;
 
-    public void Assign(string agent) => State.Assign(this, agent);
-    public void Unassign() => State.Unassign(this);
-    public void Resolve() => State.Resolve(this);
-    public void Reopen() => State.Reopen(this);
-    public void Close() => State.Close(this);
+    public void Authorize(string code) => State.Authorize(this, code);
+    public void Release() => State.Release(this);
+    public void Settle() => State.Settle(this);
+    public void Refund() => State.Refund(this);
 }
 
-public abstract class TicketState
+public abstract class PaymentState
 {
-    public static readonly TicketState Open = new OpenState();
-    public static readonly TicketState Assigned = new AssignedState();
-    public static readonly TicketState Resolved = new ResolvedState();
-    public static readonly TicketState Closed = new ClosedState();
+    public static readonly PaymentState Created = new CreatedState();
+    public static readonly PaymentState Authorized = new AuthorizedState();
+    public static readonly PaymentState Settled = new SettledState();
+    public static readonly PaymentState Refunded = new RefundedState();
 
     public abstract string Name { get; }
-    public virtual bool AcceptsComments => true;
+    public virtual bool AllowsReconciliation => false;
 
-    internal virtual void Assign(Ticket ticket, string agent) => throw NotAllowed("assign");
-    internal virtual void Unassign(Ticket ticket) => throw NotAllowed("unassign");
-    internal virtual void Resolve(Ticket ticket) => throw NotAllowed("resolve");
-    internal virtual void Reopen(Ticket ticket) => throw NotAllowed("reopen");
-    internal virtual void Close(Ticket ticket) => throw NotAllowed("close");
+    internal virtual void Authorize(Payment payment, string code) => throw NotAllowed("authorize");
+    internal virtual void Release(Payment payment) => throw NotAllowed("release");
+    internal virtual void Settle(Payment payment) => throw NotAllowed("settle");
+    internal virtual void Refund(Payment payment) => throw NotAllowed("refund");
 
     private InvalidOperationException NotAllowed(string action) =>
-        new($"cannot {action} a ticket that is {Name}");
+        new($"cannot {action} a payment that is {Name}");
 
-    private sealed class OpenState : TicketState
+    private sealed class CreatedState : PaymentState
     {
-        public override string Name => "Open";
+        public override string Name => "Created";
 
-        internal override void Assign(Ticket ticket, string agent)
+        internal override void Authorize(Payment payment, string code)
         {
-            ticket.Assignee = agent;
-            ticket.State = Assigned;
+            if (payment.AuthAttempts >= 3)
+                throw new InvalidOperationException("authorization attempt limit reached");
+            payment.AuthAttempts++;
+            payment.AuthCode = code;
+            payment.State = Authorized;
         }
-
-        internal override void Close(Ticket ticket) => ticket.State = Closed;
     }
 
-    private sealed class AssignedState : TicketState
+    private sealed class AuthorizedState : PaymentState
     {
-        public override string Name => "Assigned";
+        public override string Name => "Authorized";
 
-        internal override void Unassign(Ticket ticket)
+        internal override void Release(Payment payment)
         {
-            ticket.Assignee = null;
-            ticket.State = Open;
+            payment.AuthCode = null;
+            payment.State = Created;
         }
 
-        internal override void Resolve(Ticket ticket) => ticket.State = Resolved;
+        internal override void Settle(Payment payment) => payment.State = Settled;
     }
 
-    private sealed class ResolvedState : TicketState
+    private sealed class SettledState : PaymentState
     {
-        public override string Name => "Resolved";
+        public override string Name => "Settled";
+        public override bool AllowsReconciliation => true;
 
-        internal override void Reopen(Ticket ticket)
-        {
-            if (ticket.ReopenCount >= 2)
-                throw new InvalidOperationException("reopen limit reached");
-            ticket.ReopenCount++;
-            ticket.State = Assigned;
-        }
-
-        internal override void Close(Ticket ticket) => ticket.State = Closed;
+        internal override void Refund(Payment payment) => payment.State = Refunded;
     }
 
-    private sealed class ClosedState : TicketState
+    private sealed class RefundedState : PaymentState
     {
-        public override string Name => "Closed";
-        public override bool AcceptsComments => false;
+        public override string Name => "Refunded";
+        public override bool AllowsReconciliation => true;
     }
 }
 ```
 
-Acrescentar um estado (digamos, `Escalated`) agora significa uma nova classe aninhada e as transições que levam a ele. Os métodos existentes em `Ticket` não mudam.
+Adicionar um estado (digamos, `Disputed`) agora significa uma classe aninhada nova e as transições que levam a ele. Os métodos existentes em `Payment` não mudam.
 
 ## Notas (C#)
-- Os objetos de estado não guardam dados por ticket, então as quatro instâncias `static readonly` são compartilhadas por todos os tickets. Mantenha assim: se um estado precisar de dados próprios, crie uma instância por contexto em vez de uma constante compartilhada.
-- Subclasses aninhadas `private sealed` mantêm as constantes como única forma de obter um estado. Membros `internal` permitem que os estados alterem o contexto sem expor setters publicamente. Se os estados morarem em outro assembly, use uma pequena interface pública no contexto.
-- Se o status for persistido, mantenha um código estável (o `Name`, ou o valor antigo do enum) e mapeie-o de volta para a constante ao carregar o objeto.
+- Os objetos de estado não guardam dados por pagamento, então as quatro instâncias `static readonly` são compartilhadas por todos os pagamentos. Mantenha assim: se um estado precisar de dados próprios, crie uma instância por contexto em vez de uma constante compartilhada.
+- Subclasses aninhadas `private sealed` mantêm as constantes como a única forma de obter um estado. Membros `internal` permitem que os estados alterem o contexto sem expor setters publicamente. Se os estados morarem em outro assembly, use uma pequena interface pública no contexto.
+- Se o status for persistido, mantenha um código estável (o `Name`, ou o valor antigo do enum) e converta-o de volta para a constante ao carregar o objeto.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Escreva a tabela de transições como teste antes do passo 1, cobrindo cada movimento permitido e pelo menos uma chamada rejeitada por estado (incluindo o limite de reabertura), e mantenha-a passando pelos cinco passos.
-- Após o passo 4, faça temporariamente os métodos base lançarem exceção (o passo 5 antecipado) em uma branch: qualquer teste que falhar aponta um estado para o qual você esqueceu um override.
-- Confirme que nenhum código fora do contexto e dos estados lê `State` para ramificar. Isso recriaria o condicional em outro lugar.
+- Escreva a tabela de transições como um teste antes do passo 1, cobrindo cada movimento permitido e pelo menos uma chamada rejeitada por estado (incluindo o limite de tentativas), e mantenha-o passando nos cinco passos.
+- Depois do passo 4, faça temporariamente os métodos da base lançarem exceção (antecipando o passo 5) em uma branch: qualquer teste que falhar mostra um estado ao qual você esqueceu de dar um override.
+- Confira que nenhum código fora do contexto e dos estados lê `State` para se ramificar. Isso recriaria o condicional em outro lugar.

@@ -23,91 +23,114 @@ O adaptado é a classe cuja interface o cliente não prefere. O adaptador é a c
 7. Mude o cliente para usar a interface em todos os pontos, no lugar do tipo adaptador. Compile e teste. O cliente agora fala com as duas classes por um único tipo.
 
 ## Exemplo
-Antes: um notificador envia recibos pelo nosso próprio `EmailSender` e, com uma cópia separada da lógica, pelo `SmsGateway` de terceiros, que não podemos alterar.
+Antes: um respondedor em lote envia perguntas ao nosso próprio `InHouseModel` e, com uma cópia separada da lógica, à `RemoteCompletionApi` de terceiros, que não podemos alterar.
 
 ```csharp
 using System.Collections.Generic;
 
-public record Customer(string Name, string Email, string Phone);
-public record SmsMessage(string Number, string Text);
-
-public class EmailSender
+public class InHouseModel
 {
-    public List<string> Sent { get; } = new();
-    public void Send(string to, string subject, string body) => Sent.Add($"{to}|{subject}|{body}");
+    public string Reply(string prompt, int maxTokens) => $"in-house({maxTokens}): {prompt}";
+}
+
+public class CompletionRequest
+{
+    public string Prompt { get; }
+    public int MaxTokens { get; }
+    public CompletionRequest(string prompt, int maxTokens) { Prompt = prompt; MaxTokens = maxTokens; }
+}
+
+public class CompletionResponse
+{
+    public string Text { get; }
+    public CompletionResponse(string text) => Text = text;
 }
 
 // Terceiro: não pode ser alterado.
-public sealed class SmsGateway
+public sealed class RemoteCompletionApi
 {
-    public List<SmsMessage> Outbox { get; } = new();
-    public void Transmit(SmsMessage message) => Outbox.Add(message);
+    public CompletionResponse Complete(CompletionRequest request) =>
+        new CompletionResponse($"remote({request.MaxTokens}): {request.Prompt}");
 }
 
-public class ReceiptNotifier
+public class BatchAnswerer
 {
-    public void ByEmail(IEnumerable<Customer> customers, EmailSender sender, string orderId)
+    public List<string> AnswerInHouse(IEnumerable<string> questions, InHouseModel model)
     {
-        foreach (var c in customers)
-            sender.Send(c.Email, "Receipt", $"Dear {c.Name}, order {orderId} is paid.");
+        var answers = new List<string>();
+        foreach (var q in questions)
+            answers.Add(model.Reply($"Answer briefly: {q}", 256));
+        return answers;
     }
 
-    public void BySms(IEnumerable<Customer> customers, SmsGateway gateway, string orderId)
+    public List<string> AnswerRemote(IEnumerable<string> questions, RemoteCompletionApi api)
     {
-        foreach (var c in customers)
-            gateway.Transmit(new SmsMessage(c.Phone, $"Dear {c.Name}, order {orderId} is paid."));
+        var answers = new List<string>();
+        foreach (var q in questions)
+            answers.Add(api.Complete(new CompletionRequest($"Answer briefly: {q}", 256)).Text);
+        return answers;
     }
 }
 ```
 
-Depois: os dois canais ficam atrás de `IMessageSender`. O adaptador envolve o gateway, e o notificador tem um único laço.
+Depois: os dois provedores ficam atrás de `IChatModel`. O adaptador envolve a API remota, e o respondedor tem um único laço.
 
 ```csharp
 using System.Collections.Generic;
 
-public record Customer(string Name, string Email, string Phone);
-public record SmsMessage(string Number, string Text);
-
-public interface IMessageSender
+public interface IChatModel
 {
-    void Send(string to, string subject, string body);
+    string Reply(string prompt, int maxTokens);
 }
 
-public class EmailSender : IMessageSender
+public class InHouseModel : IChatModel
 {
-    public List<string> Sent { get; } = new();
-    public void Send(string to, string subject, string body) => Sent.Add($"{to}|{subject}|{body}");
+    public string Reply(string prompt, int maxTokens) => $"in-house({maxTokens}): {prompt}";
+}
+
+public class CompletionRequest
+{
+    public string Prompt { get; }
+    public int MaxTokens { get; }
+    public CompletionRequest(string prompt, int maxTokens) { Prompt = prompt; MaxTokens = maxTokens; }
+}
+
+public class CompletionResponse
+{
+    public string Text { get; }
+    public CompletionResponse(string text) => Text = text;
 }
 
 // Terceiro: não pode ser alterado.
-public sealed class SmsGateway
+public sealed class RemoteCompletionApi
 {
-    public List<SmsMessage> Outbox { get; } = new();
-    public void Transmit(SmsMessage message) => Outbox.Add(message);
+    public CompletionResponse Complete(CompletionRequest request) =>
+        new CompletionResponse($"remote({request.MaxTokens}): {request.Prompt}");
 }
 
-public class SmsGatewayAdapter : IMessageSender
+public class RemoteModelAdapter : IChatModel
 {
-    private readonly SmsGateway _gateway;
-    public SmsGatewayAdapter(SmsGateway gateway) => _gateway = gateway;
+    private readonly RemoteCompletionApi _api;
+    public RemoteModelAdapter(RemoteCompletionApi api) => _api = api;
 
-    // SMS não tem assunto; o endereço é o número de telefone.
-    public void Send(string to, string subject, string body) =>
-        _gateway.Transmit(new SmsMessage(to, body));
+    public string Reply(string prompt, int maxTokens) =>
+        _api.Complete(new CompletionRequest(prompt, maxTokens)).Text;
 }
 
-public class ReceiptNotifier
+public class BatchAnswerer
 {
-    public void Notify(IEnumerable<Customer> customers, IMessageSender sender, bool useEmail, string orderId)
+    public List<string> Answer(IEnumerable<string> questions, IChatModel model)
     {
-        foreach (var c in customers)
-            sender.Send(useEmail ? c.Email : c.Phone, "Receipt", $"Dear {c.Name}, order {orderId} is paid.");
+        var answers = new List<string>();
+        foreach (var q in questions)
+            answers.Add(model.Reply($"Answer briefly: {q}", 256));
+        return answers;
     }
 }
 ```
 
-A flag `useEmail` mostra o que ainda é diferente: como obter o endereço. Se isso incomodar, dê à interface um membro que escolha o endereço, ou deixe o chamador passar a lista de endereços. Isso é um passo separado.
+O componente de terceiros não muda: só o adaptador conhece os tipos de requisição e de resposta dele. Adicionar outro provedor significa mais um adaptador, não mais um laço.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- As mesmas entradas produzem as mesmas mensagens de saída pelos dois canais que antes (compare `Sent` e `Outbox`), e nenhum código do cliente ainda cita o tipo adaptado.
+- As mesmas entradas produzem as mesmas respostas pelos dois caminhos que antes (compare as respostas devolvidas), e nenhum código do cliente ainda cita o tipo adaptado.

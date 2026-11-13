@@ -22,41 +22,42 @@ São as mesmas de Internalizar Classe (Inline Class) ([inline-class.md](../../fo
 Quando a classe absorvedora é um cliente ou um colaborador que já mantém o objeto, o resultado final é que o objeto lhe é entregue (pelo construtor ou por parâmetro) em vez de ser procurado.
 
 ## Exemplo
-Antes: `TaxRegistry` é um global que `InvoiceCalculator` lê. Testes que precisam de outra taxa precisam alterá-lo e depois restaurá-lo.
+Antes: `EndpointRegistry` é um global que `ReportClient` lê. Testes que precisam de outra URL base têm de alterá-la e depois devolvê-la ao valor original.
 
 ```csharp
-public class TaxTable { public virtual decimal Rate => 0.2m; }
+public class EndpointConfig { public virtual string BaseUrl => "https://api.example.test"; }
 
-public static class TaxRegistry
+public static class EndpointRegistry
 {
-    public static TaxTable Table { get; set; } = new();
+    public static EndpointConfig Config { get; set; } = new();
 }
 
-public class InvoiceCalculator
+public class ReportClient
 {
-    public decimal Total(decimal net) => net * (1 + TaxRegistry.Table.Rate);
+    public string UrlFor(string path) => EndpointRegistry.Config.BaseUrl + path;
 }
 ```
 
-Depois: `InvoiceCalculator` recebe o `TaxTable` que usa. `TaxRegistry` é apagado. Os chamadores passam a tabela, e um teste passa a sua própria.
+Depois: `ReportClient` recebe o `EndpointConfig` que usa. `EndpointRegistry` é excluída. Os chamadores passam a configuração, e um teste passa a sua própria.
 
 ```csharp
-public class TaxTable { public virtual decimal Rate => 0.2m; }
+public class EndpointConfig { public virtual string BaseUrl => "https://api.example.test"; }
 
-public class InvoiceCalculator
+public class ReportClient
 {
-    private readonly TaxTable _taxTable;
-    public InvoiceCalculator(TaxTable taxTable) { _taxTable = taxTable; }
+    private readonly EndpointConfig _config;
+    public ReportClient(EndpointConfig config) { _config = config; }
 
-    public decimal Total(decimal net) => net * (1 + _taxTable.Rate);
+    public string UrlFor(string path) => _config.BaseUrl + path;
 }
 ```
 
-Em passos, `InvoiceCalculator` primeiro ganha uma propriedade `Table` que devolve `TaxRegistry.Table`, os chamadores passam a usá-la, depois o campo é movido para dentro e `TaxRegistry` é removido.
+Em passos: primeiro `ReportClient` ganha uma propriedade `Config` que devolve `EndpointRegistry.Config`, os chamadores passam a usá-la, depois o campo é movido para dentro e `EndpointRegistry` é removida.
 
 ## Notas (C#)
-- Uma `static class` ou uma classe com uma propriedade `Instance` estática são ambas Singletons para este fim. A refatoração é a mesma.
+- Uma `static class` ou uma classe com uma propriedade estática `Instance` são Singletons para este fim. A refatoração é a mesma.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Uma busca pelo nome do Singleton não encontra nada, e nenhum teste precisa redefinir o estado compartilhado.
-- Toda classe que usava o global agora mostra o objeto na assinatura do construtor ou do método.
+- Uma busca pelo nome do Singleton não encontra nada, e nenhum teste precisa resetar estado compartilhado.
+- Toda classe que usava o global agora recebe o objeto na assinatura do construtor ou do método.

@@ -22,72 +22,75 @@ Isto cobre o caso de subclasses irmãs com um *método semelhante*. Uma supercla
 6. Se a maioria das subclasses cria a mesma classe, dê ao método da superclasse um corpo padrão que cria essa classe, e deixe as outras sobrescrevê-lo. Compile e teste.
 
 ## Exemplo
-Antes: dois exportadores repetem o mesmo método. Só a classe de relatório muda.
+Antes: dois clientes repetem o mesmo método. Só a classe de parser muda.
 
 ```csharp
-public interface IReport { string Render(); }
-public class TextReport : IReport
+using System.Collections.Generic;
+using System.Linq;
+
+public interface IItemParser { IReadOnlyList<string> Parse(string body); }
+public class CsvItemParser : IItemParser
 {
-    private readonly string _text;
-    public TextReport(string text) { _text = text; }
-    public string Render() => _text;
+    public IReadOnlyList<string> Parse(string body) => body.Split(',').Select(s => s.Trim()).ToList();
 }
-public class HtmlReport : IReport
+public class LineItemParser : IItemParser
 {
-    private readonly string _text;
-    public HtmlReport(string text) { _text = text; }
-    public string Render() => "<p>" + _text + "</p>";
+    public IReadOnlyList<string> Parse(string body) => body.Split('\n').Select(s => s.Trim()).ToList();
 }
 
-public class TextExporter
+public class CsvApiClient
 {
-    public string Export(IEnumerable<string> lines)
+    public IReadOnlyList<string> GetItems(string rawBody)
     {
-        var body = string.Join("\n", lines.Select(l => l.Trim()));
-        var report = new TextReport(body);
-        return "== Report ==\n" + report.Render();
+        var body = rawBody.Trim();
+        var parser = new CsvItemParser();
+        return parser.Parse(body).Where(i => i.Length > 0).ToList();
     }
 }
-public class HtmlExporter
+public class LineApiClient
 {
-    public string Export(IEnumerable<string> lines)
+    public IReadOnlyList<string> GetItems(string rawBody)
     {
-        var body = string.Join("\n", lines.Select(l => l.Trim()));
-        var report = new HtmlReport(body);
-        return "== Report ==\n" + report.Render();
+        var body = rawBody.Trim();
+        var parser = new LineItemParser();
+        return parser.Parse(body).Where(i => i.Length > 0).ToList();
     }
 }
 ```
 
-Depois: `Export` existe uma única vez em `Exporter`. Ele chama `CreateReport`, e cada subclasse decide o que construir.
+Depois: `GetItems` existe uma única vez em `ApiClient`. Ele chama `CreateParser`, e cada subclasse decide o que construir.
 
 ```csharp
-public abstract class Exporter
+using System.Collections.Generic;
+using System.Linq;
+
+public abstract class ApiClient
 {
-    public string Export(IEnumerable<string> lines)
+    public IReadOnlyList<string> GetItems(string rawBody)
     {
-        var body = string.Join("\n", lines.Select(l => l.Trim()));
-        var report = CreateReport(body);
-        return "== Report ==\n" + report.Render();
+        var body = rawBody.Trim();
+        var parser = CreateParser();
+        return parser.Parse(body).Where(i => i.Length > 0).ToList();
     }
 
-    protected abstract IReport CreateReport(string body);
+    protected abstract IItemParser CreateParser();
 }
 
-public class TextExporter : Exporter
+public class CsvApiClient : ApiClient
 {
-    protected override IReport CreateReport(string body) => new TextReport(body);
+    protected override IItemParser CreateParser() => new CsvItemParser();
 }
 
-public class HtmlExporter : Exporter
+public class LineApiClient : ApiClient
 {
-    protected override IReport CreateReport(string body) => new HtmlReport(body);
+    protected override IItemParser CreateParser() => new LineItemParser();
 }
 ```
 
 ## Notas (C#)
 - Torne o factory method `protected abstract`, a menos que chamadores fora da hierarquia precisem dele. Uma implementação padrão é `protected virtual`.
+
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- O método semelhante agora existe em um só lugar, e nenhuma subclasse repete seu corpo.
-- Cada subclasse sobrescreve apenas o passo de criação.
+- O método parecido agora existe em um único lugar, e nenhuma subclasse repete o seu corpo.
+- Cada subclasse sobrescreve apenas a etapa de criação.
