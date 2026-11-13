@@ -23,61 +23,59 @@ Follow [introduce-special-case.md](../../fowler/conditional-logic/introduce-spec
 If many null objects get created, see whether [limit-instantiation-with-singleton.md](limit-instantiation-with-singleton.md) is worth it, after profiling.
 
 ## Example
-Before: a notifier is attached once the customer's channel is known, so each use checks for null. See the Fowler file for the general form; here is the early-use case.
+Before: a flag gate gets its shared flag store only after configuration is loaded, so each use checks for null. See the Fowler file for the general form; here is the early-use case.
 
 ```csharp
-public interface IShipmentNotifier
+public interface IFlagStore
 {
-    void Dispatched(string orderId);
-    void Delivered(string orderId);
+    void Refresh();
+    void Kill(string flagName);
 }
 
-public class Order
+public class FeatureGate
 {
-    private readonly string _id = "A-1";
-    private IShipmentNotifier? _notifier;
+    private IFlagStore? _store;
 
-    public void AttachNotifier(IShipmentNotifier notifier) => _notifier = notifier;
+    public void AttachStore(IFlagStore store) => _store = store;
 
-    public void Dispatch()
+    public void Refresh()
     {
-        if (_notifier != null)
-            _notifier.Dispatched(_id);
+        if (_store != null)
+            _store.Refresh();
     }
 
-    public void Deliver()
+    public void KillSwitch(string flagName)
     {
-        if (_notifier != null)
-            _notifier.Delivered(_id);
+        if (_store != null)
+            _store.Kill(flagName);
     }
 }
 ```
 
-After: the field starts as a do-nothing notifier and the checks are gone.
+After: the field starts as a do-nothing store and the checks are gone.
 
 ```csharp
-public sealed class NullShipmentNotifier : IShipmentNotifier
+public sealed class NullFlagStore : IFlagStore
 {
-    public void Dispatched(string orderId) { }
-    public void Delivered(string orderId) { }
+    public void Refresh() { }
+    public void Kill(string flagName) { }
 }
 
-public class Order
+public class FeatureGate
 {
-    private readonly string _id = "A-1";
-    private IShipmentNotifier _notifier = new NullShipmentNotifier();
+    private IFlagStore _store = new NullFlagStore();
 
-    public void AttachNotifier(IShipmentNotifier notifier) => _notifier = notifier;
+    public void AttachStore(IFlagStore store) => _store = store;
 
-    public void Dispatch() => _notifier.Dispatched(_id);
+    public void Refresh() => _store.Refresh();
 
-    public void Deliver() => _notifier.Delivered(_id);
+    public void KillSwitch(string flagName) => _store.Kill(flagName);
 }
 ```
 
 ## C# notes
-- With nullable reference types on, the field changes from `IShipmentNotifier?` to `IShipmentNotifier`, and the compiler then stops warning about it.
-- A stateless null object can be a shared static instance (`NullShipmentNotifier.Instance`).
+- With nullable reference types on, the field changes from `IFlagStore?` to `IFlagStore`, and the compiler then stops warning about it.
+- A stateless null object can be a shared static instance (`NullFlagStore.Instance`).
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No null check on the field remains, and a test that calls the methods before any real object is attached passes without an exception.

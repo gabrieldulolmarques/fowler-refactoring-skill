@@ -23,11 +23,11 @@ Follow [replace-primitive-with-object.md](../../fowler/encapsulation/replace-pri
 7. Replace every use of the old constants with the new ones, change the getter's return type to the new class, and fix the callers. Compare with `==` on the shared instances, or give the class equality if it can be created from outside. Compile and test.
 8. Delete the old constants.
 
-The example is in the Fowler file; the shape of the result is the sealed class with static instances shown there, for instance a sealed `OrderStatus` with `Pending`, `Paid` and `Shipped`.
+The example is in the Fowler file; the shape of the result is the sealed class with static instances shown there, for instance a sealed `FlagEnvironment` with `Development`, `Staging` and `Production`.
 
 ## C# notes
-- A C# `enum` is only an integer underneath: `(OrderStatus)42` compiles and runs. If the set must be closed and the type must carry behavior, use a sealed class with a private constructor. If neither matters, an enum is fine and this refactoring is not needed.
-- With a private constructor the instances are unique, so `==` on references is enough. Without it, override `Equals` and `GetHashCode` (or use a record).
+- A C# `enum` is only an integer underneath: `(FlagEnvironment)42` compiles and runs. If the set must be closed and the type must carry behavior, use a sealed class with a private constructor. If neither matters, an enum is fine and this refactoring is not needed.
+- With a private constructor the instances are unique, so `==` on references is enough. Without it, override `Equals` and `GetHashCode` (or use a record, C# 9+; on Unity it needs an `IsExternalInit` shim).
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No `string` or `int` constant for the family remains, and no public way to create a value outside the family if the family is meant to be closed.

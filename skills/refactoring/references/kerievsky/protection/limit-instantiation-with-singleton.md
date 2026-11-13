@@ -20,47 +20,47 @@ These assume one constructor.
 4. Measure again. Keep the change only if it paid off.
 
 ## Example
-Before: every order creates its own shipping policy, which holds no state.
+Before: every feature flag creates its own rollout rule, which holds no state.
 
 ```csharp
-public abstract class ShippingPolicy
+public abstract class RolloutRule
 {
-    public abstract decimal Cost(decimal weightKg);
+    public abstract bool Includes(int userBucket);
 }
 
-public class StandardShipping : ShippingPolicy
+public class AllUsersRollout : RolloutRule
 {
-    public override decimal Cost(decimal weightKg) => 4m + weightKg * 0.5m;
+    public override bool Includes(int userBucket) => true;
 }
 
-public class Order
+public class FeatureFlag
 {
-    public ShippingPolicy Shipping { get; private set; } = new StandardShipping();
+    public RolloutRule Rule { get; private set; } = new AllUsersRollout();
 }
 ```
 
 After: a creation method hands out one shared instance, and the constructor is private so nobody can bypass it.
 
 ```csharp
-public class StandardShipping : ShippingPolicy
+public class AllUsersRollout : RolloutRule
 {
-    private static readonly ShippingPolicy Instance = new StandardShipping();
+    private static readonly RolloutRule Instance = new AllUsersRollout();
 
-    private StandardShipping() { }
+    private AllUsersRollout() { }
 
-    public static ShippingPolicy Create() => Instance;
+    public static RolloutRule Create() => Instance;
 
-    public override decimal Cost(decimal weightKg) => 4m + weightKg * 0.5m;
+    public override bool Includes(int userBucket) => true;
 }
 
-public class Order
+public class FeatureFlag
 {
-    public ShippingPolicy Shipping { get; private set; } = StandardShipping.Create();
+    public RolloutRule Rule { get; private set; } = AllUsersRollout.Create();
 }
 ```
 
 ## C# notes
-- A `static readonly` field initializer is thread-safe and lazy enough for most cases: the CLR runs it once. When construction is expensive or needs a later trigger, use `Lazy<T>`: `private static readonly Lazy<TaxTable> Instance = new(() => new TaxTable());`.
+- A `static readonly` field initializer is thread-safe and lazy enough for most cases: the CLR runs it once. When construction is expensive or needs a later trigger, use `Lazy<T>`: `private static readonly Lazy<FlagSchema> Instance = new(() => new FlagSchema());`.
 - In an application that already uses a dependency injection container, a singleton lifetime registration (`AddSingleton`) usually does this job without a static field and without global access, and the class stays a normal class that tests can construct. Prefer it where a container exists.
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
