@@ -64,7 +64,7 @@ patterns Kerievsky adds.
 ## Fowler: the refactorings
 
 Each file has: When to use, Mechanics, Example (C#), C# notes where the catalog has one, and
-Verification. A Kerievsky file also gives the pattern (with its page in GoF) and the
+Verification. A Kerievsky file also gives the target pattern and the
 direction: *to* the pattern, *towards* it, or *away* from it. "(web)" marks a refactoring that exists only in the book's web edition, with no print
 page.
 
@@ -235,5 +235,5 @@ moves towards it, or removes one. The Pattern column gives the direction.
 Sources: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed.,
 Addison-Wesley (Pearson Education), 2018, and the online catalog at
 https://refactoring.com/catalog/; Joshua Kerievsky, *Refactoring to Patterns*, Addison-Wesley
-(Pearson Education), 2004; pattern pages from Gamma, Helm, Johnson and Vlissides, *Design
-Patterns*, Addison-Wesley, 1995. Paraphrased; see the package NOTICE.
+(Pearson Education), 2004, and the online catalog at
+https://www.industriallogic.com/refactoring-to-patterns/catalog/. Paraphrased; see the package NOTICE.

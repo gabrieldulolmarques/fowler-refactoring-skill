@@ -1,6 +1,6 @@
 # Replace Hard-Coded Notifications with Observer
 
-Kerievsky (2004), ch. 8, p. 236. Direction: to, towards. Pattern: Observer (GoF, p. 293).
+Kerievsky (2004), ch. 8, p. 236. Pattern: Observer. Direction: to, towards.
 
 ## When to use
 Smells: —.
@@ -148,10 +148,6 @@ public class PaymentDashboard
 - Every `+=` needs a matching `-=`, and the subject often outlives the subscriber, so an event handler that is never removed keeps the subscriber alive. Unsubscribe in `Dispose`, in a close method, or when the observer is replaced. For a subscriber that implements `IDisposable`, put the `-=` there.
 - Subscribing a lambda or anonymous method is easy, but `-=` with a new, textually identical lambda does not remove it. Keep the delegate in a field if you will need to unsubscribe.
 - Only the declaring class can raise an `event`; outside code can only `+=` and `-=`. That is usually what you want. Use `?.Invoke` so an event with no subscribers does not throw.
-- Handlers run synchronously, in subscription order, on the caller's thread. If one throws, the rest are skipped, and a slow handler slows down `Charge`. Keep handlers short, or catch and report inside the raising method if one bad observer must not stop the others.
-- A handler that unsubscribes (or subscribes) during notification is safe with events, because delegates are immutable and `Invoke` works on a snapshot. With the manual list version, iterate over a copy, as above.
-- If the subject must live much longer than observers and you cannot guarantee unsubscription, a weak-event pattern or a different design (polling, a message bus) is safer than relying on discipline.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - A test with two observers checks that both receive each event, in the expected order, and that an observer sees nothing after it unsubscribes.

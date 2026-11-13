@@ -1,6 +1,6 @@
 # Replace Implicit Language with Interpreter
 
-Kerievsky (2004), ch. 8, p. 269. Direction: to. Pattern: Interpreter (GoF, p. 243).
+Kerievsky (2004), ch. 8, p. 269. Pattern: Interpreter. Direction: to.
 
 ## When to use
 Smells: Combinatorial Explosion, Large Class, Primitive Obsession, Duplicated Code.
@@ -140,8 +140,6 @@ public class OrderFinder
 ## C# notes
 - In C#, a `Func<Order, bool>` (and combinators over it) or LINQ `Where` is often all you need for in-memory filtering. Classes earn their place when the criteria must be inspected, printed, serialized or translated (for instance to SQL).
 - If the target is a database, `Expression<Func<T, bool>>` lets a provider translate the criteria; building your own specification classes would then duplicate what the provider already does.
-- Make specifications immutable and cheap to construct; they are values describing a question, not services.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - For each old finder method, a test builds the equivalent specification and returns the same orders in the same order before the old method is inlined.

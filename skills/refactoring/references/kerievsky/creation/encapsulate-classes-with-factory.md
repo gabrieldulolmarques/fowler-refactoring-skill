@@ -1,6 +1,6 @@
 # Encapsulate Classes with Factory
 
-Kerievsky (2004), ch. 6, p. 80. Direction: to. Pattern: Factory (not in GoF).
+Kerievsky (2004), ch. 6, p. 80. Pattern: Factory. Direction: to.
 
 ## When to use
 Smells: Indecent Exposure.
@@ -56,9 +56,7 @@ The same shape appears in the standard library's wrappers that make a collection
 
 ## C# notes
 - Nested `private` classes are the strictest form. When the subclasses are in separate files, make them `internal` with `internal` constructors, and put the Creation Methods on a public class in the same assembly.
-- Mark hidden classes `sealed` if they are not meant to be extended.
 - Tests that need a concrete type can use `InternalsVisibleTo`, or test through the factory.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No code outside the assembly (or outside the base class, for nested types) refers to the concrete classes.

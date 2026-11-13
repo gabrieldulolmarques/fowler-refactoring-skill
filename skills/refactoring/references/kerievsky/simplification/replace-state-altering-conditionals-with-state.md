@@ -1,6 +1,6 @@
 # Replace State-Altering Conditionals with State
 
-Kerievsky (2004), ch. 7, p. 166. Direction: to, towards. Pattern: State (GoF, p. 305).
+Kerievsky (2004), ch. 7, p. 166. Pattern: State. Direction: to, towards.
 
 ## When to use
 Smells: Conditional Complexity, Large Class, Primitive Obsession.
@@ -218,9 +218,7 @@ Adding a state (say, `Escalated`) now means one new nested class and the transit
 ## C# notes
 - The state objects hold no per-ticket data, so the four `static readonly` instances are shared by all tickets. Keep it that way: if a state needs its own data, create an instance per context instead of a shared constant.
 - Nested `private sealed` subclasses keep the constants as the only way to obtain a state. `internal` members let the states change the context without exposing setters publicly. If the states live in another assembly, use a small public interface on the context instead.
-- A `switch` expression on the old enum, if one survives elsewhere (for example in a mapper or a UI label), must be replaced by a state member or compare `State` to the constants.
 - If the status is persisted, keep a stable code (the `Name`, or the old enum value) and map it back to the constant when the object is loaded.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Write the transition table as a test before step 1, covering every allowed move and at least one rejected call per state (including the reopen limit), and keep it passing through all five steps.

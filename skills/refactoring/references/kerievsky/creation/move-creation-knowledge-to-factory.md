@@ -1,13 +1,13 @@
 # Move Creation Knowledge to Factory
 
-Kerievsky (2004), ch. 6, p. 68. Direction: to. Pattern: Factory (not in GoF).
+Kerievsky (2004), ch. 6, p. 68. Pattern: Factory. Direction: to.
 
 ## When to use
 Smells: Solution Sprawl.
 
 - The data and code needed to build one kind of object are spread over several classes. The book calls this creation sprawl. It usually starts when a client wants to configure an object but cannot reach the code that creates it, so it hands its preferences to one object, which hands them to another, until some distant class finally uses them.
 - A Factory gathers both the creation logic and the preferences in one class. The client sets up the factory once, and the same factory instance later does the creation wherever it is needed.
-- The book's definition: any class that has one or more Creation Methods is a Factory, static or not, returning an interface, an abstract class or a concrete class. A Factory Method (GoF) is a different thing, a polymorphic method in a hierarchy. An Abstract Factory is a Factory that can be swapped at run time to build a family of related objects. If the Factory's creation logic grows too complex, it can evolve into one.
+- The book's definition: any class that has one or more Creation Methods is a Factory, static or not, returning an interface, an abstract class or a concrete class. A Factory Method is a different thing, a polymorphic method in a hierarchy. An Abstract Factory is a Factory that can be swapped at run time to build a family of related objects. If the Factory's creation logic grows too complex, it can evolve into one.
 - A Factory can be a class or an interface implemented by an existing class. The interface form is useful when other code should talk to that class only through its creation role.
 - Liability: a Factory adds a class. If every object in the system is created through a factory, there are too many. Do not add one only to hide a choice between two concrete classes in one place. It has to remove sprawl or allow a configuration that plain `new` cannot.
 
@@ -71,10 +71,6 @@ public class CheckoutService
     public Order Place(string customer, OrderFactory factory) => factory.CreateOrder(customer);
 }
 ```
-
-## C# notes
-- If other code should depend only on the creation role, extract an interface (`IOrderFactory`) and let the class implement it.
-- With dependency injection, the factory is often registered as a service. The refactoring is still the same: move the knowledge first, then decide how the factory is supplied.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

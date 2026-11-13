@@ -1,6 +1,6 @@
 # Move Embellishment to Decorator
 
-Kerievsky (2004), ch. 7, p. 144. Direction: to, towards. Pattern: Decorator (GoF, p. 175).
+Kerievsky (2004), ch. 7, p. 144. Pattern: Decorator. Direction: to, towards.
 
 ## When to use
 Smells: Conditional Complexity, Primitive Obsession.
@@ -106,11 +106,6 @@ public class AuditedPaymentProcessor : IPaymentProcessor
     }
 }
 ```
-
-## C# notes
-- If the interface grows later, every decorator must grow with it. Keep it small.
-- With a DI container, register the decorated chain in one place so call sites do not pick the order.
-- Do not test the decorated object with `is` or casts to the concrete class; depend on the interface.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

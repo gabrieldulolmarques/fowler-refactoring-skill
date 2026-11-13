@@ -98,7 +98,7 @@ Scope drives severity: a variable mutated within a couple of lines is harmless; 
 **Try:**
 - Move Function ([move-function.md](fowler/moving-features/move-function.md)), to put it with the data
 - Extract Function ([extract-function.md](fowler/first-set/extract-function.md)), when only part of the function is envious, then move that part
-- When the function touches several modules, put it with the one holding most of the data. Some patterns deliberately keep behavior apart from data so each can vary on its own (Strategy, Visitor, and Self Delegation from Kent Beck); treat them as legitimate exceptions, and as remedies for Divergent Change.
+- When the function touches several modules, put it with the one holding most of the data. Some patterns deliberately keep behavior apart from data so each can vary on its own (Strategy, Visitor and Self Delegation); treat them as legitimate exceptions, and as remedies for Divergent Change.
 
 ## Data Clumps (p. 78)
 **Symptoms:** the same few values appear together as fields in several classes and as parameters in many signatures. Quick check: if a value loses its meaning when taken alone, the group is one concept waiting to become an object.

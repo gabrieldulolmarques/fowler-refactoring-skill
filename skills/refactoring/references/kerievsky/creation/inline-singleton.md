@@ -1,6 +1,6 @@
 # Inline Singleton
 
-Kerievsky (2004), ch. 6, p. 114. Direction: away. Pattern: Singleton (GoF, p. 127).
+Kerievsky (2004), ch. 6, p. 114. Pattern: Singleton. Direction: away.
 
 ## When to use
 Smells: Lazy Class.
@@ -56,8 +56,6 @@ In steps, `InvoiceCalculator` first gets a `Table` property that returns `TaxReg
 
 ## C# notes
 - A `static class` or a class with a static `Instance` property are both Singletons for this purpose. The refactoring is the same.
-- With a dependency injection container, a "singleton lifetime" is not the pattern: the object is still passed in. Do not inline those.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - A search for the Singleton's name finds nothing, and no test needs to reset shared state.

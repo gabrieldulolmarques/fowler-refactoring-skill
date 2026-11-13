@@ -1,6 +1,6 @@
 # Chain Constructors
 
-Kerievsky (2004), ch. 11, p. 340. Direction: —. Pattern: —.
+Kerievsky (2004), ch. 11, p. 340. Pattern: —. Direction: —.
 
 ## When to use
 Smells: Duplicated Code.
@@ -85,7 +85,6 @@ public class Payment
 - C# chains with `: this(...)` before the constructor body, and `: base(...)` for the superclass. The chained call runs first, so a default expression cannot use instance members.
 - Optional parameters are often the simpler alternative: one constructor, `Payment(decimal amount, string currency = "USD", DateOnly? dueDate = null, string? reference = null)`, with `dueDate ?? ...` inside. Use chaining instead when a default is computed, when two defaults must change together, or when the signature is part of a public API (adding an optional parameter changes call sites in other assemblies only after they recompile, while overloads stay binary compatible).
 - On C# 12 and later, a class with a primary constructor makes the other constructors call `this(...)` on it by rule.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Every field is assigned in exactly one constructor, and each public constructor produces the same object as before for the same arguments.

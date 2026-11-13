@@ -1,6 +1,6 @@
 # Move Accumulation to Visitor
 
-Kerievsky (2004), ch. 10, p. 320. Direction: to, towards (Visitor); away (Iterator). Pattern: Visitor (GoF, p. 331).
+Kerievsky (2004), ch. 10, p. 320. Pattern: Visitor. Direction: to, towards (Visitor); away (Iterator).
 
 ## When to use
 Smells: Long Method, Switch Statements.
@@ -137,9 +137,7 @@ public class TotalCalculator : IChargeVisitor
 
 ## C# notes
 - On C# 9 and later, a `switch` expression with type patterns often solves the same problem with much less code. Use a Visitor only when several algorithms need the same structure, or when the type set is open to extension by other assemblies.
-- The visitor holds state between visits, so a visitor instance is not thread-safe and should be created per use (the example resets its fields at the start of `Total`; creating a new calculator per call is safer).
 - A generic `IChargeVisitor<TResult>` with return values avoids mutable fields, at the cost of a more elaborate interface.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Results equal the old method for every kind of source, including a collection that mixes kinds, and a collection with an unknown or empty case.

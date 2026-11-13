@@ -273,8 +273,6 @@ refactoring, the citation line says "web edition only" and links the refactoring
 
 Nothing in the skill names a specific project, framework, engine or team process.
 
-Not used as a source: the replication package by Chen Kuang Piao et al.
-(`Fowler_catalog.json`). It has no license and contains text from the book.
 
 ---
 
@@ -288,42 +286,70 @@ and a diagram for each; the mechanics come from the book.
 
 ### 5.1 The 27 refactorings
 
-**Page** is the printed page from the book's own list of refactorings (inside front cover).
-**Direction** comes from the book's "Refactoring Directions" table. **GoF** is the printed page of
-the target pattern in Gamma et al., *Design Patterns* (1995), from that book's inside front
-cover; "—" when the pattern is not in GoF. The book's mechanics name Fowler's refactorings by
-their 1st-edition names; the reference files use the 2nd-edition names (section 2) and link
-their files.
+Checked against the book: **Page** is the printed page from the book's own list of refactorings
+(inside front cover), and **Direction** comes from its "Refactoring Directions" table. The
+book's mechanics name Fowler's refactorings by their 1st-edition names; the reference files use
+the 2nd-edition names (section 2) and link their files.
 
-| # | Refactoring | Folder | Page | Pattern | Direction | GoF |
-|---|---|---|---|---|---|---|
-| 1 | Replace Constructors with Creation Methods | `creation` (ch. 6) | 57 | Creation Method | to | — |
-| 2 | Move Creation Knowledge to Factory | `creation` | 68 | Factory | to | — |
-| 3 | Encapsulate Classes with Factory | `creation` | 80 | Factory | to | — |
-| 4 | Introduce Polymorphic Creation with Factory Method | `creation` | 88 | Factory Method | to | 107 |
-| 5 | Encapsulate Composite with Builder | `creation` | 96 | Builder (Composite: away) | to | 97 |
-| 6 | Inline Singleton | `creation` | 114 | Singleton | away | 127 |
-| 7 | Compose Method | `simplification` (ch. 7) | 123 | Composed Method | to | — |
-| 8 | Replace Conditional Logic with Strategy | `simplification` | 129 | Strategy | to, towards | 315 |
-| 9 | Move Embellishment to Decorator | `simplification` | 144 | Decorator | to, towards | 175 |
-| 10 | Replace State-Altering Conditionals with State | `simplification` | 166 | State | to, towards | 305 |
-| 11 | Replace Implicit Tree with Composite | `simplification` | 178 | Composite | to | 163 |
-| 12 | Replace Conditional Dispatcher with Command | `simplification` | 191 | Command | to, towards | 233 |
-| 13 | Form Template Method | `generalization` (ch. 8) | 205 | Template Method | to | 325 |
-| 14 | Extract Composite | `generalization` | 214 | Composite | to | 163 |
-| 15 | Replace One/Many Distinctions with Composite | `generalization` | 224 | Composite | to | 163 |
-| 16 | Replace Hard-Coded Notifications with Observer | `generalization` | 236 | Observer | to, towards | 293 |
-| 17 | Unify Interfaces with Adapter | `generalization` | 247 | Adapter | to, towards | 139 |
-| 18 | Extract Adapter | `generalization` | 258 | Adapter | to | 139 |
-| 19 | Replace Implicit Language with Interpreter | `generalization` | 269 | Interpreter | to | 243 |
-| 20 | Replace Type Code with Class | `protection` (ch. 9) | 286 | — | — | — |
-| 21 | Limit Instantiation with Singleton | `protection` | 296 | Singleton | to | 127 |
-| 22 | Introduce Null Object | `protection` | 301 | Null Object | to | — |
-| 23 | Move Accumulation to Collecting Parameter | `accumulation` (ch. 10) | 313 | Collecting Parameter | to | — |
-| 24 | Move Accumulation to Visitor | `accumulation` | 320 | Visitor (Iterator: away) | to, towards | 331 |
-| 25 | Chain Constructors | `utilities` (ch. 11) | 340 | — | — | — |
-| 26 | Unify Interfaces | `utilities` | 343 | — | — | — |
-| 27 | Extract Parameter | `utilities` | 346 | — | — | — |
+**C# note** is what the reference file must add because the book's examples are Java: only
+generic C# points. Where it says "—", the file has no C# notes section.
+
+#### Chapter 6: Creation (`kerievsky/creation`)
+
+| # | Refactoring | Page | Pattern | Direction | C# note |
+|---|---|---|---|---|---|
+| 1 | Replace Constructors with Creation Methods | 57 | Creation Method | to | optional parameters and object initializers do not name the variant; a `record` with a private constructor works the same way |
+| 2 | Move Creation Knowledge to Factory | 68 | Factory | to | — |
+| 3 | Encapsulate Classes with Factory | 80 | Factory | to | hide the classes with `internal` (or nested `private`) types and constructors; tests can use `InternalsVisibleTo` |
+| 4 | Introduce Polymorphic Creation with Factory Method | 88 | Factory Method | to | the factory method is `protected abstract`, or `protected virtual` with a default |
+| 5 | Encapsulate Composite with Builder | 96 | Builder | to (Builder); away (Composite) | — |
+| 6 | Inline Singleton | 114 | Singleton | away | a `static class` counts as a Singleton here |
+
+#### Chapter 7: Simplification (`kerievsky/simplification`)
+
+| # | Refactoring | Page | Pattern | Direction | C# note |
+|---|---|---|---|---|---|
+| 7 | Compose Method | 123 | Composed Method | to | expression-bodied members and local functions keep the pieces short |
+| 8 | Replace Conditional Logic with Strategy | 129 | Strategy | to, towards | an interface, or an abstract class if the strategies share code; stateless strategies can be `static readonly` |
+| 9 | Move Embellishment to Decorator | 144 | Decorator | to, towards | — |
+| 10 | Replace State-Altering Conditionals with State | 166 | State | to, towards | shared `static readonly` state instances, nested `private sealed` subclasses; persist a stable code, not the object |
+| 11 | Replace Implicit Tree with Composite | 178 | Composite | to | a `record` leaf; expose children as `IReadOnlyList<T>` |
+| 12 | Replace Conditional Dispatcher with Command | 191 | Command | to, towards | a `Dictionary<string, Func<...>>` is a lighter command type for tiny handlers |
+
+#### Chapter 8: Generalization (`kerievsky/generalization`)
+
+| # | Refactoring | Page | Pattern | Direction | C# note |
+|---|---|---|---|---|---|
+| 13 | Form Template Method | 205 | Template Method | to | a non-`virtual` template method is the C# `final`; `abstract` and `virtual` `protected` steps |
+| 14 | Extract Composite | 214 | Composite | to | expose children as `IReadOnlyList<T>` |
+| 15 | Replace One/Many Distinctions with Composite | 224 | Composite | to | a `params`/`IEnumerable<T>` overload may be enough |
+| 16 | Replace Hard-Coded Notifications with Observer | 236 | Observer | to, towards | `event EventHandler<T>`; every `+=` needs its `-=` |
+| 17 | Unify Interfaces with Adapter | 247 | Adapter | to, towards | — |
+| 18 | Extract Adapter | 258 | Adapter | to | — |
+| 19 | Replace Implicit Language with Interpreter | 269 | Interpreter | to | `Func<T, bool>` or LINQ may be enough; `Expression<Func<T, bool>>` when a provider translates the criteria |
+
+#### Chapter 9: Protection (`kerievsky/protection`)
+
+| # | Refactoring | Page | Pattern | Direction | C# note |
+|---|---|---|---|---|---|
+| 20 | Replace Type Code with Class | 286 | — | — | an `enum` accepts any integer; use a sealed class with a private constructor for a closed set |
+| 21 | Limit Instantiation with Singleton | 296 | Singleton | to | `static readonly` or `Lazy<T>`; a DI singleton lifetime often replaces the pattern |
+| 22 | Introduce Null Object | 301 | Null Object | to | with nullable reference types the field is no longer nullable; a shared static instance |
+
+#### Chapter 10: Accumulation (`kerievsky/accumulation`)
+
+| # | Refactoring | Page | Pattern | Direction | C# note |
+|---|---|---|---|---|---|
+| 23 | Move Accumulation to Collecting Parameter | 313 | Collecting Parameter | to | `StringBuilder`, or a `TextWriter` parameter |
+| 24 | Move Accumulation to Visitor | 320 | Visitor | to, towards (Visitor); away (Iterator) | a `switch` expression with type patterns often suffices; a generic visitor returns values |
+
+#### Chapter 11: Utilities (`kerievsky/utilities`)
+
+| # | Refactoring | Page | Pattern | Direction | C# note |
+|---|---|---|---|---|---|
+| 25 | Chain Constructors | 340 | — | — | `: this(...)`; optional parameters as an alternative; primary constructors |
+| 26 | Unify Interfaces | 343 | — | — | `virtual`/`override`, not hiding; default interface methods |
+| 27 | Extract Parameter | 346 | — | — | `ArgumentNullException.ThrowIfNull` |
 
 Overlaps with Fowler's 2nd edition, kept short and pointing to the Fowler file: Compose Method
 (Extract Function, Slide Statements), Replace Type Code with Class (Replace Primitive with
@@ -356,7 +382,7 @@ Same as section 4.2, with a different citation line:
 ```markdown
 # Replace State-Altering Conditionals with State
 
-Kerievsky (2004), ch. 7, p. 166. Direction: to, towards. Pattern: State (GoF, p. 305).
+Kerievsky (2004), ch. 7, p. 166. Pattern: State. Direction: to, towards.
 ```
 
 A mechanics step that is a Fowler refactoring names it by its 2nd-edition name and links its

@@ -1,6 +1,6 @@
 # Unify Interfaces with Adapter
 
-Kerievsky (2004), ch. 8, p. 247. Direction: to, towards. Pattern: Adapter (GoF, p. 139).
+Kerievsky (2004), ch. 8, p. 247. Pattern: Adapter. Direction: to, towards.
 
 ## When to use
 Smells: Alternative Classes with Different Interfaces, Oddball Solution, Duplicated Code.
@@ -107,12 +107,6 @@ public class ReceiptNotifier
 ```
 
 The `useEmail` flag shows what is still different: how to get the address. If that bothers you, give the interface an address-selecting member, or let the caller pass the address list. That is a separate step.
-
-## C# notes
-- Prefer composition (a field holding the adaptee, as above) over inheriting from the third-party class, which may be `sealed` and ties you to its API.
-- Keep the adapter's constructor strict: validate the adaptee is not null, and put the translation (names, units, error handling) in the adapter, not the client.
-- If the interface is meant to be implemented by many classes you own, an interface is right. If you only need a function shape, `Action<...>` or `Func<...>` can replace a one-method interface.
-- Register adapter and interface in your DI container if you use one, so clients receive `IMessageSender` and never see the adaptee.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

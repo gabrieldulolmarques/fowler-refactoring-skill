@@ -1,6 +1,6 @@
 # Form Template Method
 
-Kerievsky (2004), ch. 8, p. 205. Direction: to. Pattern: Template Method (GoF, p. 325).
+Kerievsky (2004), ch. 8, p. 205. Pattern: Template Method. Direction: to.
 
 ## When to use
 Smells: Duplicated Code.
@@ -99,8 +99,6 @@ public class TextOrderExporter : OrderExporter
 ## C# notes
 - `Export` is not `virtual`, so a subclass cannot replace the sequence by accident. A method that was never virtual is the C# equivalent of Java's `final` template.
 - Mark required steps `abstract` and optional ones `virtual` with a useful default (the footer above). Use `protected` for both, since callers should only see the template.
-- If the variation is one or two small steps, passing delegates or a strategy object into a single method is often lighter than a hierarchy.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Each subclass's output is byte-for-byte the same as before (compare the strings in a test), including the order of the steps.

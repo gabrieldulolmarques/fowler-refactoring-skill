@@ -1,6 +1,6 @@
 # Limit Instantiation with Singleton
 
-Kerievsky (2004), ch. 9, p. 296. Direction: to. Pattern: Singleton (GoF, p. 127).
+Kerievsky (2004), ch. 9, p. 296. Pattern: Singleton. Direction: to.
 
 ## When to use
 Smells: —. The book's motive is performance, not a smell.
@@ -62,8 +62,6 @@ public class Order
 ## C# notes
 - A `static readonly` field initializer is thread-safe and lazy enough for most cases: the CLR runs it once. When construction is expensive or needs a later trigger, use `Lazy<T>`: `private static readonly Lazy<TaxTable> Instance = new(() => new TaxTable());`.
 - In an application that already uses a dependency injection container, a singleton lifetime registration (`AddSingleton`) usually does this job without a static field and without global access, and the class stays a normal class that tests can construct. Prefer it where a container exists.
-- A shared instance must be safe for concurrent use. Immutable or stateless objects are.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Callers receive the same instance every time (`ReferenceEquals(a, b)`), and a profile or measurement taken before and after shows a real gain.

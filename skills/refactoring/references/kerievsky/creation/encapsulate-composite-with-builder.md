@@ -1,13 +1,13 @@
 # Encapsulate Composite with Builder
 
-Kerievsky (2004), ch. 6, p. 96. Direction: to (Builder); away (Composite). Pattern: Builder (GoF, p. 97).
+Kerievsky (2004), ch. 6, p. 96. Pattern: Builder. Direction: to (Builder); away (Composite).
 
 ## When to use
 Smells: Primitive Obsession, Duplicated Code.
 
 - Building a Composite takes the same three steps every time: create a node, set it up, attach it to the right parent. Skipping the last step, or attaching to the wrong parent, is an easy mistake, and the code is repetitive.
 - Client code is tied to the Composite's classes. When the underlying tree library changes, every place that builds a tree has to change. A Builder that takes simple arguments (strings, numbers) and returns nothing of the library's types hides it. You can later write another Builder with the same interface for a different representation.
-- The GoF intent is to let one construction process make different representations. Simplifying construction and decoupling the client are equally good reasons.
+- The pattern's original intent is to let one construction process make different representations. Simplifying construction and decoupling the client are equally good reasons.
 - Liability: a Builder's interface is sometimes not obvious, because it hides a lot of work (current position, parent tracking). Its tests or documentation may be the best way to learn it.
 - Related: the Composite itself can come from [replace-implicit-tree-with-composite.md](../simplification/replace-implicit-tree-with-composite.md). The "away from Composite" direction means clients stop touching the Composite directly.
 
@@ -91,10 +91,6 @@ var text = new MenuBuilder("File")
 ```
 
 The tree is the same. `Up` after `Recent` goes back to `Open`, and `AddSibling("Exit")` then goes up once more and adds under `File`.
-
-## C# notes
-- Returning `this` from each method allows chaining. If you want to stop callers from using a half-built tree, make `Build` return an immutable result, or make the builder single-use.
-- If clients should not know the node type at all, give the builder an interface and return an interface from `Build`.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

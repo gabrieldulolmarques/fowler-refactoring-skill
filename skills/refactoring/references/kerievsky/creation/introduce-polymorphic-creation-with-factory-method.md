@@ -1,6 +1,6 @@
 # Introduce Polymorphic Creation with Factory Method
 
-Kerievsky (2004), ch. 6, p. 88. Direction: to. Pattern: Factory Method (GoF, p. 107).
+Kerievsky (2004), ch. 6, p. 88. Pattern: Factory Method. Direction: to.
 
 ## When to use
 Smells: Duplicated Code.
@@ -87,8 +87,6 @@ public class HtmlExporter : Exporter
 
 ## C# notes
 - Make the factory method `protected abstract` unless callers outside the hierarchy need it. A default implementation is `protected virtual`.
-- If the variation is only a choice of class, a constructor passed as `Func<string, IReport>` can replace the subclass hierarchy. Use the factory method when the hierarchy already exists for other reasons.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - The similar method now exists in one place, and no subclass repeats its body.

@@ -1,6 +1,6 @@
 # Extract Parameter
 
-Kerievsky (2004), ch. 11, p. 346. Direction: —. Pattern: —.
+Kerievsky (2004), ch. 11, p. 346. Pattern: —. Direction: —.
 
 ## When to use
 Smells: — (a low-level step; the book needed it right after turning inheritance into delegation).
@@ -54,10 +54,7 @@ public static class Caller
 ```
 
 ## C# notes
-- Constructor parameters of an interface type are exactly what a dependency injection container fills in; once this is done the class is ready to be registered.
-- If many callers need the old behavior, keep a second constructor that supplies the default and chains to the new one ([chain-constructors.md](chain-constructors.md)), then remove it when callers have moved.
 - Validate at the boundary: a `null` parameter should fail with `ArgumentNullException.ThrowIfNull(formatter)` where a null would otherwise show up much later.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No code in the class creates the value any more, and a test can now pass in a fake of the type.

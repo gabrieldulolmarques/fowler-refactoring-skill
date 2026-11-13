@@ -1,6 +1,6 @@
 # Extract Composite
 
-Kerievsky (2004), ch. 8, p. 214. Direction: to. Pattern: Composite (GoF, p. 163).
+Kerievsky (2004), ch. 8, p. 214. Pattern: Composite. Direction: to.
 
 ## When to use
 Smells: Duplicated Code.
@@ -91,10 +91,7 @@ public class Pallet : CompositeItem
 ```
 
 ## C# notes
-- Make the composite `abstract` when it has no meaning alone, as above. A composite that is also a valid leaf-less container can stay concrete.
 - Expose the children as `IReadOnlyList<Item>` if subclasses or clients need to read them; keep the list itself private ([encapsulate-collection.md](../../fowler/encapsulation/encapsulate-collection.md)).
-- A cycle (a container added to itself or to one of its own descendants) makes `Weight` recurse forever. Guard `Add` if clients can build arbitrary trees.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Totals for nested containers (a box inside a pallet) match the old results, and no container still declares its own children field.

@@ -18,10 +18,6 @@ teach are the work of Martin Fowler and Joshua Kerievsky, published in:
   (Pearson Education), 2004. ISBN 978-0-321-21335-8.
   Online catalog: https://www.industriallogic.com/refactoring-to-patterns/catalog/
 
-Pattern names and their page numbers refer to Erich Gamma, Richard Helm, Ralph Johnson and
-John Vlissides, Design Patterns: Elements of Reusable Object-Oriented Software, Addison-Wesley,
-1995.
-
 When you reuse or adapt this package, credit both this package and the books above.
 
 What the license covers

@@ -1,6 +1,6 @@
 # Unify Interfaces
 
-Kerievsky (2004), ch. 11, p. 343. Direction: —. Pattern: —.
+Kerievsky (2004), ch. 11, p. 343. Pattern: —. Direction: —.
 
 ## When to use
 Smells: Duplicated Code (the book's inside back cover lists Unify Interfaces with Adapter there; this utility is the low-level step it builds on).
@@ -63,8 +63,6 @@ public static class Demo
 ## C# notes
 - The base method must be `virtual` (or `abstract`) and the subclass method `override`. A subclass method of the same name without `override` hides the base one and `Notify` through a `Shipment` reference would do nothing.
 - For an interface, adding a member breaks every existing implementor. Default interface methods (C# 8) let you add it with a body, but they are only reachable through the interface type, not the class.
-- A do-nothing default hides the fact that an operation is not supported. Check that silence is correct for the other subclasses.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - The type checks or casts the unification was meant to remove can now be deleted, and tests that use only the base type still pass for each subclass.

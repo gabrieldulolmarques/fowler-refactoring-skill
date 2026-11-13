@@ -1,6 +1,6 @@
 # Replace Implicit Tree with Composite
 
-Kerievsky (2004), ch. 7, p. 178. Direction: to. Pattern: Composite (GoF, p. 163).
+Kerievsky (2004), ch. 7, p. 178. Pattern: Composite. Direction: to.
 
 ## When to use
 Smells: Primitive Obsession.
@@ -128,8 +128,6 @@ string text = ExpenseReport.Render(new IExpenseNode[] { travel });
 ## C# notes
 - A `record` is a convenient leaf. An interface is enough for the common type unless leaves and parents share code.
 - If the tree needs to be immutable, take the children in the constructor only and expose them as `IReadOnlyList<T>`; drop `Add`.
-- Recursion depth is the tree depth. For very deep trees, check that no node renders by recursing unboundedly.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Keep a test that compares the old output with the new for the same data (the "golden" text), and run it after each step.

@@ -1,6 +1,6 @@
 # Replace Conditional Dispatcher with Command
 
-Kerievsky (2004), ch. 7, p. 191. Direction: to, towards. Pattern: Command (GoF, p. 233).
+Kerievsky (2004), ch. 7, p. 191. Pattern: Command. Direction: to, towards.
 
 ## When to use
 Smells: Switch Statements, Large Class, Long Method.
@@ -23,7 +23,7 @@ Smells: Switch Statements, Large Class, Long Method.
 
    You can start by applying [extract-superclass.md](../../fowler/inheritance/extract-superclass.md) or Extract Interface (1st ed. only; no link) to one concrete command. Compile.
 5. Make every concrete command implement the command type, and make all client code use them through it. Compile and test.
-6. In the dispatcher's class, create and fill a command map: a dictionary of command instances keyed by the request identifier. If you have so many commands that registering them is a long list, load them from configuration instead (the Plugin pattern from Fowler's *Patterns of Enterprise Application Architecture*). Compile.
+6. In the dispatcher's class, create and fill a command map: a dictionary of command instances keyed by the request identifier. If you have so many commands that registering them is a long list, load them from configuration instead. Compile.
 7. Replace the conditional dispatch with a lookup in the map followed by a call to the command's execution method. The class is now the invoker. Compile and test.
 
 ## Example
@@ -144,9 +144,6 @@ public class OrderDesk
 
 ## C# notes
 - Where handlers are tiny, a `Dictionary<string, Func<Order, string[], string>>` is a lighter command type than a class per handler. Switch to classes when a handler needs its own state, dependencies or tests.
-- With dependency injection, inject `IEnumerable<IOrderCommand>` and let each command expose its name, instead of a long registration list.
-- Arguments come in as `string[]` here because the old signature did; a typed request object per command is a later step.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Keep a test for each routed name, one for the unknown name, and (after step 7) one that registers a new command at runtime and runs it.

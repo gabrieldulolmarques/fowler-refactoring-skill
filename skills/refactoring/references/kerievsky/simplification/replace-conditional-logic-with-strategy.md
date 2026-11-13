@@ -1,6 +1,6 @@
 # Replace Conditional Logic with Strategy
 
-Kerievsky (2004), ch. 7, p. 129. Direction: to, towards. Pattern: Strategy (GoF, p. 315).
+Kerievsky (2004), ch. 7, p. 129. Pattern: Strategy. Direction: to, towards.
 
 ## When to use
 Smells: Conditional Complexity, Long Method, Primitive Obsession.
@@ -94,8 +94,6 @@ public class Order
 ## C# notes
 - An interface is enough when the strategies share no code. Use an abstract class if they share helpers.
 - Stateless strategies can be shared as `static readonly` instances. Do it when a profiler asks for it, not before.
-- With dependency injection, register the strategies and let a factory or the caller pick one by key.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - A test per concrete strategy, plus one that swaps the strategy on an existing context and checks the new result.

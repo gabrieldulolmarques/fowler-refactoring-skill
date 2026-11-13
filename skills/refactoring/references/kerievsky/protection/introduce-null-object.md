@@ -1,6 +1,6 @@
 # Introduce Null Object
 
-Kerievsky (2004), ch. 9, p. 301. Direction: to. Pattern: Null Object (not in GoF; the book credits Bobby Woolf).
+Kerievsky (2004), ch. 9, p. 301. Pattern: Null Object. Direction: to.
 
 ## When to use
 Smells: Conditional Complexity, Duplicated Code.
@@ -77,9 +77,7 @@ public class Order
 
 ## C# notes
 - With nullable reference types on, the field changes from `IShipmentNotifier?` to `IShipmentNotifier`, and the compiler then stops warning about it.
-- Prefer an interface plus a `sealed` null class over subclassing, so a new interface method cannot be forgotten by inheritance.
 - A stateless null object can be a shared static instance (`NullShipmentNotifier.Instance`).
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No null check on the field remains, and a test that calls the methods before any real object is attached passes without an exception.

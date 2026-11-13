@@ -1,6 +1,6 @@
 # Extract Adapter
 
-Kerievsky (2004), ch. 8, p. 258. Direction: to. Pattern: Adapter (GoF, p. 139).
+Kerievsky (2004), ch. 8, p. 258. Pattern: Adapter. Direction: to.
 
 ## When to use
 Smells: Solution Sprawl.
@@ -104,11 +104,6 @@ public class V2ExchangeRates : ExchangeRates
 ```
 
 Clients depend on `IExchangeRates`; startup code (or configuration) chooses `LegacyExchangeRates` or `V2ExchangeRates`. When version 1 is retired, delete one class and nothing else.
-
-## C# notes
-- Name each adapter after the version it serves, and keep the version-specific types out of the interface.
-- Choose the adapter at the composition root (a factory or the DI container, using configuration), not inside the client.
-- A common abstract base, as above, is one option; if the adapters share nothing, implement the interface directly and skip the base class.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

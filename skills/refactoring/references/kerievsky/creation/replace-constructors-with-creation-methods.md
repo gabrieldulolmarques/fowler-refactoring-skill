@@ -1,6 +1,6 @@
 # Replace Constructors with Creation Methods
 
-Kerievsky (2004), ch. 6, p. 57. Direction: to. Pattern: Creation Method (not in GoF).
+Kerievsky (2004), ch. 6, p. 57. Pattern: Creation Method. Direction: to.
 
 ## When to use
 Smells: Duplicated Code, Primitive Obsession.
@@ -8,7 +8,7 @@ Smells: Duplicated Code, Primitive Obsession.
 - A class has several constructors, and callers must read parameter lists or constructor bodies to pick the right one. A call such as `new Subscription("Acme", 20m, 6)` does not say what kind of subscription it builds.
 - Two kinds of instance need the same parameter types, so the second constructor cannot be written. Named methods have no such limit.
 - Constructors nobody calls tend to survive because they are hard to search for. A named creation method is easy to search for, so dead creation code is easier to find and delete.
-- A Creation Method is any static or instance method that returns a new instance. Every GoF Factory Method is one, but not the reverse (see [introduce-polymorphic-creation-with-factory-method.md](introduce-polymorphic-creation-with-factory-method.md)).
+- A Creation Method is any static or instance method that returns a new instance. Every Factory Method is one, but not the reverse (see [introduce-polymorphic-creation-with-factory-method.md](introduce-polymorphic-creation-with-factory-method.md)).
 - Relation to Fowler: [replace-constructor-with-factory-function.md](../../fowler/refactoring-apis/replace-constructor-with-factory-function.md) is the single-constructor version of the same move (one constructor, one named factory). This file is for a class with many constructors: you choose which kinds of instance deserve a name, route them all through one catch-all constructor, and hide the rest.
 - Liability: creation becomes nonstandard, because some classes use `new` and others use a Creation Method. If the class has too many constructors because it does too much, apply Extract Class ([extract-class.md](../../fowler/encapsulation/extract-class.md)) first. If most instances use only a small part of its fields, consider splitting it with subclasses. A class that would need dozens of Creation Methods can keep a few public constructors for rare cases, or take parameters in its Creation Methods.
 - If the Creation Methods start to crowd out the class's real purpose, move them to a separate factory (the book calls this Extract Factory; see [move-creation-knowledge-to-factory.md](move-creation-knowledge-to-factory.md)).
@@ -76,7 +76,6 @@ var b = Subscription.AnnualWithDiscount("Acme", 20m, 0.1m);
 ## C# notes
 - Optional parameters or object initializers can replace some chained constructors, but they do not name the kind of instance. Use them when the variants differ only by an optional value, and Creation Methods when the variants mean different things.
 - A `record` with a private constructor plus static methods works the same way.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - A search for the constructor finds no caller outside the class, and no Creation Method is unused.

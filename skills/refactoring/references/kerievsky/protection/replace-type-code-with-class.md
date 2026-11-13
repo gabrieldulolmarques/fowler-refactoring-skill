@@ -1,6 +1,6 @@
 # Replace Type Code with Class
 
-Kerievsky (2004), ch. 9, p. 286. Direction: —. Pattern: — (Fowler overlap; the book points to Bloch's Type-Safe Enum).
+Kerievsky (2004), ch. 9, p. 286. Pattern: —. Direction: —.
 
 ## When to use
 Smells: Primitive Obsession.
@@ -28,8 +28,6 @@ The example is in the Fowler file; the shape of the result is the sealed class w
 ## C# notes
 - A C# `enum` is only an integer underneath: `(OrderStatus)42` compiles and runs. If the set must be closed and the type must carry behavior, use a sealed class with a private constructor. If neither matters, an enum is fine and this refactoring is not needed.
 - With a private constructor the instances are unique, so `==` on references is enough. Without it, override `Equals` and `GetHashCode` (or use a record).
-- Persisted or serialized values need a stable name or code on the class; keep the old string as that code.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - No `string` or `int` constant for the family remains, and no public way to create a value outside the family if the family is meant to be closed.

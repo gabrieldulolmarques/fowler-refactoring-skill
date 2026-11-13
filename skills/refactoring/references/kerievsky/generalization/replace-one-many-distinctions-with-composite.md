@@ -1,6 +1,6 @@
 # Replace One/Many Distinctions with Composite
 
-Kerievsky (2004), ch. 8, p. 224. Direction: to. Pattern: Composite (GoF, p. 163).
+Kerievsky (2004), ch. 8, p. 224. Pattern: Composite. Direction: to.
 
 ## When to use
 Smells: Duplicated Code.
@@ -122,9 +122,7 @@ public class OrderChecker
 A sibling composite such as `AnyOf` (passes when at least one child passes) can now be added without touching `OrderChecker`; this is the "(A and B) or C" case the list version could not express in one call.
 
 ## C# notes
-- The shared type can be an interface, as here, or an abstract base class. Prefer an interface when the single-object classes already have different bases.
 - Where a method takes `IEnumerable<T>` only to loop, check whether a composite is worth it: if clients never need nesting or other combinators, a `params`/`IEnumerable` overload with shared code may be enough.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - The failures reported for a group are the same, in the same order, as `CheckAll` gave before, and `Check` with a single rule is unchanged.

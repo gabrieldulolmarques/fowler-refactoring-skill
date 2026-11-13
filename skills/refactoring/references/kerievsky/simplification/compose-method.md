@@ -1,6 +1,6 @@
 # Compose Method
 
-Kerievsky (2004), ch. 7, p. 123. Direction: to. Pattern: Composed Method (not in GoF; the book credits Kent Beck).
+Kerievsky (2004), ch. 7, p. 123. Pattern: Composed Method. Direction: to.
 
 ## When to use
 Smells: Long Method.
@@ -88,7 +88,6 @@ public class Ledger
 
 ## C# notes
 - Expression-bodied members keep the extracted pieces short. Use a local function when a piece serves one method only.
-
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.
 - Read the top method aloud: each line should be a step you would name in a sentence, with no operators or indexing left in it.

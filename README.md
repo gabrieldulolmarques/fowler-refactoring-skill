@@ -62,7 +62,6 @@ package **and** the books it is based on:
 
 The license covers only this package's own content, not the books (see [NOTICE](NOTICE)).
 The motivation and mechanics in the skill are paraphrased, with chapter and page cited;
-nothing is copied from the books, refactoring.com, industriallogic.com, Refactoring.Guru's *Dive Into
-Refactoring*, or the replication package of Chen Kuang Piao et al. Refactoring names, former
+nothing is copied from the books, refactoring.com or industriallogic.com. Refactoring names, former
 names and inverses come from the book's section headers, and from the book's web edition for the five web-only
 refactorings. The C# examples are original.
