@@ -17,18 +17,25 @@ Não use quando a condição não pode ser testada de forma confiável antes da 
 5. Remova a asserção ou o log temporário e arrume o condicional restante (por exemplo, com uma cláusula de guarda).
 
 ## Exemplo
-Antes (`_quantities` é um campo `int[]` de um `Order`, uma entrada por linha):
+Antes (`_delaysInSeconds` é um campo `int[]` de um `RetrySchedule`, uma entrada por tentativa de reenvio):
 
 ```csharp
-public int GetLineQuantity(int lineIndex)
+using System;
+
+public class RetrySchedule
 {
-    try
+    private readonly int[] _delaysInSeconds = { 30, 120, 600 };
+
+    public int GetRetryDelay(int attempt)
     {
-        return _quantities[lineIndex];
-    }
-    catch (IndexOutOfRangeException)
-    {
-        return 0;
+        try
+        {
+            return _delaysInSeconds[attempt];
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return 0;
+        }
     }
 }
 ```
@@ -36,18 +43,23 @@ public int GetLineQuantity(int lineIndex)
 Depois:
 
 ```csharp
-public int GetLineQuantity(int lineIndex)
+public class RetrySchedule
 {
-    if (lineIndex < 0 || lineIndex >= _quantities.Length)
-        return 0;
+    private readonly int[] _delaysInSeconds = { 30, 120, 600 };
 
-    return _quantities[lineIndex];
+    public int GetRetryDelay(int attempt)
+    {
+        if (attempt < 0 || attempt >= _delaysInSeconds.Length)
+            return 0;
+
+        return _delaysInSeconds[attempt];
+    }
 }
 ```
 
 ## Notas (C#)
-- Prefira o padrão `TryParse` / `TryGetValue` do framework onde ele existir: ele realiza a verificação e a operação juntas, então não há intervalo entre o teste e o uso. Exemplo: `if (_prices.TryGetValue(sku, out var price)) return price; return 0m;` em vez de capturar `KeyNotFoundException`.
-- Um `catch` estreito facilita identificar a condição. Um `catch (Exception)` amplo exige primeiro descobrir qual causa é a pretendida, já que muitas vezes esconde mais de uma.
+- Prefira o padrão `TryParse` / `TryGetValue` do framework onde ele existir: ele faz a verificação e a operação juntas, então não há intervalo entre o teste e o uso. Exemplo: `if (_templates.TryGetValue(name, out var body)) return body; return "";` em vez de capturar `KeyNotFoundException`.
+- Um `catch` restrito deixa a condição fácil de identificar. Um `catch (Exception)` amplo exige primeiro descobrir qual causa era a pretendida, pois costuma esconder mais de uma.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

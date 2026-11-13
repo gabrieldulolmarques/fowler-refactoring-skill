@@ -16,67 +16,80 @@ Não use quando a remoção dá à função uma dependência indesejada: uma cha
 Antes:
 
 ```csharp
-public class Customer
+public class Recipient
 {
-    public string Country { get; }
+    public string CountryCode { get; }
 
-    public Customer(string country) => Country = country;
+    public Recipient(string countryCode) => CountryCode = countryCode;
 }
 
-public class Account
+public class SmsBilling
 {
-    private readonly decimal _balance;
-    private readonly Customer _customer;
+    private readonly int _monthlyVolume;
+    private readonly Recipient _recipient;
 
-    public Account(decimal balance, Customer customer)
+    public SmsBilling(int monthlyVolume, Recipient recipient)
     {
-        _balance = balance;
-        _customer = customer;
+        _monthlyVolume = monthlyVolume;
+        _recipient = recipient;
     }
 
-    public decimal MonthlyFee()
+    public decimal MessageFee()
     {
-        decimal baseFee = _balance < 1000m ? 12m : 0m;
-        bool abroad = _customer.Country != "BR";
-        return AddSurcharge(baseFee, abroad);
+        decimal baseFee = _monthlyVolume > 1000 ? 0.04m : 0.06m;
+        bool international = _recipient.CountryCode != "BR";
+        return AddSurcharge(baseFee, international);
     }
 
-    private decimal AddSurcharge(decimal baseFee, bool abroad)
+    private decimal AddSurcharge(decimal baseFee, bool international)
     {
-        return abroad ? baseFee + 25m : baseFee;
+        return international ? baseFee + 0.10m : baseFee;
     }
 }
 ```
 
-Passo 1: transforme a variável local `abroad` em uma consulta ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)), o que dá ao parâmetro uma única fonte:
+Passo 1: transforme a variável local `international` em uma consulta ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)), o que dá ao parâmetro uma única fonte:
 
 ```csharp
-    public decimal MonthlyFee()
+// fragment
+    public decimal MessageFee()
     {
-        decimal baseFee = _balance < 1000m ? 12m : 0m;
-        return AddSurcharge(baseFee, IsAbroad);
+        decimal baseFee = _monthlyVolume > 1000 ? 0.04m : 0.06m;
+        return AddSurcharge(baseFee, IsInternational);
     }
 
-    private bool IsAbroad => _customer.Country != "BR";
+    private bool IsInternational => _recipient.CountryCode != "BR";
 ```
 
-Passo 2: dentro de `AddSurcharge`, use `IsAbroad` em vez do parâmetro. Passo 3: descarte o parâmetro.
+Passo 2: dentro de `AddSurcharge`, use `IsInternational` no lugar do parâmetro. Passo 3: remova o parâmetro.
 
 Depois:
 
 ```csharp
-    public decimal MonthlyFee()
+public class SmsBilling
+{
+    private readonly int _monthlyVolume;
+    private readonly Recipient _recipient;
+
+    public SmsBilling(int monthlyVolume, Recipient recipient)
     {
-        decimal baseFee = _balance < 1000m ? 12m : 0m;
+        _monthlyVolume = monthlyVolume;
+        _recipient = recipient;
+    }
+
+    public decimal MessageFee()
+    {
+        decimal baseFee = _monthlyVolume > 1000 ? 0.04m : 0.06m;
         return AddSurcharge(baseFee);
     }
 
-    private bool IsAbroad => _customer.Country != "BR";
+    private bool IsInternational => _recipient.CountryCode != "BR";
 
     private decimal AddSurcharge(decimal baseFee)
     {
-        return IsAbroad ? baseFee + 25m : baseFee;
+        return IsInternational ? baseFee + 0.10m : baseFee;
     }
+}
 ```
 
 ## Verificação

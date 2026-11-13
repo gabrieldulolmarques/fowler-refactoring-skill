@@ -32,76 +32,74 @@ mantenha um resultado baseado em retorno ou ofereça uma verificação prévia; 
    simplifique-o, por exemplo para `void`, como um passo separado com [change-function-declaration.md](../first-set/change-function-declaration.md).
 
 ## Exemplo
-Antes: `Reserve` retorna um código, e o chamador precisa interpretá-lo.
+Antes: `Send` retorna um código, e o chamador precisa interpretá-lo.
 
 ```csharp
 using System;
-using System.Collections.Generic;
 
-public class Inventory
+public class SmsGateway
 {
-    private readonly Dictionary<string, int> _stock = new();
+    private int _sentThisMinute;
 
-    public int Reserve(string sku, int quantity)
+    public int Send(string phone, string text)
     {
-        if (!_stock.TryGetValue(sku, out var available)) return -1; // sku desconhecido
-        if (available < quantity) return -2;                        // estoque insuficiente
-        _stock[sku] = available - quantity;
+        if (!phone.StartsWith("+")) return -1;      // número inválido
+        if (_sentThisMinute >= 100) return -2;      // limite de envios excedido
+        _sentThisMinute++;
         return 0;
     }
 }
 
-public class OrderService
+public class NotificationService
 {
-    private readonly Inventory _inventory = new();
+    private readonly SmsGateway _gateway = new();
 
-    public string Place(string sku, int quantity)
+    public string Notify(string phone, string text)
     {
-        var result = _inventory.Reserve(sku, quantity);
-        if (result == -1) return "produto desconhecido";
-        if (result == -2) return "sem estoque";
-        return "realizado";
+        var result = _gateway.Send(phone, text);
+        if (result == -1) return "invalid number";
+        if (result == -2) return "rate limit exceeded";
+        return "sent";
     }
 }
 ```
 
-Depois: as falhas são exceções e o chamador as trata onde escolher.
+Depois: as falhas viram exceções, e o chamador as trata onde preferir.
 
 ```csharp
 using System;
-using System.Collections.Generic;
 
-public class ReservationException : Exception
+public class DeliveryException : Exception
 {
-    public ReservationException(string message) : base(message) { }
+    public DeliveryException(string message) : base(message) { }
 }
 
-public class Inventory
+public class SmsGateway
 {
-    private readonly Dictionary<string, int> _stock = new();
+    private int _sentThisMinute;
 
-    public void Reserve(string sku, int quantity)
+    public void Send(string phone, string text)
     {
-        if (!_stock.TryGetValue(sku, out var available))
-            throw new ReservationException("produto desconhecido");
-        if (available < quantity)
-            throw new ReservationException("sem estoque");
-        _stock[sku] = available - quantity;
+        if (!phone.StartsWith("+"))
+            throw new DeliveryException("invalid number");
+        if (_sentThisMinute >= 100)
+            throw new DeliveryException("rate limit exceeded");
+        _sentThisMinute++;
     }
 }
 
-public class OrderService
+public class NotificationService
 {
-    private readonly Inventory _inventory = new();
+    private readonly SmsGateway _gateway = new();
 
-    public string Place(string sku, int quantity)
+    public string Notify(string phone, string text)
     {
         try
         {
-            _inventory.Reserve(sku, quantity);
-            return "realizado";
+            _gateway.Send(phone, text);
+            return "sent";
         }
-        catch (ReservationException e)
+        catch (DeliveryException e)
         {
             return e.Message;
         }
@@ -110,13 +108,10 @@ public class OrderService
 ```
 
 ## Notas (C#)
-- Não use exceções para fluxo de controle esperado: elas são lentas em comparação com um desvio e
-  escondem os caminhos normais do programa. Reserve-as para falhas que o chamador não consiga razoavelmente
-  evitar verificando antes.
-- Prefira um tipo de exceção específico (ou um embutido como `ArgumentException` ou
-  `InvalidOperationException` onde couber) a um `Exception` genérico, e capture o tipo mais estreito.
+- Não use exceções para fluxo de controle esperado: elas são lentas em comparação com um desvio e escondem os caminhos normais do programa. Reserve-as para falhas que o chamador não consegue razoavelmente evitar verificando antes.
+- Prefira um tipo de exceção específico (ou um embutido, como `ArgumentException` ou `InvalidOperationException`, quando couber) em vez de um `Exception` genérico, e capture o tipo mais restrito possível.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Adicione um teste para cada antigo código de erro que afirme que a exceção é lançada com os dados certos.
+- Adicione um teste por antigo código de erro que verifique se a exceção é lançada com os dados certos.
 - Procure chamadores fora da solução (reflexão, outros assemblies) que ainda esperem o código.

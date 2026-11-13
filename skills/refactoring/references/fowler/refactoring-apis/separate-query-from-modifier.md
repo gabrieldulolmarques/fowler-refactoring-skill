@@ -28,23 +28,36 @@ observável, já que toda sequência de chamadas retorna os mesmos resultados. D
    fazendo o comando chamar a consulta.
 
 ## Exemplo
-Antes: um método encontra a conta em atraso e a suspende.
+Antes: um método encontra o primeiro assinante com bounces e o desativa.
 
 ```csharp
-public record Account(string Id, int DaysOverdue);
+using System;
+using System.Collections.Generic;
 
-public class CollectionsService
+public class Subscriber
 {
-    private readonly List<string> _suspended = new();
-
-    public string SuspendFirstOverdue(IEnumerable<Account> accounts)
+    public Subscriber(string id, int bounces)
     {
-        foreach (var account in accounts)
+        Id = id;
+        Bounces = bounces;
+    }
+
+    public string Id { get; }
+    public int Bounces { get; }
+}
+
+public class MailingListService
+{
+    private readonly List<string> _disabled = new();
+
+    public string DisableFirstBouncing(IEnumerable<Subscriber> subscribers)
+    {
+        foreach (var subscriber in subscribers)
         {
-            if (account.DaysOverdue > 30)
+            if (subscriber.Bounces > 3)
             {
-                _suspended.Add(account.Id);
-                return account.Id;
+                _disabled.Add(subscriber.Id);
+                return subscriber.Id;
             }
         }
         return "";
@@ -52,42 +65,43 @@ public class CollectionsService
 }
 
 // chamador
-var id = service.SuspendFirstOverdue(accounts);
-Console.WriteLine($"Primeira em atraso: {id}");
+// var id = service.DisableFirstBouncing(subscribers);
+// Console.WriteLine($"First bouncing: {id}");
 ```
 
 Depois: uma consulta e um comando, com o comando reutilizando a consulta.
 
 ```csharp
-public class CollectionsService
-{
-    private readonly List<string> _suspended = new();
+using System;
+using System.Collections.Generic;
 
-    public string FindFirstOverdue(IEnumerable<Account> accounts)
+public class MailingListService
+{
+    private readonly List<string> _disabled = new();
+
+    public string FindFirstBouncing(IEnumerable<Subscriber> subscribers)
     {
-        foreach (var account in accounts)
+        foreach (var subscriber in subscribers)
         {
-            if (account.DaysOverdue > 30) return account.Id;
+            if (subscriber.Bounces > 3) return subscriber.Id;
         }
         return "";
     }
 
-    public void SuspendFirstOverdue(IEnumerable<Account> accounts)
+    public void DisableFirstBouncing(IEnumerable<Subscriber> subscribers)
     {
-        var id = FindFirstOverdue(accounts);
-        if (id != "") _suspended.Add(id);
+        var id = FindFirstBouncing(subscribers);
+        if (id != "") _disabled.Add(id);
     }
 }
 
 // chamador
-var id = service.FindFirstOverdue(accounts);
-service.SuspendFirstOverdue(accounts);
-Console.WriteLine($"Primeira em atraso: {id}");
+// var id = service.FindFirstBouncing(subscribers);
+// service.DisableFirstBouncing(subscribers);
+// Console.WriteLine($"First bouncing: {id}");
 ```
 
-Note que o comando agora executa a busca de novo. Esse é o custo usual da divisão; se
-a consulta for cara, aceite-o, faça cache de forma invisível, ou passe o valor encontrado ao
-comando em vez disso.
+Observe que o comando agora executa a busca de novo. Esse é o custo usual da separação; se a consulta for cara, aceite isso, faça um cache invisível ou passe o valor encontrado para o comando.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

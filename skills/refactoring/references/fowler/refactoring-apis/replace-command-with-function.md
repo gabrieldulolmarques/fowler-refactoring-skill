@@ -21,63 +21,82 @@ quando os chamadores dependem de desfazer, enfileiramento, vários pontos de ent
 Antes:
 
 ```csharp
-public class InvoiceTotalCalculator
+public class Channel
 {
-    private readonly Customer _customer;
-    private readonly int _units;
-    private readonly ShippingPolicy _shipping;
+    public Channel(decimal pricePerMessage) => PricePerMessage = pricePerMessage;
+    public decimal PricePerMessage { get; }
+}
 
-    public InvoiceTotalCalculator(Customer customer, int units, ShippingPolicy shipping)
+public class Surcharge
+{
+    public Surcharge(decimal fee) => Fee = fee;
+    public decimal Fee { get; }
+}
+
+public class BatchCostCalculator
+{
+    private readonly Channel _channel;
+    private readonly int _messages;
+    private readonly Surcharge _surcharge;
+
+    public BatchCostCalculator(Channel channel, int messages, Surcharge surcharge)
     {
-        _customer = customer;
-        _units = units;
-        _shipping = shipping;
+        _channel = channel;
+        _messages = messages;
+        _surcharge = surcharge;
     }
 
-    private decimal Subtotal() => _customer.UnitPrice * _units;
+    private decimal Subtotal() => _channel.PricePerMessage * _messages;
 
     public decimal Execute()
     {
-        return Subtotal() + _shipping.Fee;
+        return Subtotal() + _surcharge.Fee;
     }
 }
 
 // chamador
-decimal total = new InvoiceTotalCalculator(customer, units, shipping).Execute();
+// decimal cost = new BatchCostCalculator(channel, messages, surcharge).Execute();
 ```
 
 Passo 1, envolva a chamada:
 
 ```csharp
-public static decimal InvoiceTotal(Customer customer, int units, ShippingPolicy shipping)
-    => new InvoiceTotalCalculator(customer, units, shipping).Execute();
-```
-
-Passos 2 a 4, `Subtotal` internalizado, parâmetros movidos para `Execute`, campos não mais usados. O
-invólucro estático do passo 1 vive na mesma classe ou em uma classe auxiliar estática, e agora chama
-`new InvoiceTotalCalculator(customer, units, shipping).Execute(customer, units, shipping)`.
-O construtor ainda recebe os seus três argumentos, mas não os armazena mais; ele vai embora
-com a classe no passo 7:
-
-```csharp
-public decimal Execute(Customer customer, int units, ShippingPolicy shipping)
+public static class Billing
 {
-    var subtotal = customer.UnitPrice * units;
-    return subtotal + shipping.Fee;
+    public static decimal BatchCost(Channel channel, int messages, Surcharge surcharge)
+        => new BatchCostCalculator(channel, messages, surcharge).Execute();
 }
 ```
 
-Passos 5 a 7, lógica internalizada no invólucro, classe apagada:
+Passos 2 a 4: `Subtotal` internalizado, parâmetros movidos para `Execute`, campos que não são mais usados. O invólucro estático do passo 1 fica na mesma classe ou em uma classe auxiliar estática, e agora chama `new BatchCostCalculator(channel, messages, surcharge).Execute(channel, messages, surcharge)`. O construtor ainda recebe seus três argumentos, mas não os armazena mais; ele desaparece junto com a classe no passo 7:
 
 ```csharp
-public static decimal InvoiceTotal(Customer customer, int units, ShippingPolicy shipping)
+public class BatchCostCalculator
 {
-    var subtotal = customer.UnitPrice * units;
-    return subtotal + shipping.Fee;
+    public BatchCostCalculator(Channel channel, int messages, Surcharge surcharge) { }
+
+    public decimal Execute(Channel channel, int messages, Surcharge surcharge)
+    {
+        var subtotal = channel.PricePerMessage * messages;
+        return subtotal + surcharge.Fee;
+    }
+}
+```
+
+Passos 5 a 7: a lógica é internalizada no invólucro, e a classe é apagada:
+
+```csharp
+public static class Billing
+{
+    public static decimal BatchCost(Channel channel, int messages, Surcharge surcharge)
+    {
+        var subtotal = channel.PricePerMessage * messages;
+        return subtotal + surcharge.Fee;
+    }
 }
 
 // chamador
-decimal total = InvoiceTotal(customer, units, shipping);
+// decimal cost = Billing.BatchCost(channel, messages, surcharge);
 ```
 
 ## Verificação

@@ -32,63 +32,61 @@ Fowler (2018), cap. 11, p. 327. Antes / também: —. Inversa: Substituir Parâm
 Antes: o método lê um relógio estático.
 
 ```csharp
-public class Invoice
-{
-    private readonly decimal _amount;
-    private readonly DateTime _dueDate;
-    private readonly decimal _dailyPenaltyRate;
+using System;
 
-    public Invoice(decimal amount, DateTime dueDate, decimal dailyPenaltyRate)
+public class PendingNotification
+{
+    private readonly string _recipient;
+    private readonly DateTime _scheduledFor;
+
+    public PendingNotification(string recipient, DateTime scheduledFor)
     {
-        _amount = amount;
-        _dueDate = dueDate;
-        _dailyPenaltyRate = dailyPenaltyRate;
+        _recipient = recipient;
+        _scheduledFor = scheduledFor;
     }
 
-    public decimal Penalty()
+    public int OverdueMinutes()
     {
-        var daysLate = (DateTime.Today - _dueDate).Days;
-        return daysLate > 0 ? _amount * _dailyPenaltyRate * daysLate : 0m;
+        var late = (DateTime.UtcNow - _scheduledFor).TotalMinutes;
+        return late > 0 ? (int)late : 0;
     }
 }
 
 // chamador
-var penalty = invoice.Penalty();
+// var overdue = notification.OverdueMinutes();
 ```
 
-Depois: o chamador fornece a data, e `Penalty` depende apenas dos seus argumentos e dos
-campos imutáveis.
+Depois: o chamador fornece a hora, e `OverdueMinutes` depende apenas de seus argumentos e dos campos imutáveis.
 
 ```csharp
-public class Invoice
-{
-    private readonly decimal _amount;
-    private readonly DateTime _dueDate;
-    private readonly decimal _dailyPenaltyRate;
+using System;
 
-    public Invoice(decimal amount, DateTime dueDate, decimal dailyPenaltyRate)
+public class PendingNotification
+{
+    private readonly string _recipient;
+    private readonly DateTime _scheduledFor;
+
+    public PendingNotification(string recipient, DateTime scheduledFor)
     {
-        _amount = amount;
-        _dueDate = dueDate;
-        _dailyPenaltyRate = dailyPenaltyRate;
+        _recipient = recipient;
+        _scheduledFor = scheduledFor;
     }
 
-    public decimal Penalty(DateTime today)
+    public int OverdueMinutes(DateTime now)
     {
-        var daysLate = (today - _dueDate).Days;
-        return daysLate > 0 ? _amount * _dailyPenaltyRate * daysLate : 0m;
+        var late = (now - _scheduledFor).TotalMinutes;
+        return late > 0 ? (int)late : 0;
     }
 }
 
 // chamador
-var penalty = invoice.Penalty(DateTime.Today);
+// var overdue = notification.OverdueMinutes(DateTime.UtcNow);
 ```
 
-Um teste agora pode passar qualquer data e obter um resultado repetível.
+Um teste agora pode passar qualquer horário e obter um resultado repetível.
 
 ## Notas (C#)
-- Útil para remover uma dependência de um estático ou singleton (`DateTime.Today`, uma classe estática de
-  configuração, um service locator) e tornar o código testável.
+- Útil para remover uma dependência de algo estático ou singleton (`DateTime.Today`, uma classe estática de configuração, um localizador de serviços) e tornar o código testável.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

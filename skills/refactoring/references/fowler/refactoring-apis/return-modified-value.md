@@ -21,56 +21,68 @@ Pule quando a função atualiza várias variáveis de uma vez (retorne um pequen
 Antes:
 
 ```csharp
-public class InvoiceReport
-{
-    private decimal _totalDiscount;
+using System.Collections.Generic;
 
-    private void CalculateDiscount(IReadOnlyList<InvoiceLine> lines)
+public class DeliveryReport
+{
+    private int _delivered;
+
+    private void CountDelivered(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        foreach (var line in lines)
+        foreach (var attempt in attempts)
         {
-            if (line.Discount > 0)
-                _totalDiscount += line.Discount;
+            if (attempt.Succeeded)
+                _delivered += 1;
         }
     }
 
-    public decimal Summarize(IReadOnlyList<InvoiceLine> lines)
+    public int Summarize(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        _totalDiscount = 0;
-        CalculateDiscount(lines);
-        return _totalDiscount;
+        _delivered = 0;
+        CountDelivered(attempts);
+        return _delivered;
     }
 }
 
-public record InvoiceLine(decimal Price, decimal Discount);
+public class DeliveryAttempt
+{
+    public DeliveryAttempt(bool succeeded, int errorCode)
+    {
+        Succeeded = succeeded;
+        ErrorCode = errorCode;
+    }
+
+    public bool Succeeded { get; }
+    public int ErrorCode { get; }
+}
 ```
 
 Depois:
 
 ```csharp
-public class InvoiceReport
+using System.Collections.Generic;
+
+public class DeliveryReport
 {
-    private decimal CalculateDiscount(IReadOnlyList<InvoiceLine> lines)
+    private int CountDelivered(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        var result = 0m;
-        foreach (var line in lines)
+        var result = 0;
+        foreach (var attempt in attempts)
         {
-            if (line.Discount > 0)
-                result += line.Discount;
+            if (attempt.Succeeded)
+                result += 1;
         }
         return result;
     }
 
-    public decimal Summarize(IReadOnlyList<InvoiceLine> lines)
+    public int Summarize(IReadOnlyList<DeliveryAttempt> attempts)
     {
-        return CalculateDiscount(lines);
+        return CountDelivered(attempts);
     }
 }
-
-public record InvoiceLine(decimal Price, decimal Discount);
 ```
 
-Mesmo comportamento, inclusive em chamadas repetidas (o "antes" reinicia o campo no começo de `Summarize`), com o campo eliminado e o fluxo de dados visível na chamada.
+O comportamento é o mesmo, inclusive nas chamadas repetidas (o "antes" zera o campo no início de `Summarize`), com o campo removido e o fluxo de dados visível na chamada.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

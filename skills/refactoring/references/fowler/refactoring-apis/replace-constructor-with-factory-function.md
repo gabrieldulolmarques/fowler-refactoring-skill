@@ -21,28 +21,28 @@ Antes:
 ```csharp
 using System;
 
-public class Invoice
+public class Notification
 {
-    public string Customer { get; }
-    public string KindCode { get; }
+    public string Recipient { get; }
+    public string ChannelCode { get; }
 
-    public Invoice(string customer, string kindCode)
+    public Notification(string recipient, string channelCode)
     {
-        Customer = customer;
-        KindCode = kindCode;
+        Recipient = recipient;
+        ChannelCode = channelCode;
     }
 
-    public string Kind => KindCode switch
+    public string Channel => ChannelCode switch
     {
-        "R" => "Recorrente",
-        "O" => "Avulsa",
-        _ => throw new ArgumentException("Tipo desconhecido")
+        "E" => "Email",
+        "S" => "Sms",
+        _ => throw new ArgumentException("Unknown channel")
     };
 }
 
 // chamadores
-var a = new Invoice(row.Customer, row.KindCode);
-var b = new Invoice("Acme", "R");
+// var a = new Notification(row.Recipient, row.ChannelCode);
+// var b = new Notification("ada@example.com", "E");
 ```
 
 Depois:
@@ -50,41 +50,41 @@ Depois:
 ```csharp
 using System;
 
-public class Invoice
+public class Notification
 {
-    public string Customer { get; }
-    public string KindCode { get; }
+    public string Recipient { get; }
+    public string ChannelCode { get; }
 
-    private Invoice(string customer, string kindCode)
+    private Notification(string recipient, string channelCode)
     {
-        Customer = customer;
-        KindCode = kindCode;
+        Recipient = recipient;
+        ChannelCode = channelCode;
     }
 
-    public static Invoice Create(string customer, string kindCode) =>
-        new Invoice(customer, kindCode);
+    public static Notification Create(string recipient, string channelCode) =>
+        new Notification(recipient, channelCode);
 
-    public static Invoice CreateRecurring(string customer) =>
-        new Invoice(customer, "R");
+    public static Notification CreateEmail(string recipient) =>
+        new Notification(recipient, "E");
 
-    public string Kind => KindCode switch
+    public string Channel => ChannelCode switch
     {
-        "R" => "Recorrente",
-        "O" => "Avulsa",
-        _ => throw new ArgumentException("Tipo desconhecido")
+        "E" => "Email",
+        "S" => "Sms",
+        _ => throw new ArgumentException("Unknown channel")
     };
 }
 
 // chamadores
-var a = Invoice.Create(row.Customer, row.KindCode);
-var b = Invoice.CreateRecurring("Acme");
+// var a = Notification.Create(row.Recipient, row.ChannelCode);
+// var b = Notification.CreateEmail("ada@example.com");
 ```
 
 O comportamento é o mesmo; o código literal não aparece mais no ponto de chamada de `b`.
 
 ## Notas (C#)
-- A fábrica é um método de fábrica estático. Torne o construtor `private` (ou `protected` se as subclasses precisarem chamá-lo) quando todos os chamadores tiverem migrado.
-- Se a fábrica precisa retornar uma subclasse, um construtor `private` na base impede que subclasses externas derivem dela. Aninhe as subclasses na classe base, ou torne o construtor da base `protected` ou `private protected`. Mantenha os construtores das subclasses `internal` ou `private` para que só a fábrica os alcance.
+- A fábrica é um método estático de fábrica. Torne o construtor `private` (ou `protected`, se subclasses precisarem chamá-lo) quando todos os chamadores tiverem migrado.
+- Se a fábrica precisar retornar uma subclasse, um construtor base `private` impede que subclasses externas herdem. Ou aninhe as subclasses na classe base, ou torne o construtor base `protected` ou `private protected`. Mantenha os construtores das subclasses `internal` ou `private`, para que só a fábrica os alcance.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

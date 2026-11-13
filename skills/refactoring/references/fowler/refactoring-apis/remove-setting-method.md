@@ -21,52 +21,52 @@ Smells: Dados Mutáveis (Mutable Data), Classe de Dados (Data Class).
 Antes: `Id` é atribuído uma vez na criação, mas qualquer um pode reatribuí-lo depois.
 
 ```csharp
-public class Customer
+public class Recipient
 {
     public string Id { get; set; } = "";
-    public string Name { get; set; } = "";
+    public string Email { get; set; } = "";
 }
 
 public static class Program
 {
     public static void Main()
     {
-        var customer = new Customer();
-        customer.Name = "Ada";
-        customer.Id = "C-1001";
-        System.Console.WriteLine($"{customer.Id} {customer.Name}");
+        var recipient = new Recipient();
+        recipient.Email = "ada@example.com";
+        recipient.Id = "R-1001";
+        System.Console.WriteLine($"{recipient.Id} {recipient.Email}");
     }
 }
 ```
 
-Depois: o id chega pelo construtor e não tem setter. `Name` ainda pode mudar, então mantém o seu setter.
+Depois: o id chega pelo construtor e não tem setter. `Email` ainda pode mudar, então mantém o setter.
 
 ```csharp
-public class Customer
+public class Recipient
 {
-    public Customer(string id)
+    public Recipient(string id)
     {
         Id = id;
     }
 
     public string Id { get; }
-    public string Name { get; set; } = "";
+    public string Email { get; set; } = "";
 }
 
 public static class Program
 {
     public static void Main()
     {
-        var customer = new Customer("C-1001");
-        customer.Name = "Ada";
-        System.Console.WriteLine($"{customer.Id} {customer.Name}");
+        var recipient = new Recipient("R-1001");
+        recipient.Email = "ada@example.com";
+        System.Console.WriteLine($"{recipient.Id} {recipient.Email}");
     }
 }
 ```
 
 ## Notas (C#)
-- Use `{ get; }` para um valor definido apenas no construtor, ou `{ get; init; }` quando os chamadores ainda podem defini-lo em um inicializador de objeto (`new Customer { Id = "C-1001" }`), mas não depois.
-- `init` é um primeiro passo mais leve quando muitos pontos de criação usam inicializadores: bloqueia a atribuição posterior sem forçar uma mudança de construtor de uma vez. Prefira `{ get; }` mais um construtor quando o valor é obrigatório, para que o compilador rejeite objetos construídos sem ele.
+- Use `{ get; }` para um valor definido apenas no construtor, ou `{ get; init; }` (C# 9+; no Unity precisa de um shim de `IsExternalInit`) quando os chamadores ainda podem defini-lo em um inicializador de objeto (`new Recipient { Id = "R-1001" }`), mas não depois.
+- `init` (com a mesma ressalva do shim) é um primeiro passo mais leve quando muitos pontos de criação usam inicializadores: bloqueia a atribuição posterior sem forçar uma mudança no construtor de imediato. Prefira `{ get; }` com um construtor quando o valor for obrigatório, para que o compilador rejeite objetos montados sem ele.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

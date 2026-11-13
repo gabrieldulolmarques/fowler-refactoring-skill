@@ -33,62 +33,92 @@ o que você precisa.
    e escrevem os campos diretamente.
 
 ## Exemplo
-Antes: uma função que calcula o preço de uma fatura, com várias variáveis locais que interagem.
+Antes: uma função que precifica uma campanha, com várias variáveis locais que interagem entre si.
 
 ```csharp
-public record Customer(string Region, bool IsPreferred);
-public record Order(int Units, decimal UnitPrice);
-public interface ITaxTable { decimal RateFor(string region); }
+public class Campaign
+{
+    public Campaign(string channel, int recipients, int optedOut)
+    {
+        Channel = channel;
+        Recipients = recipients;
+        OptedOut = optedOut;
+    }
+
+    public string Channel { get; }
+    public int Recipients { get; }
+    public int OptedOut { get; }
+}
+
+public class Account
+{
+    public Account(string region, bool isPrepaid)
+    {
+        Region = region;
+        IsPrepaid = isPrepaid;
+    }
+
+    public string Region { get; }
+    public bool IsPrepaid { get; }
+}
+
+public interface IRateTable
+{
+    decimal PricePerMessage(string channel);
+    decimal TaxRate(string region);
+}
 
 public static class Billing
 {
-    public static decimal InvoiceTotal(Order order, Customer customer, ITaxTable taxes)
+    public static decimal CampaignCost(Campaign campaign, Account account, IRateTable rates)
     {
-        decimal subtotal = order.Units * order.UnitPrice;
+        int deliverable = campaign.Recipients - campaign.OptedOut;
+        decimal subtotal = deliverable * rates.PricePerMessage(campaign.Channel);
         decimal discount = 0m;
-        if (order.Units > 100)
+        if (deliverable > 10000)
             discount += subtotal * 0.05m;
-        if (customer.IsPreferred)
+        if (account.IsPrepaid)
             discount += subtotal * 0.02m;
         decimal taxable = subtotal - discount;
-        decimal tax = taxable * taxes.RateFor(customer.Region);
+        decimal tax = taxable * rates.TaxRate(account.Region);
         return taxable + tax;
     }
 }
 ```
 
-Depois dos passos 1 a 4 (o encaminhador permanece, o comando é dono dos argumentos):
+Depois dos passos 1 a 4 (o encaminhador permanece, o comando passa a ser dono dos argumentos):
 
 ```csharp
 public static class Billing
 {
-    public static decimal InvoiceTotal(Order order, Customer customer, ITaxTable taxes)
-        => new InvoiceTotalCalculator(order, customer, taxes).Execute();
+    public static decimal CampaignCost(Campaign campaign, Account account, IRateTable rates)
+        => new CampaignCostCalculator(campaign, account, rates).Execute();
 }
 
-public class InvoiceTotalCalculator
+public class CampaignCostCalculator
 {
-    private readonly Order _order;
-    private readonly Customer _customer;
-    private readonly ITaxTable _taxes;
+    private readonly Campaign _campaign;
+    private readonly Account _account;
+    private readonly IRateTable _rates;
 
-    public InvoiceTotalCalculator(Order order, Customer customer, ITaxTable taxes)
+    public CampaignCostCalculator(Campaign campaign, Account account, IRateTable rates)
     {
-        _order = order;
-        _customer = customer;
-        _taxes = taxes;
+        _campaign = campaign;
+        _account = account;
+        _rates = rates;
     }
 
     public decimal Execute()
     {
-        decimal subtotal = _order.Units * _order.UnitPrice;
+        int deliverable = _campaign.Recipients - _campaign.OptedOut;
+        decimal subtotal = deliverable * _rates.PricePerMessage(_campaign.Channel);
         decimal discount = 0m;
-        if (_order.Units > 100)
+        if (deliverable > 10000)
             discount += subtotal * 0.05m;
-        if (_customer.IsPreferred)
+        if (_account.IsPrepaid)
             discount += subtotal * 0.02m;
         decimal taxable = subtotal - discount;
-        decimal tax = taxable * _taxes.RateFor(_customer.Region);
+        decimal tax = taxable * _rates.TaxRate(_account.Region);
         return taxable + tax;
     }
 }
@@ -97,42 +127,43 @@ public class InvoiceTotalCalculator
 Depois dos passos 5 e 6 (variáveis locais promovidas a campos, depois partes extraídas):
 
 ```csharp
-public class InvoiceTotalCalculator
+public class CampaignCostCalculator
 {
-    private readonly Order _order;
-    private readonly Customer _customer;
-    private readonly ITaxTable _taxes;
+    private readonly Campaign _campaign;
+    private readonly Account _account;
+    private readonly IRateTable _rates;
+    private int _deliverable;
     private decimal _subtotal;
     private decimal _discount;
 
-    public InvoiceTotalCalculator(Order order, Customer customer, ITaxTable taxes)
+    public CampaignCostCalculator(Campaign campaign, Account account, IRateTable rates)
     {
-        _order = order;
-        _customer = customer;
-        _taxes = taxes;
+        _campaign = campaign;
+        _account = account;
+        _rates = rates;
     }
 
     public decimal Execute()
     {
-        _subtotal = _order.Units * _order.UnitPrice;
+        _deliverable = _campaign.Recipients - _campaign.OptedOut;
+        _subtotal = _deliverable * _rates.PricePerMessage(_campaign.Channel);
         ApplyDiscounts();
         decimal taxable = _subtotal - _discount;
-        return taxable + taxable * _taxes.RateFor(_customer.Region);
+        return taxable + taxable * _rates.TaxRate(_account.Region);
     }
 
     private void ApplyDiscounts()
     {
         _discount = 0m;
-        if (_order.Units > 100)
+        if (_deliverable > 10000)
             _discount += _subtotal * 0.05m;
-        if (_customer.IsPreferred)
+        if (_account.IsPrepaid)
             _discount += _subtotal * 0.02m;
     }
 }
 ```
 
-O comportamento é o mesmo em cada etapa. Note que `Execute` agora altera campos, então uma instância
-de comando é de uso único, a menos que os campos sejam reiniciados no começo de `Execute`.
+O comportamento é o mesmo em todas as etapas. Observe que `Execute` agora altera campos, então uma instância do comando só serve para um uso, a menos que os campos sejam zerados no início de `Execute`.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

@@ -26,16 +26,16 @@ lógica executa, isso é um argumento de flag, não um valor (veja [remove-flag-
 Antes:
 
 ```csharp
-public class DocumentNumberFormatter
+public class MessagePreview
 {
-    public string FormatInvoiceNumber(int number)
+    public string SmsPreview(string body)
     {
-        return "INV-" + number.ToString().PadLeft(6, '0');
+        return body.Length <= 160 ? body : body.Substring(0, 157) + "...";
     }
 
-    public string FormatCreditNoteNumber(int number)
+    public string PushPreview(string body)
     {
-        return "CN-" + number.ToString().PadLeft(4, '0');
+        return body.Length <= 40 ? body : body.Substring(0, 37) + "...";
     }
 }
 ```
@@ -43,17 +43,17 @@ public class DocumentNumberFormatter
 Depois:
 
 ```csharp
-public class DocumentNumberFormatter
+public class MessagePreview
 {
-    public string FormatDocumentNumber(int number, string prefix, int width)
+    public string Preview(string body, int maxLength)
     {
-        return prefix + number.ToString().PadLeft(width, '0');
+        return body.Length <= maxLength ? body : body.Substring(0, maxLength - 3) + "...";
     }
 }
 
 // chamadores
-// formatter.FormatDocumentNumber(number, "INV-", 6);  // era FormatInvoiceNumber
-// formatter.FormatDocumentNumber(number, "CN-", 4);   // era FormatCreditNoteNumber
+// preview.Preview(body, 160);  // era SmsPreview
+// preview.Preview(body, 40);   // era PushPreview
 ```
 
 ## Verificação
