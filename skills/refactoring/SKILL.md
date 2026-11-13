@@ -181,9 +181,9 @@ Kerievsky correspondem a um smell de Fowler; onde o nome dele é outro, está en
 | Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses) | comportamento ou dados variam conforme um código de tipo | [replace-type-code-with-subclasses.md](references/fowler/inheritance/replace-type-code-with-subclasses.md) |
 | Remover Subclasse (Remove Subclass) | as subclasses fazem pouco demais para se justificar | [remove-subclass.md](references/fowler/inheritance/remove-subclass.md) |
 | Extrair Superclasse (Extract Superclass) | duas classes compartilham dados ou comportamento | [extract-superclass.md](references/fowler/inheritance/extract-superclass.md) |
-| Colapsar Hierarquia (Collapse Hierarchy) | uma subclasse já não é diferente o bastante da classe pai | [collapse-hierarchy.md](references/fowler/inheritance/collapse-hierarchy.md) |
+| Colapsar Hierarquia (Collapse Hierarchy) | uma subclasse já não é diferente o bastante da superclasse | [collapse-hierarchy.md](references/fowler/inheritance/collapse-hierarchy.md) |
 | Substituir Subclasse por Delegação (Replace Subclass with Delegate) | a herança já é usada para outra variação, ou a variante precisa mudar em tempo de execução | [replace-subclass-with-delegate.md](references/fowler/inheritance/replace-subclass-with-delegate.md) |
-| Substituir Superclasse por Delegação (Replace Superclass with Delegate) | a subclasse não é de fato um tipo da classe pai | [replace-superclass-with-delegate.md](references/fowler/inheritance/replace-superclass-with-delegate.md) |
+| Substituir Superclasse por Delegação (Replace Superclass with Delegate) | a subclasse não é de fato um tipo da superclasse | [replace-superclass-with-delegate.md](references/fowler/inheritance/replace-superclass-with-delegate.md) |
 
 
 ## Kerievsky: as refatorações para padrões

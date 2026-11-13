@@ -74,7 +74,7 @@ skills/
 ## 2. As 66 refatorações
 
 Conferido com o livro em 2026-10-31, de forma mecânica a partir do texto do PDF: cada uma das 61 refatorações
-do livro começa na **Página** indicada (edição impressa), as colunas **Antes / também** e
+do livro começa na **Página** indicada (edição impressa), as colunas **Nome anterior / outro nome** e
 **Inversa** são o próprio cabeçalho de seção do livro (`formerly:`, `aka:`, `subsumes:`,
 `inverse of:`), e todas as 575 referências cruzadas "Nome (página)" nos cap. 3–12 batem com a coluna
 Página. Para as 5 refatorações exclusivas da web, nomes, apelidos e mecânica vêm da edição web do livro (conferida em 2026-11-11).
@@ -84,7 +84,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 6: Um primeiro conjunto de refatorações
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 1 | Extrair Função (Extract Function) | 106 | antes Extract Method | Internalizar Função | em C#, funções locais são uma opção para auxiliares usados em um só lugar |
 | 2 | Internalizar Função (Inline Function) | 115 | antes Inline Method | Extrair Função | não internalize um método `virtual`/`override` nem uma implementação de interface sem verificar as outras implementações |
@@ -100,7 +100,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 7: Encapsulamento
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 12 | Encapsular Registro (Encapsulate Record) | 162 | antes Replace Record with Data Class | — | dados em dicionário, tupla, anônimos ou `dynamic` → uma classe ou `record` com propriedades |
 | 13 | Encapsular Coleção (Encapsulate Collection) | 170 | — | — | exponha `IReadOnlyList<T>` / `IReadOnlyCollection<T>`, com métodos `Add`/`Remove`; uma interface somente leitura não impede o chamador de fazer cast de volta, então devolva uma cópia onde isso importar |
@@ -114,7 +114,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 8: Movendo recursos
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 21 | Mover Função (Move Function) | 198 | antes Move Method | — | o destino pode ser outra classe, uma classe estática ou um método de extensão |
 | 22 | Mover Campo (Move Field) | 207 | — | — | um campo persistido ou serializado só mantém o nome armazenado se o mapeamento também for atualizado |
@@ -128,7 +128,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 9: Organizando dados
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 30 | Dividir Variável (Split Variable) | 240 | antes Remove Assignments to Parameters, Split Temp | — | não há locais imutáveis (`const` só serve para constantes de tempo de compilação), então atribua cada nova variável uma única vez; renomear um parâmetro quebra chamadores que usam argumentos nomeados |
 | 31 | Renomear Campo (Rename Field) | 244 | — | — | um campo serializado ou persistido só mantém o nome de transmissão com um atributo de mapeamento (p. ex. `[JsonPropertyName("oldName")]`) ou uma migração |
@@ -139,7 +139,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 10: Simplificando a lógica condicional
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 36 | Decompor Condicional (Decompose Conditional) | 260 | — | — | — |
 | 37 | Consolidar Expressão Condicional (Consolidate Conditional Expression) | 263 | — | — | — |
@@ -151,7 +151,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 11: Refatorando APIs
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 43 | Separar Consulta de Modificador (Separate Query from Modifier) | 306 | — | — | — |
 | 44 | Parametrizar Função (Parameterize Function) | 310 | antes Parameterize Method | — | — |
@@ -169,7 +169,7 @@ somente pontos genéricos de C#. Onde consta "—", o arquivo não tem seção d
 
 ### Capítulo 12: Lidando com herança
 
-| # | Refatoração | Página | Antes / também | Inversa | Nota de C# |
+| # | Refatoração | Página | Nome anterior / outro nome | Inversa | Nota de C# |
 |---|---|---|---|---|---|
 | 56 | Subir Método (Pull Up Method) | 350 | — | Descer Método | — |
 | 57 | Subir Campo (Pull Up Field) | 353 | — | Descer Campo | — |
@@ -249,7 +249,7 @@ junto.
 ```markdown
 # Extrair Classe (Extract Class)
 
-Fowler (2018), cap. 7, p. 182. Antes / também: —. Inversa: Internalizar Classe
+Fowler (2018), cap. 7, p. 182. Nome anterior / outro nome: —. Inversa: Internalizar Classe
 ([inline-class.md](inline-class.md)).
 
 ## Quando usar
@@ -362,7 +362,7 @@ em Java: só pontos genéricos de C#. Onde está "—", o arquivo não tem seç�
 | # | Refatoração | Página | Padrão | Direção | Nota C# |
 |---|---|---|---|---|---|
 | 25 | Encadear Construtores (Chain Constructors) | 340 | — | — | `: this(...)`; parâmetros opcionais como alternativa; construtores primários |
-| 26 | Unificar Interfaces (Unify Interfaces) | 343 | — | — | `virtual`/`override`, sem ocultar; métodos padrão de interface |
+| 26 | Unificar Interfaces (Unify Interfaces) | 343 | — | — | `virtual`/`override`, sem ocultar; implementações padrão de interface |
 | 27 | Extrair Parâmetro (Extract Parameter) | 346 | — | — | `ArgumentNullException.ThrowIfNull` |
 
 Sobreposições com a 2ª edição de Fowler, mantidas curtas e apontando para o arquivo de Fowler:
