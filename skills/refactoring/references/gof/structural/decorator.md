@@ -15,7 +15,8 @@ Add responsibilities to an individual object at runtime by wrapping it in anothe
 ## Participants in C#
 - **Component** (`IApiClient`): the interface shared by the real object and the wrappers. Keep it small.
 - **ConcreteComponent** (`HttpApiClient`): the object that does the real work.
-- **Decorator** (`RetryingClient`, `CachingClient`, `LoggingClient`): classes that implement the component interface, hold another component, forward calls to it and add behavior before or after. An abstract base `Decorator` that only forwards is optional; with a single-method interface it is not worth having.
+- **Decorator**: a base class that implements the component interface, holds another component and forwards calls to it. It is optional; with a single-method interface it is not worth having, and the example has none.
+- **ConcreteDecorator** (`RetryingClient`, `CachingClient`, `LoggingClient`): implements the component interface, holds another component, forwards calls to it and adds behavior before or after.
 - **Client** (code in `Main`): composes the stack and uses it through the component interface.
 
 ## Example (C#)

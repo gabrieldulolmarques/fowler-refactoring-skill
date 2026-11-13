@@ -47,15 +47,23 @@ variations, risks.
 
 ## How to select a pattern (§1.7, p. 28)
 
-1. Think about how patterns solve design problems (the principles above).
-2. Scan the intents in [catalog.md](catalog.md); narrow down by purpose and scope.
-3. Study how the patterns relate, and the patterns with the same purpose (each category's
-   comparison in [catalog.md](catalog.md)).
-4. Check whether the problem is one of the causes of redesign, and look at the patterns that
-   prevent it.
-5. Or the reverse: decide what you want to be able to change without redesign, and pick the
-   pattern that lets that aspect vary. Encapsulating the concept that varies is the theme of many
-   patterns.
+The book gives six alternative approaches to finding the pattern for a problem. They are not steps;
+use whichever suits the situation, or combine them.
+
+- **How patterns solve design problems.** §1.6 of the book covers finding objects, object
+  granularity, specifying interfaces and the other points of that section. The list above
+  summarizes only the principles that matter most for the code here, so go to the book for the rest.
+- **Scan the intents.** Read the intents in [catalog.md](catalog.md) and narrow the list by purpose
+  and scope (Table 1.1, p. 10).
+- **Study how the patterns relate.** Figure 1.1 (p. 12) of the book draws the relationships between
+  patterns; it is not reproduced here.
+- **Study patterns of like purpose.** The comparison that closes each category in
+  [catalog.md](catalog.md) shows what separates similar patterns.
+- **Examine a cause of redesign.** Check whether the problem matches one of the causes, and look at
+  the patterns that prevent it ([catalog.md](catalog.md), p. 24).
+- **Consider what should be variable.** The reverse of the previous approach: decide what you want
+  to be able to change without redesign, and pick the pattern that lets that aspect vary.
+  Isolating whatever varies is the idea behind many of the patterns.
 
 ## How to use a pattern (§1.8, p. 29)
 

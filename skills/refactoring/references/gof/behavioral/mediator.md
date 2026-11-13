@@ -6,7 +6,7 @@ Gamma et al. (1995), ch. 5, p. 273. Category: object behavioral.
 Put the rules for how a group of objects interact into one object, so the group's members do not refer to each other. The interaction can then change without touching the members.
 
 ## When it pays off
-- A set of objects communicate in well-defined but tangled ways, and the web of references is hard to follow.
+- The way a group of objects talk to each other is clear enough in each case but has grown into a tangle of references that is hard to follow.
 - An object is hard to reuse because it knows and talks to many others.
 - Behavior spread across several classes should be customizable without a pile of subclasses.
 - Benefits: colleagues become reusable on their own, many-to-many links become one-to-many, and the cooperation rules sit in one named place. Changing the rules means changing or replacing the mediator only.

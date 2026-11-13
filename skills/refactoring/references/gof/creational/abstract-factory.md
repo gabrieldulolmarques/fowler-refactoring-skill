@@ -6,8 +6,10 @@ Gamma et al. (1995), ch. 3, p. 87. Also known as: Kit. Category: object creation
 Offer one interface for creating a whole family of related objects, so client code never names the concrete classes of that family.
 
 ## When it pays off
+- The system should not depend on how its products are created, composed or represented.
 - The system must work with one of several product families (for example one set of classes per region or per provider) and must not depend on which one.
 - The products of a family only make sense together, and you want the compiler and the factory, not discipline, to keep them from being mixed.
+- You ship a library of products and want to expose only their interfaces, not their implementations.
 - Switching the family is a single decision at one place: the concrete factory is created once and handed to the code that needs products.
 - It isolates concrete classes: product names appear only inside the concrete factories.
 - Liability: adding a new kind of product changes the factory interface and every concrete factory.
@@ -107,7 +109,6 @@ public static class Program
 ## Variations
 - **Factory methods inside the factory.** The usual form: each creation method is a factory method, and a concrete factory implements them. Simple, but it takes one factory class per family.
 - **Prototype-based factory.** The factory keeps one prototype of each product and clones it on demand (see [prototype.md](prototype.md)). A new family is then just a new set of prototypes, with no new factory class.
-- **Concrete factory that is also the abstract one.** For a small system a single non-abstract class with virtual creation methods is enough; derived classes override only what changes.
 - **Parameterized creation.** One `Create(kind)` method replaces the one-method-per-product interface, so new product kinds need no interface change. The price is type safety: every result comes back as the common base type, and callers that need more must cast.
 - **One factory per family, normally one instance.** The factory is usually created once and shared. Handing it down by constructor, as above, is enough; it does not have to be a [Singleton](singleton.md).
 

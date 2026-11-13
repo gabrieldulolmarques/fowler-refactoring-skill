@@ -3,11 +3,12 @@
 Gamma et al. (1995), ch. 3, p. 107. Also known as: Virtual Constructor. Category: class creational.
 
 ## Intent
-Declare a method for creating an object and let subclasses choose which class it instantiates, so a class can leave the decision of what to create to its subclasses.
+Give a class an overridable method that creates its product, so each subclass picks the concrete class and the base class never names it.
 
 ## When it pays off
 - A base class knows when an object is needed but not which concrete class to create.
-- You want subclasses to decide the concrete product, or you want to localize the knowledge of which helper class goes with which subclass.
+- The creating class is meant to leave the choice of product to its subclasses.
+- A class hands work to one of several helper subclasses, and you want the knowledge of which helper applies kept in one place.
 - It gives subclasses a hook: a method with a sensible default that a subclass can override to supply an extended version.
 - Code depends only on the product interface, so new concrete products need no change to the base class.
 - Liability: you may have to create a subclass of the creator only to change the product, which adds a point of evolution.

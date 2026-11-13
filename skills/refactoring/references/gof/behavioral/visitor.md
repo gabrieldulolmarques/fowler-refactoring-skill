@@ -9,6 +9,7 @@ Package an operation over the elements of an object structure into a separate ob
 - A structure holds many classes with different interfaces, and operations depend on the concrete class of each element.
 - Many unrelated operations (pricing, rendering, auditing) would otherwise clutter the element classes. Each operation gets one visitor class that keeps its code and its working data together.
 - The element classes rarely change, but new operations over them are added often.
+- The structure is shared by many applications, and each application should get only the operations it needs.
 - Benefits: a new operation is a new class; related code is in one place, unrelated code is apart; a visitor can accumulate state while it walks the structure; it can visit elements that share no common base class.
 - Liabilities: adding a new element class is costly, because the visitor interface and every visitor must change; the elements usually have to expose enough of their state for visitors to work, which weakens encapsulation.
 - Skip it when the element types change more often than the operations: put the operation on the elements instead.
@@ -170,7 +171,7 @@ public static class PatternMatchingTotal
 
 ## Variations
 - **Double dispatch.** The operation that runs depends on two types: the visitor's and the element's. `Accept` receives the visitor and calls the `Visit` overload for the element's own type, which is how the right code is selected without a type check. Languages with multiple dispatch need the pattern less.
-- **Who walks the structure.** The object structure (a collection loops over its elements, a composite recurses into its children), an iterator, or the visitor itself. Put the traversal in the visitor only when it is irregular or depends on results of earlier visits, at the price of repeating it in each visitor.
+- **Who walks the structure.** Most often the structure itself: a list calls `Accept` on each element, and a tree's `Accept` recurses into the children. A separate iterator is the other option, and so is the visitor, which suits an irregular walk or one that depends on earlier results, at the price of duplicating the walk in every visitor.
 - **Overloads or distinct names.** `Visit(SubscriptionLine)` with overloads is short and shows the symmetry between the cases; names such as `VisitSubscription` make each call site explicit. Pick one and stay with it.
 - **Default behavior.** An abstract base visitor can give each `Visit` an empty body, so a concrete visitor overrides only the element kinds it cares about.
 - **Return values.** A generic `IInvoiceVisitor<TResult>` returns a result per element instead of accumulating it in a field, which makes the visitor reusable and removes the shared state.

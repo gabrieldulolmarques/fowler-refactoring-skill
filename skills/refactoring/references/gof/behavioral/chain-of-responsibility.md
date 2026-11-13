@@ -13,28 +13,28 @@ Let several objects have a chance to handle a request, so the sender does not ne
 - Not worth it when the receiver is known statically, or when every step must always run (that is a pipeline, not a chain: see Variations).
 
 ## Participants in C#
-- **Handler** (`PaymentCheck`): abstract class (or interface) that declares the handling method and, optionally, keeps the successor link and the forwarding default.
-- **ConcreteHandler** (`LimitCheck`, `FraudCheck`, `BalanceCheck`): decides whether the request is its business. If so it handles it, otherwise it calls the successor.
+- **Handler** (`PaymentRoute`): abstract class (or interface) that declares the handling method and, optionally, keeps the successor link and the forwarding default.
+- **ConcreteHandler** (`BrlInstantRoute`, `EurInstantRoute`, `ManualReviewRoute`): decides whether the request is its business. If so it handles it, otherwise it calls the successor.
 - **Client** (`Program` in the example): builds the chain and sends the request to the first handler.
 
 ## Example (C#)
-An instant-payment request goes through screening steps. Each step either rejects the payment or passes it on; the last one approves it. The request is an object, so new data does not change the handler signature.
+An instant-payment request is routed to the rail that serves its currency. Exactly one handler takes each request: the first route that supports the currency, or the manual-review route at the end of the chain as the fallback. The request is an object, so new data does not change the handler signature.
 
 ```csharp
 using System;
 
 public class PaymentRequest
 {
-    public PaymentRequest(string payerId, decimal amount, string country)
+    public PaymentRequest(string payerId, decimal amount, string currency)
     {
         PayerId = payerId;
         Amount = amount;
-        Country = country;
+        Currency = currency;
     }
 
     public string PayerId { get; }
     public decimal Amount { get; }
-    public string Country { get; }
+    public string Currency { get; }
 }
 
 public class PaymentDecision
@@ -49,70 +49,75 @@ public class PaymentDecision
     public string Reason { get; }
 }
 
-public abstract class PaymentCheck
+public abstract class PaymentRoute
 {
-    private PaymentCheck? _next;
+    private PaymentRoute? _next;
 
     // Returns the handler passed in, so calls can be chained when wiring.
-    public PaymentCheck SetNext(PaymentCheck next)
+    public PaymentRoute SetNext(PaymentRoute next)
     {
         _next = next;
         return next;
     }
 
-    public virtual PaymentDecision Handle(PaymentRequest request) =>
-        _next != null
+    public virtual PaymentDecision Handle(PaymentRequest request)
+    {
+        if (CanHandle(request))
+        {
+            return Process(request);
+        }
+
+        return _next != null
             ? _next.Handle(request)
-            : new PaymentDecision(false, "no check approved the payment");
+            : new PaymentDecision(false, "no route accepts the payment");
+    }
+
+    protected abstract bool CanHandle(PaymentRequest request);
+
+    protected abstract PaymentDecision Process(PaymentRequest request);
 }
 
-public class LimitCheck : PaymentCheck
+public class BrlInstantRoute : PaymentRoute
+{
+    protected override bool CanHandle(PaymentRequest request) => request.Currency == "BRL";
+
+    protected override PaymentDecision Process(PaymentRequest request) =>
+        new PaymentDecision(true, "sent through the domestic instant rail");
+}
+
+public class EurInstantRoute : PaymentRoute
 {
     private readonly decimal _maxAmount;
 
-    public LimitCheck(decimal maxAmount) => _maxAmount = maxAmount;
+    public EurInstantRoute(decimal maxAmount) => _maxAmount = maxAmount;
 
-    public override PaymentDecision Handle(PaymentRequest request) =>
-        request.Amount > _maxAmount
-            ? new PaymentDecision(false, "amount above the instant-payment limit")
-            : base.Handle(request);
+    protected override bool CanHandle(PaymentRequest request) =>
+        request.Currency == "EUR" && request.Amount <= _maxAmount;
+
+    protected override PaymentDecision Process(PaymentRequest request) =>
+        new PaymentDecision(true, "sent through the euro instant rail");
 }
 
-public class FraudCheck : PaymentCheck
+// Fallback: accepts whatever the earlier routes did not.
+public class ManualReviewRoute : PaymentRoute
 {
-    private readonly string[] _blockedCountries;
+    protected override bool CanHandle(PaymentRequest request) => true;
 
-    public FraudCheck(params string[] blockedCountries) => _blockedCountries = blockedCountries;
-
-    public override PaymentDecision Handle(PaymentRequest request) =>
-        Array.IndexOf(_blockedCountries, request.Country) >= 0
-            ? new PaymentDecision(false, "destination country is blocked")
-            : base.Handle(request);
-}
-
-public class BalanceCheck : PaymentCheck
-{
-    private readonly Func<string, decimal> _balanceOf;
-
-    public BalanceCheck(Func<string, decimal> balanceOf) => _balanceOf = balanceOf;
-
-    public override PaymentDecision Handle(PaymentRequest request) =>
-        _balanceOf(request.PayerId) >= request.Amount
-            ? new PaymentDecision(true, "approved")
-            : new PaymentDecision(false, "insufficient balance");
+    protected override PaymentDecision Process(PaymentRequest request) =>
+        new PaymentDecision(false, "queued for manual review");
 }
 
 public static class Program
 {
     public static void Main()
     {
-        var first = new LimitCheck(5_000m);
-        first.SetNext(new FraudCheck("XX", "YY"))
-             .SetNext(new BalanceCheck(_ => 1_200m));
+        var first = new BrlInstantRoute();
+        first.SetNext(new EurInstantRoute(100_000m))
+             .SetNext(new ManualReviewRoute());
 
-        Console.WriteLine(first.Handle(new PaymentRequest("p-1", 300m, "BR")).Reason);   // approved
-        Console.WriteLine(first.Handle(new PaymentRequest("p-1", 9_000m, "BR")).Reason); // limit
-        Console.WriteLine(first.Handle(new PaymentRequest("p-1", 300m, "XX")).Reason);   // blocked
+        Console.WriteLine(first.Handle(new PaymentRequest("p-1", 300m, "BRL")).Reason); // domestic instant rail
+        Console.WriteLine(first.Handle(new PaymentRequest("p-1", 300m, "EUR")).Reason); // euro instant rail
+        Console.WriteLine(first.Handle(new PaymentRequest("p-1", 300m, "JPY")).Reason); // manual review
     }
 }
 ```
@@ -124,16 +129,17 @@ public static class Program
 - **Handled versus passed through.** In the classic form the first handler that accepts ends the walk. A variant lets every handler act and always forward (a pipeline). Pick one and name it clearly, because callers reason about it differently.
 
 ## Risks and C# alternatives
-- The silent end of the chain is the main bug source. Return a result that says "not handled" (as the default above does) or throw, instead of returning nothing.
+- The silent end of the chain is the main bug source. Return a result that says "not handled" (as the default in `PaymentRoute` does) or throw, instead of returning nothing.
 - A cycle in the successor links loops forever. Build the chain in one place.
-- For a short, fixed list, a loop over `IEnumerable<IPaymentCheck>` that returns the first non-null result is simpler than linked handlers, and the order is visible in one line. Use linked objects when handlers must decide dynamically whether to forward, or when the chain reuses an existing hierarchy.
+- For a short, fixed list, a loop over `IEnumerable<PaymentRoute>` that returns the first non-null result is simpler than linked handlers, and the order is visible in one line. Use linked objects when handlers must decide dynamically whether to forward, or when the chain reuses an existing hierarchy.
 - With dependency injection, register the handlers in order and build the chain in the composition root.
 - Delegates work too: a list of `Func<PaymentRequest, PaymentDecision?>` replaces the class per step when handlers have no state of their own.
 
 ## Related patterns
 - [Composite](../structural/composite.md): the parent of a component is often its successor, so the two are used together.
 - [Command](command.md): a request object in a chain is often a command.
-- [Decorator](../structural/decorator.md): structurally similar (a wrapped next object), but a decorator always adds behavior and forwards, while a handler may stop the request.
+
+**Beyond the book:** [Decorator](../structural/decorator.md) looks similar structurally (a wrapped next object), but a decorator always adds behavior and forwards, while a handler may stop the request.
 
 ## Verification
 - A request that each handler should take is taken by exactly that handler, with a test per handler.

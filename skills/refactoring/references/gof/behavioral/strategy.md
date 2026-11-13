@@ -132,7 +132,8 @@ public static class Program
 ## Related patterns
 - [Flyweight](../structural/flyweight.md): strategy objects without state make good flyweights.
 - [Template Method](template-method.md): varies part of an algorithm by inheritance, where Strategy varies the whole algorithm by delegation.
-- [State](state.md): same structure, but a state is replaced by the object as it moves through its life, and a strategy is chosen from outside.
+
+**Beyond the book:** [State](state.md) has the same structure, but a state is replaced by the object as it moves through its life, and a strategy is chosen from outside.
 
 ## Verification
 - The context contains no branching on which algorithm is in use, and names no concrete strategy.

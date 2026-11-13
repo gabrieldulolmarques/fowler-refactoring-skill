@@ -13,9 +13,9 @@ Guarantee that a class has exactly one instance and give a single, well-known po
 - Not worth it when the only need is "share one object": create it once and pass it to those who need it.
 
 ## Participants in C#
-- **Singleton** (`FeatureFlags`): a sealed class with a private constructor, a private static field holding the instance, and a static `Instance` property that creates it on first use.
+- **Singleton** (`FeatureFlags`): a class with a private constructor, a private static field holding the instance, and a static `Instance` property that creates it on first use.
 
-The interface (`IFeatureFlags`) is not part of the original pattern but is what makes the instance replaceable and testable.
+The example declares the class `sealed`, a C# choice that gives up the subclass selection described in the variation "Choosing a subclass"; leave it unsealed if that is needed. The interface (`IFeatureFlags`) is not part of the original pattern but is what makes the instance replaceable and testable.
 
 ## Example (C#)
 A feature-flag store must exist once for the process. `Lazy<T>` gives lazy creation and thread safety without hand-written locking.

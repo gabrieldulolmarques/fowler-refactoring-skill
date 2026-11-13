@@ -9,6 +9,7 @@ Turn a request into an object. That lets you pass requests around as values, par
 - An object must trigger an action without knowing what it does or on whom (buttons, menu items, schedulers, job queues). A command object replaces the callback.
 - Requests must be queued, run later, logged, replayed after a crash, or sent to another process.
 - You need undo and redo: the command keeps what it needs to reverse itself, and a history list gives multiple levels.
+- The system is organized around high-level operations built from primitive ones, as in transaction-based information systems: a command encapsulates a set of changes to data, and all commands share one interface.
 - Benefits: the invoker is decoupled from the receiver, commands are first-class objects, they compose into macros, and new commands need no change to existing classes.
 - Liability: one class per action can be heavy. For a simple callback that needs no undo or data, a delegate is enough.
 

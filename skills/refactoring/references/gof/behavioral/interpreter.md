@@ -6,6 +6,7 @@ Gamma et al. (1995), ch. 5, p. 243. Category: class behavioral.
 For a small language, represent its grammar as a set of classes and write an interpreter that evaluates sentences of the language, held as trees of those classes.
 
 ## When it pays off
+- The language's sentences can be represented as abstract syntax trees.
 - A problem recurs often enough that expressing instances as sentences of a small language is worth it (matching rules, filters, pricing rules, feature-flag targeting).
 - The grammar is simple and performance is not critical. Each grammar rule becomes a class, so the pattern scales badly to large grammars.
 - Benefits: the grammar is easy to change and extend by adding or editing classes, and each node class is short and similar to the others.

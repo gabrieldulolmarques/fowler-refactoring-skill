@@ -70,10 +70,10 @@ public class LazyToolProxy : IAssistantTool
 public class AuthorizedToolProxy : IAssistantTool
 {
     private readonly IAssistantTool _real;
-    private readonly IReadOnlyCollection<string> _scopes;
+    private readonly ICollection<string> _scopes;
     private readonly string _requiredScope;
 
-    public AuthorizedToolProxy(IAssistantTool real, IReadOnlyCollection<string> callerScopes, string requiredScope)
+    public AuthorizedToolProxy(IAssistantTool real, ICollection<string> callerScopes, string requiredScope)
     {
         _real = real;
         _scopes = callerScopes;
@@ -84,7 +84,7 @@ public class AuthorizedToolProxy : IAssistantTool
 
     public Task<string> RunAsync(string input)
     {
-        if (!((ICollection<string>)_scopes).Contains(_requiredScope))
+        if (!_scopes.Contains(_requiredScope))
             return Task.FromResult($"refused: {Name} needs scope '{_requiredScope}'");
         return _real.RunAsync(input);
     }

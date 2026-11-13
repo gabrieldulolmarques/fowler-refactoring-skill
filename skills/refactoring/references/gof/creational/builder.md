@@ -49,14 +49,18 @@ public class JsonReportBuilder : IReportBuilder
     private string _title = "";
     private readonly List<string> _rows = new();
 
+    // Handles backslash, quote, newline and carriage return; real code should use System.Text.Json.
+    private static string Quote(string text) =>
+        "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r") + "\"";
+
     public void AddTitle(string title) => _title = title;
 
     public void AddRow(string label, decimal value) =>
-        _rows.Add("{\"label\":\"" + label.Replace("\"", "\\\"") + "\",\"value\":" +
+        _rows.Add("{\"label\":" + Quote(label) + ",\"value\":" +
                   value.ToString(CultureInfo.InvariantCulture) + "}");
 
     public string GetResult() =>
-        "{\"title\":\"" + _title.Replace("\"", "\\\"") + "\",\"rows\":[" + string.Join(",", _rows) + "]}";
+        "{\"title\":" + Quote(_title) + ",\"rows\":[" + string.Join(",", _rows) + "]}";
 }
 
 public class ReportDirector
@@ -87,7 +91,7 @@ public static class Program
 }
 ```
 
-A second form is common in C#: a fluent builder with no director, where the caller issues the steps and the final call produces an immutable object. It suits objects with many optional settings.
+**Beyond the book:** a second form, a C# idiom that is not the GoF pattern, is a fluent builder with no director and a single representation. The caller issues the steps in any order, and the final `Build()` validates and returns an immutable object. It suits objects with many optional settings.
 
 ```csharp
 using System;
@@ -128,7 +132,6 @@ public class RetryPolicyBuilder
 - **Empty defaults in the builder interface.** In the book's form the builder base class implements every step as a no-op, so a concrete builder overrides only what it needs. In C#, use an abstract class with `virtual` empty methods, or default interface methods (C# 8), instead of forcing every builder to implement all steps.
 - **Appending versus querying earlier parts.** Most builders only append. If a step needs a part built earlier (a link between two existing nodes), the builder must expose a way to look it up, or return handles from earlier steps that the director passes back.
 - **No common product type.** Because outputs can be unrelated, `GetResult()` is declared on each concrete builder, and the client that chose the builder knows its type. Forcing a shared product base class usually buys nothing.
-- **Fluent builder without director.** The step order is up to the caller; `Build()` validates and returns an immutable object.
 
 ## Risks and C# alternatives
 - For plain "many optional parameters", named and optional arguments, or an object initializer with get/set properties, are simpler than a builder class.
@@ -145,4 +148,4 @@ public class RetryPolicyBuilder
 - The director contains no format-specific code, and builders contain no ordering logic.
 - Adding a third output format needs one new builder and no change to the director.
 - The same input through two builders yields equivalent content in two forms (covered by a test per builder).
-- An incomplete or invalid build fails at `Build()`/`GetResult()` instead of producing a half-made product.
+- In the fluent form, an incomplete or invalid build fails at `Build()` instead of producing a half-made product. `GetResult()` in the director form only returns what was accumulated.

@@ -22,31 +22,31 @@ compile time) or through object composition (object, changeable at run time).
 
 ### Creational
 - [Abstract Factory](creational/abstract-factory.md) (p. 87): create families of related objects through one interface, without naming their concrete classes.
-- [Builder](creational/builder.md) (p. 97): separate the step-by-step construction of a complex object from its representation, so the same steps can produce different results.
+- [Builder](creational/builder.md) (p. 97): run one sequence of construction steps that does not depend on the final form, so the same sequence can yield several forms of a complex object.
 - [Factory Method](creational/factory-method.md) (p. 107): declare an operation that creates an object and let subclasses decide which class to create.
-- [Prototype](creational/prototype.md) (p. 117): create new objects by copying a configured example object.
+- [Prototype](creational/prototype.md) (p. 117): obtain new objects by cloning an instance that is already configured, which also defines the available kinds.
 - [Singleton](creational/singleton.md) (p. 127): guarantee a class has one instance and give a global access point to it.
 
 ### Structural
 - [Adapter](structural/adapter.md) (p. 139): make a class usable through an interface it does not implement.
 - [Bridge](structural/bridge.md) (p. 151): split an abstraction from its implementation so each can vary on its own.
-- [Composite](structural/composite.md) (p. 163): arrange objects in trees and let clients treat a single object and a group of objects the same way.
+- [Composite](structural/composite.md) (p. 163): arrange objects in trees that model part-whole hierarchies, and let clients treat a single object and a group of objects the same way.
 - [Decorator](structural/decorator.md) (p. 175): add responsibilities to an object at run time by wrapping it, instead of subclassing.
 - [Facade](structural/facade.md) (p. 185): give a subsystem one simpler interface.
 - [Flyweight](structural/flyweight.md) (p. 195): share fine-grained objects so that large numbers of them stay cheap.
-- [Proxy](structural/proxy.md) (p. 207): stand in for another object to control access to it.
+- [Proxy](structural/proxy.md) (p. 207): put a substitute in front of an object, so the substitute decides how and when the real one is reached.
 
 ### Behavioral
 - [Chain of Responsibility](behavioral/chain-of-responsibility.md) (p. 223): pass a request along a chain of handlers until one handles it, so the sender does not know the receiver.
 - [Command](behavioral/command.md) (p. 233): turn a request into an object, so it can be queued, logged, parameterized or undone.
 - [Interpreter](behavioral/interpreter.md) (p. 243): represent the grammar of a small language as classes and evaluate sentences with them.
-- [Iterator](behavioral/iterator.md) (p. 257): walk the elements of a collection without exposing how it is stored.
+- [Iterator](behavioral/iterator.md) (p. 257): walk the elements of a collection one after another without exposing how it is stored.
 - [Mediator](behavioral/mediator.md) (p. 273): put the interaction between a set of objects in one object, so they do not refer to each other.
 - [Memento](behavioral/memento.md) (p. 283): capture an object's internal state outside it, without breaking encapsulation, so it can be restored later.
 - [Observer](behavioral/observer.md) (p. 293): when one object changes, notify all the objects that depend on it.
-- [State](behavioral/state.md) (p. 305): let an object change its behavior when its internal state changes, as if it changed class.
+- [State](behavioral/state.md) (p. 305): hand an object's behavior to a separate object per state, so that behavior follows the state and the object seems to belong to another class.
 - [Strategy](behavioral/strategy.md) (p. 315): put each algorithm of a family behind one interface so they are interchangeable.
-- [Template Method](behavioral/template-method.md) (p. 325): define the skeleton of an algorithm and let subclasses fill in some steps.
+- [Template Method](behavioral/template-method.md) (p. 325): define the skeleton of an algorithm and let subclasses fill in some steps, without changing the algorithm's structure.
 - [Visitor](behavioral/visitor.md) (p. 331): add operations over the elements of a structure without changing their classes.
 
 ## From a cause of redesign to the patterns that prevent it (p. 24)

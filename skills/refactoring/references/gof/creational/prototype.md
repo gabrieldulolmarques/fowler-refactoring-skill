@@ -6,7 +6,9 @@ Gamma et al. (1995), ch. 3, p. 117. Category: object creational.
 Create new objects by copying a configured instance (the prototype), so a client can produce objects without knowing their classes or how they are set up.
 
 ## When it pays off
-- The classes to create are chosen at runtime, or you want to avoid a hierarchy of factories that mirrors the hierarchy of products.
+- Precondition: the system should not depend on how its products are created, composed or represented. On top of that, at least one of the next three situations holds.
+- The classes to create are only known at runtime (loaded dynamically, for instance).
+- You want to avoid a hierarchy of factories that mirrors the hierarchy of products.
 - Instances of a class differ only in a few combinations of state, so it is easier to keep a few ready-made instances and clone them than to build each from scratch.
 - New kinds of object can be defined by registering a configured instance, adding and removing them at runtime, with no new class.
 - It reduces subclassing, and users can define "new kinds" by varying values or structure.

@@ -141,7 +141,7 @@ public class RideMachine
 - **Who decides the next state.** If the rules are fixed, the context can hold them. It is usually more flexible to let each state pick its successor, as above. The cost is that states know about each other.
 - **Table-driven machine.** A table maps (state, event) to the next state. Rules become data and are easy to read as a whole, but a lookup is slower than a virtual call, the logic is less explicit, and attaching actions to transitions takes extra work. State models behavior per state; a table models only the transitions.
 - **Create or reuse state objects.** Creating on demand suits states that carry much data and change rarely. Creating once and reusing suits frequent transitions, but the context must be able to reach every state.
-- **Sharing.** A state with no fields can be shared across all contexts, passing the context as an argument so it can act on it.
+- **Sharing.** A state with no instance fields, whose meaning is carried entirely by its type, can be shared across all contexts, passing the context as an argument so it can act on it.
 - **Changing class at run time.** Few languages let an object swap its class. Delegating to a replaceable state object gets the same effect in C#.
 
 ## Risks and C# alternatives
@@ -152,9 +152,10 @@ public class RideMachine
 - Base-class defaults that throw turn a forbidden operation into a run-time error. If callers should be able to ask first, add a `CanStart`-style method or return a result type instead of throwing.
 
 ## Related patterns
-- [Flyweight](../structural/flyweight.md): explains when and how state objects can be shared.
+- [Flyweight](../structural/flyweight.md): covers the conditions and the technique for sharing state objects.
 - [Singleton](../creational/singleton.md): shared stateless state objects are often singletons.
-- [Strategy](strategy.md): same shape (a context delegating to a replaceable object), different intent. A strategy is chosen from outside and rarely changes itself; a state replaces itself as the object moves through its life.
+
+**Beyond the book:** [Strategy](strategy.md) has the same shape (a context delegating to a replaceable object) but a different intent. A strategy is chosen from outside and rarely changes itself; a state replaces itself as the object moves through its life.
 
 ## Verification
 - No method of the context contains a `switch` or `if` on a status value; each state-dependent call is one forward to the state.
