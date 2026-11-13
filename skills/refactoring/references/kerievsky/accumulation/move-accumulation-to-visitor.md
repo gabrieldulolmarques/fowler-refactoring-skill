@@ -8,7 +8,7 @@ Smells: Long Method, Switch Statements.
 - A method gathers information from several classes that hold different data and expose different interfaces (heterogeneous classes), usually through type tests and casts.
 - A Visitor does this through double dispatch: each class has an `Accept(visitor)` method that calls back the visitor's method for that class, passing itself. The visitor then reads what it needs without casts.
 - Several different algorithms over the same structure can each be their own visitor, and a visitor can cross class hierarchies.
-- The book's warning: most of the time you do not need a Visitor, but when you do you really need it. Consider simpler solutions first. If the classes can share a common interface (see [unify-interfaces.md](../utilities/unify-interfaces.md)), a Visitor is more than you need. Compare with [move-accumulation-to-collecting-parameter.md](move-accumulation-to-collecting-parameter.md) first.
+- The book's warning is that Visitor is rarely needed, and that when it is, the need is strong. Try simpler solutions first. If the classes can share a common interface (see [unify-interfaces.md](../utilities/unify-interfaces.md)), a Visitor is more than you need. Compare with [move-accumulation-to-collecting-parameter.md](move-accumulation-to-collecting-parameter.md) first.
 - Liabilities: every new visitable class needs an `Accept` method and a visit method on every visitor, and visited classes may have to expose more of their data.
 
 ## Mechanics
@@ -34,7 +34,7 @@ The book gives three sets, depending on where the accumulation code lives. The a
 6. For each source, move the accumulation code from `Accept` into the matching visit method on the visitor, leaving `Accept` as `visitor.VisitX(this)`. Compile and test.
 
 **Visitor replacement** (neither form exists yet, but a visitor would be better)
-1. Create a concrete visitor class. If it is the second one, extract a superclass or interface for it (Extract Superclass, [extract-superclass.md](../../fowler/inheritance/extract-superclass.md)) and use that type in the `Accept` signatures.
+1. Create a concrete visitor class. If it is the second one, extract a superclass for it (Extract Superclass, [extract-superclass.md](../../fowler/inheritance/extract-superclass.md)) and use that type in the `Accept` signatures.
 2. For each source class, add a visit method on the visitor and an `Accept` method on the source that calls it with `this`. This gives the skeleton.
 3. Give the visitor a way to read its accumulated result, initially empty.
 4. In the accumulation method, create the visitor, call `Accept` on every source and use the visitor's result instead of the old one. Tests now fail.
@@ -93,7 +93,7 @@ public class SummaryBuilder
 }
 ```
 
-After (external accumulation method): the summary builder is the visitor; each record accepts it and calls back the method for its own type.
+After (external accumulation method): the summary builder is the visitor; each record accepts it and calls back the method for its own type. Precondition: the collection holds no `null` elements; the old loop skipped them, while `record.Accept(this)` would throw.
 
 ```csharp
 public interface IRecordVisitor

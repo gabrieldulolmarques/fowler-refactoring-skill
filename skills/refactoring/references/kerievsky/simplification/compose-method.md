@@ -11,14 +11,15 @@ Smells: Long Method.
 - Liabilities: it can leave many tiny private methods (a hint to apply [extract-class.md](../../fowler/encapsulation/extract-class.md)), and the real work becomes harder to find in a debugger. Performance is not a reason to stop unless a profiler says so.
 
 ## Mechanics
-Follow [extract-function.md](../../fowler/first-set/extract-function.md); there is no separate procedure. What Kerievsky adds is how to steer it:
+Follow [extract-function.md](../../fowler/first-set/extract-function.md); there is no separate procedure. The book gives guidelines, not steps, and they can be applied in any order:
 
-1. Remove duplication and dead code first ([remove-dead-code.md](../../fowler/moving-features/remove-dead-code.md)), so there is less to read.
-2. Flatten nesting where it hides the main path: [replace-nested-conditional-with-guard-clauses.md](../../fowler/conditional-logic/replace-nested-conditional-with-guard-clauses.md) and [consolidate-conditional-expression.md](../../fowler/conditional-logic/consolidate-conditional-expression.md).
-3. Find the lines that are at a different level of detail from their neighbors (a raw condition, a loop, an array write among calls). Push each one down with [extract-function.md](../../fowler/first-set/extract-function.md), named for its intention.
-4. If you cannot find a good name for what you extracted, you took too much or too little. Undo it with [inline-function.md](../../fowler/first-set/inline-function.md) and cut along a different line.
-5. Replace magic literals with named constants ([replace-magic-literal.md](../../fowler/organizing-data/replace-magic-literal.md)).
-6. Stop when every statement in the method says what, and the details live one call down. Compile and test after each step.
+- Think small: aim for about five lines, rarely more than ten.
+- Remove duplication and dead code ([remove-dead-code.md](../../fowler/moving-features/remove-dead-code.md)), so there is less to read.
+- Communicate intention: name variables, methods and parameters for their purpose. If you cannot find a good name for what you extracted, undo it with [inline-function.md](../../fowler/first-set/inline-function.md) and cut along a different line.
+- Simplify: question how something is coded and try alternatives.
+- Keep one level of detail: find the lines that sit at a different level from their neighbors (a raw condition, a loop, an array write among calls) and push each one down with [extract-function.md](../../fowler/first-set/extract-function.md), named for its intention.
+
+**Beyond the book:** flatten nesting where it hides the main path ([replace-nested-conditional-with-guard-clauses.md](../../fowler/conditional-logic/replace-nested-conditional-with-guard-clauses.md), [consolidate-conditional-expression.md](../../fowler/conditional-logic/consolidate-conditional-expression.md)), replace magic literals with named constants ([replace-magic-literal.md](../../fowler/organizing-data/replace-magic-literal.md)), and compile and test after each change.
 
 ## Example
 Before: the settling method nests two checks around mixed-level code.

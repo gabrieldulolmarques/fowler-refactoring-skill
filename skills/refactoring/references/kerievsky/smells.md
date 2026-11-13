@@ -89,5 +89,5 @@ is worth it only if it removes the smell more simply than the alternatives (see
 ## Oddball Solution (p. 45)
 **Symptoms:** the same problem is solved one way in most of the system and another way somewhere else; usually hidden duplication.
 **Try:**
-- Substitute Algorithm (Fowler), to make every place use the preferred solution, then move it to one place
+- Substitute Algorithm ([substitute-algorithm.md](../fowler/encapsulation/substitute-algorithm.md)), to make every place use the preferred solution, then move it to one place
 - Unify Interfaces with Adapter ([unify-interfaces-with-adapter.md](generalization/unify-interfaces-with-adapter.md)), when the classes involved have different interfaces and so cannot be used the same way

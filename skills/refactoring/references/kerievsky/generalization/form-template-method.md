@@ -11,11 +11,11 @@ Smells: Duplicated Code.
 - Do not use it when subclasses would have to implement many small methods just to fill in the skeleton: the hierarchy gets harder to read than the duplication it removed. Keep the number of abstract steps small and make optional steps concrete hooks.
 
 ## Mechanics
-1. Find a similar method: two subclasses that run similar steps in a similar order. Apply Compose Method ([compose-method.md](../simplification/compose-method.md)) to it in both subclasses, so each step is a method. Steps with the same signature and body in both are identical methods; steps that differ are unique methods. When unsure which kind a step is, ask whether subclasses should inherit it (identical) or override it (unique).
+1. Find a similar method: two subclasses that run similar steps in a similar order. Apply Compose Method ([compose-method.md](../simplification/compose-method.md)) to it in both subclasses, so each step is a method. Steps with the same signature and body in both are identical methods; steps that differ are unique methods. When unsure which kind a step is, ask whether it makes sense for subclasses to inherit or override it as a unique method; if not, extract it as an identical method.
 2. Pull up the identical methods with Pull Up Method ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)). Compile and test.
 3. Make the similar method's body the same in both subclasses: rename each unique method so both subclasses call the same names, with Change Function Declaration ([change-function-declaration.md](../../fowler/first-set/change-function-declaration.md)). Compile and test after each rename.
 4. If the similar method's signature is not yet identical, change it the same way.
-5. Pull up the similar method from one subclass and delete it from the other. Declare an abstract method in the superclass for every unique method (or a `virtual` one where a default makes sense). The pulled-up method is now the template. Compile and test.
+5. Pull up the similar method from one subclass and delete it from the other. Declare an abstract method in the superclass for every unique method. The pulled-up method is now the template. Compile and test.
 
 ## Example
 Before: two formatters repeat the same sequence (header, one line per message, footer), each with its own formatting.

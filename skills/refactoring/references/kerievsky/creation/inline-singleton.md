@@ -8,7 +8,7 @@ Smells: Lazy Class.
 - Code needs an object but does not need a global way to reach it. The book's name for the habit of making too many Singletons is Singletonitis, and its answer to "when is a Singleton unnecessary?" is: most of the time.
 - Passing the object as a parameter is usually simpler than reading it from a global. A Singleton is also unnecessary when it exists for a small speed or memory gain, or when code deep in one layer reaches for a resource that does not belong in that layer.
 - Global state hurts tests: each test that changes the shared instance must save and restore it. The book quotes one team that spent half an hour passing a shared table of exchange rates as an explicit parameter and ended with a cleaner design and stable tests.
-- A few globals are fine. If a Singleton or a Registry (a well-known object used to find other objects) really is the right design, keep it. Treat any global as guilty until shown necessary.
+- The book passes on a view it attributes to others: global data deserves suspicion until the need for it is shown. If a Singleton or a Registry (a well-known object used to find other objects) really is the right design, keep it.
 - Benefits: collaborations become visible; no code is needed to protect a single instance. Cost: when the object has to travel through many layers, passing it is awkward.
 - The opposite move is [limit-instantiation-with-singleton.md](../protection/limit-instantiation-with-singleton.md), for the rare case where one instance is a real need.
 

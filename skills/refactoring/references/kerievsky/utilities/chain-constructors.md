@@ -14,8 +14,6 @@ Smells: Duplicated Code.
 2. Repeat for every constructor in the class, including those already changed, until duplication is as low as possible.
 3. Re-check callers and reduce the visibility of any constructor that no longer needs to be public. Compile and test.
 
-Prefer calling the catch-all constructor with explicit defaults rather than chaining sideways between narrow constructors, so there is one place where fields are assigned.
-
 ## Example
 Before: three constructors each assign the fields themselves, and two repeat the same default retention date.
 
@@ -59,7 +57,7 @@ public class UploadRequest
 }
 ```
 
-After: only the last constructor assigns fields; the others pass defaults to it.
+After: only the last constructor assigns fields; each of the others calls a more general one, passing defaults.
 
 ```csharp
 public class UploadRequest

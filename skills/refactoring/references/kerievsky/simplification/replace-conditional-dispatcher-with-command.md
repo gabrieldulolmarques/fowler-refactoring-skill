@@ -132,7 +132,7 @@ public class PaymentDesk
     public void Register(string name, IPaymentCommand command) => _commands[name] = command;
 
     public string Execute(string command, Payment payment, string[] args) =>
-        _commands.TryGetValue(command, out var handler)
+        command != null && _commands.TryGetValue(command, out var handler)
             ? handler.Execute(payment, args)
             : $"unknown command {command}";
 }

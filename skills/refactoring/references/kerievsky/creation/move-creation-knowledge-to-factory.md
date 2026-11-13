@@ -17,7 +17,7 @@ These steps assume the Factory is a class. An interface needs small changes.
 2. Create the factory class, named after what it creates (`OrderFactory`). Compile.
 3. Move the Creation Method to the factory with Move Function ([move-function.md](../../fowler/moving-features/move-function.md)). If it was static, make it an instance method now. Compile.
 4. Make the instantiator create the factory and call it to get the product. Repeat for every instantiator that stopped compiling. Compile and test.
-5. Look for data and methods in the other classes that exist only to feed the creation. Move them into the factory with Move Field ([move-field.md](../../fowler/moving-features/move-field.md)) and Move Function, which may also change who creates the factory. Compile and test after each move.
+5. Look for data and methods in the other classes that exist only to feed the creation. Move them into the factory with Move Field ([move-field.md](../../fowler/moving-features/move-field.md)) and Move Function, which may also change who creates the factory. Compile and test (adaptation: after each move, not only at the end).
 
 ## Example
 Before: `ApiSession` knows the request options, passes them to `RequestSender`, which only copies them onto the request it creates. Both classes carry the same two fields.

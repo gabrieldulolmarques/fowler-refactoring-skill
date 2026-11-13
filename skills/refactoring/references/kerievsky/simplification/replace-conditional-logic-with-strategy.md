@@ -6,7 +6,7 @@ Kerievsky (2004), ch. 7, p. 129. Pattern: Strategy. Direction: to, towards.
 Smells: Conditional Complexity, Long Method, Primitive Obsession.
 
 - A calculation method holds a lot of conditional logic that picks one of several variants of an algorithm, and small helper methods that serve only one variant are crowding the class.
-- Prefer a Strategy (composition) over [replace-conditional-with-polymorphism.md](../../fowler/conditional-logic/replace-conditional-with-polymorphism.md) (inheritance) when the host class has no subclasses yet, when subclassing would multiply classes (variants of one algorithm times other axes), or when callers must swap the algorithm at runtime without changing the object's class.
+- Prefer a Strategy (composition) over [replace-conditional-with-polymorphism.md](../../fowler/conditional-logic/replace-conditional-with-polymorphism.md) (inheritance) when the host class has no subclasses yet, when subclassing would multiply classes (this reason is the skill's, not the book's), or when callers must swap the algorithm at runtime without changing the object's class.
 - If the host already has subclasses that map cleanly to the variants, or one type code drives the conditionals, polymorphism is simpler.
 - Liabilities: it complicates the design if a simpler conditional refactoring was enough, and the strategies now need a way to read the context's data (see step 2).
 
@@ -21,7 +21,8 @@ Identify the context: the class with the calculation method full of conditionals
    Move helper methods used only by the calculation into the strategy. Compile and test.
 3. Let clients choose the strategy: apply Extract Parameter ([extract-parameter.md](../utilities/extract-parameter.md)) on the context code that creates the strategy and assigns the field. Compile and test.
 4. Apply Replace Conditional with Polymorphism ([replace-conditional-with-polymorphism.md](../../fowler/conditional-logic/replace-conditional-with-polymorphism.md)) to the strategy's calculation method. Use Replace Type Code with Subclasses ([replace-type-code-with-subclasses.md](../../fowler/inheritance/replace-type-code-with-subclasses.md)) as its first step, even if the variants are only implied by conditions and there is no explicit code. Build one subclass at a time, and make the strategy abstract (or an interface) if you can. Compile and test with every combination of context and concrete strategy.
-5. If the context is built in many places, hide strategy construction behind a creation method ([encapsulate-classes-with-factory.md](../creation/encapsulate-classes-with-factory.md)).
+
+**Beyond the book:** the book's mechanics stop at step 4. Optionally, if the context is built in many places, hide strategy construction behind a creation method ([encapsulate-classes-with-factory.md](../creation/encapsulate-classes-with-factory.md)); the book's Motivation points to Encapsulate Classes with Factory for this.
 
 ## Example
 Before: the payment method is guessed from which nullable fields are set, and one combination falls through to zero.

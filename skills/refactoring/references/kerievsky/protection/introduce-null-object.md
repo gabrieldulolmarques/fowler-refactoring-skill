@@ -16,7 +16,7 @@ Follow [introduce-special-case.md](../../fowler/conditional-logic/introduce-spec
 
 1. Create the null object: make a new class implement the source class's interface, and if that interface does not exist yet, extract it first (Extract Interface, 1st ed. only). The alternative is to create an empty subclass of the source class (Extract Subclass, 1st ed. only). Compile.
 2. For one null check, override the invoked method in the null object with the fallback behavior. Compile. Repeat for the other checks on the source class.
-3. In a class that has null checks, initialize the field to a null object at the earliest moment, normally at construction. Leave the existing assignments of real objects as they are; the new assignment just comes first. Compile.
+3. In a class that has null checks, initialize the field (or local variable) to a null object at the earliest moment, normally at construction. Leave the existing assignments of real objects as they are; the new assignment just comes first. Compile.
 4. Remove every null check on that field in the class. Compile and test.
 5. Repeat steps 3 and 4 for each class that has the check.
 

@@ -15,7 +15,7 @@ Smells: Indecent Exposure.
 
 ## Mechanics
 Use it when the classes share a public interface or superclass and live in the same package or assembly.
-1. Find a client that calls a subclass constructor to get one kind of instance. Apply Extract Function ([extract-function.md](../../fowler/first-set/extract-function.md)) on the call to get a public static method, then Move Function ([move-function.md](../../fowler/moving-features/move-function.md)) to the superclass (or the interface's companion class). Compile and test.
+1. Find a client that calls a subclass constructor to get one kind of instance. Apply Extract Function ([extract-function.md](../../fowler/first-set/extract-function.md)) on the call to get a public static method, then Move Function ([move-function.md](../../fowler/moving-features/move-function.md)) to the superclass (adaptation: for an interface, a static class beside it plays that role). Compile and test.
 2. Change all other callers of that constructor that want the same kind of instance to use the Creation Method. Compile and test.
 3. Repeat steps 1 and 2 for the other kinds of instance the constructor can produce.
 4. Make the subclass constructor non-public (`internal` or `private`). Compile.

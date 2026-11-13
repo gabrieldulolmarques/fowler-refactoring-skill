@@ -7,7 +7,7 @@ Smells: Combinatorial Explosion, Large Class, Primitive Obsession, Duplicated Co
 
 - A class has many methods that are really combinations of a few ideas: `ByStatus`, `ByMinTotal`, `ByStatusAndMinTotal`, `ByCustomerAndStatus`... The language of "find orders that are X and Y, but not Z" is there, but never written down as such. Each new combination means a new method, and the methods repeat the same filtering code.
 - Modeling the language with a few small classes (the criteria, plus and/or/not) lets callers build any combination at run time with no new code, and lets behavior be configured dynamically, for example from a search form.
-- This is the Specification pattern and the Query Object pattern, which are interpreters for object selection.
+- Two patterns that lean heavily on Interpreter are Specification and Query Object, and this refactoring suits object selection of that kind.
 - It fits small grammars (fewer than about a dozen classes). For a large language, a parser generator is better. For a tiny uniform one, plain code may be enough.
 - There is a start-up cost: defining the classes and changing callers to compose them. It pays off when the alternative is a growing list of near-duplicate methods.
 
@@ -17,7 +17,7 @@ These steps assume object selection: several methods each loop over a collection
 1. Find a selection method that uses one criterion argument (for example a minimum total). Create a concrete specification class for that criterion: its constructor takes the value and it exposes a getter. In the selection method, create an instance and read the criterion through the getter. Name the class for what it does (`MinTotalSpec`). If a method uses several criteria, do steps 1 and 2 for each one. Compile and test that selection still works.
 2. Apply Extract Function ([extract-function.md](../../fowler/first-set/extract-function.md)) to the condition inside the loop, giving a boolean method `IsSatisfiedBy`, and move it to the concrete specification with Move Function ([move-function.md](../../fowler/moving-features/move-function.md)). If no specification superclass exists yet, create one with Extract Superclass ([extract-superclass.md](../../fowler/inheritance/extract-superclass.md)), abstract, declaring only `IsSatisfiedBy`. Compile and test.
 3. Repeat steps 1 and 2 for the other selection methods.
-4. For a selection method that now builds several concrete specifications, create a composite specification that holds them (via constructor or an `Add` method), move the combined condition into its `IsSatisfiedBy`, and make it extend the specification superclass (see [replace-one-many-distinctions-with-composite.md](replace-one-many-distinctions-with-composite.md) and [extract-composite.md](extract-composite.md)). Add `Or` and `Not` specifications when callers need them.
+4. For a selection method that now builds several concrete specifications, create a composite specification that holds them (via constructor or an `Add` method), move the combined condition into its `IsSatisfiedBy`, and make it extend the specification superclass (see [replace-one-many-distinctions-with-composite.md](replace-one-many-distinctions-with-composite.md) and [extract-composite.md](extract-composite.md)).
 5. Every selection method now takes one specification and the methods are identical except for how the specification is built. Extract the shared loop into `SelectBy(spec)` and make each selection method call it. Compile and test after each.
 6. Inline the old selection methods with Inline Function ([inline-function.md](../../fowler/first-set/inline-function.md)) so callers build the specification and call `SelectBy`. Compile and test.
 
@@ -83,7 +83,7 @@ public class ToolCallFinder
 }
 ```
 
-After: a small set of specification classes and one `SelectBy`. Any combination is built by the caller.
+After: a small set of specification classes and one `SelectBy`. Any combination is built by the caller. `OrSpec` and `NotSpec` are added here because the callers need them; they are not a step of the mechanics.
 
 ```csharp
 using System.Collections.Generic;

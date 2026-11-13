@@ -41,8 +41,8 @@ few minutes, the step is too big: go back to the last green state and take a sma
 ## Composite and test-driven refactorings
 
 - Almost every refactoring to a pattern is **composite**: a sequence of low-level refactorings
-  (mostly Fowler's), with the tests run between each one (ch. 2, pp. 17-20). The mechanics give a
-  safe order; follow it.
+  (mostly Fowler's), with the tests run between each one (ch. 2, pp. 17-20). The book's mechanics
+  give an order that works; you can certainly apply the steps in another order if you see fit.
 - A **test-driven refactoring** writes the replacement with test-driven development and then swaps
   it in for the old code, keeping and rerunning the old code's tests (ch. 2, pp. 17-19). Use it when
   the new design is too far from the current one to reach by moving code around, as when
@@ -54,7 +54,7 @@ few minutes, the step is too big: go back to the last green state and take a sma
   removes no duplication.
 - Others already improve the design partway: going **towards** a Decorator or a Command may be
   enough, and you can stop as soon as the smell is gone.
-- Refactoring **away** from a pattern is just as legitimate: remove a Singleton or a Composite when
+- Refactoring **away** from a pattern is just as legitimate: remove a Singleton or an Iterator when
   the design is better without it.
 
 Each reference file states its direction (ch. 3, pp. 29-31).

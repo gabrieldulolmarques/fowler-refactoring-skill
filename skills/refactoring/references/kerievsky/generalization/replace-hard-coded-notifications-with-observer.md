@@ -20,7 +20,6 @@ Terms: the notifier is the class that calls the receiver; the receiver is the cl
 4. For one notifier, move its notification methods up to its superclass with Pull Up Method ([pull-up-method.md](../../fowler/inheritance/pull-up-method.md)), including the field that holds the observer and the code that sets it. The superclass is now the subject. Repeat for every notifier. Compile.
 5. Change each observer to register with the subject directly, not with the notifier, then delete the notifier subclass. Compile and test.
 6. Change the subject to hold a collection of observers instead of one: add a subscribe method (and, if observers can leave, an unsubscribe method), and make each notification go to every observer in the collection. Compile and test.
-7. Make every subscription pair with an unsubscription at the right moment (when the observer is disposed, closed or replaced), and iterate over a copy of the collection when notifying so an observer that unsubscribes inside its callback does not break the loop.
 
 ## Example
 Before: `TokenMeter` measures the token usage of a conversation against its budget. `DashboardTokenMeter` is a subclass whose only job is to report each measurement to one `UsageDashboard`, and it also builds the text line the dashboard shows.
@@ -179,6 +178,7 @@ public class UsageDashboard
 ## C# notes
 - The idiomatic form is a C# `event` (`event EventHandler<T>`, or `Action<T>` for simple cases). Use an observer interface only when an observer needs several different callbacks or you want to pass it around as a unit.
 - Every `+=` needs a matching `-=`, and the subject often outlives the subscriber, so an event handler that is never removed keeps the subscriber alive. Unsubscribe in `Dispose`, in a close method, or when the observer is replaced. For a subscriber that implements `IDisposable`, put the `-=` there.
+- If observers can leave, pair every subscription with an unsubscription at the right moment (disposed, closed or replaced), and iterate over a copy of the collection when notifying so an observer that unsubscribes inside its callback does not break the loop. This is not a book step; the book makes the remove method optional.
 - Subscribing a lambda or anonymous method is easy, but `-=` with a new, textually identical lambda does not remove it. Keep the delegate in a field if you will need to unsubscribe.
 - Only the declaring class can raise an `event`; outside code can only `+=` and `-=`. That is usually what you want. Use `?.Invoke` so an event with no subscribers does not throw.
 ## Verification

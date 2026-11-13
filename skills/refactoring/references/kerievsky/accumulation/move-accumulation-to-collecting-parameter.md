@@ -17,7 +17,7 @@ Smells: Long Method.
 2. Pick one accumulation step and apply Extract Function ([extract-function.md](../../fowler/first-set/extract-function.md)) to move it into a private method that returns `void` and receives the result as a parameter, writing into it there. Compile and test.
 3. Repeat step 2 for every step. The original method should now only create the result, pass it to the extracted methods, and read the final value. Compile and test.
 
-When a step also produces a value the caller needs (a subtotal, for example), the extracted method may return that value as well. The result being built still goes through the parameter.
+**Beyond the book:** when a step also produces a value the caller needs (a subtotal, for example), the extracted method may return that value as well. The result being built still goes through the parameter.
 
 ## Example
 Before: one method builds the CSV text, concatenating onto a string while it also computes the total.
@@ -77,7 +77,7 @@ public class CsvExporter
 }
 ```
 
-After: the `StringBuilder` is created once and passed to each step. The steps that also contribute to the total return an amount.
+After: the `StringBuilder` is created once and passed to each step. The steps that also contribute to the total return an amount, which departs from the book's `void` rule in step 2 (see the note after the mechanics).
 
 ```csharp
 using System.Text;
