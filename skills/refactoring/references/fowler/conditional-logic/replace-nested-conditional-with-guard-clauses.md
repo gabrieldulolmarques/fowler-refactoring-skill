@@ -28,65 +28,92 @@ style preference, so decide by readability.
    Consolidate Conditional Expression ([consolidate-conditional-expression.md](consolidate-conditional-expression.md)).
 
 ## Example
-Before: the fee is only computed when the order is neither cancelled nor empty.
+Before: the fee is only computed when the order is neither a pickup nor empty, and is below the free-shipping threshold.
 
 ```csharp
-public decimal ShippingFee(Order order)
+public class Order
 {
-    decimal result;
-    if (order.IsCancelled)
+    public bool IsPickup { get; }
+    public bool IsIsland { get; }
+    public int ItemCount { get; }
+    public int Zone { get; }
+    public decimal Subtotal { get; }
+
+    public Order(bool isPickup, bool isIsland, int itemCount, int zone, decimal subtotal)
     {
-        result = 0m;
+        IsPickup = isPickup;
+        IsIsland = isIsland;
+        ItemCount = itemCount;
+        Zone = zone;
+        Subtotal = subtotal;
     }
-    else
+}
+
+public class ShippingService
+{
+    public decimal ShippingFee(Order order)
     {
-        if (order.Items.Count == 0)
+        decimal result;
+        if (order.IsPickup)
         {
             result = 0m;
         }
         else
         {
-            if (order.Total >= 100m)
+            if (order.ItemCount == 0)
             {
                 result = 0m;
             }
             else
             {
-                result = 7.5m + order.Items.Count * 0.5m;
+                if (order.Subtotal >= 100m)
+                {
+                    result = 0m;
+                }
+                else
+                {
+                    result = 7.5m + order.Zone * 1.5m;
+                }
             }
         }
+        return result;
     }
-    return result;
 }
 ```
 
 After the first guard (one step, tests run):
 
 ```csharp
-public decimal ShippingFee(Order order)
+public class ShippingService
 {
-    decimal result;
-    if (order.IsCancelled) return 0m;
-    if (order.Items.Count == 0)
+    public decimal ShippingFee(Order order)
     {
-        result = 0m;
+        decimal result;
+        if (order.IsPickup) return 0m;
+        if (order.ItemCount == 0)
+        {
+            result = 0m;
+        }
+        else
+        {
+            if (order.Subtotal >= 100m) result = 0m;
+            else result = 7.5m + order.Zone * 1.5m;
+        }
+        return result;
     }
-    else
-    {
-        if (order.Total >= 100m) result = 0m;
-        else result = 7.5m + order.Items.Count * 0.5m;
-    }
-    return result;
 }
 ```
 
 Final, with the variable gone and the equal results consolidated:
 
 ```csharp
-public decimal ShippingFee(Order order)
+public class ShippingService
 {
-    if (order.IsCancelled || order.Items.Count == 0 || order.Total >= 100m) return 0m;
-    return 7.5m + order.Items.Count * 0.5m;
+    public decimal ShippingFee(Order order)
+    {
+        if (order.IsPickup || order.ItemCount == 0 || order.Subtotal >= 100m) return 0m;
+        return 7.5m + order.Zone * 1.5m;
+    }
 }
 ```
 
@@ -95,22 +122,30 @@ turns the `||` into `&&`).
 
 ```csharp
 // before
-public decimal AmountDue(Invoice invoice)
+public class SurchargeRules
 {
-    if (invoice.IsOpen || invoice.IsOverdue)
+    public decimal RemoteSurcharge(Order order)
     {
-        if (invoice.Customer != null)
-            return invoice.Amount - invoice.Paid;
+        if (order.Zone >= 4 || order.IsIsland)
+        {
+            if (!order.IsPickup)
+                return 12m;
+        }
+        return 0m;
     }
-    return 0m;
 }
+```
 
+```csharp
 // after
-public decimal AmountDue(Invoice invoice)
+public class SurchargeRules
 {
-    if (!invoice.IsOpen && !invoice.IsOverdue) return 0m;
-    if (invoice.Customer == null) return 0m;
-    return invoice.Amount - invoice.Paid;
+    public decimal RemoteSurcharge(Order order)
+    {
+        if (order.Zone < 4 && !order.IsIsland) return 0m;
+        if (order.IsPickup) return 0m;
+        return 12m;
+    }
 }
 ```
 

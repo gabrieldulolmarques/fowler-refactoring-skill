@@ -28,37 +28,75 @@ one-liners that read like the intent.
 Before:
 
 ```csharp
-public decimal ShippingCost(Order order, DateTime today)
+using System;
+
+public class Parcel
 {
-    decimal cost;
-    if (today >= order.Promo.Start && today <= order.Promo.End && order.Total >= order.Promo.MinimumTotal)
-        cost = order.Weight * order.Promo.RatePerKg;
-    else
-        cost = order.Weight * order.StandardRatePerKg + order.HandlingFee;
-    return cost;
+    public decimal WeightKg { get; }
+    public int Zone { get; }
+    public decimal Subtotal { get; }
+
+    public Parcel(decimal weightKg, int zone, decimal subtotal)
+    {
+        WeightKg = weightKg;
+        Zone = zone;
+        Subtotal = subtotal;
+    }
+}
+
+public class Campaign
+{
+    public DateTime Start { get; }
+    public DateTime End { get; }
+    public decimal MinimumSubtotal { get; }
+    public decimal FlatRate { get; }
+
+    public Campaign(DateTime start, DateTime end, decimal minimumSubtotal, decimal flatRate)
+    {
+        Start = start;
+        End = end;
+        MinimumSubtotal = minimumSubtotal;
+        FlatRate = flatRate;
+    }
+}
+
+public class ShippingCalculator
+{
+    public decimal Cost(Parcel parcel, Campaign campaign, DateTime today)
+    {
+        decimal cost;
+        if (today >= campaign.Start && today <= campaign.End && parcel.Subtotal >= campaign.MinimumSubtotal)
+            cost = campaign.FlatRate;
+        else
+            cost = 4m + parcel.Zone * 1.5m + parcel.WeightKg * 0.8m;
+        return cost;
+    }
 }
 ```
 
 After:
 
 ```csharp
-public decimal ShippingCost(Order order, DateTime today)
+public class ShippingCalculator
 {
-    return QualifiesForPromo(order, today)
-        ? PromoShipping(order)
-        : StandardShipping(order);
+    public decimal Cost(Parcel parcel, Campaign campaign, DateTime today)
+    {
+        return QualifiesForCampaign(parcel, campaign, today)
+            ? CampaignRate(campaign)
+            : ZoneAndWeightRate(parcel);
+    }
+
+    private static bool QualifiesForCampaign(Parcel parcel, Campaign campaign, DateTime today) =>
+        today >= campaign.Start
+        && today <= campaign.End
+        && parcel.Subtotal >= campaign.MinimumSubtotal;
+
+    private static decimal CampaignRate(Campaign campaign) =>
+        campaign.FlatRate;
+
+    private static decimal ZoneAndWeightRate(Parcel parcel) =>
+        4m + parcel.Zone * 1.5m + parcel.WeightKg * 0.8m;
 }
-
-private static bool QualifiesForPromo(Order order, DateTime today) =>
-    today >= order.Promo.Start
-    && today <= order.Promo.End
-    && order.Total >= order.Promo.MinimumTotal;
-
-private static decimal PromoShipping(Order order) =>
-    order.Weight * order.Promo.RatePerKg;
-
-private static decimal StandardShipping(Order order) =>
-    order.Weight * order.StandardRatePerKg + order.HandlingFee;
 ```
 
 ## Verification

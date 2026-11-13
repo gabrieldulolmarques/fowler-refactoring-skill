@@ -21,24 +21,42 @@ not a control flag, and may be better kept or returned from an extracted functio
 3. When no place sets the flag any more, remove it from the loop condition or the guarding `if`, and delete its declaration. Compile and test.
 
 ## Example
-Assumes `Customer` and `IMailer` exist.
-
 Before:
 
 ```csharp
 using System.Collections.Generic;
 
-public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
+public class Promotion
 {
-    bool notified = false;
-    foreach (var customer in customers)
+    public decimal MinimumSubtotal { get; }
+    public Promotion(decimal minimumSubtotal) => MinimumSubtotal = minimumSubtotal;
+}
+
+public class Cart
+{
+    public decimal Subtotal { get; }
+    public Cart(decimal subtotal) => Subtotal = subtotal;
+}
+
+public interface IPromotionLog
+{
+    void Apply(Promotion promotion, Cart cart);
+}
+
+public class PromotionApplier
+{
+    public void ApplyFirstEligible(IEnumerable<Promotion> promotions, Cart cart, IPromotionLog log)
     {
-        if (!notified)
+        bool applied = false;
+        foreach (var promotion in promotions)
         {
-            if (customer.Balance < 0)
+            if (!applied)
             {
-                mailer.SendReminder(customer);
-                notified = true;
+                if (cart.Subtotal >= promotion.MinimumSubtotal)
+                {
+                    log.Apply(promotion, cart);
+                    applied = true;
+                }
             }
         }
     }
@@ -48,14 +66,17 @@ public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
 After:
 
 ```csharp
-public void NotifyOverdue(IEnumerable<Customer> customers, IMailer mailer)
+public class PromotionApplier
 {
-    foreach (var customer in customers)
+    public void ApplyFirstEligible(IEnumerable<Promotion> promotions, Cart cart, IPromotionLog log)
     {
-        if (customer.Balance < 0)
+        foreach (var promotion in promotions)
         {
-            mailer.SendReminder(customer);
-            break;
+            if (cart.Subtotal >= promotion.MinimumSubtotal)
+            {
+                log.Apply(promotion, cart);
+                break;
+            }
         }
     }
 }

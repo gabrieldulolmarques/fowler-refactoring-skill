@@ -22,113 +22,113 @@ A plain `if`/`switch` is usually enough. Use this when the same conditional is r
 9. For a base-and-variant case, you may need to extract the varying part of a large method first, so the subclass can override only that part and call `base` for the rest. Name the extracted pieces after what they mean, not after the case.
 
 ## Example
-Before: two methods switch on the same account kind.
+Before: two methods switch on the same shipping method.
 
 ```csharp
 using System;
 
-public enum AccountKind { Standard, Premium, Student }
+public enum ShippingMethod { Standard, Express, Pickup }
 
-public class Account
+public class Shipment
 {
-    public AccountKind Kind { get; }
-    public decimal Balance { get; }
+    public ShippingMethod Method { get; }
+    public decimal WeightKg { get; }
 
-    public Account(AccountKind kind, decimal balance)
+    public Shipment(ShippingMethod method, decimal weightKg)
     {
-        Kind = kind;
-        Balance = balance;
+        Method = method;
+        WeightKg = weightKg;
     }
 
-    public decimal MonthlyFee()
+    public decimal Cost()
     {
-        switch (Kind)
+        switch (Method)
         {
-            case AccountKind.Standard: return 5m;
-            case AccountKind.Premium: return Balance > 10000m ? 0m : 12m;
-            case AccountKind.Student: return 0m;
+            case ShippingMethod.Standard: return 4m + WeightKg * 1.2m;
+            case ShippingMethod.Express: return WeightKg > 20m ? 60m : 12m + WeightKg * 2.5m;
+            case ShippingMethod.Pickup: return 0m;
             default: throw new InvalidOperationException();
         }
     }
 
-    public int FreeTransfers()
+    public int EstimatedDays()
     {
-        switch (Kind)
+        switch (Method)
         {
-            case AccountKind.Standard: return 3;
-            case AccountKind.Premium: return 20;
-            case AccountKind.Student: return 5;
+            case ShippingMethod.Standard: return 5;
+            case ShippingMethod.Express: return 2;
+            case ShippingMethod.Pickup: return 1;
             default: throw new InvalidOperationException();
         }
     }
 }
 ```
 
-After: one class per kind, created by a factory; the switches are gone. An unknown kind now fails when the object is created instead of when a method is called (same exception type). In this example nothing reads `Kind` any more, so it was removed. In real code keep it until its last reader is gone.
+After: one class per method, created by a factory; the switches are gone. An unknown method now fails when the object is created instead of when a method is called (same exception type). In this example nothing reads `Method` any more, so it was removed. In real code keep it until its last reader is gone.
 
 ```csharp
 using System;
 
-public enum AccountKind { Standard, Premium, Student }
+public enum ShippingMethod { Standard, Express, Pickup }
 
-public abstract class Account
+public abstract class Shipment
 {
-    public decimal Balance { get; }
+    public decimal WeightKg { get; }
 
-    protected Account(decimal balance) => Balance = balance;
+    protected Shipment(decimal weightKg) => WeightKg = weightKg;
 
-    public static Account Create(AccountKind kind, decimal balance) => kind switch
+    public static Shipment Create(ShippingMethod method, decimal weightKg) => method switch
     {
-        AccountKind.Standard => new StandardAccount(balance),
-        AccountKind.Premium => new PremiumAccount(balance),
-        AccountKind.Student => new StudentAccount(balance),
+        ShippingMethod.Standard => new StandardShipment(weightKg),
+        ShippingMethod.Express => new ExpressShipment(weightKg),
+        ShippingMethod.Pickup => new PickupShipment(weightKg),
         _ => throw new InvalidOperationException()
     };
 
-    public abstract decimal MonthlyFee();
-    public abstract int FreeTransfers();
+    public abstract decimal Cost();
+    public abstract int EstimatedDays();
 }
 
-public class StandardAccount : Account
+public class StandardShipment : Shipment
 {
-    public StandardAccount(decimal balance) : base(balance) { }
-    public override decimal MonthlyFee() => 5m;
-    public override int FreeTransfers() => 3;
+    public StandardShipment(decimal weightKg) : base(weightKg) { }
+    public override decimal Cost() => 4m + WeightKg * 1.2m;
+    public override int EstimatedDays() => 5;
 }
 
-public class PremiumAccount : Account
+public class ExpressShipment : Shipment
 {
-    public PremiumAccount(decimal balance) : base(balance) { }
-    public override decimal MonthlyFee() => Balance > 10000m ? 0m : 12m;
-    public override int FreeTransfers() => 20;
+    public ExpressShipment(decimal weightKg) : base(weightKg) { }
+    public override decimal Cost() => WeightKg > 20m ? 60m : 12m + WeightKg * 2.5m;
+    public override int EstimatedDays() => 2;
 }
 
-public class StudentAccount : Account
+public class PickupShipment : Shipment
 {
-    public StudentAccount(decimal balance) : base(balance) { }
-    public override decimal MonthlyFee() => 0m;
-    public override int FreeTransfers() => 5;
+    public PickupShipment(decimal weightKg) : base(weightKg) { }
+    public override decimal Cost() => 0m;
+    public override int EstimatedDays() => 1;
 }
 ```
 
-Variant of the same idea, base plus one variant: `ShippingQuote` holds the normal rules, and `ExpressShippingQuote` overrides only the part that differs. The factory picks the subclass. Before, it was a single method: `Total(weight, express) => weight * 2m + (express ? 15m : 0m)`.
+Variant of the same idea, base plus one variant: `ParcelQuote` holds the normal rules, and `OversizedParcelQuote` overrides only the part that differs. The factory picks the subclass. Before, it was a single method: `Total(weightKg, oversized) => weightKg * 2m + (oversized ? 15m : 0m)`.
 
 ```csharp
-public class ShippingQuote
+public class ParcelQuote
 {
-    protected readonly decimal Weight;
-    public ShippingQuote(decimal weight) => Weight = weight;
+    protected readonly decimal WeightKg;
+    public ParcelQuote(decimal weightKg) => WeightKg = weightKg;
 
-    public static ShippingQuote Create(decimal weight, bool express) =>
-        express ? new ExpressShippingQuote(weight) : new ShippingQuote(weight);
+    public static ParcelQuote Create(decimal weightKg, bool oversized) =>
+        oversized ? new OversizedParcelQuote(weightKg) : new ParcelQuote(weightKg);
 
-    public decimal Total() => Weight * 2m + Surcharge();
+    public decimal Total() => WeightKg * 2m + Surcharge();
     protected virtual decimal Surcharge() => 0m;
 }
 
-public class ExpressShippingQuote : ShippingQuote
+public class OversizedParcelQuote : ParcelQuote
 {
-    public ExpressShippingQuote(decimal weight) : base(weight) { }
+    public OversizedParcelQuote(decimal weightKg) : base(weightKg) { }
     protected override decimal Surcharge() => base.Surcharge() + 15m;
 }
 ```

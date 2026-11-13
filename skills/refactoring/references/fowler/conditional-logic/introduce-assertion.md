@@ -33,21 +33,21 @@ failure means a bug. Nothing should handle it as a normal outcome.
 Before:
 
 ```csharp
-public class Customer
+public class Promotion
 {
-    public string? Email { get; }
-    public string? Phone { get; }
+    public string? Code { get; }
+    public string? SeasonName { get; }
 
-    public Customer(string? email, string? phone)
+    public Promotion(string? code, string? seasonName)
     {
-        Email = email;
-        Phone = phone;
+        Code = code;
+        SeasonName = seasonName;
     }
 
-    public string PreferredContact()
+    public string Label()
     {
-        // email and phone are never both empty
-        return string.IsNullOrEmpty(Email) ? Phone! : Email;
+        // a promotion always has a coupon code or a season name
+        return string.IsNullOrEmpty(Code) ? SeasonName! : Code;
     }
 }
 ```
@@ -57,23 +57,23 @@ After (the check lives in the constructor, where a bad pair would first enter):
 ```csharp
 using System.Diagnostics;
 
-public class Customer
+public class Promotion
 {
-    public string? Email { get; }
-    public string? Phone { get; }
+    public string? Code { get; }
+    public string? SeasonName { get; }
 
-    public Customer(string? email, string? phone)
+    public Promotion(string? code, string? seasonName)
     {
         Debug.Assert(
-            !string.IsNullOrEmpty(email) || !string.IsNullOrEmpty(phone),
-            "a customer needs an email or a phone");
-        Email = email;
-        Phone = phone;
+            !string.IsNullOrEmpty(code) || !string.IsNullOrEmpty(seasonName),
+            "a promotion needs a coupon code or a season name");
+        Code = code;
+        SeasonName = seasonName;
     }
 
-    public string PreferredContact()
+    public string Label()
     {
-        return string.IsNullOrEmpty(Email) ? Phone! : Email;
+        return string.IsNullOrEmpty(Code) ? SeasonName! : Code;
     }
 }
 ```
@@ -82,8 +82,8 @@ public class Customer
 - `Debug.Assert` (`System.Diagnostics`) is removed from Release builds, which fits the rule
   that the program must behave the same without assertions. Do not put side effects in the
   asserted expression.
-- `Debug.Assert` does not change nullable flow analysis, so the `!` in `PreferredContact`
-  stays and still hides a possible null when `Email` is empty. The assertion documents the
+- `Debug.Assert` does not change nullable flow analysis, so the `!` in `Label`
+  stays and still hides a possible null when `Code` is empty. The assertion documents the
   invariant; it does not prove it to the compiler.
 - If a check must also run in production, it is not an assertion: use real validation
   (for example throwing `ArgumentException`).
