@@ -8,7 +8,8 @@ acadêmica e comercial, desde que dê o crédito apropriado, conforme descrito a
 Crédito
 -------
 Os catálogos de refatoração, os nomes das refatorações e dos code smells, e o método que estas
-skills ensinam são obra de Martin Fowler e Joshua Kerievsky, publicados em:
+skills ensinam são obra de Martin Fowler e Joshua Kerievsky, e os padrões de projeto são obra de
+Erich Gamma, Richard Helm, Ralph Johnson e John Vlissides, publicados em:
 
   Martin Fowler. Refactoring: Improving the Design of Existing Code. 2nd ed.
   Boston: Addison-Wesley (Pearson Education), 2018. ISBN 978-0-13-475759-9.
@@ -17,6 +18,10 @@ skills ensinam são obra de Martin Fowler e Joshua Kerievsky, publicados em:
   Joshua Kerievsky. Refactoring to Patterns. Boston: Addison-Wesley
   (Pearson Education), 2004. ISBN 978-0-321-21335-8.
   Catálogo online: https://www.industriallogic.com/refactoring-to-patterns/catalog/
+
+  Erich Gamma, Richard Helm, Ralph Johnson e John Vlissides. Design Patterns:
+  Elements of Reusable Object-Oriented Software. Reading: Addison-Wesley, 1995.
+  ISBN 978-0-201-63361-0.
 
 Ao reutilizar ou adaptar este pacote, dê crédito a este pacote e aos livros acima.
 

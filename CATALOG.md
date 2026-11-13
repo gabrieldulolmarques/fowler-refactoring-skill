@@ -33,6 +33,9 @@ descrições concorrentes.
 | `references/kerievsky/<chapter>/<slug>.md` (27 arquivos) | Kerievsky, cap. 6–11 | uma refatoração para padrão em cada, no mesmo formato, mais padrão e direção (seção 5) |
 | `references/kerievsky/smells.md` | Kerievsky, cap. 4 | os 12 smells e as refatorações para padrões a que levam (seção 5.2) |
 | `references/kerievsky/discipline.md` | Kerievsky, cap. 1-3 | quando um padrão compensa, refatorações compostas e guiadas por testes, até/rumo a/longe, dívida de design |
+| `references/gof/catalog.md` | GoF, cap. 1, 3-5 | as 23 intenções, propósito e escopo, causas de reprojeto, o que cada padrão deixa variar, comparações (seção 6) |
+| `references/gof/principles.md` | GoF, cap. 1 e 6 | princípios de design, como escolher e usar um padrão (seção 6) |
+| `references/gof/<category>/<slug>.md` (23 arquivos) | GoF, cap. 3-5 | um padrão em cada: intenção, quando compensa, participantes, exemplo em C#, variações, riscos (seção 6) |
 
 O slug é o nome da refatoração em kebab-case. Exemplo: Extrair Função (Extract Function) →
 `references/fowler/first-set/extract-function.md`. Os arquivos são agrupados por livro (`fowler/`, `kerievsky/`) e, dentro dele, em uma pasta por capítulo. Os de Fowler:
@@ -53,11 +56,16 @@ skills/
         │   │   ├── extract-function.md
         │   │   └── ...
         │   └── ... # 7 pastas de capítulo, 66 arquivos
-        └── kerievsky/
-            ├── smells.md
-            ├── discipline.md
-            ├── creation/
-            └── ... # 6 pastas de capítulo, 27 arquivos
+        ├── kerievsky/
+        │   ├── smells.md
+        │   ├── discipline.md
+        │   ├── creation/
+        │   └── ... # 6 pastas de capítulo, 27 arquivos
+        └── gof/
+            ├── catalog.md
+            ├── principles.md
+            ├── creational/
+            └── ... # 3 pastas de categoria, 23 arquivos
 ```
 
 ---
@@ -395,3 +403,71 @@ para o arquivo dela; uma refatoração sem equivalente na 2ª edição (como Ext
 descrita em palavras e marcada "(só na 1ª ed.)". "Quando usar" inclui as desvantagens que o
 livro aponta, para o agente saber quando o padrão não compensa. Os exemplos são em C# original,
 como na seção 4.3.
+
+---
+
+## 6. Os padrões de projeto do GoF
+
+Fonte: Erich Gamma, Richard Helm, Ralph Johnson e John Vlissides, *Design Patterns: Elements of
+Reusable Object-Oriented Software*, Addison-Wesley, 1995. Coberto: cap. 1 (menos o §1.2), cap. 3-5,
+as comparações que fecham cada um deles, e o §6.1. Fora: §1.2 (MVC em Smalltalk), cap. 2 (um estudo
+de caso longo num domínio próprio), §6.2-6.5 (história e comunidade) e os apêndices. Os arquivos de
+`gof/` são autocontidos: não citam os catálogos de refatoração, e a tabela no fim do `SKILL.md` liga
+cada padrão às refatorações que levam a ele.
+
+| Padrão | Pasta | Cap. | Página |
+|---|---|---|---|
+| Abstract Factory | `creational` | 3 | 87 |
+| Builder | `creational` | 3 | 97 |
+| Factory Method | `creational` | 3 | 107 |
+| Prototype | `creational` | 3 | 117 |
+| Singleton | `creational` | 3 | 127 |
+| Adapter | `structural` | 4 | 139 |
+| Bridge | `structural` | 4 | 151 |
+| Composite | `structural` | 4 | 163 |
+| Decorator | `structural` | 4 | 175 |
+| Facade | `structural` | 4 | 185 |
+| Flyweight | `structural` | 4 | 195 |
+| Proxy | `structural` | 4 | 207 |
+| Chain of Responsibility | `behavioral` | 5 | 223 |
+| Command | `behavioral` | 5 | 233 |
+| Interpreter | `behavioral` | 5 | 243 |
+| Iterator | `behavioral` | 5 | 257 |
+| Mediator | `behavioral` | 5 | 273 |
+| Memento | `behavioral` | 5 | 283 |
+| Observer | `behavioral` | 5 | 293 |
+| State | `behavioral` | 5 | 305 |
+| Strategy | `behavioral` | 5 | 315 |
+| Template Method | `behavioral` | 5 | 325 |
+| Visitor | `behavioral` | 5 | 331 |
+
+As páginas são as impressas, da própria lista de padrões do livro (segunda capa).
+
+Formato dos arquivos:
+
+```markdown
+# State
+
+Gamma et al. (1995), cap. 5, p. 305. Categoria: comportamental de objeto.
+
+## Intenção
+## Quando compensa
+## Participantes em C#
+## Exemplo (C#)
+## Variações
+## Riscos e alternativas em C#
+## Padrões relacionados
+## Verificação
+```
+
+## 7. Nível de C# de todos os exemplos
+
+Todos os exemplos do pacote são em C# 9, para compilarem também no Unity, cujo compilador para no
+C# 9: sem `record` nem `init` (lá exigem a classe auxiliar `IsExternalInit`), sem `required`, sem
+construtores primários, sem collection expressions, sem namespace por arquivo, sem `global using`,
+sem raw strings e sem list patterns. Pattern matching, switch expressions, `new()`, tipos de
+referência anuláveis, delegates, events, LINQ e `async` são usados à vontade. Todo bloco é compilado
+contra `netstandard2.1` com `LangVersion` 9; um bloco de propósito parcial começa com `// fragment`.
+Os exemplos usam temas atuais e neutros (checkout, cobrança, pagamentos, clientes HTTP, um assistente
+de IA, IoT, feature flags, exportação de relatórios, armazenamento em nuvem...), nunca os exemplos
+dos próprios livros.

@@ -1,10 +1,11 @@
 # refactoring-skill
 
-Dois catálogos de refatoração empacotados como [Agent Skills](https://agentskills.io) para
-agentes de código: o *Refactoring* de Martin Fowler (2ª ed., 2018) e o *Refactoring to Patterns*
-de Joshua Kerievsky (2004). Uma skill, `refactoring`, relaciona 29 code smells às 66
-refatorações e às 27 refatorações para padrões que os corrigem, com um arquivo de referência por
-refatoração (mecânica, um exemplo em C# e passos de verificação).
+Dois catálogos de refatoração e um catálogo de padrões de projeto empacotados como
+[Agent Skills](https://agentskills.io) para agentes de código: o *Refactoring* de Martin Fowler (2ª ed.,
+2018), o *Refactoring to Patterns* de Joshua Kerievsky (2004) e os 23 padrões do *Design Patterns* de
+Gamma et al. (GoF, 1995). Uma skill, `refactoring`, relaciona 29 code smells às 66 refatorações e às
+27 refatorações para padrões que os corrigem, e liga cada padrão às refatorações que levam a ele.
+Todo arquivo tem um exemplo em C# 9.
 
 **Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (inglês e português).
 
@@ -20,7 +21,7 @@ agents/
 └── refactoring-implementer.md # aplica uma refatoração, testando após cada passo
 skills/refactoring/
 ├── SKILL.md # fluxo smell → refatoração → arquivo, índice de smells, tabelas das 66 + 27
-└── references/ # fowler/ e kerievsky/, cada um com seu smells.md, seu discipline.md e uma pasta por capítulo
+└── references/ # fowler/ e kerievsky/ (smells.md, discipline.md, uma pasta por capítulo); gof/ (catalog.md, principles.md, uma pasta por categoria)
 ```
 
 Só a descrição da skill fica no contexto do agente. O corpo é carregado quando a skill é
@@ -59,6 +60,9 @@ pacote **e** aos livros em que ele se baseia:
 >
 > Joshua Kerievsky. *Refactoring to Patterns*. Boston: Addison-Wesley (Pearson Education),
 > 2004. ISBN 978-0-321-21335-8.
+>
+> Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides. *Design Patterns: Elements of
+> Reusable Object-Oriented Software*. Reading: Addison-Wesley, 1995. ISBN 978-0-201-63361-0.
 
 A licença cobre apenas o conteúdo próprio deste pacote, não os livros (veja [NOTICE](NOTICE)).
 A motivação e a mecânica na skill são parafraseadas, com capítulo e página citados;

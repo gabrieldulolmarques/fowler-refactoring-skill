@@ -1,6 +1,6 @@
 # Site gerado por .github/workflows/pages.yml; .github/build_site.py prepara o _docs antes.
 site_name: Refactoring Skill
-site_description: "Os catálogos de refatoração de Fowler e Kerievsky como Agent Skill: 29 smells, 66 refatorações, 27 refatorações para padrões, exemplos em C#."
+site_description: "Os catálogos de refatoração de Fowler e Kerievsky e os 23 padrões do GoF como Agent Skill, com exemplos em C# 9."
 site_url: https://gabrieldulolmarques.github.io/refactoring-skill/pt-br/
 repo_url: https://github.com/gabrieldulolmarques/refactoring-skill
 docs_dir: _docs
@@ -167,6 +167,35 @@ nav:
               - skills/refactoring/references/kerievsky/utilities/chain-constructors.md
               - skills/refactoring/references/kerievsky/utilities/unify-interfaces.md
               - skills/refactoring/references/kerievsky/utilities/extract-parameter.md
+      - "GoF (1995)":
+          - Catálogo: skills/refactoring/references/gof/catalog.md
+          - Princípios: skills/refactoring/references/gof/principles.md
+          - "Criacionais (cap. 3)":
+              - skills/refactoring/references/gof/creational/abstract-factory.md
+              - skills/refactoring/references/gof/creational/builder.md
+              - skills/refactoring/references/gof/creational/factory-method.md
+              - skills/refactoring/references/gof/creational/prototype.md
+              - skills/refactoring/references/gof/creational/singleton.md
+          - "Estruturais (cap. 4)":
+              - skills/refactoring/references/gof/structural/adapter.md
+              - skills/refactoring/references/gof/structural/bridge.md
+              - skills/refactoring/references/gof/structural/composite.md
+              - skills/refactoring/references/gof/structural/decorator.md
+              - skills/refactoring/references/gof/structural/facade.md
+              - skills/refactoring/references/gof/structural/flyweight.md
+              - skills/refactoring/references/gof/structural/proxy.md
+          - "Comportamentais (cap. 5)":
+              - skills/refactoring/references/gof/behavioral/chain-of-responsibility.md
+              - skills/refactoring/references/gof/behavioral/command.md
+              - skills/refactoring/references/gof/behavioral/interpreter.md
+              - skills/refactoring/references/gof/behavioral/iterator.md
+              - skills/refactoring/references/gof/behavioral/mediator.md
+              - skills/refactoring/references/gof/behavioral/memento.md
+              - skills/refactoring/references/gof/behavioral/observer.md
+              - skills/refactoring/references/gof/behavioral/state.md
+              - skills/refactoring/references/gof/behavioral/strategy.md
+              - skills/refactoring/references/gof/behavioral/template-method.md
+              - skills/refactoring/references/gof/behavioral/visitor.md
   - Agentes:
       - agents/refactoring-analyst.md
       - agents/refactoring-implementer.md
