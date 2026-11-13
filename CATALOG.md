@@ -32,6 +32,7 @@ descriptions.
 | `references/fowler/<chapter>/<slug>.md` (66 files) | ch. 6–12, or the web edition for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
 | `references/kerievsky/<chapter>/<slug>.md` (27 files) | Kerievsky ch. 6–11 | one refactoring to a pattern each, same format plus pattern and direction (section 5) |
 | `references/kerievsky/smells.md` | Kerievsky ch. 4 | the 12 smells and the refactorings to patterns they point to (section 5.2) |
+| `references/kerievsky/discipline.md` | Kerievsky ch. 1-3 | when a pattern pays off, composite and test-driven refactorings, to/towards/away, design debt |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
 `references/fowler/first-set/extract-function.md`. The files are grouped by book (`fowler/`, `kerievsky/`) and then in one folder per chapter. Fowler's:
@@ -54,6 +55,7 @@ skills/
         │   └── ... # 7 chapter folders, 66 files
         └── kerievsky/
             ├── smells.md
+            ├── discipline.md
             ├── creation/
             └── ... # 6 chapter folders, 27 files
 ```

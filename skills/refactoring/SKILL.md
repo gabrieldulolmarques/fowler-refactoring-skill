@@ -19,7 +19,9 @@ Flow: **smell -> refactoring -> its file in `references/`.**
    it, and stop as soon as the smell is gone: going *towards* a pattern is often enough.
 3. Before changing anything, check the safety net in
    [references/fowler/discipline.md](references/fowler/discipline.md): passing tests, small steps, a commit
-   after each green refactoring. If the code has no tests, write them first.
+   after each green refactoring. If the code has no tests, write them first. For a refactoring
+   to a pattern, also read [references/kerievsky/discipline.md](references/kerievsky/discipline.md):
+   when a pattern pays off, and when to stop.
 4. Follow the mechanics one step at a time. Compile and run the tests after each step; if
    anything fails, undo the step.
 

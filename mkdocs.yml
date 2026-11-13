@@ -133,6 +133,7 @@ nav:
               - skills/refactoring/references/fowler/inheritance/replace-superclass-with-delegate.md
       - "Kerievsky (2004)":
           - Smells: skills/refactoring/references/kerievsky/smells.md
+          - Discipline: skills/refactoring/references/kerievsky/discipline.md
           - "Creation (ch. 6)":
               - skills/refactoring/references/kerievsky/creation/replace-constructors-with-creation-methods.md
               - skills/refactoring/references/kerievsky/creation/move-creation-knowledge-to-factory.md
