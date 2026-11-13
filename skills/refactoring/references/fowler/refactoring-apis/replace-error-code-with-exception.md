@@ -1,6 +1,6 @@
 # Substituir Código de Erro por Exceção (Replace Error Code with Exception)
 
-Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceErrorCodeWithException.html. Antes / também: —. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceErrorCodeWithException.html. Nome anterior / outro nome: —. Inversa: —.
 Relacionada: Substituir Exceção por Verificação Prévia (Replace Exception with Precheck) ([replace-exception-with-precheck.md](replace-exception-with-precheck.md)).
 
 ## Quando usar

@@ -1,6 +1,6 @@
 # Substituir Variável Derivada por Consulta (Replace Derived Variable with Query)
 
-Fowler (2018), cap. 9, p. 248. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 9, p. 248. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: Dados Mutáveis (Mutable Data). Uma variável guarda um valor totalmente determinado por outros dados
@@ -8,9 +8,10 @@ Smell: Dados Mutáveis (Mutable Data). Uma variável guarda um valor totalmente 
 precisa lembrar de atualizar a variável. Esqueça uma atualização e as duas divergem. Calcular o
 valor quando ele é lido elimina toda essa classe de bugs e muitas vezes deixa claro o que o valor significa.
 
-Não aplique quando os dados de origem são imutáveis e o resultado derivado também pode ser imutável:
-construir uma nova estrutura a partir deles uma vez só é aceitável. Reconsidere também quando o
-cálculo é caro e lido com muita frequência; meça antes de abrir mão do valor armazenado.
+A exceção é quando os dados de origem são imutáveis e o resultado derivado também pode ser imutável:
+construir uma nova estrutura a partir deles uma vez só é aceitável.
+
+**Além do livro:** reconsidere quando o cálculo é caro e lido com muita frequência; meça antes de abrir mão do valor armazenado.
 
 ## Mecânica
 1. Encontre todo lugar que atribui ou atualiza a variável. Se uma variável mistura várias
@@ -71,7 +72,7 @@ public double UsedKwh
     get
     {
         Debug.Assert(_usedKwh == CalculatedUsedKwh);
-        return CalculatedUsedKwh;
+        return _usedKwh;
     }
 }
 

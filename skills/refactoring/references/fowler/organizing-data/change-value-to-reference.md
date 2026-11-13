@@ -1,6 +1,6 @@
 # Mudar Valor para Referência (Change Value to Reference)
 
-Fowler (2018), cap. 9, p. 256. Antes / também: —. Inversa: Mudar Referência para Valor (Change Reference to Value)
+Fowler (2018), cap. 9, p. 256. Nome anterior / outro nome: —. Inversa: Mudar Referência para Valor (Change Reference to Value)
 ([change-reference-to-value.md](change-reference-to-value.md)).
 
 ## Quando usar
@@ -21,10 +21,8 @@ Não vale a pena quando a entidade nunca é atualizada: as cópias são então i
    correta, normalmente o identificador que já está presente na sua entrada.
 3. Mude o construtor do hospedeiro (ou o código que o cria) para pedir a instância ao repositório
    em vez de chamar `new`. Compile e teste após cada construtor que você mudar.
-4. Decida como o repositório é preenchido: criado no primeiro pedido, ou pré-carregado de modo que um
-   id desconhecido seja um erro. Faça o comportamento do hospedeiro corresponder a essa escolha.
-5. Se o repositório for global, considere passá-lo como parâmetro do construtor para que o hospedeiro
-   não fique acoplado a estado compartilhado.
+
+**Além do livro:** decida como o repositório é preenchido: criado no primeiro pedido, ou pré-carregado de modo que um id desconhecido seja um erro, e faça o comportamento do hospedeiro corresponder a essa escolha. Se o repositório for global, considere passá-lo como parâmetro do construtor para que o hospedeiro não fique acoplado a estado compartilhado.
 
 ## Exemplo
 Antes: cada leitura cria o seu próprio `Sensor`, então duas leituras do mesmo sensor guardam dois objetos separados.
@@ -92,8 +90,8 @@ Agora `a.Sensor` e `b.Sensor` são o mesmo objeto para o mesmo id, então uma mu
 
 ## Notas (C#)
 - Um repositório ou registro que entrega a instância compartilhada é o formato usual: um dicionário indexado por id, dentro de uma pequena classe.
-- Se o repositório for compartilhado entre threads, use uma estrutura thread-safe (por exemplo, `ConcurrentDictionary.GetOrAdd`) para que dois chamadores não criem duas instâncias para um mesmo id.
-- A igualdade por referência é o padrão de uma classe, e é o que se quer aqui: não adicione igualdade por valor à entidade compartilhada.
+- Se o repositório for compartilhado entre threads, use uma estrutura segura para threads (por exemplo, `ConcurrentDictionary.GetOrAdd`) para que dois chamadores não criem duas instâncias para um mesmo id.
+- A igualdade por referência é o comportamento padrão de uma classe, e é o que se quer aqui: não adicione igualdade por valor à entidade compartilhada.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

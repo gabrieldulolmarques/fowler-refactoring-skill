@@ -1,6 +1,6 @@
 # Decompor Condicional (Decompose Conditional)
 
-Fowler (2018), cap. 10, p. 260. Antes / também: —. Inversa: —. É Extrair Função (Extract Function)
+Fowler (2018), cap. 10, p. 260. Nome anterior / outro nome: —. Inversa: —. É Extrair Função (Extract Function)
 ([extract-function.md](../first-set/extract-function.md)) aplicada às partes de uma condicional.
 
 ## Quando usar

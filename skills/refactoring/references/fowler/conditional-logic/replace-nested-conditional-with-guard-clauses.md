@@ -1,6 +1,6 @@
 # Substituir Condicional Aninhada por Cláusulas de Guarda (Replace Nested Conditional with Guard Clauses)
 
-Fowler (2018), cap. 10, p. 266. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 10, p. 266. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 - Uma condicional tem um ramo que é o comportamento normal e outros ramos que são casos incomuns

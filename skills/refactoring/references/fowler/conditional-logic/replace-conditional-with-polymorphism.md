@@ -1,6 +1,6 @@
 # Substituir Condicional por Polimorfismo (Replace Conditional with Polymorphism)
 
-Fowler (2018), cap. 10, p. 272. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 10, p. 272. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Switches Repetidos (Repeated Switches), Obsessão por Primitivos (Primitive Obsession), Função Longa (Long Function).
@@ -11,15 +11,14 @@ Smells: Switches Repetidos (Repeated Switches), Obsessão por Primitivos (Primit
 Um `if`/`switch` simples costuma bastar. Use isto quando a mesma condicional é repetida ou difícil de acompanhar e os casos são tipos de verdade.
 
 ## Mecânica
-1. Primeiro passo opcional: se a lógica estiver espalhada em funções livres, agrupe-as antes com [combine-functions-into-class.md](../first-set/combine-functions-into-class.md).
-2. Se não existirem classes para os casos, crie-as: uma classe base (ou interface) com uma subclasse por caso, mais uma função de fábrica que retorne a instância correta.
-3. Altere os chamadores para obter o objeto da fábrica em vez de construí-lo ou de passar o código de tipo adiante. Compile e teste.
-4. Se a condicional ainda não for um método autocontido, isole-a com [extract-function.md](../first-set/extract-function.md) e depois coloque esse método na classe base.
-5. Escolha um caso. Adicione um override em sua subclasse contendo a lógica desse ramo, ajustada para usar os membros da própria subclasse. Opcionalmente, faça o ramo correspondente no método base lançar exceção, para que um teste falhe se ele ainda for alcançado. Compile e teste.
-6. Repita o passo 5 para cada ramo, testando após cada um.
-7. Decida o que o método base faz. Mantenha o ramo padrão como a implementação base ou, se a classe base nunca deve ser usada sozinha, torne o método `abstract`. Se a base continuar concreta, a fábrica deve retornar a classe base para valores desconhecidos; se for abstrata, a fábrica deve rejeitá-los.
-8. Remova o `switch` agora vazio e, se nada mais o usar, o código de tipo. Mantenha o código como propriedade até que seu último leitor desapareça.
-9. Para um caso de base e variante, talvez seja preciso extrair antes a parte variável de um método grande, para que a subclasse sobrescreva apenas essa parte e chame `base` para o resto. Dê às partes extraídas nomes pelo que significam, não pelo caso.
+1. Se não existirem classes para os casos, crie-as: uma classe base (ou interface) com uma subclasse por caso, mais uma função de fábrica que retorne a instância correta.
+2. Altere os chamadores para obter o objeto da fábrica em vez de construí-lo ou de passar o código de tipo adiante. Compile e teste.
+3. Se a condicional ainda não for um método autocontido, isole-a com [extract-function.md](../first-set/extract-function.md) e depois coloque esse método na classe base.
+4. Escolha um caso. Adicione uma sobrescrita em sua subclasse contendo a lógica desse ramo, ajustada para usar os membros da própria subclasse. Opcionalmente, faça o ramo correspondente no método base lançar exceção, para que um teste falhe se ele ainda for alcançado. Compile e teste.
+5. Repita o passo 4 para cada ramo, testando após cada um.
+6. Decida o que o método base faz. Mantenha o ramo padrão como a implementação base ou, se a classe base nunca deve ser usada sozinha, torne o método `abstract`. Se a base continuar concreta, a fábrica deve retornar a classe base para valores desconhecidos; se for abstrata, a fábrica deve rejeitá-los.
+
+**Além do livro:** se a lógica estiver espalhada em funções livres, agrupe-as antes com [combine-functions-into-class.md](../first-set/combine-functions-into-class.md). Quando o último ramo tiver sido movido, remova o `switch` agora vazio e, se nada mais o usar, o código de tipo; mantenha o código como propriedade até que seu último leitor desapareça. Para um caso de base e variante, talvez seja preciso extrair antes a parte variável de um método grande, para que a subclasse sobrescreva apenas essa parte e chame `base` para o resto; dê às partes extraídas nomes pelo que significam, não pelo caso.
 
 ## Exemplo
 Antes: dois métodos fazem `switch` sobre o mesmo método de envio.
@@ -140,4 +139,4 @@ public class OversizedParcelQuote : ParcelQuote
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.
-- Cada ramo movido tem um teste que falha se a sobrescrita for removida (se você usou o `throw` opcional do passo 5, o método base lança exceção até o último ramo ser movido).
+- Cada ramo movido tem um teste que falha se a sobrescrita for removida (se você usou o `throw` opcional do passo 4, o método base lança exceção até o último ramo ser movido).

@@ -1,6 +1,6 @@
 # Dividir Variável (Split Variable)
 
-Fowler (2018), cap. 9, p. 240. Antes / também: antes Remove Assignments to Parameters, antes Split Temp. Inversa: —.
+Fowler (2018), cap. 9, p. 240. Nome anterior / outro nome: Remove Assignments to Parameters, Split Temp. Inversa: —.
 
 ## Quando usar
 Smell: Dados Mutáveis (Mutable Data).
@@ -17,7 +17,7 @@ Atribuir a um parâmetro de entrada é um caso comum: o parâmetro é ao mesmo t
 1. Escolha o primeiro valor que a variável guarda. Na sua declaração e primeira atribuição, renomeie a variável para um nome que descreva apenas esse primeiro uso.
 2. Atualize toda referência que lê esse primeiro valor, parando antes da segunda atribuição.
 3. Compile e teste.
-4. Na segunda atribuição, declare uma nova variável e nomeie-a para esse segundo uso.
+4. Na segunda atribuição, declare uma nova variável e nomeie-a para esse segundo uso. Se a linguagem permitir, declare-a como imutÃ¡vel (C# nÃ£o tem variÃ¡veis locais imutÃ¡veis; veja as notas de C#).
 5. Repita os passos 2 a 4 para cada atribuição posterior, testando após cada etapa. Na atribuição final o nome original não tem mais referências.
 6. Para um parâmetro: declare uma variável local inicializada a partir do parâmetro no início da função, renomeie o parâmetro para dizer que é a entrada original e aponte para o parâmetro as leituras que significam a entrada original. Depois continue com os passos acima na variável local, renomeando-a para dizer o que ela guarda.
 

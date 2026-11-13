@@ -1,6 +1,6 @@
 # Substituir Função por Comando (Replace Function with Command)
 
-Fowler (2018), cap. 11, p. 337. Antes / também: Replace Method with Method Object. Inversa:
+Fowler (2018), cap. 11, p. 337. Nome anterior / outro nome: Replace Method with Method Object. Inversa:
 Substituir Comando por Função (Replace Command with Function) ([replace-command-with-function.md](replace-command-with-function.md)).
 
 ## Quando usar
@@ -13,7 +13,7 @@ registrada em log, parâmetros fornecidos em etapas, personalização por subcla
 passos internos.
 
 Não use por padrão. Um comando é estrutura extra; uma função simples (ou delegado) é a
-melhor escolha na maior parte do tempo. Recorra a um comando apenas quando um dispositivo mais simples não der a você
+melhor escolha na maior parte do tempo. Recorra a um comando apenas quando um recurso mais simples não der a você
 o que você precisa.
 
 ## Mecânica
@@ -27,10 +27,8 @@ o que você precisa.
 4. Mova os argumentos para o construtor um de cada vez: adicione um campo e um parâmetro de
    construtor, passe-o a partir do encaminhador, remova-o da lista de parâmetros do método e
    atualize os seus usos no corpo. Compile e teste após cada um.
-5. Opcionalmente, para permitir a decomposição: promova as variáveis locais a campos, uma de cada vez,
-   compilando e testando após cada uma.
-6. Agora aplique Extrair Função ([extract-function.md](../first-set/extract-function.md)) ao corpo; os novos métodos leem
-   e escrevem os campos diretamente.
+
+**Além do livro:** para decompor o corpo, como o exemplo faz, promova as variáveis locais a campos, uma de cada vez, compilando e testando após cada uma. Depois aplique Extrair Função ([extract-function.md](../first-set/extract-function.md)) ao corpo; os novos métodos leem e escrevem os campos diretamente.
 
 ## Exemplo
 Antes: uma função que precifica uma campanha, com várias variáveis locais que interagem entre si.
@@ -86,7 +84,7 @@ public static class Billing
 }
 ```
 
-Depois dos passos 1 a 4 (o encaminhador permanece, o comando passa a ser dono dos argumentos):
+Depois do passo 4 (o encaminhador permanece, o comando passa a ser dono dos argumentos):
 
 ```csharp
 public static class Billing
@@ -124,7 +122,7 @@ public class CampaignCostCalculator
 }
 ```
 
-Depois dos passos 5 e 6 (variáveis locais promovidas a campos, depois partes extraídas):
+Depois de promover as locais e extrair (variáveis locais promovidas a campos, depois partes extraídas):
 
 ```csharp
 public class CampaignCostCalculator
@@ -163,7 +161,7 @@ public class CampaignCostCalculator
 }
 ```
 
-O comportamento é o mesmo em todas as etapas. Observe que `Execute` agora altera campos, então uma instância do comando só serve para um uso, a menos que os campos sejam zerados no início de `Execute`.
+O comportamento é o mesmo em todas as etapas. Observe que `Execute` agora altera campos: uma instância do comando pode ser executada de novo, já que `Execute` zera todos os campos que lê, mas não é segura para threads.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

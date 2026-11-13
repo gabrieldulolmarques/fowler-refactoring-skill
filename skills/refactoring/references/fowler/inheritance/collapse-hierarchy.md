@@ -1,6 +1,6 @@
 # Colapsar Hierarquia (Collapse Hierarchy)
 
-Fowler (2018), cap. 12, p. 380. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 12, p. 380. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative Generality).
@@ -12,7 +12,7 @@ Smells: Elemento Ocioso (Lazy Element), Generalidade Especulativa (Speculative G
   subclasses dependem do nível intermediário.
 
 ## Mecânica
-1. Decida qual classe sobrevive. Prefira o nome que fará mais sentido daqui para frente;
+1. Decida qual classe sobrevive. Prefira o nome que fará mais sentido daqui em diante;
    se ambos forem igualmente bons, escolha qualquer um.
 2. Mova todo membro da classe a ser removida para a sobrevivente, um de cada vez, usando as
    refatorações de subir / descer conforme necessário ([pull-up-method.md](pull-up-method.md),

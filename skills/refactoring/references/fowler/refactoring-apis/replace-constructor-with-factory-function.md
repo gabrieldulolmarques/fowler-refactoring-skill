@@ -1,12 +1,12 @@
 # Substituir Construtor por Função de Fábrica (Replace Constructor with Factory Function)
 
-Fowler (2018), cap. 11, p. 334. Antes / também: antes Replace Constructor with Factory Method. Inversa: —.
+Fowler (2018), cap. 11, p. 334. Nome anterior / outro nome: Replace Constructor with Factory Method. Inversa: —.
 
 ## Quando usar
 - Construtores têm limites: não podem ser renomeados a cada uso, então `new Account(id, 'S')` diz pouco sobre o que é criado. Uma fábrica nomeada (`Account.CreateSavings(id)`) diz.
 - Os chamadores passam um código de tipo literal ou uma flag apenas para escolher uma variante. Isso é um smell em si, e a fábrica pode esconder o código atrás de um nome descritivo.
 - A criação pode precisar retornar uma subclasse, uma instância compartilhada ou em cache, ou um objeto de caso especial. Um construtor sempre retorna uma nova instância exatamente da sua própria classe.
-- Não se incomode quando o construtor já é claro e tem uma única forma óbvia de ser chamado.
+- Não vale a pena quando o construtor já é claro e tem uma única forma óbvia de ser chamado.
 
 ## Mecânica
 1. Crie uma função de fábrica cujo corpo apenas chame o construtor com os mesmos argumentos.

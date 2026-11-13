@@ -1,6 +1,6 @@
 # Substituir Flag de Controle por Break (Replace Control Flag with Break)
 
-Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceControlFlagWithBreak.html. Antes / também: Remove Control Flag. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceControlFlagWithBreak.html. Nome anterior / outro nome: Remove Control Flag. Inversa: —.
 
 ## Quando usar
 Uma variável booleana existe apenas para conduzir o laço: ela é definida quando algo acontece e depois

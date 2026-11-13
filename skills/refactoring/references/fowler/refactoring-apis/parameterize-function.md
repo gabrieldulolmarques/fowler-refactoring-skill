@@ -1,13 +1,13 @@
 # Parametrizar Função (Parameterize Function)
 
-Fowler (2018), cap. 11, p. 310. Antes / também: Parameterize Method. Inversa: —.
+Fowler (2018), cap. 11, p. 310. Nome anterior / outro nome: Parameterize Method. Inversa: —.
 
 ## Quando usar
 Duas ou mais funções têm a mesma forma e diferem apenas em valores literais. Fundi-las em uma única função com parâmetros remove a duplicação, e
 a função única pode então ser reutilizada com valores para os quais ninguém escreveu uma variante.
 
 Não serve quando as funções diferem na estrutura e não nos valores: forçá-las em uma única
-função leva a uma pilha de parâmetros e ramificações. Se um parâmetro apenas selecionaria qual
+função leva a um amontoado de parâmetros e ramificações. Se um parâmetro apenas selecionaria qual
 lógica executa, isso é um argumento de flag, não um valor (veja [remove-flag-argument.md](remove-flag-argument.md)).
 
 ## Mecânica

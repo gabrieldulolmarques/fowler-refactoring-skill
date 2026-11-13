@@ -1,6 +1,6 @@
 # Remover Método de Escrita (Remove Setting Method)
 
-Fowler (2018), cap. 11, p. 331. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 11, p. 331. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Dados Mutáveis (Mutable Data), Classe de Dados (Data Class).

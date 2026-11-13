@@ -1,6 +1,6 @@
 # Subir Corpo do Construtor (Pull Up Constructor Body)
 
-Fowler (2018), cap. 12, p. 355. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 12, p. 355. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: nenhum específico no livro (relacionado: Código Duplicado (Duplicated Code)). Duas ou mais subclasses atribuem os mesmos campos, ou
@@ -11,7 +11,7 @@ funciona diretamente para a inicialização compartilhada. Puxe o código para u
 passe o que ele precisa pela chamada.
 
 Se parte do código compartilhado precisa de valores que só a subclasse terá definido até então, ela não pode ser
-içada para o construtor da base. Trate essa parte separadamente, como no passo 4. Se o conjunto todo
+levada para o construtor da base. Trate essa parte separadamente, como no passo 4. Se o conjunto todo
 ficar confuso, considere Substituir Construtor por Função de Fábrica (Replace Constructor with Factory Function)
 ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)).
 
@@ -154,7 +154,7 @@ fornecidos pela subclasse, e cada construtor o chama assim que o seu próprio ca
 public abstract class MediaItem
 {
     protected readonly string Title;
-    public string Label { get; private set; }
+    public string Label { get; private set; } = "";
 
     protected MediaItem(string title)
     {

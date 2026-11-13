@@ -1,11 +1,11 @@
 # Introduzir Asserção (Introduce Assertion)
 
-Fowler (2018), cap. 10, p. 302. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 10, p. 302. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: Comentários (Comments). Um comentário que diz "isto deve ser positivo" ou "x nunca é nulo aqui" é
 uma suposição escrita só para humanos. Uma asserção afirma a mesma coisa em código, de modo que
-o leitor a vê e o runtime pode verificá-la.
+o leitor a vê e o ambiente de execução pode verificá-la.
 
 Uma asserção marca um erro de programador: uma condição que deve valer se o resto do
 sistema estiver correto. Reserve as asserções para invariantes das quais o design depende. Pule as

@@ -1,6 +1,6 @@
 # Substituir Literal Mágico (Replace Magic Literal)
 
-Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceMagicLiteral.html. Antes / também: Replace Magic Number with Symbolic Constant. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceMagicLiteral.html. Nome anterior / outro nome: Replace Magic Number with Symbolic Constant. Inversa: —.
 
 ## Quando usar
 Um valor literal aparece em uma expressão e o seu significado precisa ser adivinhado: uma taxa de imposto, uma unidade de tempo, uma constante física, uma string de status, um limite de tamanho. O mesmo valor repetido em vários lugares é pior, porque uma mudança exige encontrar toda cópia e distinguir as que significam a mesma coisa das que só parecem iguais.

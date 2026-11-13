@@ -1,6 +1,6 @@
 # Substituir Superclasse por Delegação (Replace Superclass with Delegate)
 
-Fowler (2018), cap. 12, p. 399. Antes / também: Replace Inheritance with Delegation. Inversa: —.
+Fowler (2018), cap. 12, p. 399. Nome anterior / outro nome: Replace Inheritance with Delegation. Inversa: —.
 
 ## Quando usar
 
@@ -10,17 +10,15 @@ Smells: Herança Recusada (Refused Bequest), Troca de Informações Privilegiada
 - "Toda instância da subclasse é uma instância válida da superclasse" é falso. Um caso típico é um tipo e a sua instância misturados: uma classe de descrição de produto reutilizada como base de um item físico que tem número de série.
 - A subclasse quebra sempre que a superclasse muda, porque o acoplamento é forte.
 
-Quando não usar: se todo membro da superclasse se aplica à subclasse e toda instância da subclasse é uma instância legítima da superclasse, a herança é simples e eficaz. A herança é um bom padrão; troque quando ela começar a doer. O custo é um método encaminhador para cada membro que você mantém.
+Quando não usar: se todo membro da superclasse se aplica à subclasse e toda instância da subclasse é uma instância legítima da superclasse, a herança é simples e eficaz. A herança é uma boa opção padrão; troque quando ela começar a doer. O custo é um método encaminhador para cada membro que você mantém.
 
 ## Mecânica
 
 1. Na subclasse, adicione um campo do tipo da superclasse e inicialize-o com uma nova instância (normalmente construída com os mesmos argumentos de construtor).
 2. Para cada membro da superclasse, adicione um membro encaminhador na subclasse que chama o mesmo membro no campo. Compile e teste após cada grupo coerente (um getter e o seu setter andam juntos).
 3. Quando todo membro da superclasse tiver um encaminhador, remova o vínculo de herança (descarte o `: Superclass` e a chamada ao construtor da base). Compile e teste.
-4. Apague, um de cada vez, os encaminhadores dos membros que não se aplicam à subclasse, mudando qualquer chamador que o compilador apontar. Compile e teste após cada um.
 
-Com uma superclasse muito grande, como uma coleção de framework, repassar todo membro é impraticável. Repasse os que os chamadores usam, remova o vínculo e deixe o compilador apontar o resto, como faz o exemplo abaixo.
-5. Verifique o modelo. O delegado agora é um componente privado pertencente a uma instância da subclasse. Se as instâncias devem compartilhar o delegado, continue com Mudar Valor para Referência (Change Value to Reference) ([change-value-to-reference.md](../organizing-data/change-value-to-reference.md)). Mantenha no hospedeiro os campos que pertencem a ele, como o id.
+**Além do livro:** o exemplo abaixo também apaga, um de cada vez, os encaminhadores dos membros que não se aplicam à subclasse, mudando qualquer chamador que o compilador apontar e testando após cada um. Com uma superclasse muito grande, como uma coleção de framework, repassar todo membro é impraticável. Repasse os que os chamadores usam, remova o vínculo e deixe o compilador apontar o resto, como faz o exemplo. Por fim, verifique o modelo. O delegado agora é um componente privado pertencente a uma instância da subclasse. Se as instâncias devem compartilhar o delegado, continue com Mudar Valor para Referência (Change Value to Reference) ([change-value-to-reference.md](../organizing-data/change-value-to-reference.md)). Mantenha no hospedeiro os campos que pertencem a ele, como o id.
 
 ## Exemplo
 
@@ -80,7 +78,7 @@ objeto por `IEnumerable<Play>` (LINQ, ou um `foreach` sobre uma variável de tip
 lista herdada, agora vazia, até o passo 3; então verifique se há tais chamadores antes de confiar nos
 testes nesta etapa.
 
-Depois dos passos 3 e 4 (vínculo removido; o compilador agora rejeita `Clear`):
+Depois do passo 3 e de apagar os encaminhadores que não se aplicam (vínculo removido; o compilador agora rejeita `Clear`):
 
 ```csharp
 // fragment

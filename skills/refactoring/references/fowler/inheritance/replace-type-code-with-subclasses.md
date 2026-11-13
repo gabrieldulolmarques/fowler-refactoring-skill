@@ -1,6 +1,6 @@
 # Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses)
 
-Fowler (2018), cap. 12, p. 362. Antes / também: engloba Replace Type Code with State/Strategy e Extract Subclass. Inversa: Remover Subclasse (Remove Subclass) ([remove-subclass.md](remove-subclass.md)).
+Fowler (2018), cap. 12, p. 362. Nome anterior / outro nome: engloba Replace Type Code with State/Strategy e Extract Subclass. Inversa: Remover Subclasse (Remove Subclass) ([remove-subclass.md](remove-subclass.md)).
 
 ## Quando usar
 Smells: Obsessão por Primitivos (Primitive Obsession), Classe Grande (Large Class).
@@ -21,9 +21,9 @@ Não use quando o código é apenas dado do qual nenhum comportamento depende; u
 3. Adicione lógica de seleção que mapeie o código recebido para a subclasse. Com herança direta, faça da construção uma fábrica ([replace-constructor-with-factory-function.md](../refactoring-apis/replace-constructor-with-factory-function.md)) e ponha a seleção ali. Com herança indireta, a seleção pode ficar no construtor ou no setter do dono. Enquanto alguns códigos ainda não têm subclasse, mantenha a classe base concreta e deixe a seleção recorrer a ela.
 4. Compile e teste. Para ter certeza de que os testes exercitam a nova subclasse, mude por um instante o valor que ela retorna e verifique que um teste falha, depois restaure-o.
 5. Repita os passos 2 a 4 para cada valor de código restante, testando após cada um. A classe base permanece concreta até que o último esteja feito.
-6. Quando todo valor tiver uma subclasse, remova o campo armazenado do código de tipo e o getter da base. Faça os códigos desconhecidos falharem na lógica de seleção (o ramo padrão lança uma exceção), depois descarte qualquer validação separada. Compile e teste.
+6. Quando todo valor tiver uma subclasse, remova o campo armazenado do código de tipo. Mantenha o getter por ora: as subclasses o sobrescrevem, então em C# ele vira `abstract` (ou continua `virtual`) na classe base. Faça os códigos desconhecidos falharem na lógica de seleção (o ramo padrão lança uma exceção), depois descarte qualquer validação separada. Compile e teste.
 7. Remova o parâmetro de código agora sem uso do construtor ([change-function-declaration.md](../first-set/change-function-declaration.md)).
-8. Para cada método que usa o getter de tipo, desça-o para as subclasses e substitua o condicional por polimorfismo. Quando nada mais ler o getter, apague-o ([remove-dead-code.md](../moving-features/remove-dead-code.md)). Teste após cada método.
+8. Para cada método que usa o getter de tipo, desça-o para as subclasses e substitua o condicional por polimorfismo. Quando nada mais ler o getter, apague-o, incluindo as sobrescritas nas subclasses ([remove-dead-code.md](../moving-features/remove-dead-code.md)). Teste após cada método.
 
 Com herança indireta, um tipo mutável significa um setter que reexecuta a seleção e troca o objeto de tipo. Com isso, a classe base vazia do tipo pode permanecer: ela documenta a família e é um lugar natural para a lógica compartilhada entre os tipos.
 

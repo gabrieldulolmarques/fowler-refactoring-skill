@@ -1,6 +1,6 @@
 # Retornar Valor Modificado (Return Modified Value)
 
-Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/returnModifiedValue.html. Antes / também: —. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/returnModifiedValue.html. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: nenhum específico (só na edição web; relacionados: Dados Mutáveis (Mutable Data), Função Longa (Long Function)).

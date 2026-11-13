@@ -1,6 +1,6 @@
 # Remover Subclasse (Remove Subclass)
 
-Fowler (2018), cap. 12, p. 369. Antes / também: antes Replace Subclass with Fields.
+Fowler (2018), cap. 12, p. 369. Nome anterior / outro nome: Replace Subclass with Fields.
 Inversa: Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses) ([replace-type-code-with-subclasses.md](replace-type-code-with-subclasses.md)).
 
 ## Quando usar
@@ -9,11 +9,11 @@ Smell: nenhum específico no livro (relacionados: Elemento Ocioso (Lazy Element)
 - Uma subclasse foi adicionada para uma variação que nunca cresceu: ela sobrescreve um ou dois membros para retornar uma
   constante, e nada mais depende do seu tipo. A classe custa atenção dos leitores e
   não devolve nada.
-- O comportamento que justificava a subclasse foi para outro lugar ou foi apagado, deixando um toco.
+- O comportamento que justificava a subclasse foi para outro lugar ou foi apagado, deixando apenas um resto.
 - Normalmente aplicada a um grupo inteiro de subclasses irmãs. Prepare todas primeiro
   (fábrica, testes de tipo), depois incorpore-as uma de cada vez.
 - Antes de apagar, olhe os clientes em busca de comportamento que dependa da subclasse. Se ele
-  pertenceria à subclasse, ela ainda pode valer a pena ser mantida.
+  pertenceria à subclasse, talvez valha a pena mantê-la.
 - Não use quando as subclasses carregam comportamento polimórfico real ou estrutura de dados
   diferente. Essa variação é para o que a herança serve.
 
@@ -29,8 +29,8 @@ Smell: nenhum específico no livro (relacionados: Elemento Ocioso (Lazy Element)
 3. Adicione à superclasse um campo que represente aquilo em que as subclasses diferem, e defina-o no
    construtor com o caso padrão. Exponha-o pelo mesmo membro que as subclasses
    sobrescrevem.
-4. Pegue uma subclasse. Mude a fábrica para que ela retorne a superclasse com o campo definido com
-   o valor daquela subclasse, e mude os testes de tipo movidos para lerem o campo. Compile e teste.
+4. Escolha uma subclasse. Mude a fábrica para que ela retorne a superclasse com o campo definido com
+   o valor daquela subclasse, e mude os testes de tipo movidos para que leiam o campo. Compile e teste.
 5. Apague essa subclasse. Compile e teste.
 6. Repita os passos 4 e 5 para cada subclasse restante.
 7. Opcionalmente, torne o caso padrão simétrico aos outros (defina o campo explicitamente na

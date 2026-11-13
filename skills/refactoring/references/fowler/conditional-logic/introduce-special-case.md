@@ -1,6 +1,6 @@
 # Introduzir Caso Especial (Introduce Special Case)
 
-Fowler (2018), cap. 10, p. 289. Antes / também: Introduce Null Object. Inversa: —.
+Fowler (2018), cap. 10, p. 289. Nome anterior / outro nome: Introduce Null Object. Inversa: —.
 
 ## Quando usar
 Smells: Campo Temporário (Temporary Field).
@@ -109,7 +109,7 @@ public class PromotionClients
 }
 ```
 
-Mesmo comportamento: os chamadores recebem os mesmos valores de antes, e a escrita em uma promoção ausente continua sem efeito.
+`Banner` é um quinto cliente que não está no Antes; ele foi adicionado só para mostrar um cliente que mantém o seu próprio teste explícito. Fora ele, o comportamento é o mesmo: os chamadores recebem os mesmos valores de antes, e a escrita em uma promoção ausente continua sem efeito.
 
 ## Notas (C#)
 - Com tipos de referência anuláveis ativados, o caso especial remove o `?` e as verificações de null nos pontos de chamada: a propriedade passa a não ser anulável e nunca retorna null.

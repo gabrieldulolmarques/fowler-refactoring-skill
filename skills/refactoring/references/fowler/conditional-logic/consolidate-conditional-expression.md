@@ -1,6 +1,6 @@
 # Consolidar Expressão Condicional (Consolidate Conditional Expression)
 
-Fowler (2018), cap. 10, p. 263. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 10, p. 263. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 - Vários `if` seguidos, cada um com um teste diferente mas o mesmo resultado (mesmo valor de retorno, mesma ação).

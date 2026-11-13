@@ -1,15 +1,15 @@
 # Preservar Objeto Inteiro (Preserve Whole Object)
 
-Fowler (2018), cap. 11, p. 319. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 11, p. 319. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Função Longa (Long Function), Lista Longa de Parâmetros (Long Parameter List), Agrupamentos de Dados (Data Clumps).
 
-- Os chamadores leem dois ou mais valores de um objeto e os repassam. Passe o objeto no lugar.
+- Os chamadores leem dois ou mais valores de um objeto e os repassam. Passe o objeto inteiro no lugar.
 - A assinatura deixa de mudar quando a função mais tarde precisa de outro campo desse objeto.
 - Vários chamadores repetem a mesma lógica sobre as partes desempacotadas. Essa lógica muitas vezes pertence ao objeto inteiro (Inveja de Recursos (Feature Envy); veja [move-function.md](../moving-features/move-function.md)).
 - Comum logo depois de Introduzir Objeto de Parâmetros (Introduce Parameter Object) ([introduce-parameter-object.md](../first-set/introduce-parameter-object.md)): procure os pontos de chamada restantes que ainda desempacotam os dados.
-- Se vários chamadores só usam sempre o mesmo subconjunto dos membros do objeto, considere [extract-class.md](../encapsulation/extract-class.md).
+- Se vários chamadores sempre usam só o mesmo subconjunto dos membros do objeto, considere [extract-class.md](../encapsulation/extract-class.md).
 - Um objeto que chama outro objeto com vários dos seus próprios valores pode passar `this`.
 
 Não use quando a função chamada não deve depender do tipo do objeto inteiro, tipicamente porque elas vivem em módulos ou camadas diferentes. Então mantenha os parâmetros primitivos, ou passe um objeto menor.

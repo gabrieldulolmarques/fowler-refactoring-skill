@@ -1,6 +1,6 @@
 # Remover Argumento de Flag (Remove Flag Argument)
 
-Fowler (2018), cap. 11, p. 314. Antes / também: antes Replace Parameter with Explicit Methods. Inversa: —.
+Fowler (2018), cap. 11, p. 314. Nome anterior / outro nome: Replace Parameter with Explicit Methods. Inversa: —.
 
 ## Quando usar
 Smells: Lista Longa de Parâmetros (Long Parameter List).
@@ -18,11 +18,11 @@ Com várias flags independentes, um método por combinação é impraticável, e
 ## Mecânica
 1. Crie um método explícito para cada valor do parâmetro, nomeado pelo que aquele valor significa.
    - Se o método original já despacha pelo parâmetro no seu nível mais externo, aplique [decompose-conditional.md](../conditional-logic/decompose-conditional.md): cada ramo vira o corpo de um método explícito, e o original apenas os chama.
-   - Se o parâmetro estiver entrelaçado pelo corpo, faça de cada método explícito um invólucro fino que chama o original com um valor fixo.
+   - Se o parâmetro estiver entrelaçado pelo corpo, faça de cada método explícito um invólucro (wrapper) fino que chama o original com um valor fixo.
 2. Compile e teste.
 3. Substitua cada chamador que passa um literal por uma chamada ao método explícito correspondente. Compile e teste após cada chamador (ou grupo pequeno).
-4. Quando nenhum chamador usar mais o parâmetro, apague o método original. Se ele permanecer como alvo dos invólucros, reduza a sua visibilidade ou renomeie-o para sinalizar "interno" (por exemplo, com o sufixo `Core` ou `Impl`).
-5. Compile e teste.
+
+**Além do livro:** quando nenhum chamador usar mais o parâmetro, apague o método original. Se ele permanecer como alvo dos invólucros, reduza a sua visibilidade ou renomeie-o para sinalizar "interno" (por exemplo, com o sufixo `Core` ou `Impl`), e então compile e teste.
 
 ## Exemplo
 Antes:

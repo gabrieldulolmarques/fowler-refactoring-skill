@@ -1,6 +1,6 @@
 # Separar Consulta de Modificador (Separate Query from Modifier)
 
-Fowler (2018), cap. 11, p. 306. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 11, p. 306. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: Dados Mutáveis (Mutable Data). Uma função que retorna um valor e também tem efeitos colaterais observáveis
@@ -8,9 +8,8 @@ Smell: Dados Mutáveis (Mutable Data). Uma função que retorna um valor e tamb�
 disparar o efeito. Uma função sem efeitos colaterais observáveis pode ser chamada qualquer número
 de vezes e em qualquer ordem.
 
-Siga a separação comando-consulta: um método que retorna um valor não deve alterar
-o estado observável, e um método que altera estado não deve retornar uma resposta calculada. Divida
-qualquer método que faça as duas coisas.
+Siga a separação comando-consulta, pelo menos na maior parte do tempo: um método que retorna um valor
+não deve ter efeitos colaterais observáveis. Divida um método que faça as duas coisas.
 
 Não é uma violação: uma consulta que atualiza um cache privado por velocidade. A mudança não é
 observável, já que toda sequência de chamadas retorna os mesmos resultados. Deixe esses casos em paz.
@@ -28,7 +27,7 @@ observável, já que toda sequência de chamadas retorna os mesmos resultados. D
    fazendo o comando chamar a consulta.
 
 ## Exemplo
-Antes: um método encontra o primeiro assinante com bounces e o desativa.
+Antes: um método encontra o primeiro inscrito com bounces e o desativa.
 
 ```csharp
 using System;
@@ -101,7 +100,7 @@ public class MailingListService
 // Console.WriteLine($"First bouncing: {id}");
 ```
 
-Observe que o comando agora executa a busca de novo. Esse é o custo usual da separação; se a consulta for cara, aceite isso, faça um cache invisível ou passe o valor encontrado para o comando.
+Suposição: nenhum inscrito tem `Id` vazio, já que `""` significa "nenhum encontrado". Observe que o comando agora executa a busca de novo. Esse é o custo usual da separação; se a consulta for cara, aceite isso, faça um cache invisível ou passe o valor encontrado para o comando.
 
 ## Verificação
 - Compila e os testes passam após cada passo; um commit por refatoração.

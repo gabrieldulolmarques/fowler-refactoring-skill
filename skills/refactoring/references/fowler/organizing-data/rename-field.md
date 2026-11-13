@@ -1,6 +1,6 @@
 # Renomear Campo (Rename Field)
 
-Fowler (2018), cap. 9, p. 244. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 9, p. 244. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: Nome Misterioso (Mysterious Name). Estruturas de dados carregam a maior parte do significado de um programa, então os nomes dos seus campos
@@ -43,7 +43,7 @@ using System;
 
 public class Device
 {
-    public string Rev; // na verdade a versão do firmware
+    public string Rev = "";     // na verdade a versão do firmware
     public int SamplingSeconds;
 }
 
@@ -57,12 +57,12 @@ public class Caller
 }
 ```
 
-Passo 1, encapsule e dê ao campo de suporte um nome próprio. O inicializador de objeto no chamador continua compilando, porque passa pelos setters da propriedade:
+Passo 1, encapsule e dê ao campo de apoio um nome próprio. O inicializador de objeto no chamador continua compilando, porque passa pelos setters da propriedade:
 
 ```csharp
 public class Device
 {
-    private string _firmwareVersion;
+    private string _firmwareVersion = "";
     private int _samplingSeconds;
 
     public string Rev
@@ -84,7 +84,7 @@ Passo 2, renomeie a propriedade e atualize os chamadores. Esta classe não tem c
 ```csharp
 public class Device
 {
-    private string _firmwareVersion;
+    private string _firmwareVersion = "";
     private int _samplingSeconds;
 
     public string FirmwareVersion

@@ -1,6 +1,6 @@
 # Substituir Exceção por Verificação Prévia (Replace Exception with Precheck)
 
-Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Antes / também: Replace Exception with Test. Inversa: —.
+Fowler (2018), só na edição web (não está no livro impresso); resumo em https://refactoring.com/catalog/replaceExceptionWithPrecheck.html. Nome anterior / outro nome: Replace Exception with Test. Inversa: —.
 
 ## Quando usar
 Existe um `try`/`catch` para tratar uma condição que não é excepcional: o chamador pode saber de antemão que ela pode acontecer, e o bloco catch apenas fornece um valor padrão ou segue o caminho alternativo. Exceções são para falhas inesperadas; usá-las como um desvio esconde o fluxo normal, custa mais em tempo de execução e pode engolir erros reais do mesmo tipo.
@@ -58,7 +58,7 @@ public class RetrySchedule
 ```
 
 ## Notas (C#)
-- Prefira o padrão `TryParse` / `TryGetValue` do framework onde ele existir: ele faz a verificação e a operação juntas, então não há intervalo entre o teste e o uso. Exemplo: `if (_templates.TryGetValue(name, out var body)) return body; return "";` em vez de capturar `KeyNotFoundException`.
+- Prefira a convenção `TryParse` / `TryGetValue` do framework onde ele existir: ele faz a verificação e a operação juntas, então não há intervalo entre o teste e o uso. Exemplo: `if (_templates.TryGetValue(name, out var body)) return body; return "";` em vez de capturar `KeyNotFoundException`.
 - Um `catch` restrito deixa a condição fácil de identificar. Um `catch (Exception)` amplo exige primeiro descobrir qual causa era a pretendida, pois costuma esconder mais de uma.
 
 ## Verificação

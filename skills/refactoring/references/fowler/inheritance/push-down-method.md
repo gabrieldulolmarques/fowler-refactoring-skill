@@ -1,6 +1,6 @@
 # Descer Método (Push Down Method)
 
-Fowler (2018), cap. 12, p. 359. Antes / também: —. Inversa: Subir Método (Pull Up Method)
+Fowler (2018), cap. 12, p. 359. Nome anterior / outro nome: —. Inversa: Subir Método (Pull Up Method)
 ([pull-up-method.md](pull-up-method.md)).
 
 ## Quando usar

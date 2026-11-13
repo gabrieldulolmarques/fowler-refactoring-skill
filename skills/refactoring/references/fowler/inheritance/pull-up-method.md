@@ -1,6 +1,6 @@
 # Subir Método (Pull Up Method)
 
-Fowler (2018), cap. 12, p. 350. Antes / também: —. Inversa: Descer Método (Push Down Method)
+Fowler (2018), cap. 12, p. 350. Nome anterior / outro nome: —. Inversa: Descer Método (Push Down Method)
 ([push-down-method.md](push-down-method.md)).
 
 ## Quando usar
@@ -15,9 +15,9 @@ as cópias são difíceis de encontrar depois.
 - Se o corpo usa membros que existem apenas nas subclasses, suba esses membros primeiro
   ([pull-up-field.md](pull-up-field.md), ou esta refatoração de novo para métodos auxiliares).
 - Se os métodos compartilham um fluxo geral mas diferem em alguns passos, a ferramenta certa é um método
-  template na superclasse, com os passos variáveis deixados como membros sobrescrevíveis.
+  template na superclasse, com os passos variáveis deixados como membros que as subclasses possam sobrescrever.
 
-Não use quando o comportamento é genuinamente diferente por subclasse, ou quando a superclasse
+**Além do livro:** não use quando o comportamento é genuinamente diferente por subclasse, ou quando a superclasse
 não deveria conhecer o conceito (o método seria então uma Herança Recusada (Refused Bequest) para outros irmãos).
 
 ## Mecânica

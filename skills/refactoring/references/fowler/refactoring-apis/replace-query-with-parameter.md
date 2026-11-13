@@ -1,6 +1,6 @@
 # Substituir Consulta por Parâmetro (Replace Query with Parameter)
 
-Fowler (2018), cap. 11, p. 327. Antes / também: —. Inversa: Substituir Parâmetro por Consulta (Replace Parameter with Query)
+Fowler (2018), cap. 11, p. 327. Nome anterior / outro nome: —. Inversa: Substituir Parâmetro por Consulta (Replace Parameter with Query)
 ([replace-parameter-with-query.md](replace-parameter-with-query.md)).
 
 ## Quando usar
@@ -10,9 +10,9 @@ Fowler (2018), cap. 11, p. 327. Antes / também: —. Inversa: Substituir Parâm
   a busca para um parâmetro faz com que ela retorne o mesmo resultado para os mesmos argumentos (transparência
   referencial), de modo que a lógica pode ficar em um núcleo puro envolvido por código que trata de E/S e estado
   compartilhado.
-- Contrapartida: o chamador agora precisa encontrar e passar o valor, então os pontos de chamada ficam mais pesados e
+- Em contrapartida: o chamador agora precisa encontrar e passar o valor, então os pontos de chamada ficam mais pesados e
   as listas de parâmetros mais longas. Se muitos chamadores repetem a mesma busca, ou a dependência é inofensiva,
-  mantenha a consulta dentro (a refatoração inversa). Decida por onde a responsabilidade pertence; a
+  mantenha a consulta dentro (a refatoração inversa). Decida onde a responsabilidade deve ficar; a
   escolha é reversível.
 
 ## Mecânica

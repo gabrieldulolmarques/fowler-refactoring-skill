@@ -1,6 +1,6 @@
 # Substituir Subclasse por Delegação (Replace Subclass with Delegate)
 
-Fowler (2018), cap. 12, p. 381. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 12, p. 381. Nome anterior / outro nome: —. Inversa: —.
 Remover Subclasse (Remove Subclass) e Colapsar Hierarquia (Collapse Hierarchy) vão no sentido oposto para casos simples.
 
 ## Quando usar
@@ -10,10 +10,10 @@ Smells: Troca de Informações Privilegiadas (Insider Trading), Herança Recusad
   critério, um dos dois precisa se tornar uma delegação.
 - A variante precisa mudar durante a vida do objeto (um pedido comum se torna um pedido prioritário),
   e substituir o objeto não é prático porque muitos lugares guardam uma referência a ele.
-- A subclasse e a superclasse estão tão emaranhadas que mudar a pai continua quebrando a
-  filha, especialmente entre módulos ou equipes.
+- A subclasse e a superclasse estão tão emaranhadas que mudar a superclasse continua quebrando a
+  subclasse, especialmente entre módulos ou equipes.
 
-Quando não usar: se a herança se encaixa bem e nada do acima se aplica, mantenha-a. O resultado
+**Além do livro:** se a herança se encaixa bem e nada do acima se aplica, mantenha-a. O resultado
 tem lógica de despacho e uma referência de mão dupla, então a refatoração sozinha raramente torna o código
 mais simples; o ganho é a liberdade que ela compra. Prefira a herança primeiro e passe para uma delegação
 quando ela começar a doer.
@@ -36,16 +36,16 @@ quando ela começar a doer.
    um método próprio que o delegado possa chamar, ou transforme o método do delegado em uma extensão do
    resultado da base (o hospedeiro passa o seu resultado). Não chame o método virtual do próprio hospedeiro
    a partir do delegado: isso gera recursão infinita. Se o método existe apenas na subclasse,
-   despache com um padrão sensato para o caso sem delegado. Teste.
+   despache com um comportamento padrão sensato para o caso sem delegado. Se houver mais de uma
+   subclasse e os delegados começarem a duplicar código, aplique Extrair Superclasse (Extract Superclass)
+   ([extract-superclass.md](extract-superclass.md)) nos delegados. Teste.
 7. Se o método não tem chamadores externos, apenas remova o método da subclasse (Remover Código Morto (Remove Dead Code),
    [remove-dead-code.md](../moving-features/remove-dead-code.md)). Teste.
 8. Repita os passos 5 a 7 para cada membro da subclasse.
-9. Quando várias subclasses se tornam delegados e os padrões ficam duplicados, aplique Extrair
-   Superclasse (Extract Superclass) ([extract-superclass.md](extract-superclass.md)) nos delegados e crie sempre algum delegado,
-   para que o despacho do hospedeiro não precise de verificação de nulo e os delegados mantenham o comportamento padrão.
-   Nunca ramifique pelo tipo concreto do delegado.
-10. Mude toda construção da subclasse para construir a superclasse. Teste.
-11. Apague a subclasse agora vazia.
+9. Mude toda construção da subclasse para construir a superclasse. Teste.
+10. Apague a subclasse agora vazia.
+
+**Além do livro:** quando os delegados compartilham uma superclasse, criar um delegado em todos os casos permite que o hospedeiro despache sem verificação de nulo, e o delegado padrão guarda o comportamento padrão. Não ramifique pelo tipo concreto do delegado.
 
 ## Exemplo
 Antes: assinaturas de estudante são uma subclasse.

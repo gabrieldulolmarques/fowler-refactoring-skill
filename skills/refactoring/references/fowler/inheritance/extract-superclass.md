@@ -1,6 +1,6 @@
 # Extrair Superclasse (Extract Superclass)
 
-Fowler (2018), cap. 12, p. 375. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 12, p. 375. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Classe Grande (Large Class), Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces).
