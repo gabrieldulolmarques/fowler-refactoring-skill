@@ -25,14 +25,14 @@ Principalmente de forma oportunista, como parte de outro trabalho (cap. 2, pp. 5
 - **Preparatória:** logo antes de adicionar uma funcionalidade ou corrigir um bug, remodele o código para que a mudança fique fácil.
 - **De compreensão:** quando você teve que quebrar a cabeça com um código, devolva ao código o que aprendeu (nomes, estrutura).
 - **Limpeza de passagem:** pequenas limpezas pelo caminho; anote as maiores e volte depois.
-- **Planejada/de longo prazo:** rara; distribua os grandes esforços pelas mudanças do dia a dia em vez de um bloco de tempo.
+- **Planejada/de longo prazo:** nem sempre é errada, mas o livro prefere distribuir os grandes esforços pelas mudanças do dia a dia em vez de um bloco de tempo.
 
 ## O ciclo
 
 1. **Base verde.** Execute os testes. Não comece nem continue enquanto algum teste falhar. Se uma falha aparecer no meio do caminho, volte à última versão que passava.
 2. **Um passo pequeno** da mecânica da refatoração.
-3. **Compile e execute os testes.** Compilar sozinho não basta: referências por nome, reflexão e dados serializados são invisíveis para o compilador.
-4. **Faça commit** após cada refatoração concluída e verde. Faça commits com mais frequência se um passo for arriscado. Manter commits de refatoração separados dos de funcionalidade é um padrão, não uma lei: o livro (p. 53) deixa isso a critério da equipe. O padrão tem uma vantagem prática, já que cada commit de refatoração vira um ponto seguro para reverter.
+3. **Compile e execute os testes.**
+4. **Faça commit** após cada refatoração concluída e verde. Faça commits com mais frequência se um passo for arriscado. Manter commits de refatoração separados dos de funcionalidade é a opção padrão, não uma lei: o livro (p. 53) deixa isso a critério da equipe. Essa opção tem uma vantagem prática, já que cada commit de refatoração vira um ponto seguro para reverter.
 5. **Repita** com o próximo smell.
 
 Passos pequenos parecem mais lentos, mas são mais rápidos no total: você quase nunca depura, porque a última mudança é a única suspeita.
@@ -54,11 +54,14 @@ A refatoração precisa de testes autoverificáveis: eles rodam sozinhos e infor
 
 - Código que você não precisa alterar: código feio, mas estável, pode ficar como está.
 - Código mais fácil de reescrever do que de remodelar: recomece em vez de uma longa cadeia de passos (cap. 2, p. 55).
-- Renomear ou alterar uma interface publicada (usada por código que você não pode editar, como um pacote ou outras equipes) exige uma transição: mantenha a antiga repassando para a nova por um tempo (cap. 2, p. 57).
+
+Uma interface publicada (usada por código que você não pode editar, como um pacote ou outras equipes) não é motivo para deixar de refatorar, mas alterá-la exige uma transição: mantenha a antiga repassando para a nova por um tempo (cap. 2, p. 57).
 
 ## Além do livro: código legado sem testes
 
 Não vem dos cap. 2-4 de Fowler.
+
+Compilar sozinho não basta depois de um passo: referências por nome, reflexão e dados serializados são invisíveis para o compilador, então execute também os testes.
 
 Um **teste de caracterização** fixa o que o código faz hoje (afirma a saída atual), mesmo que essa saída pareça estranha. Use-o antes de reestruturar código que não tem testes.
 

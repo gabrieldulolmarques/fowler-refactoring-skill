@@ -1,6 +1,6 @@
 # Extrair Classe (Extract Class)
 
-Fowler (2018), cap. 7, p. 182. Antes / também: —. Inversa: Internalizar Classe (Inline Class)
+Fowler (2018), cap. 7, p. 182. Nome anterior / outro nome: —. Inversa: Internalizar Classe (Inline Class)
 ([inline-class.md](inline-class.md)).
 
 ## Quando usar
@@ -11,8 +11,8 @@ Smells: Classe Grande (Large Class), Alteração Divergente (Divergent Change), 
 - Teste: remova mentalmente um campo ou método. Se outros membros perderem o sentido, eles pertencem à mesma classe extraída.
 - Subtipagem ou variação afeta apenas alguns recursos da classe, ou recursos diferentes variam de maneiras diferentes.
 
-Não use quando as partes estiverem muito emaranhadas com o resto e não houver uma
-responsabilidade clara para nomear. Também não divida uma classe pequena e coesa.
+**Além do livro:** não use quando as partes estiverem muito emaranhadas com o resto e não houver uma
+responsabilidade clara para nomear, nem em uma classe pequena e coesa.
 
 ## Mecânica
 1. Decida qual responsabilidade separar e dê um nome a ela.

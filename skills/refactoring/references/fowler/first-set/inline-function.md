@@ -1,6 +1,6 @@
 # Internalizar Função (Inline Function)
 
-Fowler (2018), cap. 6, p. 115. Antes / também: Inline Method. Inversa: Extrair Função (Extract Function)
+Fowler (2018), cap. 6, p. 115. Nome anterior / outro nome: Inline Method. Inversa: Extrair Função (Extract Function)
 ([extract-function.md](extract-function.md)).
 
 ## Quando usar
@@ -8,7 +8,7 @@ Smells: Elemento Ocioso (Lazy Element), Intermediário (Middle Man), Generalidad
 
 - O corpo diz tudo o que o nome diz, então a função acrescenta um salto e nenhum significado.
 - Uma cadeia de funções em que cada uma apenas encaminha para a próxima, e você perde de vista onde o trabalho acontece. Internalize-as, mantenha os saltos que se justificam, descarte o resto.
-- Uma preocupação espalhada por muitas funções pequenas (Cirurgia com Espingarda). Internalize-as e depois extraia de novo por linhas melhores.
+- Uma responsabilidade espalhada por muitas funções pequenas (Cirurgia com Espingarda). Internalize-as e depois extraia de novo por linhas melhores.
 - Um conjunto de funções dividido pelas linhas erradas. Internalize todas em uma função e depois extraia de novo com fronteiras melhores.
 
 Não use quando a função é polimórfica (sobrescrita), é recursiva, tem vários pontos de retorno que não se encaixam no chamador, ou quando encaixar o corpo no chamador dá muito trabalho. Nesses casos o custo é maior que o ganho: deixe a função em paz.
@@ -111,7 +111,7 @@ public class CartSummaryAfter
 ## Notas (C#)
 - Não internalize um método `virtual` ou `override`, nem uma implementação de interface, sem verificar as outras
   implementações: os chamadores que passam pelo tipo base ou pela interface ainda precisam do método.
-- Um método alcançado por reflexão, injeção de dependência, serialização ou assinatura de evento tem chamadores
+- Um método alcançado por reflexão, injeção de dependência, serialização ou inscrição em evento tem chamadores
   que uma busca por texto não encontra.
 
 ## Verificação

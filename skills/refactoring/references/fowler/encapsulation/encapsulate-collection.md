@@ -1,6 +1,6 @@
 # Encapsular Coleção (Encapsulate Collection)
 
-Fowler (2018), cap. 7, p. 170. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 7, p. 170. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: nenhum específico no livro (relacionado: Dados Mutáveis (Mutable Data)). A motivação é encapsular
@@ -27,13 +27,14 @@ coleção segura e escolha uma única proteção (cópia ou visão somente leitu
    para o campo em vez de guardar a referência do chamador.
 4. Faça o build e execute os testes.
 5. Encontre todos os usos da propriedade da coleção. Altere cada chamada que a modifica (`Add`,
-   `Remove`, `Clear`, atribuição por indexador, `Sort` in-place) para usar os novos métodos. Teste após
+   `Remove`, `Clear`, atribuição por indexador, `Sort` no lugar) para usar os novos métodos. Teste após
    cada alteração.
 6. Procure qualquer `Add`/`Remove` restante no getter e então altere-o para retornar uma
-   visão protegida: uma cópia ou um wrapper somente leitura. Com uma cópia, uma escrita perdida some
+   visão protegida: uma cópia ou um invólucro (wrapper) somente leitura. Com uma cópia, uma escrita perdida some
    em silêncio, e é por isso que a busca vem primeiro.
-7. Execute os testes. Qualquer código que ainda tentava modificar a coleção agora falha na compilação
-   ou falha de forma explícita.
+7. Execute os testes. Com um invólucro somente leitura, qualquer código que ainda tentava modificar a coleção
+   agora falha de forma visível. Com uma cópia, a escrita se perde em silêncio, então só um teste que confira
+   o conteúdo resultante a detecta.
 
 ## Exemplo
 

@@ -1,6 +1,6 @@
 # Substituir Laço por Pipeline (Replace Loop with Pipeline)
 
-Fowler (2018), cap. 8, p. 231. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 8, p. 231. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smell: Laços (Loops). Um laço que seleciona alguns itens, os converte e reúne os resultados
@@ -84,7 +84,7 @@ public class DelayReport
 }
 ```
 
-O limite conta resultados, não itens lidos, então `Take` vai depois dos filtros.
+O limite conta resultados, não itens lidos, então `Take` vai depois dos filtros. Pré-condição: `limit >= 0`; com um limite negativo o laço devolvia todas as correspondências, enquanto `Take` não devolve nenhuma.
 
 ## Notas (C#)
 - Use LINQ: `Where` para filtrar, `Select` para mapear, `Skip`/`Take` para fatiar, `ToList()` ou `ToArray()` para produzir a coleção final.

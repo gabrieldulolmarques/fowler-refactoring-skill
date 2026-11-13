@@ -1,6 +1,6 @@
 # Mover Instruções para os Chamadores (Move Statements to Callers)
 
-Fowler (2018), cap. 8, p. 217. Antes / também: —. Inversa: Mover Instruções para Função (Move Statements into Function) ([move-statements-into-function.md](move-statements-into-function.md)).
+Fowler (2018), cap. 8, p. 217. Nome anterior / outro nome: —. Inversa: Mover Instruções para Função (Move Statements into Function) ([move-statements-into-function.md](move-statements-into-function.md)).
 
 ## Quando usar
 - Uma função que era uma unidade coesa agora agrupa duas coisas diferentes, e a fronteira da abstração está no lugar errado.
@@ -11,7 +11,7 @@ Fowler (2018), cap. 8, p. 217. Antes / também: —. Inversa: Mover Instruções
 ## Mecânica
 1. Caso simples (um ou dois chamadores, uma função pequena): recorte a primeira ou a última instrução da função, cole em cada chamador, ajuste nomes ou argumentos conforme necessário, faça o build e teste. Pronto.
 2. Caso contrário, use [extract-function.md](../first-set/extract-function.md) nas instruções que permanecem na função. Dê à função extraída um nome temporário fácil de buscar. Faça o build e teste.
-3. Se a função for sobrescrita em subclasses, extraia o mesmo restante em cada override até que os métodos restantes sejam idênticos, então apague os overrides e mantenha um.
+3. Se a função for sobrescrita em subclasses, extraia o mesmo restante em cada sobrescrita até que os métodos restantes sejam idênticos, então apague as sobrescritas e mantenha uma.
 4. Internalize a função original ([inline-function.md](../first-set/inline-function.md)) em um chamador. Faça o build e teste. Repita para cada chamador.
 5. Apague a função original quando não restar nenhum chamador.
 6. Dê à função extraída seu nome final: o nome antigo da função apagada, ou um mais claro se você tiver ([change-function-declaration.md](../first-set/change-function-declaration.md)). Faça o build e teste.

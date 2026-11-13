@@ -1,15 +1,15 @@
 # Remover Intermediário (Remove Middle Man)
 
-Fowler (2018), cap. 7, p. 192. Antes / também: —. Inversa: Ocultar Delegação (Hide Delegate) ([hide-delegate.md](hide-delegate.md)).
+Fowler (2018), cap. 7, p. 192. Nome anterior / outro nome: —. Inversa: Ocultar Delegação (Hide Delegate) ([hide-delegate.md](hide-delegate.md)).
 
 ## Quando usar
 Smell: Intermediário (Middle Man). Uma classe oculta um delegado atrás de métodos de encaminhamento e, com o tempo, a maioria
 de seus membros não faz nada além de chamar o mesmo membro no delegado. Cada novo recurso do delegado
 exige mais um encaminhador, e a classe não acrescenta comportamento próprio.
 
-Gatilho típico: ocultação aplicada com entusiasmo demais, em nome de "nunca fale com estranhos". Quanto
-ocultar é uma decisão de julgamento que muda conforme o sistema evolui, então é normal reverter uma
-Ocultar Delegação anterior.
+Gatilho típico: ocultação aplicada com entusiasmo demais, em nome de "nunca fale com estranhos". Até onde
+ocultar é uma decisão de julgamento que muda conforme o sistema evolui, então é normal desfazer uma
+aplicação anterior de Ocultar Delegação.
 
 Não é motivo para remover tudo: alguns encaminhadores que os clientes usam constantemente podem ficar. Também
 é normal manter a ocultação onde o delegado provavelmente será substituído ou sua estrutura

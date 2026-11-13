@@ -1,12 +1,12 @@
 # Encapsular Variável (Encapsulate Variable)
 
-Fowler (2018), cap. 6, p. 132. Antes / também: Encapsulate Field, Self-Encapsulate Field. Inversa: —.
+Fowler (2018), cap. 6, p. 132. Nome anterior / outro nome: Encapsulate Field, Self-Encapsulate Field. Inversa: —.
 
 ## Quando usar
 Smells: Dados Globais (Global Data), Dados Mutáveis (Mutable Data).
 
 - Os dados só são fáceis de reorganizar quando o acesso a eles passa por funções: uma função pode ser
-  movida ou renomeada enquanto uma antiga encaminha para ela, mas dados brutos precisam ser reapontados em todo lugar
+  movida ou renomeada enquanto uma antiga encaminha para ela, mas dados brutos precisam ser redirecionados em todo lugar
   de uma vez. Encapsular primeiro transforma uma movimentação difícil de dados em uma movimentação fácil de função.
 - Também dá um só lugar para adicionar validação, efeitos colaterais, registro em log ou rastreamento de mudanças.
 - Quanto maior o escopo dos dados mutáveis, mais forte o argumento. Dados usados dentro de uma única função pequena
@@ -36,11 +36,11 @@ Os passos acima controlam a reatribuição da variável, não mudanças no objet
 Opções quando os chamadores não devem mutar o objeto compartilhado:
 - Devolva uma cópia no getter (comum para listas). Os chamadores podem alterar a cópia deles, mas os
   dados compartilhados ficam intactos. Os testes revelam código que dependia de mutar a instância compartilhada.
-- Devolva um wrapper somente leitura ou um tipo imutável, para que tentativas de mutação falhem de forma visível. Isso é
+- Devolva um invólucro (wrapper) somente leitura ou um tipo imutável, para que tentativas de mutação falhem de forma visível. Isso é
   muitas vezes uma boa medida temporária para encontrar todos os mutadores, que você então remove ou transforma em
   métodos de atualização explícitos, antes de trocar o getter para uma cópia.
 - Copie também no setter quando a origem não deve continuar ligada aos dados armazenados.
-- Cópias e wrappers só protegem um nível de profundidade. Estruturas aninhadas precisam de cópias ou wrappers em cada
+- Cópias e invólucros só protegem um nível de profundidade. Estruturas aninhadas precisam de cópias ou invólucros em cada
   nível.
 
 ## Exemplo

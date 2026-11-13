@@ -1,11 +1,11 @@
 # Substituir Primitivo por Objeto (Replace Primitive with Object)
 
-Fowler (2018), cap. 7, p. 174. Antes / também: Replace Data Value with Object, Replace Type Code with Class. Inversa: —.
+Fowler (2018), cap. 7, p. 174. Nome anterior / outro nome: Replace Data Value with Object, Replace Type Code with Class. Inversa: —.
 
 ## Quando usar
 Smell: Obsessão por Primitivos (Primitive Obsession). Um simples `string` ou `int` representa um conceito de domínio, e a lógica sobre ele (validação, formatação, comparação, extração de partes) começa a aparecer ou está duplicada pela base de código. Encapsular o valor dá a essa lógica um lugar só dela.
 
-Faça isso assim que quiser fazer mais com o valor do que imprimir ou armazenar. A primeira versão do tipo pode ser um wrapper simples, já que dá ao comportamento futuro um lugar para pousar. É uma decisão de julgamento: se o valor só é repassado e nunca inspecionado, um wrapper pode não valer a pena.
+Faça isso assim que quiser fazer mais com o valor do que imprimir ou armazenar. A primeira versão do tipo pode ser um invólucro (wrapper) simples, já que dá ao comportamento futuro um lugar onde ficar. É uma questão de julgamento: se o valor só é repassado e nunca inspecionado, um invólucro pode não valer a pena.
 
 ## Mecânica
 1. Se o valor for um campo simples, aplique antes Encapsular Variável (Encapsulate Variable) ([encapsulate-variable.md](../first-set/encapsulate-variable.md)), para que todas as leituras e escritas passem por um único getter e setter.

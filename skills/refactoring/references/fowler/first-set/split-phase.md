@@ -1,6 +1,6 @@
 # Dividir em Fases (Split Phase)
 
-Fowler (2018), cap. 6, p. 154. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 6, p. 154. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 
@@ -9,7 +9,7 @@ Smells: Alteração Divergente (Divergent Change), Cirurgia com Espingarda (Shot
 - Um trecho faz duas coisas diferentes em sequência, e a saída da primeira é a entrada da segunda: interpretar e depois calcular, calcular e depois formatar, validar e depois executar.
 - As entradas não correspondem ao modelo de que a lógica principal precisa, então a lógica fica atulhada de trabalho de conversão.
 - Se as primeiras linhas e as últimas linhas tocam variáveis e chamadas auxiliares não relacionadas, provavelmente são duas fases.
-- Vale a pena quando mudanças estão a caminho em qualquer uma das preocupações. Se as duas partes nunca vão mudar de forma independente, um simples Extrair Função (Extract Function) pode bastar.
+- Vale a pena quando mudanças estão a caminho em qualquer uma das responsabilidades.
 - As fases podem ser funções, ou módulos maiores. Uma fase também pode ser um pequeno objeto (por exemplo, um transformador) em vez de uma função.
 
 ## Mecânica
@@ -22,7 +22,8 @@ Smells: Alteração Divergente (Divergent Change), Cirurgia com Espingarda (Shot
    - Se um parâmetro não deve ser conhecido pela segunda fase de forma alguma, calcule na primeira fase o valor que ele alimenta, guarde o resultado em um campo e mova a linha que o preenche de volta para o chamador ([move-statements-to-callers.md](../moving-features/move-statements-to-callers.md)).
    - Os parâmetros usados apenas pela segunda fase continuam como parâmetros.
 6. O que sobra na função original agora é a primeira fase. Transforme-a em uma função própria cujo resultado é a estrutura intermediária ([extract-function.md](extract-function.md)), depois compile e teste. Se a primeira fase ganhar funções auxiliares que compartilham as mesmas entradas, ela pode virar um objeto (um transformador) cujo método retorna a estrutura intermediária; veja a variação abaixo.
-7. Opcionalmente, arrume: internalize variáveis temporárias restantes na função orquestradora para que ela se leia como "execute a fase um, alimente a fase dois".
+
+**Além do livro:** se as duas partes nunca vão mudar de forma independente, um simples Extrair Função (Extract Function) pode bastar. Depois, internalize as variáveis temporárias restantes na função orquestradora para que ela se leia como "execute a fase um, alimente a fase dois".
 
 ## Exemplo
 
@@ -197,8 +198,8 @@ Mesma saída de antes, inclusive para um carrinho vazio (o frete continua sendo 
 
 ## Notas (C#)
 
-- A estrutura de dados intermediária costuma ser um `record` (ou um `readonly record struct` para dados pequenos e
-  muito usados; C# 9+, e no Unity precisa de um shim de `IsExternalInit`). A imutabilidade impede que as fases
+- A estrutura de dados intermediária costuma ser um `record` (`record` é C# 9; `record struct` e `readonly record struct`, para dados pequenos e
+  muito usados, são C# 10; no Unity, `record` precisa de um shim de `IsExternalInit`). A imutabilidade impede que as fases
   alcancem o estado uma da outra.
 
 ## Verificação

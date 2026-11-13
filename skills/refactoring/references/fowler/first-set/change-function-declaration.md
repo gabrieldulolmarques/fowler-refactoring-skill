@@ -1,6 +1,6 @@
 # Mudar Declaração de Função (Change Function Declaration)
 
-Fowler (2018), cap. 6, p. 124. Antes / também: Rename Function, Change Signature; antes Rename Method, Add Parameter, Remove Parameter. Inversa: —.
+Fowler (2018), cap. 6, p. 124. Nome anterior / outro nome: Rename Function, Change Signature; antes Rename Method, Add Parameter, Remove Parameter. Inversa: —.
 
 ## Quando usar
 Smells: Nome Misterioso (Mysterious Name), Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces), Generalidade Especulativa (Speculative Generality) (parâmetros não usados), Comentários (Comments) (um comentário que explica a função costuma ser um nome melhor).
@@ -8,7 +8,7 @@ Smells: Nome Misterioso (Mysterious Name), Classes Alternativas com Interfaces D
 - O nome não diz ao leitor o que a função faz. Renomeie assim que souber um nome melhor; um bom truque é escrever um comentário descrevendo a finalidade e transformá-lo no nome.
 - Um parâmetro prende a função a um tipo de que ela não precisa de fato (passe o valor, não o objeto inteiro), para que possa ser reutilizada em outro lugar e o acoplamento diminua.
 - O caso oposto: uma função precisa de mais de um valor de um objeto, e passar o objeto mantém os chamadores estáveis quando a lógica crescer.
-- Um parâmetro não é usado, ou é preciso um novo.
+- É preciso um novo parâmetro. (Um parâmetro não usado como motivo vem do smell Generalidade Especulativa, não da motivação desta refatoração.)
 
 Não existe uma escolha de parâmetros permanentemente certa; a declaração deve acompanhar o seu entendimento atual, então espere mudá-la de novo.
 
@@ -57,14 +57,14 @@ public static class Shipping
         cart.Subtotal >= 50m;
 }
 
-// caller
+// chamador
 // var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping(c));
 ```
 
 Passo 1, extraia o corpo para uma nova função com um nome temporário e o parâmetro desejado:
 
 ```csharp
-// fragment
+// trecho
 public static bool QualifiesForFreeShipping(Cart cart) =>
     QualifiesForFreeShipping_new(cart.Subtotal);
 
@@ -75,21 +75,21 @@ public static bool QualifiesForFreeShipping_new(decimal subtotal) =>
 Passo 2, internalize `QualifiesForFreeShipping` em cada chamador (teste após cada um) e depois apague-a:
 
 ```csharp
-// fragment
+// trecho
 // var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping_new(c.Subtotal));
 ```
 
 Passo 3, renomeie `QualifiesForFreeShipping_new` de volta para `QualifiesForFreeShipping`:
 
 ```csharp
-// fragment
+// trecho
 public static bool QualifiesForFreeShipping(decimal subtotal) =>
     subtotal >= 50m;
 
 // var eligible = carts.Where(c => Shipping.QualifiesForFreeShipping(c.Subtotal));
 ```
 
-O comportamento é o mesmo do início ao fim; a build continua verde após cada passo.
+O comportamento é o mesmo do início ao fim; o build continua verde após cada passo.
 
 ## Notas (C#)
 - O compilador encontra os chamadores diretos, mas não a reflexão, as buscas por string (além de `nameof`) nem

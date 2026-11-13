@@ -1,6 +1,6 @@
 # Ocultar Delegação (Hide Delegate)
 
-Fowler (2018), cap. 7, p. 189. Antes / também: —. Inversa: Remover Intermediário (Remove Middle Man)
+Fowler (2018), cap. 7, p. 189. Nome anterior / outro nome: —. Inversa: Remover Intermediário (Remove Middle Man)
 ([remove-middle-man.md](remove-middle-man.md)).
 
 ## Quando usar
@@ -12,7 +12,7 @@ Smells: Cadeias de Mensagens (Message Chains), Troca de Informações Privilegia
   também precisa mudar. Um método de encaminhamento no servidor confina essa mudança a um só lugar.
 - Não continue adicionando encaminhadores para todo membro do delegado por hábito. Quando o servidor
   vira uma lista de métodos de repasse, ocultar custa mais do que rende: veja Remover
-  Intermediário. Quanto ocultar é um julgamento que você pode revisar depois.
+  Intermediário. Até onde ocultar é uma decisão que você pode revisar depois.
 
 ## Mecânica
 1. Para cada membro do delegado que um cliente usa, adicione um método de encaminhamento simples no servidor.
@@ -35,7 +35,7 @@ public class Plan
 
 public class Subscription
 {
-    public Plan Plan { get; set; }
+    public Plan Plan { get; set; } = null!;
 }
 
 public static class Client
@@ -53,7 +53,7 @@ Depois: `Subscription` oculta `Plan`.
 ```csharp
 public class Subscription
 {
-    private Plan _plan;
+    private Plan _plan = null!;
 
     public Plan Plan { get => _plan; set => _plan = value; } // removido no passo 4
     public decimal MonthlyPrice => _plan.MonthlyPrice;

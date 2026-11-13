@@ -1,6 +1,6 @@
 # Combinar Funções em Transformação (Combine Functions into Transform)
 
-Fowler (2018), cap. 6, p. 149. Antes / também: —. Inversa: —. Alternativa:
+Fowler (2018), cap. 6, p. 149. Nome anterior / outro nome: —. Inversa: —. Alternativa:
 Combinar Funções em Classe (Combine Functions into Class) ([combine-functions-into-class.md](combine-functions-into-class.md)).
 
 ## Quando usar

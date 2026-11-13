@@ -1,6 +1,6 @@
 # Dividir Laço (Split Loop)
 
-Fowler (2018), cap. 8, p. 227. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 8, p. 227. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Função Longa (Long Function).
@@ -9,7 +9,7 @@ Smells: Função Longa (Long Function).
 - Você quer extrair um desses trabalhos para sua própria função, mas o laço teria que retornar vários valores ou preencher várias variáveis.
 - Quem modifica um cálculo precisa entender todos os outros do laço.
 
-Não decida contra isso só porque os dados são percorridos duas vezes. A clareza vem primeiro; meça depois e junte os laços de volta se a travessia for um gargalo comprovado. Um laço dividido também costuma ser mais fácil de otimizar isoladamente. Deixe o laço em paz se os dois cálculos realmente dependerem um do outro (um lê o que o outro escreve na mesma passada).
+Não deixe de dividir só porque os dados são percorridos duas vezes. A clareza vem primeiro; meça depois e junte os laços de volta se a travessia for um gargalo comprovado. Um laço dividido também costuma ser mais fácil de otimizar isoladamente. Deixe o laço em paz se os dois cálculos realmente dependerem um do outro (um lê o que o outro escreve na mesma passada).
 
 ## Mecânica
 1. Garanta que os testes cubram os resultados do laço.
@@ -55,7 +55,7 @@ public static class DeliveryReport
 }
 ```
 
-Depois: um laço por preocupação, e então cada um é extraído para uma função.
+Depois: um laço por responsabilidade, e então cada um é extraído para uma função.
 
 ```csharp
 using System;

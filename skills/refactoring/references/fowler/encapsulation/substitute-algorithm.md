@@ -1,6 +1,6 @@
 # Substituir Algoritmo (Substitute Algorithm)
 
-Fowler (2018), cap. 7, p. 195. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 7, p. 195. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 - Você entende melhor o problema agora e enxerga um jeito muito mais simples de obter o mesmo resultado.

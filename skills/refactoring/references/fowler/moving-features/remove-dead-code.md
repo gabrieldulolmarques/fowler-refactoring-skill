@@ -1,6 +1,6 @@
 # Remover Código Morto (Remove Dead Code)
 
-Fowler (2018), cap. 8, p. 237. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 8, p. 237. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Generalidade Especulativa (Speculative Generality).
@@ -16,7 +16,7 @@ Smells: Generalidade Especulativa (Speculative Generality).
 
 ## Mecânica
 1. Se o código puder ser referenciado de fora de seu próprio corpo (uma função inteira, classe, campo
-   ou parâmetro), busque os usos: chamadores, overrides, implementações e qualquer lugar que
+   ou parâmetro), busque os usos: chamadores, sobrescritas, implementações e qualquer lugar que
    o nomeie como string. Para uma API pública, considere também chamadores fora do repositório.
 2. Se algo ainda o usa, ele não é morto. Pare; esta não é a refatoração a aplicar.
 3. Apague o código morto. Faça o build.

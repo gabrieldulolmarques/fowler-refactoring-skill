@@ -1,6 +1,6 @@
 # Extrair Variável (Extract Variable)
 
-Fowler (2018), cap. 6, p. 119. Antes / também: Introduce Explaining Variable. Inversa: Internalizar
+Fowler (2018), cap. 6, p. 119. Nome anterior / outro nome: Introduce Explaining Variable. Inversa: Internalizar
 Variável (Inline Variable) ([inline-variable.md](inline-variable.md)).
 
 ## Quando usar

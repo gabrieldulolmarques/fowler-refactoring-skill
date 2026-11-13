@@ -43,7 +43,7 @@ Um smell é uma pista, não um veredito. Decida lendo o código; nenhuma métric
 - Combinar Funções em Classe (Combine Functions into Class) ([combine-functions-into-class.md](first-set/combine-functions-into-class.md)), quando várias funções compartilham os mesmos argumentos
 
 ## Dados Globais (Global Data, p. 74)
-**Sintomas:** dados que qualquer código pode alterar e que ninguém consegue rastrear (variáveis globais, estáticos no nível da classe, singletons).
+**Sintomas:** dados que qualquer código pode alterar e que ninguém consegue rastrear (variáveis globais, membros estáticos da classe, singletons).
 **Tente:**
 - Encapsular Variável (Encapsulate Variable) ([encapsulate-variable.md](first-set/encapsulate-variable.md)), primeiro, para que o acesso passe por uma função; depois reduza o escopo para uma classe ou módulo
 
@@ -63,9 +63,9 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 ## Alteração Divergente (Divergent Change, p. 76)
 **Sintomas:** um módulo muda o tempo todo por motivos não relacionados (um conjunto de edições para um novo banco de dados, outro para um novo formato de relatório).
 **Tente:**
-- Dividir em Fases (Split Phase) ([split-phase.md](first-set/split-phase.md)), se as duas preocupações formarem uma sequência
+- Dividir em Fases (Split Phase) ([split-phase.md](first-set/split-phase.md)), se as duas responsabilidades formarem uma sequência
 - Mover Função (Move Function) ([move-function.md](moving-features/move-function.md)), para módulos separados quando as chamadas vão e voltam
-- Extrair Função ([extract-function.md](first-set/extract-function.md)), para dividir funções que misturam as duas preocupações antes de movê-las
+- Extrair Função ([extract-function.md](first-set/extract-function.md)), para dividir funções que misturam as duas responsabilidades antes de movê-las
 - Extrair Classe (Extract Class) ([extract-class.md](encapsulation/extract-class.md)), quando os módulos são classes
 
 ## Cirurgia com Espingarda (Shotgun Surgery, p. 76)
@@ -90,7 +90,7 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Extrair Classe ([extract-class.md](encapsulation/extract-class.md)), primeiro nos campos
 - Introduzir Objeto de Parâmetros ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), depois nas assinaturas
 - Preservar Objeto Inteiro ([preserve-whole-object.md](refactoring-apis/preserve-whole-object.md)), depois nas assinaturas
-- Prefira uma classe (ou record) que possa ganhar comportamento depois, não um simples recipiente de dados ou tupla
+- Além do livro: prefira uma classe (ou record) que possa ganhar comportamento depois, não um simples depósito de dados ou tupla
 - Ainda vale extrair quando um chamador precisa de apenas parte do novo objeto, desde que o objeto absorva dois ou mais dos campos ou argumentos desse chamador
 
 ## Obsessão por Primitivos (Primitive Obsession, p. 78)
@@ -147,7 +147,7 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Substituir Superclasse por Delegação (Replace Superclass with Delegate) ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)) ou Substituir Subclasse por Delegação (Replace Subclass with Delegate) ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)), quando o intermediário também tem comportamento próprio, para transformá-lo no colaborador de verdade
 
 ## Troca de Informações Privilegiadas (Insider Trading, p. 82)
-**Sintomas:** módulos que trocam dados livremente demais; subclasses que sabem demais sobre os pais.
+**Sintomas:** módulos que trocam dados livremente demais; subclasses que sabem demais sobre as superclasses.
 **Tente:**
 - Mover Função ([move-function.md](moving-features/move-function.md)) e Mover Campo ([move-field.md](moving-features/move-field.md)), para reduzir a conversa
 - Ocultar Delegação ([hide-delegate.md](encapsulation/hide-delegate.md)), para usar um intermediário
@@ -175,11 +175,12 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Remover Método de Escrita ([remove-setting-method.md](refactoring-apis/remove-setting-method.md)), para campos que não devem mudar
 - Mover Função ([move-function.md](moving-features/move-function.md)), para trazer o comportamento dos clientes para dentro da classe
 - Extrair Função ([extract-function.md](first-set/extract-function.md)), para isolar primeiro um trecho movível
+- Dividir em Fases ([split-phase.md](first-set/split-phase.md)), citada para este smell na tabela do livro, mas o capítulo trata o record de resultado de um Dividir em Fases como exceção a ele, então não é um remédio para uma classe de dados comum
 
 ## Herança Recusada (Refused Bequest, p. 83)
-**Sintomas:** uma subclasse usa pouco do que herda. Costuma ser um smell fraco; forte quando a subclasse recusa a interface do pai e não só a implementação.
+**Sintomas:** uma subclasse usa pouco do que herda. Costuma ser um smell fraco; forte quando a subclasse recusa a interface da superclasse e não só a implementação.
 **Tente:**
-- Descer Método (Push Down Method) ([push-down-method.md](inheritance/push-down-method.md)) e Descer Campo (Push Down Field) ([push-down-field.md](inheritance/push-down-field.md)), movendo os membros não usados para uma nova irmã (o conselho tradicional; só vale a pena quando causa confusão real)
+- Descer Método (Push Down Method) ([push-down-method.md](inheritance/push-down-method.md)) e Descer Campo (Push Down Field) ([push-down-field.md](inheritance/push-down-field.md)), movendo os membros não usados para uma nova classe irmã (o conselho tradicional; só vale a pena quando causa confusão real)
 - Substituir Subclasse por Delegação ([replace-subclass-with-delegate.md](inheritance/replace-subclass-with-delegate.md)) ou Substituir Superclasse por Delegação ([replace-superclass-with-delegate.md](inheritance/replace-superclass-with-delegate.md)), quando a interface é recusada
 
 ## Comentários (Comments, p. 84)

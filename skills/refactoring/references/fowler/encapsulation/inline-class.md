@@ -1,6 +1,6 @@
 # Internalizar Classe (Inline Class)
 
-Fowler (2018), cap. 7, p. 186. Antes / também: —. Inversa: Extrair Classe (Extract Class)
+Fowler (2018), cap. 7, p. 186. Nome anterior / outro nome: —. Inversa: Extrair Classe (Extract Class)
 ([extract-class.md](extract-class.md)).
 
 ## Quando usar

@@ -1,6 +1,6 @@
 # Combinar Funções em Classe (Combine Functions into Class)
 
-Fowler (2018), cap. 6, p. 144. Antes / também: —. Inversa: —. Alternativa:
+Fowler (2018), cap. 6, p. 144. Nome anterior / outro nome: —. Inversa: —. Alternativa:
 Combinar Funções em Transformação (Combine Functions into Transform) ([combine-functions-into-transform.md](combine-functions-into-transform.md)).
 
 ## Quando usar
@@ -9,7 +9,7 @@ Smells: Lista Longa de Parâmetros (Long Parameter List), Dados Mutáveis (Mutab
 - Várias funções recebem o mesmo registro (ou os mesmos poucos valores) e calculam coisas
   a partir dele. Uma classe torna explícito esse ambiente compartilhado e permite que as chamadas dispensem
   os argumentos repetidos.
-- O mesmo valor derivado é calculado inline em vários clientes, ou existe um auxiliar mas
+- O mesmo valor derivado é calculado diretamente em vários clientes, ou existe um auxiliar mas
   ninguém o encontra porque é uma função livre longe dos dados.
 - Os dados de origem podem mudar depois de lidos. Os métodos calculam valores derivados sob demanda,
   então permanecem consistentes com os dados. Uma transformação que copia valores derivados para um novo
@@ -21,7 +21,7 @@ Não use para uma única função (basta movê-la) nem quando as funções não 
 
 ## Mecânica
 1. Garanta que os dados compartilhados sejam uma única estrutura. Se for um registro solto, dicionário ou tupla,
-   embrulhe-o em uma classe ([encapsulate-record.md](../encapsulation/encapsulate-record.md)). Se for apenas um grupo de argumentos
+   envolva-o em uma classe ([encapsulate-record.md](../encapsulation/encapsulate-record.md)). Se for apenas um grupo de argumentos
    separados, agrupe-os primeiro ([introduce-parameter-object.md](introduce-parameter-object.md)).
 2. Crie a nova instância onde os dados são obtidos pela primeira vez, para que os clientes guardem o objeto
    em vez dos dados brutos.
@@ -29,7 +29,7 @@ Não use para uma única função (basta movê-la) nem quando as funções não 
    agora são membros da classe somem da assinatura. Atualize os chamadores e teste.
 4. Renomeie cada função movida se o nome dela repetia o tipo dos dados ou fica ruim como
    método ou propriedade.
-5. Substitua cada cálculo inline duplicado nos clientes por uma chamada ao novo método.
+5. Substitua cada cálculo duplicado, escrito diretamente nos clientes, por uma chamada ao novo método.
 6. Procure lógica nos clientes que trabalhe sobre os dados. Extraia-a
    ([extract-function.md](extract-function.md)) e mova-a também para a classe. Teste após cada uma.
 
@@ -57,9 +57,9 @@ public static class CartPricing
         Subtotal(cart) * (1 - MemberDiscountRate(cart.IsMember));
 }
 
-// clients
+// clientes
 // var data = LoadCart();
-// decimal subtotal = data.Quantity * data.UnitPrice;         // duplicated formula
+// decimal subtotal = data.Quantity * data.UnitPrice;         // fórmula duplicada
 // decimal payable = CartPricing.Payable(data);
 ```
 
@@ -84,7 +84,7 @@ public class Cart
     public decimal Payable => Subtotal * (1 - MemberDiscountRate);
 }
 
-// clients
+// clientes
 // var cart = new Cart(LoadCart());
 // decimal subtotal = cart.Subtotal;
 // decimal payable = cart.Payable;

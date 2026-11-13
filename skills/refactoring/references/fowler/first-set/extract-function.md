@@ -1,6 +1,6 @@
 # Extrair Função (Extract Function)
 
-Fowler (2018), cap. 6, p. 106. Antes / também: Extract Method. Inversa: Internalizar Função (Inline Function)
+Fowler (2018), cap. 6, p. 106. Nome anterior / outro nome: Extract Method. Inversa: Internalizar Função (Inline Function)
 ([inline-function.md](inline-function.md)).
 
 ## Quando usar
@@ -22,7 +22,7 @@ Recursos (Feature Envy), Cadeias de Mensagens (Message Chains), Classe de Dados 
 - Classe de Dados: os chamadores manipulam os campos de um registro. Extraia esse comportamento e depois mova-o para
   a classe.
 - O tamanho não é o critério. Uma única linha merece a própria função quando o nome diz mais que
-  o código. Quando o melhor nome que você encontra só repete o código, deixe-o inline.
+  o código. Quando o melhor nome que você encontra só repete o código, deixe o código como está.
 - Não evite a extração por medo do custo da chamada. Meça primeiro.
 
 ## Mecânica
@@ -43,7 +43,7 @@ Recursos (Feature Envy), Cadeias de Mensagens (Message Chains), Classe de Dados 
      função devolvê-la, como uma consulta.
    - Vários valores escritos: não extraia ainda. Simplifique primeiro com Dividir Variável (Split Variable)
      ([split-variable.md](../organizing-data/split-variable.md)) ou Substituir Variável Temporária por Consulta (Replace Temp with Query) ([replace-temp-with-query.md](../encapsulation/replace-temp-with-query.md)),
-     ou escolha outro trecho. Como último recurso, devolva uma tupla ou um record pequeno.
+     ou escolha outro trecho.
    - Um parâmetro que o trecho reatribui: aplique Dividir Variável primeiro, para que ele vire uma
      temporária.
 4. Compile. Isso revela qualquer variável que você tenha deixado passar.
@@ -52,8 +52,8 @@ Recursos (Feature Envy), Cadeias de Mensagens (Message Chains), Classe de Dados 
 6. Execute os testes.
 7. Procure o mesmo código, ou um parecido, em outros lugares e substitua-o por uma chamada
    ([replace-inline-code-with-function-call.md](../moving-features/replace-inline-code-with-function-call.md)).
-8. Ajuste final opcional: com a chamada em contexto, confira o nome de novo e arrume os nomes
-   locais da função extraída.
+
+**Além do livro:** se nenhum outro trecho servir, uma tupla ou um record pequeno pode devolver vários valores escritos. Depois que a chamada estiver no lugar, confira o nome novo em contexto e arrume os nomes locais da função extraída.
 
 ## Exemplo
 

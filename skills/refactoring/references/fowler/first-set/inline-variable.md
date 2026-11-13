@@ -1,6 +1,6 @@
 # Internalizar Variável (Inline Variable)
 
-Fowler (2018), cap. 6, p. 123. Antes / também: Inline Temp. Inversa: Extrair Variável (Extract Variable)
+Fowler (2018), cap. 6, p. 123. Nome anterior / outro nome: Inline Temp. Inversa: Extrair Variável (Extract Variable)
 ([extract-variable.md](extract-variable.md)).
 
 ## Quando usar

@@ -1,6 +1,6 @@
 # Encapsular Registro (Encapsulate Record)
 
-Fowler (2018), cap. 7, p. 162. Antes / também: Replace Record with Data Class.
+Fowler (2018), cap. 7, p. 162. Nome anterior / outro nome: Replace Record with Data Class.
 Inversa: —.
 
 ## Quando usar
@@ -38,7 +38,7 @@ Desnecessário para um valor imutável usado em um escopo pequeno: ali, adiciona
      (ou uma cópia congelada): um teste falha se algum código ainda atualizar o original.
 5. Quando nenhum chamador os usar mais, apague o acessor bruto e as funções fáceis de buscar.
    Compile e teste.
-6. Opcionalmente, incorpore o registro encapsulado em campos individuais da classe. Isso quebra o
+6. Opcionalmente, desmembre o registro encapsulado em campos individuais da classe. Isso quebra o
    vínculo com os dados de entrada, de modo que uma referência perdida em outro lugar não possa contornar a classe. Se você
    mantiver o registro dentro, copie-o ao atribuí-lo.
 7. Se um campo for ele mesmo uma estrutura, aplique Encapsular Registro ou Encapsular Coleção (Encapsulate Collection)
@@ -73,7 +73,7 @@ public static class ProfileForm
 }
 ```
 
-Estado intermediário (passos 1 a 3): classe invólucro, acessor bruto e acessor de objeto. O passo 1 também
+Estado intermediário (passos 1 a 3): classe invólucro (wrapper), acessor bruto e acessor de objeto. O passo 1 também
 faz `InvoiceHeader` e `ProfileForm` chamarem o acessor bruto.
 
 ```csharp

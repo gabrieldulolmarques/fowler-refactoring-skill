@@ -1,6 +1,6 @@
 # Introduzir Objeto de Parâmetros (Introduce Parameter Object)
 
-Fowler (2018), cap. 6, p. 140. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 6, p. 140. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Agrupamentos de Dados (Data Clumps), Lista Longa de Parâmetros (Long Parameter List), Função Longa (Long Function), Obsessão por Primitivos (Primitive Obsession).
@@ -20,7 +20,7 @@ Smells: Agrupamentos de Dados (Data Clumps), Lista Longa de Parâmetros (Long Pa
    torne-o imutável com igualdade por valor (um objeto de valor).
 2. Execute os testes.
 3. Use Mudar Declaração de Função (Change Function Declaration) ([change-function-declaration.md](change-function-declaration.md)) para adicionar à função um parâmetro do
-   novo tipo. Onde a linguagem exigir um valor, passe `null` ou um padrão nos
+   novo tipo. Onde a linguagem exigir um valor, passe `null` ou um valor padrão nos
    chamadores por enquanto.
 4. Execute os testes.
 5. Atualize cada chamador para construir e passar a instância certa. Execute os testes após cada chamador.

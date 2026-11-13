@@ -1,6 +1,6 @@
 # Substituir Variável Temporária por Consulta (Replace Temp with Query)
 
-Fowler (2018), cap. 7, p. 178. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 7, p. 178. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Função Longa (Long Function).
@@ -11,12 +11,7 @@ Smells: Função Longa (Long Function).
   viram consultas, os trechos podem ser extraídos livremente.
 - O mesmo valor é calculado da mesma forma em vários métodos de uma classe.
 
-Não use quando:
-- A variável é um instantâneo de um valor que muda depois (um "valor antigo" mantido de propósito). A
-  consulta retornaria um resultado diferente no ponto de uso.
-- A variável é atribuída de um jeito que não pode ser reunido em um único cálculo.
-- O código está fora de uma classe e a consulta precisaria de muitos parâmetros; o ganho desaparece.
-- O cálculo é caro e usado muitas vezes em um caminho crítico; meça primeiro ou mantenha a temporária.
+**Além do livro:** não use quando a variável é um instantâneo de um valor que muda depois (um "valor antigo" mantido de propósito), já que a consulta retornaria um resultado diferente no ponto de uso; quando a variável é atribuída de um jeito que não pode ser reunido em um único cálculo; ou quando o código está fora de uma classe e a consulta precisaria de muitos parâmetros. Se o cálculo é caro e usado muitas vezes em um caminho crítico, meça primeiro ou mantenha a temporária.
 
 ## Mecânica
 1. Garanta que o valor esteja definido antes da primeira leitura e que não possa ser diferente em uma leitura posterior

@@ -1,6 +1,6 @@
 # Deslocar Instruções (Slide Statements)
 
-Fowler (2018), cap. 8, p. 223. Antes / também: Consolidate Duplicate Conditional Fragments. Inversa: —.
+Fowler (2018), cap. 8, p. 223. Nome anterior / outro nome: Consolidate Duplicate Conditional Fragments. Inversa: —.
 
 ## Quando usar
 Smells: Código Duplicado (Duplicated Code), Dados Mutáveis (Mutable Data) (e como passo dentro de Função Longa (Long Function)).
@@ -9,7 +9,7 @@ Smells: Código Duplicado (Duplicated Code), Dados Mutáveis (Mutable Data) (e c
 - Você quer extrair um grupo de linhas, mas elas estão intercaladas com outro código. Deslocá-las para junto antes torna a extração possível.
 - As mesmas instruções aparecem no início ou no fim de todos os ramos de uma condicional.
 
-Não vale a pena se o deslocamento não puder ser feito com segurança em passos pequenos: faça outra preparação antes (por exemplo, Dividir Variável (Split Variable) em uma variável reutilizada) e volte.
+**Além do livro:** não vale a pena se o deslocamento não puder ser feito com segurança em passos pequenos: faça outra preparação antes (por exemplo, Dividir Variável (Split Variable) em uma variável reutilizada) e volte.
 
 ## Mecânica
 1. Escolha a posição de destino para o fragmento (a instrução ou o bloco que você vai mover).

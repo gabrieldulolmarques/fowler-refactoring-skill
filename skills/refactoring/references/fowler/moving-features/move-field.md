@@ -1,6 +1,6 @@
 # Mover Campo (Move Field)
 
-Fowler (2018), cap. 8, p. 207. Antes / também: —. Inversa: —.
+Fowler (2018), cap. 8, p. 207. Nome anterior / outro nome: —. Inversa: —.
 
 ## Quando usar
 Smells: Cirurgia com Espingarda (Shotgun Surgery), Troca de Informações Privilegiadas (Insider Trading).
@@ -75,7 +75,7 @@ public class DeliveryPlan
 Passo 1, encapsule o campo. O construtor agora passa pelo setter:
 
 ```csharp
-// fragment
+// trecho
 public Shipment(string trackingCode, int maxAttempts)
 {
     TrackingCode = trackingCode;
@@ -111,7 +111,7 @@ public class DeliveryPlan
 Passo 4, primeira tentativa: redirecione os acessores enquanto o construtor ainda está na ordem antiga.
 
 ```csharp
-// fragment
+// trecho
 public int MaxAttempts => _plan.MaxAttempts;
 private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
 // o construtor chama SetMaxAttempts antes de _plan ser atribuído:
@@ -121,7 +121,7 @@ private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
 Reverta os acessores e reordene o construtor para que `_plan` exista antes de o setter rodar. Teste:
 
 ```csharp
-// fragment
+// trecho
 public Shipment(string trackingCode, int maxAttempts)
 {
     TrackingCode = trackingCode;
@@ -133,17 +133,17 @@ public Shipment(string trackingCode, int maxAttempts)
 Redirecione os acessores de novo. Teste:
 
 ```csharp
-// fragment
+// trecho
 public int MaxAttempts => _plan.MaxAttempts;
 private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
 ```
 
 Passo 5: apague `_maxAttempts`. Teste.
 
-Limpeza opcional, como passo separado: o construtor pode entregar o limite inicial diretamente a `DeliveryPlan`, e o padrão temporário do novo parâmetro some. `SetMaxAttempts` continua para `Escalate`:
+Limpeza opcional, como passo separado: o construtor pode entregar o limite inicial diretamente a `DeliveryPlan`, e o valor padrão temporário do novo parâmetro some. `SetMaxAttempts` continua para `Escalate`:
 
 ```csharp
-// fragment
+// trecho
 public Shipment(string trackingCode, int maxAttempts)
 {
     TrackingCode = trackingCode;
