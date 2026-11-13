@@ -20,7 +20,7 @@ agents/
 └── refactoring-implementer.md # applies one refactoring, testing after each step
 skills/refactoring/
 ├── SKILL.md # flow smell → refactoring → file, smell index, tables of the 66 + 27
-└── references/ # smells.md, discipline.md and one <slug>.md per refactoring, in fowler/ and kerievsky/, a folder per chapter
+└── references/ # fowler/ and kerievsky/, each with its smells.md, discipline.md and a folder per chapter
 ```
 
 Only the skill's description stays in the agent's context. The body loads when the skill is

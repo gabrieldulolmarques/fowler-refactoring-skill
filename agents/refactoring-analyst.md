@@ -10,7 +10,7 @@ change nothing.
 
 - Read the code in scope, and its callers when a smell depends on how the code is used.
 - Name each smell with the `refactoring` skill: the quick index in `SKILL.md`, and
-  `references/smells.md` when unsure. If the skill is not loaded, find it with
+  the two `smells.md` files (`references/fowler/`, `references/kerievsky/`) when unsure. If the skill is not loaded, find it with
   `**/refactoring/SKILL.md`.
 - Keep a finding only if you can point at the lines. Skip code nobody needs to change,
   unless the call asks for a full sweep.

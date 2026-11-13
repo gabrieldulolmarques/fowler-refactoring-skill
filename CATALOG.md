@@ -27,10 +27,11 @@ descriptions.
 | File | Source | Content |
 |---|---|---|
 | `SKILL.md` | this spec | the flow smell → refactoring → file, a smell quick index and a table of the 66 refactorings (name, when, file), grouped by chapter (section 4.1) |
-| `references/smells.md` | ch. 3; Kerievsky ch. 4 | the 29 smells, symptoms and suggested refactorings (sections 3 and 5.2) |
-| `references/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
+| `references/fowler/smells.md` | ch. 3 | the 24 smells, symptoms and suggested refactorings (section 3) |
+| `references/fowler/discipline.md` | ch. 2 and 4 | tests first, small steps, commit after each green refactoring |
 | `references/fowler/<chapter>/<slug>.md` (66 files) | ch. 6–12, or the web edition for the web-only ones | one refactoring each: when to use, mechanics, C# example, verification (section 4.2) |
 | `references/kerievsky/<chapter>/<slug>.md` (27 files) | Kerievsky ch. 6–11 | one refactoring to a pattern each, same format plus pattern and direction (section 5) |
+| `references/kerievsky/smells.md` | Kerievsky ch. 4 | the 12 smells and the refactorings to patterns they point to (section 5.2) |
 
 The slug is the refactoring's name in kebab-case. Example: Extract Function →
 `references/fowler/first-set/extract-function.md`. The files are grouped by book (`fowler/`, `kerievsky/`) and then in one folder per chapter. Fowler's:
@@ -44,16 +45,17 @@ skills/
 └── refactoring/
     ├── SKILL.md
     └── references/
-        ├── smells.md
-        ├── discipline.md
-        ├── fowler/ # 7 chapter folders, 66 files
+        ├── fowler/
+        │   ├── smells.md
+        │   ├── discipline.md
         │   ├── first-set/
         │   │   ├── extract-function.md
         │   │   └── ...
-        │   └── ...
-        └── kerievsky/ # 6 chapter folders, 27 files
+        │   └── ... # 7 chapter folders, 66 files
+        └── kerievsky/
+            ├── smells.md
             ├── creation/
-            └── ...
+            └── ... # 6 chapter folders, 27 files
 ```
 
 ---
@@ -172,7 +174,7 @@ only generic C# points. Where it says "—", the file has no C# notes section.
 
 ---
 
-## 3. `references/smells.md`: the 24 smells and where they lead
+## 3. `references/fowler/smells.md`: the 24 smells and where they lead
 
 Summary of ch. 3: the index the agent checks before picking a refactoring. Each refactoring
 named here is the file `references/fowler/<chapter>/<slug>.md`.
@@ -268,7 +270,7 @@ refactoring, the citation line says "web edition only" and links the refactoring
 | When to use, mechanics | the book (its web edition for the web-only ones) | **paraphrase**, with chapter and page; nothing copied |
 | Example | written for this package in C# | neutral domain (orders, customers, invoices, accounts); not the book's example or domain |
 | C# notes | section 2, "C# note" column | only where there is something to say |
-| Verification | ch. 4 + `references/discipline.md` | the same in every file |
+| Verification | ch. 4 + `references/fowler/discipline.md` | the same in every file |
 | Source line | this spec (4.1) | once, at the end of `SKILL.md`; credits the author and the publisher |
 
 Nothing in the skill names a specific project, framework, engine or team process.
@@ -357,8 +359,9 @@ Object, which subsumes it) and Introduce Null Object (Introduce Special Case, it
 
 ### 5.2 The 12 smells
 
-From ch. 4 and the inside back cover. Seven match a Fowler smell and are listed under it in
-`smells.md`; five are new and listed at the end.
+From ch. 4 and the inside back cover, in `references/kerievsky/smells.md`. The "Fowler's smell"
+column is the bridge that the quick index in `SKILL.md` uses; the two `smells.md` files do not
+refer to each other.
 
 | Smell | Page | Fowler's smell | Refactorings |
 |---|---|---|---|

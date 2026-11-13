@@ -6,7 +6,7 @@ Fowler (2018), ch. 8, p. 222. Formerly / aka: —. Inverse: —.
 - Inline code does the same job as a function that already exists in the codebase or in the
   standard library (a manual loop that searches, sums, joins or tests membership).
 - The same logic is copied in several places and one copy already lives in a named function.
-- Duplication is the usual symptom (see Duplicated Code in [smells.md](../../smells.md)).
+- Duplication is the usual symptom (see Duplicated Code in [smells.md](../smells.md)).
 
 Before replacing, read the function name in place of the inline code. If the name reads
 naturally there, replace it. If it does not, either the name is poor (fix it with
