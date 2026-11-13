@@ -101,6 +101,10 @@ public class Notifier
         _queue.Add(recipient + ": " + line);
     }
 }
+
+// callers
+// notifier.SendNow("ada@example.com", "Your code is 4821");
+// notifier.Enqueue("ada@example.com", "Weekly digest");
 ```
 
 ## Verificação
