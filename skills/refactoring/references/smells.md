@@ -1,6 +1,6 @@
-# Os 24 code smells
+# Os 29 code smells
 
-Fowler (2018), cap. 3, pp. 71-84 (a página de cada smell está no título). Os sintomas são parafraseados; as listas de refatorações seguem o texto do capítulo. Cada refatoração tem link para o seu arquivo nesta pasta (`<slug>.md`).
+Fowler (2018), cap. 3, pp. 71-84, traz 24 smells (a página de cada smell está no título). Kerievsky (2004), cap. 4, pp. 39-45, traz 12: sete correspondem a um smell de Fowler e aparecem nele, com as refatorações para padrões que acrescentam; os outros cinco estão no fim deste arquivo. Os sintomas são parafraseados; as listas de refatorações seguem o texto do capítulo. Cada refatoração tem link para o seu arquivo nesta pasta (`<slug>.md`).
 
 Um smell é uma pista, não um veredito. Decida lendo o código; nenhuma métrica substitui o julgamento.
 
@@ -20,6 +20,15 @@ Um smell é uma pista, não um veredito. Decida lendo o código; nenhuma métric
 - Deslocar Instruções (Slide Statements) ([slide-statements.md](moving-features/slide-statements.md)), para agrupar fragmentos parecidos, mas não idênticos, antes de extrair
 - Subir Método (Pull Up Method) ([pull-up-method.md](inheritance/pull-up-method.md)), para cópias em subclasses irmãs
 
+**Kerievsky (2004), p. 39, acrescenta:**
+- Formar Template Method (Form Template Method) ([form-template-method.md](generalization/form-template-method.md)), para métodos parecidos em subclasses irmãs
+- Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method) ([introduce-polymorphic-creation-with-factory-method.md](creation/introduce-polymorphic-creation-with-factory-method.md)), quando esses métodos diferem só no objeto que criam
+- Encadear Construtores (Chain Constructors) ([chain-constructors.md](utilities/chain-constructors.md)), para código duplicado entre os construtores de uma classe
+- Substituir Distinções Um/Muitos por Composite (Replace One/Many Distinctions with Composite) ([replace-one-many-distinctions-with-composite.md](generalization/replace-one-many-distinctions-with-composite.md)), para trechos separados que tratam um objeto e uma coleção deles
+- Extrair Composite (Extract Composite) ([extract-composite.md](generalization/extract-composite.md)), para a mesma lógica de Composite em várias classes de uma hierarquia
+- Unificar Interfaces com Adapter (Unify Interfaces with Adapter) ([unify-interfaces-with-adapter.md](generalization/unify-interfaces-with-adapter.md)), quando objetos são tratados de forma diferente só porque suas interfaces diferem
+- Introduzir Null Object (Introduce Null Object) ([introduce-null-object.md](protection/introduce-null-object.md)), para a mesma verificação de nulo, com a mesma alternativa, repetida pelo código
+
 ## Função Longa (Long Function, p. 73)
 **Sintomas:** uma função em que você precisa rolar a tela; blocos que precisam de um comentário para dizer o que fazem; muitas variáveis temporárias e parâmetros; laços ou condicionais que fazem vários trabalhos.
 **Tente:**
@@ -32,6 +41,13 @@ Um smell é uma pista, não um veredito. Decida lendo o código; nenhuma métric
 - Decompor Condicional (Decompose Conditional) ([decompose-conditional.md](conditional-logic/decompose-conditional.md)), para condicionais grandes
 - Substituir Condicional por Polimorfismo (Replace Conditional with Polymorphism) ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md)), para o mesmo switch repetido
 - Dividir Laço (Split Loop) ([split-loop.md](moving-features/split-loop.md)), quando um laço faz duas coisas e o pedaço extraído não tem um bom nome
+
+**Kerievsky (2004), p. 40, como Método Longo (Long Method), acrescenta:**
+- Compor Método (Compose Method) ([compose-method.md](simplification/compose-method.md)), para transformar o método em poucas chamadas no mesmo nível de detalhe
+- Mover Acumulação para Collecting Parameter (Move Accumulation to Collecting Parameter) ([move-accumulation-to-collecting-parameter.md](accumulation/move-accumulation-to-collecting-parameter.md)), quando o método monta um resultado pedaço por pedaço
+- Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command) ([replace-conditional-dispatcher-with-command.md](simplification/replace-conditional-dispatcher-with-command.md)), quando o método é um grande despachante sobre o nome de um pedido
+- Mover Acumulação para Visitor (Move Accumulation to Visitor) ([move-accumulation-to-visitor.md](accumulation/move-accumulation-to-visitor.md)), quando um switch junta dados de classes com interfaces diferentes
+- Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy) ([replace-conditional-logic-with-strategy.md](simplification/replace-conditional-logic-with-strategy.md)), quando o método contém várias variantes de um algoritmo e escolhe uma em tempo de execução
 
 ## Lista Longa de Parâmetros (Long Parameter List, p. 74)
 **Sintomas:** uma assinatura difícil de ler ou de chamar corretamente.
@@ -100,10 +116,23 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Substituir Código de Tipo por Subclasses (Replace Type Code with Subclasses) ([replace-type-code-with-subclasses.md](inheritance/replace-type-code-with-subclasses.md)), depois Substituir Condicional por Polimorfismo ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md)), quando o primitivo é um código de tipo que dirige condicionais
 - Extrair Classe ([extract-class.md](encapsulation/extract-class.md)) e Introduzir Objeto de Parâmetros ([introduce-parameter-object.md](first-set/introduce-parameter-object.md)), para primitivos que viajam em grupos
 
+**Kerievsky (2004), p. 41, acrescenta:**
+- Substituir Código de Tipo por Classe (Replace Type Code with Class) ([replace-type-code-with-class.md](protection/replace-type-code-with-class.md)), quando um código de tipo primitivo comanda a lógica e aceita valores inválidos
+- Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State) ([replace-state-altering-conditionals-with-state.md](simplification/replace-state-altering-conditionals-with-state.md)), quando campos primitivos e condicionais controlam as transições de estado
+- Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy) ([replace-conditional-logic-with-strategy.md](simplification/replace-conditional-logic-with-strategy.md)), quando primitivos escolhem qual algoritmo executar
+- Substituir Árvore Implícita por Composite (Replace Implicit Tree with Composite) ([replace-implicit-tree-with-composite.md](simplification/replace-implicit-tree-with-composite.md)), quando uma árvore é montada implicitamente em strings ou outros primitivos
+- Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter) ([replace-implicit-language-with-interpreter.md](generalization/replace-implicit-language-with-interpreter.md)), quando existem muitos métodos para combinações de valores primitivos
+- Mover Embelezamento para Decorator (Move Embellishment to Decorator) ([move-embellishment-to-decorator.md](simplification/move-embellishment-to-decorator.md)), quando primitivos existem só para ligar e desligar embelezamentos
+- Encapsular Composite com Builder (Encapsulate Composite with Builder) ([encapsulate-composite-with-builder.md](creation/encapsulate-composite-with-builder.md)), quando montar um Composite é complicado demais para os clientes
+
 ## Switches Repetidos (Repeated Switches, p. 79)
 **Sintomas:** o mesmo switch ou cascata de if/else sobre a mesma condição aparece em vários lugares, então cada novo caso exige uma caçada.
 **Tente:**
 - Substituir Condicional por Polimorfismo ([replace-conditional-with-polymorphism.md](conditional-logic/replace-conditional-with-polymorphism.md))
+
+**Kerievsky (2004), p. 44, como Comandos Switch (Switch Statements), acrescenta:**
+- Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command) ([replace-conditional-dispatcher-with-command.md](simplification/replace-conditional-dispatcher-with-command.md)), para quebrar um switch grande em objetos Command buscados por chave
+- Mover Acumulação para Visitor (Move Accumulation to Visitor) ([move-accumulation-to-visitor.md](accumulation/move-accumulation-to-visitor.md)), quando um switch existe só para ler dados de classes com interfaces diferentes
 
 ## Laços (Loops, p. 79)
 **Sintomas:** laços em que um pipeline de filtro/mapeamento mostraria o que é selecionado e o que é feito com isso.
@@ -116,6 +145,9 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Internalizar Função ([inline-function.md](first-set/inline-function.md))
 - Internalizar Classe ([inline-class.md](encapsulation/inline-class.md))
 - Colapsar Hierarquia (Collapse Hierarchy) ([collapse-hierarchy.md](inheritance/collapse-hierarchy.md))
+
+**Kerievsky (2004), p. 43, como Classe Preguiçosa (Lazy Class), acrescenta:**
+- Internalizar Singleton (Inline Singleton) ([inline-singleton.md](creation/inline-singleton.md)), para um Singleton que não compensa o acesso global que acrescenta
 
 ## Generalidade Especulativa (Speculative Generality, p. 80)
 **Sintomas:** ganchos, abstrações e parâmetros adicionados para necessidades que nunca vieram; às vezes só os testes os usam.
@@ -161,12 +193,20 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Extrair Superclasse (Extract Superclass) ([extract-superclass.md](inheritance/extract-superclass.md)), quando o componente faz sentido como herança
 - Substituir Código de Tipo por Subclasses ([replace-type-code-with-subclasses.md](inheritance/replace-type-code-with-subclasses.md)), que na prática é extrair uma subclasse
 
+**Kerievsky (2004), p. 44, acrescenta:**
+- Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command) ([replace-conditional-dispatcher-with-command.md](simplification/replace-conditional-dispatcher-with-command.md)), quando boa parte da classe é lógica de despacho
+- Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State) ([replace-state-altering-conditionals-with-state.md](simplification/replace-state-altering-conditionals-with-state.md)), quando boa parte da classe é lógica de transição de estado
+- Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter) ([replace-implicit-language-with-interpreter.md](generalization/replace-implicit-language-with-interpreter.md)), quando a classe tem um método para cada combinação de uma linguagem implícita
+
 ## Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces, p. 83)
 **Sintomas:** duas classes fazem o mesmo trabalho, mas não podem ser trocadas porque os nomes e assinaturas dos métodos diferem.
 **Tente:**
 - Mudar Declaração de Função ([change-function-declaration.md](first-set/change-function-declaration.md)), para fazer as assinaturas coincidirem
 - Mover Função ([move-function.md](moving-features/move-function.md)), até que os protocolos coincidam
 - Extrair Superclasse ([extract-superclass.md](inheritance/extract-superclass.md)), se o alinhamento deixar duplicação
+
+**Kerievsky (2004), p. 43, acrescenta:**
+- Unificar Interfaces com Adapter (Unify Interfaces with Adapter) ([unify-interfaces-with-adapter.md](generalization/unify-interfaces-with-adapter.md)), quando não dá para alterar uma das classes (código de terceiros)
 
 ## Classe de Dados (Data Class, p. 83)
 **Sintomas:** uma classe com campos e acessores e nada mais, manipulada em detalhe por outras (muitas vezes com campos públicos). Exceção: um record de resultado imutável, como o que fica entre duas fases após um Dividir em Fases.
@@ -188,3 +228,39 @@ O escopo determina a gravidade: uma variável alterada dentro de duas linhas é 
 - Extrair Função ([extract-function.md](first-set/extract-function.md)), quando um comentário explica um bloco
 - Mudar Declaração de Função ([change-function-declaration.md](first-set/change-function-declaration.md)), para renomear uma função que ainda precisa de um comentário
 - Introduzir Asserção (Introduce Assertion) ([introduce-assertion.md](conditional-logic/introduce-assertion.md)), para declarar uma regra sobre o estado necessário
+
+---
+
+# Smells de Kerievsky (2004)
+
+Cap. 4. Cada um aponta principalmente para uma refatoração para padrão.
+
+## Complexidade Condicional (Conditional Complexity, p. 41)
+**Sintomas:** lógica condicional que começou pequena e cresceu a cada funcionalidade até ficar difícil de acompanhar.
+**Tente:**
+- Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy) ([replace-conditional-logic-with-strategy.md](simplification/replace-conditional-logic-with-strategy.md)), quando as condicionais escolhem uma de várias variantes de um cálculo
+- Mover Embelezamento para Decorator (Move Embellishment to Decorator) ([move-embellishment-to-decorator.md](simplification/move-embellishment-to-decorator.md)), quando ligam comportamento opcional por cima do trabalho principal da classe
+- Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State) ([replace-state-altering-conditionals-with-state.md](simplification/replace-state-altering-conditionals-with-state.md)), quando decidem como o objeto passa de um estado para outro
+- Introduzir Null Object (Introduce Null Object) ([introduce-null-object.md](protection/introduce-null-object.md)), quando a mesma verificação de nulo, com a mesma alternativa, se repete pelo código
+
+## Exposição Indecente (Indecent Exposure, p. 42)
+**Sintomas:** classes ou métodos de que os clientes não precisam são públicos, então os clientes dependem de detalhes (falta de ocultação de informação).
+**Tente:**
+- Encapsular Classes com Factory (Encapsulate Classes with Factory) ([encapsulate-classes-with-factory.md](creation/encapsulate-classes-with-factory.md)), quando os clientes deveriam chegar a um conjunto de classes só pela interface comum delas
+
+## Solução Espalhada (Solution Sprawl, p. 43)
+**Sintomas:** o código e os dados de uma responsabilidade estão espalhados por muitas classes, em geral depois de uma funcionalidade acrescentada às pressas. É o mesmo problema da Cirurgia com Espingarda (Shotgun Surgery), percebido ao ler o código em vez de ao alterá-lo.
+**Tente:**
+- Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory) ([move-creation-knowledge-to-factory.md](creation/move-creation-knowledge-to-factory.md)), quando a responsabilidade espalhada é a criação de objetos
+- As refatorações de Cirurgia com Espingarda acima, para outras responsabilidades
+
+## Explosão Combinatória (Combinatorial Explosion, p. 45)
+**Sintomas:** muitos trechos fazem a mesma coisa com tipos ou quantidades diferentes de dados, como um método de consulta para cada combinação de critérios.
+**Tente:**
+- Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter) ([replace-implicit-language-with-interpreter.md](generalization/replace-implicit-language-with-interpreter.md)), para trocar os métodos por uma pequena linguagem que combina os critérios
+
+## Solução Destoante (Oddball Solution, p. 45)
+**Sintomas:** o mesmo problema é resolvido de um jeito na maior parte do sistema e de outro em algum lugar; em geral, duplicação escondida.
+**Tente:**
+- Substituir Algoritmo ([substitute-algorithm.md](encapsulation/substitute-algorithm.md)), para que todos os lugares usem a solução preferida e, depois, movê-la para um só lugar
+- Unificar Interfaces com Adapter (Unify Interfaces with Adapter) ([unify-interfaces-with-adapter.md](generalization/unify-interfaces-with-adapter.md)), quando as classes envolvidas têm interfaces diferentes e por isso não podem ser usadas do mesmo jeito

@@ -1,10 +1,10 @@
 {
   "name": "refactoring",
-  "version": "0.3.0",
-  "description": "O catálogo de refatorações de Fowler (Refactoring, 2ª ed.) como uma Agent Skill: os 24 code smells e as 66 refatorações, cada uma com mecânica e um exemplo em C#, mais dois subagentes: um encontra smells e planeja, o outro aplica uma refatoração.",
+  "version": "0.4.0",
+  "description": "Dois catálogos de refatoração como uma Agent Skill: o Refactoring de Fowler (2ª ed.) e o Refactoring to Patterns de Kerievsky. 29 code smells, 66 refatorações e 27 refatorações para padrões, cada uma com mecânica e um exemplo em C#, mais dois subagentes: um encontra smells e planeja, o outro aplica uma refatoração.",
   "author": {
     "name": "Gabriel R. Marques"
   },
   "license": "CC-BY-4.0",
-  "keywords": ["refactoring", "fowler", "code-smells", "csharp", "agent-skills"]
+  "keywords": ["refactoring", "fowler", "kerievsky", "design-patterns", "code-smells", "csharp", "agent-skills"]
 }

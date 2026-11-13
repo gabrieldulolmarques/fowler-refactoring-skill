@@ -7,21 +7,28 @@ acadêmica e comercial, desde que dê o crédito apropriado, conforme descrito a
 
 Crédito
 -------
-O catálogo de refatorações, os nomes das refatorações e dos code smells, e o método que estas skills
-ensinam são obra de Martin Fowler, publicados em:
+Os catálogos de refatoração, os nomes das refatorações e dos code smells, e o método que estas
+skills ensinam são obra de Martin Fowler e Joshua Kerievsky, publicados em:
 
   Martin Fowler. Refactoring: Improving the Design of Existing Code. 2nd ed.
   Boston: Addison-Wesley (Pearson Education), 2018. ISBN 978-0-13-475759-9.
-
   Catálogo online: https://refactoring.com/catalog/
 
-Ao reutilizar ou adaptar este pacote, dê crédito a este pacote e ao livro acima.
+  Joshua Kerievsky. Refactoring to Patterns. Boston: Addison-Wesley
+  (Pearson Education), 2004. ISBN 978-0-321-21335-8.
+  Catálogo online: https://www.industriallogic.com/refactoring-to-patterns/catalog/
+
+Os nomes dos padrões e suas páginas se referem a Erich Gamma, Richard Helm, Ralph Johnson e
+John Vlissides, Design Patterns: Elements of Reusable Object-Oriented Software, Addison-Wesley,
+1995.
+
+Ao reutilizar ou adaptar este pacote, dê crédito a este pacote e aos livros acima.
 
 O que a licença cobre
 ---------------------
 A CC BY 4.0 cobre apenas o conteúdo próprio deste pacote: as descrições parafraseadas, a
-estrutura das skills, os exemplos em C# e os agentes. Ela não cobre o livro, que permanece
-sob copyright de Martin Fowler e da Pearson Education, Inc. Este pacote não contém texto, código
-nem figuras do livro; os nomes das refatorações, os nomes antigos e as inversas são citados como
+estrutura das skills, os exemplos em C# e os agentes. Ela não cobre os livros, que permanecem
+sob copyright de seus autores e da Pearson Education, Inc. Este pacote não contém texto, código
+nem figuras dos livros; os nomes das refatorações, os nomes antigos e as inversas são citados como
 aparecem nos cabeçalhos de seção do livro (e no catálogo online público para as cinco
-refatorações só da web), e os números de página se referem à 2ª edição impressa.
+refatorações só da web), e os números de página se referem às edições impressas (a 2ª edição, no caso de Fowler).

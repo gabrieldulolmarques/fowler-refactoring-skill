@@ -2,7 +2,8 @@
 
 A especificação a partir da qual a skill foi escrita e contra a qual é conferida: uma skill,
 `refactoring`, com um arquivo de referência por refatoração, os code smells e a disciplina,
-e o formato dos arquivos.
+e o formato dos arquivos. As seções 1–4 tratam do catálogo de Fowler; a seção 5 trata das
+refatorações para padrões de Kerievsky, acrescentadas na 0.4.0.
 
 Fontes: Fowler, *Refactoring*, 2ª ed. (2018), capítulos 2–4 e 6–12, e o catálogo online
 ([refactoring.com/catalog](https://refactoring.com/catalog/), conferido em 2026-10-31), que
@@ -26,9 +27,10 @@ descrições concorrentes.
 | Arquivo | Fonte | Conteúdo |
 |---|---|---|
 | `SKILL.md` | esta especificação | o fluxo smell → refatoração → arquivo, um índice rápido de smells e uma tabela das 66 refatorações (nome, quando, arquivo), agrupadas por capítulo (seção 4.1) |
-| `references/smells.md` | cap. 3 | os 24 smells, sintomas e refatorações sugeridas (seção 3) |
+| `references/smells.md` | cap. 3; Kerievsky, cap. 4 | os 29 smells, sintomas e refatorações sugeridas (seções 3 e 5.2) |
 | `references/discipline.md` | cap. 2 e 4 | testes primeiro, passos pequenos, commit após cada refatoração verde |
 | `references/<chapter>/<slug>.md` (66 arquivos) | cap. 6–12, ou a edição web para as exclusivas da web | uma refatoração em cada: quando usar, mecânica, exemplo em C#, verificação (seção 4.2) |
+| `references/<chapter>/<slug>.md` (27 arquivos) | Kerievsky, cap. 6–11 | uma refatoração para padrão em cada, no mesmo formato, mais padrão e direção (seção 5) |
 
 O slug é o nome da refatoração em kebab-case. Exemplo: Extrair Função (Extract Function) →
 `references/first-set/extract-function.md`. Os arquivos são agrupados em uma pasta por capítulo:
@@ -270,3 +272,93 @@ Nada na skill nomeia um projeto, framework, engine ou processo de equipe especí
 
 Não usado como fonte: o pacote de replicação de Chen Kuang Piao et al.
 (`Fowler_catalog.json`). Ele não tem licença e contém texto do livro.
+
+---
+
+## 5. As refatorações para padrões de Kerievsky
+
+Fonte: Joshua Kerievsky, *Refactoring to Patterns*, Addison-Wesley (Pearson Education), 2004,
+capítulos 4 e 6–11. Cada refatoração é uma sequência de refatorações menores, em geral de
+Fowler, que termina em um padrão (*até*), avança parte do caminho (*rumo a*) ou remove um
+(*longe*). O catálogo online em https://www.industriallogic.com/refactoring-to-patterns/catalog/
+tem só um resumo e um diagrama de cada uma; a mecânica vem do livro.
+
+### 5.1 As 27 refatorações
+
+**Página** é a página impressa da própria lista de refatorações do livro (segunda capa).
+**Direção** vem da tabela "Refactoring Directions" do livro. **GoF** é a página impressa do
+padrão de destino em Gamma et al., *Design Patterns* (1995), tirada da segunda capa desse
+livro; "—" quando o padrão não está no GoF. A mecânica do livro cita as refatorações de Fowler
+pelos nomes da 1ª edição; os arquivos de referência usam os nomes da 2ª edição (seção 2) e
+apontam para os arquivos delas.
+
+| # | Refatoração | Pasta | Página | Padrão | Direção | GoF |
+|---|---|---|---|---|---|---|
+| 1 | Substituir Construtores por Métodos de Criação (Replace Constructors with Creation Methods) | `creation` (cap. 6) | 57 | Creation Method | até | — |
+| 2 | Mover Conhecimento de Criação para Factory (Move Creation Knowledge to Factory) | `creation` | 68 | Factory | até | — |
+| 3 | Encapsular Classes com Factory (Encapsulate Classes with Factory) | `creation` | 80 | Factory | até | — |
+| 4 | Introduzir Criação Polimórfica com Factory Method (Introduce Polymorphic Creation with Factory Method) | `creation` | 88 | Factory Method | até | 107 |
+| 5 | Encapsular Composite com Builder (Encapsulate Composite with Builder) | `creation` | 96 | Builder (Composite: longe) | até | 97 |
+| 6 | Internalizar Singleton (Inline Singleton) | `creation` | 114 | Singleton | longe | 127 |
+| 7 | Compor Método (Compose Method) | `simplification` (cap. 7) | 123 | Composed Method | até | — |
+| 8 | Substituir Lógica Condicional por Strategy (Replace Conditional Logic with Strategy) | `simplification` | 129 | Strategy | até, rumo a | 315 |
+| 9 | Mover Embelezamento para Decorator (Move Embellishment to Decorator) | `simplification` | 144 | Decorator | até, rumo a | 175 |
+| 10 | Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State) | `simplification` | 166 | State | até, rumo a | 305 |
+| 11 | Substituir Árvore Implícita por Composite (Replace Implicit Tree with Composite) | `simplification` | 178 | Composite | até | 163 |
+| 12 | Substituir Despachante Condicional por Command (Replace Conditional Dispatcher with Command) | `simplification` | 191 | Command | até, rumo a | 233 |
+| 13 | Formar Template Method (Form Template Method) | `generalization` (cap. 8) | 205 | Template Method | até | 325 |
+| 14 | Extrair Composite (Extract Composite) | `generalization` | 214 | Composite | até | 163 |
+| 15 | Substituir Distinções Um/Muitos por Composite (Replace One/Many Distinctions with Composite) | `generalization` | 224 | Composite | até | 163 |
+| 16 | Substituir Notificações Fixas no Código por Observer (Replace Hard-Coded Notifications with Observer) | `generalization` | 236 | Observer | até, rumo a | 293 |
+| 17 | Unificar Interfaces com Adapter (Unify Interfaces with Adapter) | `generalization` | 247 | Adapter | até, rumo a | 139 |
+| 18 | Extrair Adapter (Extract Adapter) | `generalization` | 258 | Adapter | até | 139 |
+| 19 | Substituir Linguagem Implícita por Interpreter (Replace Implicit Language with Interpreter) | `generalization` | 269 | Interpreter | até | 243 |
+| 20 | Substituir Código de Tipo por Classe (Replace Type Code with Class) | `protection` (cap. 9) | 286 | — | — | — |
+| 21 | Limitar Instanciação com Singleton (Limit Instantiation with Singleton) | `protection` | 296 | Singleton | até | 127 |
+| 22 | Introduzir Null Object (Introduce Null Object) | `protection` | 301 | Null Object | até | — |
+| 23 | Mover Acumulação para Collecting Parameter (Move Accumulation to Collecting Parameter) | `accumulation` (cap. 10) | 313 | Collecting Parameter | até | — |
+| 24 | Mover Acumulação para Visitor (Move Accumulation to Visitor) | `accumulation` | 320 | Visitor (Iterator: longe) | até, rumo a | 331 |
+| 25 | Encadear Construtores (Chain Constructors) | `utilities` (cap. 11) | 340 | — | — | — |
+| 26 | Unificar Interfaces (Unify Interfaces) | `utilities` | 343 | — | — | — |
+| 27 | Extrair Parâmetro (Extract Parameter) | `utilities` | 346 | — | — | — |
+
+Sobreposições com a 2ª edição de Fowler, mantidas curtas e apontando para o arquivo de Fowler:
+Compor Método (Extrair Função, Deslocar Instruções), Substituir Código de Tipo por Classe
+(Substituir Primitivo por Objeto, que a engloba) e Introduzir Null Object (Introduzir Caso
+Especial, seu novo nome).
+
+### 5.2 Os 12 smells
+
+Do cap. 4 e da terceira capa. Sete correspondem a um smell de Fowler e aparecem nele no
+`smells.md`; cinco são novos e estão no fim.
+
+| Smell | Página | Smell de Fowler | Refatorações |
+|---|---|---|---|
+| Código Duplicado (Duplicated Code) | 39 | Código Duplicado | Formar Template Method, Introduzir Criação Polimórfica com Factory Method, Encadear Construtores, Substituir Distinções Um/Muitos por Composite, Extrair Composite, Unificar Interfaces com Adapter, Introduzir Null Object |
+| Método Longo (Long Method) | 40 | Função Longa | Compor Método, Mover Acumulação para Collecting Parameter, Substituir Despachante Condicional por Command, Mover Acumulação para Visitor, Substituir Lógica Condicional por Strategy |
+| Complexidade Condicional (Conditional Complexity) | 41 | novo | Substituir Lógica Condicional por Strategy, Mover Embelezamento para Decorator, Substituir Condicionais que Alteram Estado por State, Introduzir Null Object |
+| Obsessão por Primitivos (Primitive Obsession) | 41 | Obsessão por Primitivos | Substituir Código de Tipo por Classe, Substituir Condicionais que Alteram Estado por State, Substituir Lógica Condicional por Strategy, Substituir Árvore Implícita por Composite, Substituir Linguagem Implícita por Interpreter, Mover Embelezamento para Decorator, Encapsular Composite com Builder |
+| Exposição Indecente (Indecent Exposure) | 42 | novo | Encapsular Classes com Factory |
+| Solução Espalhada (Solution Sprawl) | 43 | novo (o livro o chama de gêmeo da Cirurgia com Espingarda) | Mover Conhecimento de Criação para Factory |
+| Classes Alternativas com Interfaces Diferentes (Alternative Classes with Different Interfaces) | 43 | o mesmo | Unificar Interfaces com Adapter |
+| Classe Preguiçosa (Lazy Class) | 43 | Elemento Ocioso | Internalizar Singleton |
+| Classe Grande (Large Class) | 44 | Classe Grande | Substituir Despachante Condicional por Command, Substituir Condicionais que Alteram Estado por State, Substituir Linguagem Implícita por Interpreter |
+| Comandos Switch (Switch Statements) | 44 | Switches Repetidos | Substituir Despachante Condicional por Command, Mover Acumulação para Visitor |
+| Explosão Combinatória (Combinatorial Explosion) | 45 | novo | Substituir Linguagem Implícita por Interpreter |
+| Solução Destoante (Oddball Solution) | 45 | novo | Substituir Algoritmo, Unificar Interfaces com Adapter |
+
+### 5.3 Formato dos arquivos
+
+O mesmo da seção 4.2, com outra linha de citação:
+
+```markdown
+# Substituir Condicionais que Alteram Estado por State (Replace State-Altering Conditionals with State)
+
+Kerievsky (2004), cap. 7, p. 166. Direção: até, rumo a. Padrão: State (GoF, p. 305).
+```
+
+Um passo da mecânica que é uma refatoração de Fowler a cita pelo nome da 2ª edição e aponta
+para o arquivo dela; uma refatoração sem equivalente na 2ª edição (como Extrair Interface) é
+descrita em palavras e marcada "(só na 1ª ed.)". "Quando usar" inclui as desvantagens que o
+livro aponta, para o agente saber quando o padrão não compensa. Os exemplos são em C# original,
+como na seção 4.3.
