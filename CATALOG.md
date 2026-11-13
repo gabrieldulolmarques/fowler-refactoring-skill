@@ -3,7 +3,8 @@
 The spec the skill was written from and is checked against: one skill,
 `refactoring`, with one reference file per refactoring, the smells and the discipline,
 and the file format. Sections 1–4 cover Fowler's catalog; section 5 covers Kerievsky's
-refactorings to patterns, added in 0.4.0.
+refactorings to patterns, added in 0.4.0; section 6 the GoF patterns and section 7 the C# level of
+every example (0.5.0).
 
 Sources: Fowler, *Refactoring*, 2nd ed. (2018), chapters 2–4 and 6–12, and the online catalog
 ([refactoring.com/catalog](https://refactoring.com/catalog/), checked on 2026-10-31), which
@@ -11,7 +12,7 @@ lists **66 refactorings**: the **61 from the book** plus **5 that only exist in 
 edition** (marked "web" in the Page column).
 
 The skill is generic: it teaches the refactorings, not any project's process. The examples
-are plain C# with a neutral domain (orders, customers, invoices, accounts), and nothing refers
+are plain C# 9 with current, neutral themes (section 7), and nothing refers
 to a specific project, framework, engine or team workflow.
 
 ---
@@ -217,8 +218,8 @@ named here is the file `references/fowler/<chapter>/<slug>.md`.
 | Comments | 84 | Extract Function, Change Function Declaration, Introduce Assertion |
 
 Checked against ch. 3 on 2026-10-31: every refactoring the chapter cites as "Name (page)" under
-each smell is in its row. Data Class does not list Split Phase: the book mentions it only as the
-example of an exception (an immutable result record), not as a fix.
+each smell is in its row. Data Class lists Split Phase with a caveat: the book's smell table names it, but the chapter
+text mentions it as the example of an exception (an immutable result record), not as a fix.
 
 ---
 
@@ -234,9 +235,9 @@ quick index, and one table per chapter with every refactoring, a one-line "when"
 its file. It ends with the Source line:
 
 ```markdown
-Source: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed.,
-Addison-Wesley (Pearson Education), 2018, and the online catalog at
-https://refactoring.com/catalog/. Paraphrased; see the package NOTICE.
+Sources: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed., ...;
+Joshua Kerievsky, *Refactoring to Patterns*, ...; Erich Gamma, Richard Helm, Ralph Johnson and
+John Vlissides, *Design Patterns*, ... Paraphrased; see the package NOTICE.
 ```
 
 When a reference file is added, renamed or removed, its row in the `SKILL.md` table changes
@@ -251,7 +252,7 @@ Fowler (2018), ch. 7, p. 182. Formerly / aka: —. Inverse: Inline Class
 ([inline-class.md](inline-class.md)).
 
 ## When to use
-Smells: Large Class, Divergent Change, Data Clumps. (paraphrase, 2 to 5 lines, plus when
+Smells: Large Class, Divergent Change, Data Clumps. (paraphrase, a few bullets, plus when
 not to use it if the book says so)
 
 ## Mechanics
@@ -278,9 +279,9 @@ refactoring, the citation line says "web edition only" and links the refactoring
 |---|---|---|
 | Name, formerly / aka, inverse | the book's section header (section 2); the web edition for the web-only ones | short: may be literal |
 | When to use, mechanics | the book (its web edition for the web-only ones) | **paraphrase**, with chapter and page; nothing copied |
-| Example | written for this package in C# | neutral domain (orders, customers, invoices, accounts); not the book's example or domain |
+| Example | written for this package in C# | current, neutral theme per chapter, C# 9 (section 7); not the book's example or domain |
 | C# notes | section 2, "C# note" column | only where there is something to say |
-| Verification | ch. 4 + `references/fowler/discipline.md` | the same in every file |
+| Verification | ch. 4 + `references/fowler/discipline.md` | the shared check, plus one or two specific to the refactoring |
 | Source line | this spec (4.1) | once, at the end of `SKILL.md`; credits the author and the publisher |
 
 Nothing in the skill names a specific project, framework, engine or team process.

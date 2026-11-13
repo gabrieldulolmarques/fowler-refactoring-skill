@@ -36,46 +36,52 @@ design pattern, or asks which pattern fits a design problem, start at
 
 | Smell | Fowler | Kerievsky |
 |---|---|---|
-| Mysterious Name | [change-function-declaration](references/fowler/first-set/change-function-declaration.md), [rename-variable](references/fowler/first-set/rename-variable.md), [rename-field](references/fowler/organizing-data/rename-field.md) | — |
-| Duplicated Code | [extract-function](references/fowler/first-set/extract-function.md), [pull-up-method](references/fowler/inheritance/pull-up-method.md) (same code in sibling subclasses) | [form-template-method](references/kerievsky/generalization/form-template-method.md), [chain-constructors](references/kerievsky/utilities/chain-constructors.md) |
-| Long Function (Kerievsky: Long Method) | [extract-function](references/fowler/first-set/extract-function.md) | [compose-method](references/kerievsky/simplification/compose-method.md), [move-accumulation-to-collecting-parameter](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) |
-| Long Parameter List | [introduce-parameter-object](references/fowler/first-set/introduce-parameter-object.md), [preserve-whole-object](references/fowler/refactoring-apis/preserve-whole-object.md) | — |
-| Global Data | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md) | — |
-| Mutable Data | [encapsulate-variable](references/fowler/first-set/encapsulate-variable.md), [split-variable](references/fowler/organizing-data/split-variable.md) | — |
-| Divergent Change | [split-phase](references/fowler/first-set/split-phase.md), [extract-class](references/fowler/encapsulation/extract-class.md) | — |
-| Shotgun Surgery | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) | — |
-| Feature Envy | [move-function](references/fowler/moving-features/move-function.md) | — |
-| Data Clumps | [extract-class](references/fowler/encapsulation/extract-class.md) | — |
-| Primitive Obsession | [replace-primitive-with-object](references/fowler/encapsulation/replace-primitive-with-object.md) | [replace-type-code-with-class](references/kerievsky/protection/replace-type-code-with-class.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) |
-| Repeated Switches (Kerievsky: Switch Statements) | [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md), [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
-| Loops | [replace-loop-with-pipeline](references/fowler/moving-features/replace-loop-with-pipeline.md) | — |
-| Lazy Element (Kerievsky: Lazy Class) | [inline-function](references/fowler/first-set/inline-function.md), [inline-class](references/fowler/encapsulation/inline-class.md) | [inline-singleton](references/kerievsky/creation/inline-singleton.md) |
-| Speculative Generality | [collapse-hierarchy](references/fowler/inheritance/collapse-hierarchy.md), [remove-dead-code](references/fowler/moving-features/remove-dead-code.md) | — |
-| Temporary Field | [extract-class](references/fowler/encapsulation/extract-class.md) | — |
-| Message Chains | [hide-delegate](references/fowler/encapsulation/hide-delegate.md) | — |
-| Middle Man | [remove-middle-man](references/fowler/encapsulation/remove-middle-man.md) | — |
-| Insider Trading | [move-function](references/fowler/moving-features/move-function.md), [move-field](references/fowler/moving-features/move-field.md) | — |
-| Large Class | [extract-class](references/fowler/encapsulation/extract-class.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) |
-| Alternative Classes with Different Interfaces | [change-function-declaration](references/fowler/first-set/change-function-declaration.md) | [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
-| Data Class | [encapsulate-record](references/fowler/encapsulation/encapsulate-record.md), [move-function](references/fowler/moving-features/move-function.md) | — |
-| Refused Bequest | [push-down-method](references/fowler/inheritance/push-down-method.md), [push-down-field](references/fowler/inheritance/push-down-field.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md), [replace-superclass-with-delegate](references/fowler/inheritance/replace-superclass-with-delegate.md) | — |
-| Comments | [extract-function](references/fowler/first-set/extract-function.md) | — |
-| Conditional Complexity | — | [replace-conditional-logic-with-strategy](references/kerievsky/simplification/replace-conditional-logic-with-strategy.md), [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md), [move-embellishment-to-decorator](references/kerievsky/simplification/move-embellishment-to-decorator.md), [introduce-null-object](references/kerievsky/protection/introduce-null-object.md) |
-| Indecent Exposure | — | [encapsulate-classes-with-factory](references/kerievsky/creation/encapsulate-classes-with-factory.md) |
-| Solution Sprawl | — | [move-creation-knowledge-to-factory](references/kerievsky/creation/move-creation-knowledge-to-factory.md) |
-| Combinatorial Explosion | — | [replace-implicit-language-with-interpreter](references/kerievsky/generalization/replace-implicit-language-with-interpreter.md) |
-| Oddball Solution | [substitute-algorithm](references/fowler/encapsulation/substitute-algorithm.md) | [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) |
+| Mysterious Name | `change-function-declaration`, `rename-variable`, `rename-field` | — |
+| Duplicated Code | `extract-function`, `pull-up-method` (same code in sibling subclasses) | `form-template-method`, `chain-constructors` |
+| Long Function (Kerievsky: Long Method) | `extract-function` | `compose-method`, `move-accumulation-to-collecting-parameter` |
+| Long Parameter List | `introduce-parameter-object`, `preserve-whole-object` | — |
+| Global Data | `encapsulate-variable` | — |
+| Mutable Data | `encapsulate-variable`, `split-variable` | — |
+| Divergent Change | `split-phase`, `extract-class` | — |
+| Shotgun Surgery | `move-function`, `move-field` | — |
+| Feature Envy | `move-function` | — |
+| Data Clumps | `extract-class` | — |
+| Primitive Obsession | `replace-primitive-with-object` | `replace-type-code-with-class`, `replace-state-altering-conditionals-with-state` |
+| Repeated Switches (Kerievsky: Switch Statements) | `replace-conditional-with-polymorphism` | `replace-conditional-dispatcher-with-command`, `move-accumulation-to-visitor` |
+| Loops | `replace-loop-with-pipeline` | — |
+| Lazy Element (Kerievsky: Lazy Class) | `inline-function`, `inline-class` | `inline-singleton` |
+| Speculative Generality | `collapse-hierarchy`, `remove-dead-code` | — |
+| Temporary Field | `extract-class` | — |
+| Message Chains | `hide-delegate` | — |
+| Middle Man | `remove-middle-man` | — |
+| Insider Trading | `move-function`, `move-field` | — |
+| Large Class | `extract-class` | `replace-conditional-dispatcher-with-command`, `replace-state-altering-conditionals-with-state` |
+| Alternative Classes with Different Interfaces | `change-function-declaration` | `unify-interfaces-with-adapter` |
+| Data Class | `encapsulate-record`, `move-function` | — |
+| Refused Bequest | `push-down-method`, `push-down-field`, `replace-subclass-with-delegate`, `replace-superclass-with-delegate` | — |
+| Comments | `extract-function` | — |
+| Conditional Complexity | — | `replace-conditional-logic-with-strategy`, `replace-state-altering-conditionals-with-state`, `move-embellishment-to-decorator`, `introduce-null-object` |
+| Indecent Exposure | — | `encapsulate-classes-with-factory` |
+| Solution Sprawl | — | `move-creation-knowledge-to-factory` |
+| Combinatorial Explosion | — | `replace-implicit-language-with-interpreter` |
+| Oddball Solution | — | `substitute-algorithm` (Fowler's), `unify-interfaces-with-adapter` |
 
 The first 24 smells are Fowler's and the last five are Kerievsky's. Seven of Kerievsky's twelve
 match a Fowler smell; where his name differs, it is in parentheses. Each book's `smells.md`
-lists every option.
+lists every option. Each slug is a reference file; the tables below give its path.
+
+## Reference files
+
+- **Fowler and Kerievsky:** When to use, Mechanics, Example (C#), C# notes (only where there is
+  something C#-specific), Verification. What a file adds beyond its book is marked
+  **Beyond the book**. A Kerievsky file also names the target pattern and the direction: *to* the
+  pattern, *towards* it, or *away* from it. "(web)" marks a Fowler refactoring that exists only in
+  the book's web edition, with no print page.
+- **GoF:** Intent, When it pays off, Participants in C#, Example (C#), Variations, Risks and C#
+  alternatives, Related patterns, Verification.
 
 ## Fowler: the refactorings
 
-Each file has: When to use, Mechanics, Example (C#), C# notes where the catalog has one, and
-Verification. A Kerievsky file also gives the target pattern and the
-direction: *to* the pattern, *towards* it, or *away* from it. "(web)" marks a refactoring that exists only in the book's web edition, with no print
-page.
 
 ### A first set (ch. 6)
 
@@ -192,7 +198,7 @@ moves towards it, or removes one. The Pattern column gives the direction.
 | Move Creation Knowledge to Factory | Factory (to) | the data and code used to create an object are spread over many classes | [move-creation-knowledge-to-factory.md](references/kerievsky/creation/move-creation-knowledge-to-factory.md) |
 | Encapsulate Classes with Factory | Factory (to) | clients instantiate classes of one package that share an interface and could be hidden | [encapsulate-classes-with-factory.md](references/kerievsky/creation/encapsulate-classes-with-factory.md) |
 | Introduce Polymorphic Creation with Factory Method | Factory Method (to) | sibling classes repeat a method except for the object it creates | [introduce-polymorphic-creation-with-factory-method.md](references/kerievsky/creation/introduce-polymorphic-creation-with-factory-method.md) |
-| Encapsulate Composite with Builder | Builder (to) | building a Composite is repetitive, complicated or error-prone | [encapsulate-composite-with-builder.md](references/kerievsky/creation/encapsulate-composite-with-builder.md) |
+| Encapsulate Composite with Builder | Builder (to); Composite (away) | building a Composite is repetitive, complicated or error-prone | [encapsulate-composite-with-builder.md](references/kerievsky/creation/encapsulate-composite-with-builder.md) |
 | Inline Singleton | Singleton (away) | code needs an object but not global access to it | [inline-singleton.md](references/kerievsky/creation/inline-singleton.md) |
 
 ### Simplification (Kerievsky, ch. 7)
@@ -231,7 +237,7 @@ moves towards it, or removes one. The Pattern column gives the direction.
 | Refactoring | Pattern | When | File |
 |---|---|---|---|
 | Move Accumulation to Collecting Parameter | Collecting Parameter (to) | one large method gathers information into a local variable | [move-accumulation-to-collecting-parameter.md](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) |
-| Move Accumulation to Visitor | Visitor (to, towards) | one method gathers information from classes with different interfaces | [move-accumulation-to-visitor.md](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
+| Move Accumulation to Visitor | Visitor (to, towards); Iterator (away) | one method gathers information from classes with different interfaces | [move-accumulation-to-visitor.md](references/kerievsky/accumulation/move-accumulation-to-visitor.md) |
 
 ### Utilities (Kerievsky, ch. 11)
 
@@ -250,38 +256,38 @@ reach it from existing code, or how to leave it.
 | Pattern | GoF file | Kerievsky refactorings (direction) | Fowler refactorings |
 |---|---|---|---|
 | Abstract Factory | [abstract-factory.md](references/gof/creational/abstract-factory.md) | — | — |
-| Builder | [builder.md](references/gof/creational/builder.md) | [encapsulate-composite-with-builder](references/kerievsky/creation/encapsulate-composite-with-builder.md) (to) | — |
-| Factory Method | [factory-method.md](references/gof/creational/factory-method.md) | [introduce-polymorphic-creation-with-factory-method](references/kerievsky/creation/introduce-polymorphic-creation-with-factory-method.md) (to) | — |
+| Builder | [builder.md](references/gof/creational/builder.md) | `encapsulate-composite-with-builder` (to) | — |
+| Factory Method | [factory-method.md](references/gof/creational/factory-method.md) | `introduce-polymorphic-creation-with-factory-method` (to) | — |
 | Prototype | [prototype.md](references/gof/creational/prototype.md) | — | — |
-| Singleton | [singleton.md](references/gof/creational/singleton.md) | [limit-instantiation-with-singleton](references/kerievsky/protection/limit-instantiation-with-singleton.md) (to), [inline-singleton](references/kerievsky/creation/inline-singleton.md) (away) | — |
-| Adapter | [adapter.md](references/gof/structural/adapter.md) | [extract-adapter](references/kerievsky/generalization/extract-adapter.md) (to), [unify-interfaces-with-adapter](references/kerievsky/generalization/unify-interfaces-with-adapter.md) (to) | — |
+| Singleton | [singleton.md](references/gof/creational/singleton.md) | `limit-instantiation-with-singleton` (to), `inline-singleton` (away) | — |
+| Adapter | [adapter.md](references/gof/structural/adapter.md) | `extract-adapter` (to), `unify-interfaces-with-adapter` (to, towards) | — |
 | Bridge | [bridge.md](references/gof/structural/bridge.md) | — | — |
-| Composite | [composite.md](references/gof/structural/composite.md) | [replace-one-many-distinctions-with-composite](references/kerievsky/generalization/replace-one-many-distinctions-with-composite.md) (to), [extract-composite](references/kerievsky/generalization/extract-composite.md) (to), [replace-implicit-tree-with-composite](references/kerievsky/simplification/replace-implicit-tree-with-composite.md) (to), [encapsulate-composite-with-builder](references/kerievsky/creation/encapsulate-composite-with-builder.md) (away) | — |
-| Decorator | [decorator.md](references/gof/structural/decorator.md) | [move-embellishment-to-decorator](references/kerievsky/simplification/move-embellishment-to-decorator.md) (to) | — |
+| Composite | [composite.md](references/gof/structural/composite.md) | `replace-one-many-distinctions-with-composite` (to), `extract-composite` (to), `replace-implicit-tree-with-composite` (to), `encapsulate-composite-with-builder` (away) | — |
+| Decorator | [decorator.md](references/gof/structural/decorator.md) | `move-embellishment-to-decorator` (to, towards) | — |
 | Facade | [facade.md](references/gof/structural/facade.md) | — | — |
 | Flyweight | [flyweight.md](references/gof/structural/flyweight.md) | — | — |
 | Proxy | [proxy.md](references/gof/structural/proxy.md) | — | — |
 | Chain of Responsibility | [chain-of-responsibility.md](references/gof/behavioral/chain-of-responsibility.md) | — | — |
-| Command | [command.md](references/gof/behavioral/command.md) | [replace-conditional-dispatcher-with-command](references/kerievsky/simplification/replace-conditional-dispatcher-with-command.md) (to) | [replace-function-with-command](references/fowler/refactoring-apis/replace-function-with-command.md), [replace-command-with-function](references/fowler/refactoring-apis/replace-command-with-function.md) |
-| Interpreter | [interpreter.md](references/gof/behavioral/interpreter.md) | [replace-implicit-language-with-interpreter](references/kerievsky/generalization/replace-implicit-language-with-interpreter.md) (to) | — |
-| Iterator | [iterator.md](references/gof/behavioral/iterator.md) | [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) (away) | — |
+| Command | [command.md](references/gof/behavioral/command.md) | `replace-conditional-dispatcher-with-command` (to, towards) | `replace-function-with-command`, `replace-command-with-function` |
+| Interpreter | [interpreter.md](references/gof/behavioral/interpreter.md) | `replace-implicit-language-with-interpreter` (to) | — |
+| Iterator | [iterator.md](references/gof/behavioral/iterator.md) | `move-accumulation-to-visitor` (away) | — |
 | Mediator | [mediator.md](references/gof/behavioral/mediator.md) | — | — |
 | Memento | [memento.md](references/gof/behavioral/memento.md) | — | — |
-| Observer | [observer.md](references/gof/behavioral/observer.md) | [replace-hard-coded-notifications-with-observer](references/kerievsky/generalization/replace-hard-coded-notifications-with-observer.md) (to) | — |
-| State | [state.md](references/gof/behavioral/state.md) | [replace-state-altering-conditionals-with-state](references/kerievsky/simplification/replace-state-altering-conditionals-with-state.md) (to) | [replace-type-code-with-subclasses](references/fowler/inheritance/replace-type-code-with-subclasses.md), [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md) |
-| Strategy | [strategy.md](references/gof/behavioral/strategy.md) | [replace-conditional-logic-with-strategy](references/kerievsky/simplification/replace-conditional-logic-with-strategy.md) (to) | [replace-conditional-with-polymorphism](references/fowler/conditional-logic/replace-conditional-with-polymorphism.md), [replace-subclass-with-delegate](references/fowler/inheritance/replace-subclass-with-delegate.md) |
-| Template Method | [template-method.md](references/gof/behavioral/template-method.md) | [form-template-method](references/kerievsky/generalization/form-template-method.md) (to) | — |
-| Visitor | [visitor.md](references/gof/behavioral/visitor.md) | [move-accumulation-to-visitor](references/kerievsky/accumulation/move-accumulation-to-visitor.md) (to) | — |
+| Observer | [observer.md](references/gof/behavioral/observer.md) | `replace-hard-coded-notifications-with-observer` (to, towards) | — |
+| State | [state.md](references/gof/behavioral/state.md) | `replace-state-altering-conditionals-with-state` (to, towards) | `replace-type-code-with-subclasses`, `replace-conditional-with-polymorphism`, `replace-subclass-with-delegate` |
+| Strategy | [strategy.md](references/gof/behavioral/strategy.md) | `replace-conditional-logic-with-strategy` (to, towards) | `replace-conditional-with-polymorphism`, `replace-subclass-with-delegate` |
+| Template Method | [template-method.md](references/gof/behavioral/template-method.md) | `form-template-method` (to) | — |
+| Visitor | [visitor.md](references/gof/behavioral/visitor.md) | `move-accumulation-to-visitor` (to, towards) | — |
 
 Kerievsky also refactors to five patterns that are not in GoF; their reference files describe them:
 
 | Pattern | GoF file | Kerievsky refactorings (direction) | Fowler refactorings |
 |---|---|---|---|
-| Creation Method | — | [replace-constructors-with-creation-methods](references/kerievsky/creation/replace-constructors-with-creation-methods.md) (to) | — |
-| Factory | — | [move-creation-knowledge-to-factory](references/kerievsky/creation/move-creation-knowledge-to-factory.md) (to), [encapsulate-classes-with-factory](references/kerievsky/creation/encapsulate-classes-with-factory.md) (to) | — |
-| Composed Method | — | [compose-method](references/kerievsky/simplification/compose-method.md) (to) | — |
-| Collecting Parameter | — | [move-accumulation-to-collecting-parameter](references/kerievsky/accumulation/move-accumulation-to-collecting-parameter.md) (to) | — |
-| Null Object | — | [introduce-null-object](references/kerievsky/protection/introduce-null-object.md) (to) | [introduce-special-case](references/fowler/conditional-logic/introduce-special-case.md) |
+| Creation Method | — | `replace-constructors-with-creation-methods` (to) | — |
+| Factory | — | `move-creation-knowledge-to-factory` (to), `encapsulate-classes-with-factory` (to) | — |
+| Composed Method | — | `compose-method` (to) | — |
+| Collecting Parameter | — | `move-accumulation-to-collecting-parameter` (to) | — |
+| Null Object | — | `introduce-null-object` (to) | `introduce-special-case` |
 
 Sources: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed.,
 Addison-Wesley (Pearson Education), 2018, and the online catalog at

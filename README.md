@@ -4,7 +4,7 @@ Two refactoring catalogs and a design patterns catalog packaged as [Agent Skills
 for coding agents: Martin Fowler's *Refactoring* (2nd ed., 2018), Joshua Kerievsky's *Refactoring to
 Patterns* (2004) and the 23 patterns of Gamma et al.'s *Design Patterns* (GoF, 1995). One skill,
 `refactoring`, maps 29 code smells to the 66 refactorings and 27 refactorings to patterns that fix
-them, and links each pattern to the refactorings that reach it. Every file has a C# 9 example.
+them, and links each pattern to the refactorings that reach it. Every refactoring and pattern file has a C# 9 example.
 
 **Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (English and Portuguese).
 
@@ -13,8 +13,8 @@ them, and links each pattern to the refactorings that reach it. Every file has a
 ```
 .claude-plugin/plugin.json # makes the package a Claude Code plugin
 LICENSE # CC BY 4.0
-NOTICE # credit to Fowler, Kerievsky and Addison-Wesley; what the license covers
-CATALOG.md # the spec: 66 + 27 refactorings, 29 smells, file format
+NOTICE # credit to Fowler, Kerievsky, the GoF authors and Addison-Wesley; what the license covers
+CATALOG.md # the spec: 66 + 27 refactorings, 29 smells, 23 patterns, file format, C# level
 agents/
 ├── refactoring-analyst.md # read-only: finds smells and returns a short plan
 └── refactoring-implementer.md # applies one refactoring, testing after each step
