@@ -1,5 +1,5 @@
 ---
-name: fowler-refactoring
+name: refactoring
 description: Catálogo de refatorações de Martin Fowler (Refactoring, 2ª ed.): 24 code smells e 66 refatorações, cada uma com mecânica, exemplo em C# e verificação. Use para refatorar ou limpar código sem mudar o comportamento, quando o código estiver difícil de ler ou alterar, ou quando uma refatoração ou code smell for citada.
 ---
 

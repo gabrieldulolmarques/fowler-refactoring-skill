@@ -1,11 +1,11 @@
-# fowler-refactoring-skill
+# refactoring-skill
 
 O catálogo de refatorações de Martin Fowler (*Refactoring*, 2ª ed., 2018) empacotado como
-[Agent Skills](https://agentskills.io) para agentes de código: uma skill, `fowler-refactoring`,
+[Agent Skills](https://agentskills.io) para agentes de código: uma skill, `refactoring`,
 que relaciona os 24 code smells às refatorações que os corrigem, com um arquivo de referência por
 refatoração (mecânica, um exemplo em C# e passos de verificação).
 
-**Site:** <https://gabrieldulolmarques.github.io/fowler-refactoring-skill/> (inglês e português).
+**Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (inglês e português).
 
 ## Estrutura
 
@@ -15,9 +15,9 @@ LICENSE # CC BY 4.0
 NOTICE # crédito a Fowler e à Addison-Wesley; o que a licença cobre
 CATALOG.md # a especificação: 66 refatorações, 24 smells, formato dos arquivos
 agents/
-├── fowler-analyst.md # somente leitura: encontra smells e devolve um plano curto
-└── fowler-implementer.md # aplica uma refatoração, testando após cada passo
-skills/fowler-refactoring/
+├── refactoring-analyst.md # somente leitura: encontra smells e devolve um plano curto
+└── refactoring-implementer.md # aplica uma refatoração, testando após cada passo
+skills/refactoring/
 ├── SKILL.md # fluxo smell → refatoração → arquivo, índice de smells, tabela das 66
 └── references/ # smells.md, discipline.md e um <slug>.md por refatoração, em uma pasta por capítulo
 ```
@@ -29,10 +29,10 @@ usada, e o arquivo de cada refatoração só quando o agente o abre.
 
 Dois subagentes que usam a skill:
 
-- `fowler-analyst` lê o código indicado na chamada, nomeia os smells e devolve um plano
+- `refactoring-analyst` lê o código indicado na chamada, nomeia os smells e devolve um plano
   curto: onde, qual smell, qual refatoração, se há testes cobrindo e o risco. Nunca
   edita.
-- `fowler-implementer` aplica um item desse plano (ou uma refatoração nomeada), seguindo
+- `refactoring-implementer` aplica um item desse plano (ou uma refatoração nomeada), seguindo
   a mecânica com um build e uma execução dos testes após cada passo.
 
 Revise o plano antes de entregar um item ao implementador. Os comandos de build e de teste
@@ -41,10 +41,10 @@ vêm da chamada ou das instruções do próprio projeto, não deste pacote.
 ## Como usar
 
 - **Qualquer cliente de Agent Skills** (Claude Code, Codex, OpenCode): crie um link da pasta
-  `skills/fowler-refactoring` na pasta de skills do projeto (no Windows, uma junção:
+  `skills/refactoring` na pasta de skills do projeto (no Windows, uma junção:
   `New-Item -ItemType Junction`).
 - **Plugin do Claude Code**: `claude --plugin-dir <caminho-deste-repositório>`. A skill e os agentes
-  ficam então com o prefixo `fowler-refactoring:<name>`.
+  ficam então com o prefixo `refactoring:<name>`.
 
 Use uma só via por projeto, ou o Claude Code verá a skill duas vezes.
 

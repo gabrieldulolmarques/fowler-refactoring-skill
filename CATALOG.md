@@ -1,7 +1,7 @@
 # Especificação do catálogo
 
 A especificação a partir da qual a skill foi escrita e contra a qual é conferida: uma skill,
-`fowler-refactoring`, com um arquivo de referência por refatoração, os code smells e a disciplina,
+`refactoring`, com um arquivo de referência por refatoração, os code smells e a disciplina,
 e o formato dos arquivos.
 
 Fontes: Fowler, *Refactoring*, 2ª ed. (2018), capítulos 2–4 e 6–12, e o catálogo online
@@ -17,7 +17,7 @@ a um projeto, framework, engine ou fluxo de trabalho de equipe específico.
 
 ## 1. A skill
 
-Uma skill, `fowler-refactoring`. Só a sua `description` fica no contexto do agente; o corpo de
+Uma skill, `refactoring`. Só a sua `description` fica no contexto do agente; o corpo de
 `SKILL.md` é carregado quando a skill é usada, e cada arquivo de referência só quando o agente
 o abre. O agente parte de um problema (um smell), não do nome de uma refatoração, então
 um único ponto de entrada que roteia smell → refatoração → arquivo funciona melhor que 66
@@ -39,7 +39,7 @@ no capítulo sob o qual a seção 2 a lista. A página do refactoring.com usa o 
 
 ```
 skills/
-└── fowler-refactoring/
+└── refactoring/
     ├── SKILL.md
     └── references/
         ├── smells.md
@@ -209,7 +209,7 @@ exemplo de exceção (um record de resultado imutável), não como correção.
 
 ### 4.1 `SKILL.md`
 
-Frontmatter `name: fowler-refactoring` e uma `description` (no máximo 1024 caracteres) que nomeia
+Frontmatter `name: refactoring` e uma `description` (no máximo 1024 caracteres) que nomeia
 o catálogo, os sintomas comuns e as refatorações mais usadas, de modo que o agente encontre a skill
 tanto pelo problema ("esta classe faz coisas demais") quanto pelo nome ("faça um Extrair Classe"). O corpo tem
 o fluxo (smell → refatoração → arquivo, com a disciplina antes do primeiro passo), o índice rápido

@@ -1,5 +1,5 @@
 {
-  "name": "fowler-refactoring",
+  "name": "refactoring",
   "version": "0.3.0",
   "description": "O catálogo de refatorações de Fowler (Refactoring, 2ª ed.) como uma Agent Skill: os 24 code smells e as 66 refatorações, cada uma com mecânica e um exemplo em C#, mais dois subagentes: um encontra smells e planeja, o outro aplica uma refatoração.",
   "author": {
