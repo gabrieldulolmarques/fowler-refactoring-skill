@@ -27,70 +27,70 @@ Not worth it when the entity is never updated: copies are then harmless, and a v
    is not coupled to shared state.
 
 ## Example
-Before: every invoice builds its own `Account`, so two invoices for the same account hold two
+Before: every reading builds its own `Sensor`, so two readings from the same sensor hold two
 separate objects.
 
 ```csharp
-public class Account
+public class Sensor
 {
-    public Account(string id) { Id = id; }
+    public Sensor(string id) { Id = id; }
     public string Id { get; }
-    public decimal CreditLimit { get; set; }
+    public double AlarmThreshold { get; set; }
 }
 
-public class Invoice
+public class Reading
 {
-    public Invoice(string number, string accountId)
+    public Reading(double value, string sensorId)
     {
-        Number = number;
-        Account = new Account(accountId);
+        Value = value;
+        Sensor = new Sensor(sensorId);
     }
 
-    public string Number { get; }
-    public Account Account { get; }
+    public double Value { get; }
+    public Sensor Sensor { get; }
 }
 ```
 
-Raising the credit limit through one invoice does not affect the other.
+Raising the alarm threshold through one reading does not affect the other.
 
-After: a repository hands out one `Account` per id, and `Invoice` uses it.
+After: a registry hands out one `Sensor` per id, and `Reading` uses it.
 
 ```csharp
 using System.Collections.Generic;
 
-public class AccountRepository
+public class SensorRegistry
 {
-    private readonly Dictionary<string, Account> _accounts = new();
+    private readonly Dictionary<string, Sensor> _sensors = new();
 
-    public Account GetOrRegister(string id)
+    public Sensor GetOrRegister(string id)
     {
-        if (!_accounts.TryGetValue(id, out var account))
+        if (!_sensors.TryGetValue(id, out var sensor))
         {
-            account = new Account(id);
-            _accounts[id] = account;
+            sensor = new Sensor(id);
+            _sensors[id] = sensor;
         }
-        return account;
+        return sensor;
     }
 
-    public Account? Find(string id) =>
-        _accounts.TryGetValue(id, out var account) ? account : null;
+    public Sensor? Find(string id) =>
+        _sensors.TryGetValue(id, out var sensor) ? sensor : null;
 }
 
-public class Invoice
+public class Reading
 {
-    public Invoice(string number, string accountId, AccountRepository accounts)
+    public Reading(double value, string sensorId, SensorRegistry sensors)
     {
-        Number = number;
-        Account = accounts.GetOrRegister(accountId);
+        Value = value;
+        Sensor = sensors.GetOrRegister(sensorId);
     }
 
-    public string Number { get; }
-    public Account Account { get; }
+    public double Value { get; }
+    public Sensor Sensor { get; }
 }
 ```
 
-Now `a.Account` and `b.Account` are the same object for the same id, so a change made through one
-invoice is seen by all. Here the repository is passed in rather than read from a global.
+Now `a.Sensor` and `b.Sensor` are the same object for the same id, so a change made through one
+reading is seen by all. Here the registry is passed in rather than read from a global.
 
 ## C# notes
 - A repository or registry that hands out the shared instance is the usual shape: a

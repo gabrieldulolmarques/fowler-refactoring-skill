@@ -18,30 +18,36 @@ Do not extract every literal. `0`, `1`, `""` or `-1` in an obvious role (a loop 
 Before:
 
 ```csharp
-public decimal TotalWithTax(decimal subtotal)
+public class TemperatureConverter
 {
-    return subtotal * 1.18m;
-}
+    public double ToKelvin(double celsius)
+    {
+        return celsius + 273.15;
+    }
 
-public decimal TaxAmount(decimal subtotal)
-{
-    return subtotal * 0.18m;
+    public double ToCelsius(double kelvin)
+    {
+        return kelvin - 273.15;
+    }
 }
 ```
 
 After:
 
 ```csharp
-private const decimal TaxRate = 0.18m;
-
-public decimal TotalWithTax(decimal subtotal)
+public class TemperatureConverter
 {
-    return subtotal * (1 + TaxRate);
-}
+    private const double KelvinOffset = 273.15;
 
-public decimal TaxAmount(decimal subtotal)
-{
-    return subtotal * TaxRate;
+    public double ToKelvin(double celsius)
+    {
+        return celsius + KelvinOffset;
+    }
+
+    public double ToCelsius(double kelvin)
+    {
+        return kelvin - KelvinOffset;
+    }
 }
 ```
 

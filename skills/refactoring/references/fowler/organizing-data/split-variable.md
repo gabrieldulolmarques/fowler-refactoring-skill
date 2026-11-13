@@ -22,63 +22,93 @@ Assigning to an input parameter is a common case: the parameter is both the inpu
 6. For a parameter: declare a local initialized from the parameter at the top of the function, rename the parameter to say it is the original input, and point the reads that mean the original input at the parameter. Then continue with the steps above on the local, renaming it to say what it holds.
 
 ## Example
-Before: `amount` first holds the order subtotal and is then reused for the amount after the discount, which is a different quantity.
+Before: `value` first holds the uncalibrated temperature and is then reused for the calibrated one, which is a different quantity.
 
 ```csharp
-public decimal InvoiceTotal(Order order, Customer customer)
-{
-    decimal amount = order.Quantity * order.UnitPrice;
-    Console.WriteLine($"Subtotal: {amount}");
+using System;
 
-    amount = amount - amount * customer.DiscountRate;
-    return amount + order.ShippingFee;
+public class Sample
+{
+    public int RawCounts { get; set; }
+    public double CountsToCelsius { get; set; }
+    public double SelfHeating { get; set; }
+}
+
+public class Calibration
+{
+    public double Offset { get; set; }
+    public double Gain { get; set; }
+}
+
+public class Report
+{
+    public double ReportedTemperature(Sample sample, Calibration calibration)
+    {
+        double value = sample.RawCounts * sample.CountsToCelsius;
+        Console.WriteLine($"Uncalibrated: {value}");
+
+        value = (value - calibration.Offset) * calibration.Gain;
+        return value - sample.SelfHeating;
+    }
 }
 ```
 
 After: one variable per responsibility, each named for what it holds.
 
 ```csharp
-public decimal InvoiceTotal(Order order, Customer customer)
+public class Report
 {
-    decimal subtotal = order.Quantity * order.UnitPrice;
-    Console.WriteLine($"Subtotal: {subtotal}");
+    public double ReportedTemperature(Sample sample, Calibration calibration)
+    {
+        double uncalibrated = sample.RawCounts * sample.CountsToCelsius;
+        Console.WriteLine($"Uncalibrated: {uncalibrated}");
 
-    decimal discounted = subtotal - subtotal * customer.DiscountRate;
-    return discounted + order.ShippingFee;
+        double calibrated = (uncalibrated - calibration.Offset) * calibration.Gain;
+        return calibrated - sample.SelfHeating;
+    }
 }
 ```
 
-Parameter case. Before, `weight` is both the input and the shipping cost:
+Parameter case. Before, `requested` is both the input and the effective sampling interval:
 
 ```csharp
-public decimal ShippingCost(decimal weight, bool express)
+public class Scheduler
 {
-    weight = Math.Max(weight, 1m) * 4.5m;
-    if (express) weight *= 1.8m;
-    return weight;
+    public double EffectiveInterval(double requested, bool lowBattery)
+    {
+        requested = Math.Max(requested, 0.5) + 0.25;
+        if (lowBattery) requested *= 4;
+        return requested;
+    }
 }
 ```
 
 Intermediate: the parameter is renamed to say it is the input, and a local takes over as the working value.
 
 ```csharp
-public decimal ShippingCost(decimal weightKg, bool express)
+public class Scheduler
 {
-    decimal weight = weightKg;
-    weight = Math.Max(weight, 1m) * 4.5m;
-    if (express) weight *= 1.8m;
-    return weight;
+    public double EffectiveInterval(double requestedSeconds, bool lowBattery)
+    {
+        double requested = requestedSeconds;
+        requested = Math.Max(requested, 0.5) + 0.25;
+        if (lowBattery) requested *= 4;
+        return requested;
+    }
 }
 ```
 
 After: the local is renamed for what it holds.
 
 ```csharp
-public decimal ShippingCost(decimal weightKg, bool express)
+public class Scheduler
 {
-    decimal cost = Math.Max(weightKg, 1m) * 4.5m;
-    if (express) cost *= 1.8m;
-    return cost;
+    public double EffectiveInterval(double requestedSeconds, bool lowBattery)
+    {
+        double interval = Math.Max(requestedSeconds, 0.5) + 0.25;
+        if (lowBattery) interval *= 4;
+        return interval;
+    }
 }
 ```
 

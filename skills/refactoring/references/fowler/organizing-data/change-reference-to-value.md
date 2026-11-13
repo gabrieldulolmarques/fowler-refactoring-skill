@@ -28,63 +28,63 @@ object is a real reference, and the right move may be the inverse refactoring.
    update them to the new equality.
 
 ## Example
-Before: an order owns a mutable address, and its properties update that address in place.
+Before: a device owns a mutable calibration, and its properties update that calibration in place.
 
 ```csharp
-public class PostalAddress
+public class Calibration
 {
-    public string Street { get; set; }
-    public string City { get; set; }
+    public double Offset { get; set; }
+    public double Scale { get; set; } = 1;
 }
 
-public class Order
+public class Device
 {
-    private PostalAddress _shippingAddress = new PostalAddress();
+    private Calibration _calibration = new Calibration();
 
-    public string ShippingStreet
+    public double CalibrationOffset
     {
-        get => _shippingAddress.Street;
-        set => _shippingAddress.Street = value;
+        get => _calibration.Offset;
+        set => _calibration.Offset = value;
     }
 
-    public string ShippingCity
+    public double CalibrationScale
     {
-        get => _shippingAddress.City;
-        set => _shippingAddress.City = value;
+        get => _calibration.Scale;
+        set => _calibration.Scale = value;
     }
 }
 ```
 
 Step 1, remove the setters one at a time. The constructor takes the fields, and each setter
-on `Order` replaces the whole address:
+on `Device` replaces the whole calibration:
 
 ```csharp
-public class PostalAddress
+public class Calibration
 {
-    public PostalAddress(string street, string city)
+    public Calibration(double offset, double scale)
     {
-        Street = street;
-        City = city;
+        Offset = offset;
+        Scale = scale;
     }
 
-    public string Street { get; }
-    public string City { get; }
+    public double Offset { get; }
+    public double Scale { get; }
 }
 
-public class Order
+public class Device
 {
-    private PostalAddress _shippingAddress = new PostalAddress(null, null);
+    private Calibration _calibration = new Calibration(0, 1);
 
-    public string ShippingStreet
+    public double CalibrationOffset
     {
-        get => _shippingAddress.Street;
-        set => _shippingAddress = new PostalAddress(value, _shippingAddress.City);
+        get => _calibration.Offset;
+        set => _calibration = new Calibration(value, _calibration.Scale);
     }
 
-    public string ShippingCity
+    public double CalibrationScale
     {
-        get => _shippingAddress.City;
-        set => _shippingAddress = new PostalAddress(_shippingAddress.Street, value);
+        get => _calibration.Scale;
+        set => _calibration = new Calibration(_calibration.Offset, value);
     }
 }
 ```
@@ -92,36 +92,37 @@ public class Order
 Step 2, give it value equality (here by hand; see the C# notes for the shorter form):
 
 ```csharp
+// fragment
 using System;
 
-public sealed class PostalAddress : IEquatable<PostalAddress>
+public sealed class Calibration : IEquatable<Calibration>
 {
-    public PostalAddress(string street, string city)
+    public Calibration(double offset, double scale)
     {
-        Street = street;
-        City = city;
+        Offset = offset;
+        Scale = scale;
     }
 
-    public string Street { get; }
-    public string City { get; }
+    public double Offset { get; }
+    public double Scale { get; }
 
-    public bool Equals(PostalAddress other) =>
-        other is not null && Street == other.Street && City == other.City;
+    public bool Equals(Calibration other) =>
+        other is not null && Offset == other.Offset && Scale == other.Scale;
 
-    public override bool Equals(object obj) => Equals(obj as PostalAddress);
+    public override bool Equals(object obj) => Equals(obj as Calibration);
 
-    public override int GetHashCode() => HashCode.Combine(Street, City);
+    public override int GetHashCode() => HashCode.Combine(Offset, Scale);
 }
 ```
 
-Behavior seen from outside `Order` is the same; `new PostalAddress("A", "B")` now equals
+Behavior seen from outside `Device` is the same; `new Calibration(0.5, 1)` now equals
 another instance built from the same arguments.
 
 ## C# notes
-- A `record`, `readonly record struct` or an immutable class with value equality
-  (`Equals`/`GetHashCode`) all fit. With a `record PostalAddress(string Street, string City)`,
+- A `record` (C# 9+; on Unity it needs an `IsExternalInit` shim), `readonly record struct` or an immutable class with value equality
+  (`Equals`/`GetHashCode`) all fit. With a `record Calibration(double Offset, double Scale)`,
   equality and hash code are generated, and the owner's setter can be
-  `_shippingAddress = _shippingAddress with { City = value };`.
+  `_calibration = _calibration with { Scale = value };`.
 - Whenever `Equals` is overridden, override `GetHashCode` with the same fields, or hash-based
   collections misbehave. Consider `==`/`!=` operators too if callers use them.
 - Keep the value's fields themselves immutable (or compared by value), otherwise the value can

@@ -30,30 +30,34 @@ calculation is expensive and read very often; measure before giving up the store
 8. Run the tests.
 
 ## Example
-Before: `AmountPaid` is a second copy of information already held in `Payments`.
+Before: `UsedKwh` is a second copy of information already held in the readings.
 
 ```csharp
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-public record Payment(decimal Amount);
-
-public class Invoice
+public class EnergyReading
 {
-    private readonly List<Payment> _payments = new();
-    private decimal _amountPaid;
+    public EnergyReading(double kwh) => Kwh = kwh;
+    public double Kwh { get; }
+}
 
-    public Invoice(decimal total) => Total = total;
+public class EnergyMeter
+{
+    private readonly List<EnergyReading> _readings = new();
+    private double _usedKwh;
 
-    public decimal Total { get; }
-    public decimal AmountPaid => _amountPaid;
-    public decimal Outstanding => Total - AmountPaid;
+    public EnergyMeter(double budgetKwh) => BudgetKwh = budgetKwh;
 
-    public void Register(Payment payment)
+    public double BudgetKwh { get; }
+    public double UsedKwh => _usedKwh;
+    public double RemainingKwh => BudgetKwh - UsedKwh;
+
+    public void Record(EnergyReading reading)
     {
-        _payments.Add(payment);
-        _amountPaid += payment.Amount;
+        _readings.Add(reading);
+        _usedKwh += reading.Kwh;
     }
 }
 ```
@@ -61,37 +65,38 @@ public class Invoice
 Intermediate step: assert against the calculation, run the tests, then switch the reader.
 
 ```csharp
-public decimal AmountPaid
+// fragment
+public double UsedKwh
 {
     get
     {
-        Debug.Assert(_amountPaid == CalculatedAmountPaid);
-        return CalculatedAmountPaid;
+        Debug.Assert(_usedKwh == CalculatedUsedKwh);
+        return CalculatedUsedKwh;
     }
 }
 
-private decimal CalculatedAmountPaid => _payments.Sum(p => p.Amount);
+private double CalculatedUsedKwh => _readings.Sum(r => r.Kwh);
 ```
 
 After: the field and its update are gone.
 
 ```csharp
-public class Invoice
+public class EnergyMeter
 {
-    private readonly List<Payment> _payments = new();
+    private readonly List<EnergyReading> _readings = new();
 
-    public Invoice(decimal total) => Total = total;
+    public EnergyMeter(double budgetKwh) => BudgetKwh = budgetKwh;
 
-    public decimal Total { get; }
-    public decimal AmountPaid => _payments.Sum(p => p.Amount);
-    public decimal Outstanding => Total - AmountPaid;
+    public double BudgetKwh { get; }
+    public double UsedKwh => _readings.Sum(r => r.Kwh);
+    public double RemainingKwh => BudgetKwh - UsedKwh;
 
-    public void Register(Payment payment) => _payments.Add(payment);
+    public void Record(EnergyReading reading) => _readings.Add(reading);
 }
 ```
 
 If the field had started with a non-zero opening value, the assertion would fail. Split it
-first into `_openingPaid` and an accumulator, and compute only the accumulator part.
+first into `_openingUsedKwh` and an accumulator, and compute only the accumulator part.
 
 ## C# notes
 - The calculation fits a computed read-only property (`=> ...`).

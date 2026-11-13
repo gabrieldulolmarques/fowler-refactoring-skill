@@ -36,40 +36,47 @@ move the users over gradually, then delete the old name. Never keep two copies o
 If the tests break during a one-pass rename, undo it and use the gradual route.
 
 ## Example
-Before: `Customer` exposes a public field named `Tag` that actually holds the billing
-reference, and many callers use it.
+Before: `Device` exposes a public field named `Rev` that actually holds the firmware version,
+and many callers use it.
 
 ```csharp
-public class Customer
+using System;
+
+public class Device
 {
-    public string Tag;       // actually the billing reference
-    public string Country;
+    public string Rev;       // actually the firmware version
+    public int SamplingSeconds;
 }
 
-// caller
-var customer = new Customer { Tag = "INV-2041", Country = "BR" };
-Console.WriteLine(customer.Tag);
+public class Caller
+{
+    public void Run()
+    {
+        var device = new Device { Rev = "2.4.1", SamplingSeconds = 30 };
+        Console.WriteLine(device.Rev);
+    }
+}
 ```
 
 Step 1, encapsulate and give the backing field its own name. The object initializer in the
 caller keeps compiling because it goes through the property setters:
 
 ```csharp
-public class Customer
+public class Device
 {
-    private string _billingReference;
-    private string _country;
+    private string _firmwareVersion;
+    private int _samplingSeconds;
 
-    public string Tag
+    public string Rev
     {
-        get => _billingReference;
-        set => _billingReference = value;
+        get => _firmwareVersion;
+        set => _firmwareVersion = value;
     }
 
-    public string Country
+    public int SamplingSeconds
     {
-        get => _country;
-        set => _country = value;
+        get => _samplingSeconds;
+        set => _samplingSeconds = value;
     }
 }
 ```
@@ -78,27 +85,32 @@ Step 2, rename the property and update the callers. This class has no constructo
 mechanics step 4 has nothing to do here:
 
 ```csharp
-public class Customer
+public class Device
 {
-    private string _billingReference;
-    private string _country;
+    private string _firmwareVersion;
+    private int _samplingSeconds;
 
-    public string BillingReference
+    public string FirmwareVersion
     {
-        get => _billingReference;
-        set => _billingReference = value;
+        get => _firmwareVersion;
+        set => _firmwareVersion = value;
     }
 
-    public string Country
+    public int SamplingSeconds
     {
-        get => _country;
-        set => _country = value;
+        get => _samplingSeconds;
+        set => _samplingSeconds = value;
     }
 }
 
-// caller
-var customer = new Customer { BillingReference = "INV-2041", Country = "BR" };
-Console.WriteLine(customer.BillingReference);
+public class Caller
+{
+    public void Run()
+    {
+        var device = new Device { FirmwareVersion = "2.4.1", SamplingSeconds = 30 };
+        Console.WriteLine(device.FirmwareVersion);
+    }
+}
 ```
 
 Behavior is unchanged; only the name moved.
