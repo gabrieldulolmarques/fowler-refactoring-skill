@@ -1,7 +1,7 @@
 # Catalog spec
 
 The spec the skill was written from and is checked against: one skill,
-`fowler-refactoring`, with one reference file per refactoring, the smells and the discipline,
+`refactoring`, with one reference file per refactoring, the smells and the discipline,
 and the file format.
 
 Sources: Fowler, *Refactoring*, 2nd ed. (2018), chapters 2–4 and 6–12, and the online catalog
@@ -17,7 +17,7 @@ to a specific project, framework, engine or team workflow.
 
 ## 1. The skill
 
-One skill, `fowler-refactoring`. Only its `description` stays in the agent's context; the
+One skill, `refactoring`. Only its `description` stays in the agent's context; the
 `SKILL.md` body loads when the skill is used, and each reference file only when the agent
 opens it. The agent starts from a problem (a smell), not from a refactoring's name, so one
 entry point that routes smell → refactoring → file works better than 66 competing
@@ -39,7 +39,7 @@ instead: `https://refactoring.com/catalog/extractFunction.html`.
 
 ```
 skills/
-└── fowler-refactoring/
+└── refactoring/
     ├── SKILL.md
     └── references/
         ├── smells.md
@@ -209,7 +209,7 @@ example of an exception (an immutable result record), not as a fix.
 
 ### 4.1 `SKILL.md`
 
-Frontmatter `name: fowler-refactoring` and a `description` (at most 1024 characters) that names
+Frontmatter `name: refactoring` and a `description` (at most 1024 characters) that names
 the catalog, the common symptoms and the most used refactorings, so the agent finds the skill
 both by problem ("this class does too much") and by name ("do an Extract Class"). The body has
 the flow (smell → refactoring → file, with the discipline before the first step), the smell

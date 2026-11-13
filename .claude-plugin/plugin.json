@@ -1,5 +1,5 @@
 {
-  "name": "fowler-refactoring",
+  "name": "refactoring",
   "version": "0.3.0",
   "description": "Fowler's refactoring catalog (Refactoring, 2nd ed.) as an Agent Skill: the 24 code smells and the 66 refactorings, each with mechanics and a C# example, plus two subagents: one finds smells and plans, the other applies a refactoring.",
   "author": {

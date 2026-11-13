@@ -1,8 +1,8 @@
 # Site built by .github/workflows/pages.yml; .github/build_site.py prepares _docs first.
-site_name: Fowler Refactoring Skill
+site_name: Refactoring Skill
 site_description: "Martin Fowler's refactoring catalog as an Agent Skill: 24 smells, 66 refactorings, C# examples."
-site_url: https://gabrieldulolmarques.github.io/fowler-refactoring-skill/en/
-repo_url: https://github.com/gabrieldulolmarques/fowler-refactoring-skill
+site_url: https://gabrieldulolmarques.github.io/refactoring-skill/en/
+repo_url: https://github.com/gabrieldulolmarques/refactoring-skill
 docs_dir: _docs
 theme:
   name: material
@@ -40,10 +40,10 @@ theme:
 extra:
   alternate:
     - name: English
-      link: /fowler-refactoring-skill/en/
+      link: /refactoring-skill/en/
       lang: en
     - name: Português (Brasil)
-      link: /fowler-refactoring-skill/pt-br/
+      link: /refactoring-skill/pt-br/
       lang: pt-BR
 markdown_extensions:
   - tables
@@ -55,84 +55,84 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Catalog:
-      - Smells: skills/fowler-refactoring/references/smells.md
-      - Discipline: skills/fowler-refactoring/references/discipline.md
+      - Smells: skills/refactoring/references/smells.md
+      - Discipline: skills/refactoring/references/discipline.md
       - "A first set (ch. 6)":
-          - skills/fowler-refactoring/references/first-set/extract-function.md
-          - skills/fowler-refactoring/references/first-set/inline-function.md
-          - skills/fowler-refactoring/references/first-set/extract-variable.md
-          - skills/fowler-refactoring/references/first-set/inline-variable.md
-          - skills/fowler-refactoring/references/first-set/change-function-declaration.md
-          - skills/fowler-refactoring/references/first-set/encapsulate-variable.md
-          - skills/fowler-refactoring/references/first-set/rename-variable.md
-          - skills/fowler-refactoring/references/first-set/introduce-parameter-object.md
-          - skills/fowler-refactoring/references/first-set/combine-functions-into-class.md
-          - skills/fowler-refactoring/references/first-set/combine-functions-into-transform.md
-          - skills/fowler-refactoring/references/first-set/split-phase.md
+          - skills/refactoring/references/first-set/extract-function.md
+          - skills/refactoring/references/first-set/inline-function.md
+          - skills/refactoring/references/first-set/extract-variable.md
+          - skills/refactoring/references/first-set/inline-variable.md
+          - skills/refactoring/references/first-set/change-function-declaration.md
+          - skills/refactoring/references/first-set/encapsulate-variable.md
+          - skills/refactoring/references/first-set/rename-variable.md
+          - skills/refactoring/references/first-set/introduce-parameter-object.md
+          - skills/refactoring/references/first-set/combine-functions-into-class.md
+          - skills/refactoring/references/first-set/combine-functions-into-transform.md
+          - skills/refactoring/references/first-set/split-phase.md
       - "Encapsulation (ch. 7)":
-          - skills/fowler-refactoring/references/encapsulation/encapsulate-record.md
-          - skills/fowler-refactoring/references/encapsulation/encapsulate-collection.md
-          - skills/fowler-refactoring/references/encapsulation/replace-primitive-with-object.md
-          - skills/fowler-refactoring/references/encapsulation/replace-temp-with-query.md
-          - skills/fowler-refactoring/references/encapsulation/extract-class.md
-          - skills/fowler-refactoring/references/encapsulation/inline-class.md
-          - skills/fowler-refactoring/references/encapsulation/hide-delegate.md
-          - skills/fowler-refactoring/references/encapsulation/remove-middle-man.md
-          - skills/fowler-refactoring/references/encapsulation/substitute-algorithm.md
+          - skills/refactoring/references/encapsulation/encapsulate-record.md
+          - skills/refactoring/references/encapsulation/encapsulate-collection.md
+          - skills/refactoring/references/encapsulation/replace-primitive-with-object.md
+          - skills/refactoring/references/encapsulation/replace-temp-with-query.md
+          - skills/refactoring/references/encapsulation/extract-class.md
+          - skills/refactoring/references/encapsulation/inline-class.md
+          - skills/refactoring/references/encapsulation/hide-delegate.md
+          - skills/refactoring/references/encapsulation/remove-middle-man.md
+          - skills/refactoring/references/encapsulation/substitute-algorithm.md
       - "Moving features (ch. 8)":
-          - skills/fowler-refactoring/references/moving-features/move-function.md
-          - skills/fowler-refactoring/references/moving-features/move-field.md
-          - skills/fowler-refactoring/references/moving-features/move-statements-into-function.md
-          - skills/fowler-refactoring/references/moving-features/move-statements-to-callers.md
-          - skills/fowler-refactoring/references/moving-features/replace-inline-code-with-function-call.md
-          - skills/fowler-refactoring/references/moving-features/slide-statements.md
-          - skills/fowler-refactoring/references/moving-features/split-loop.md
-          - skills/fowler-refactoring/references/moving-features/replace-loop-with-pipeline.md
-          - skills/fowler-refactoring/references/moving-features/remove-dead-code.md
+          - skills/refactoring/references/moving-features/move-function.md
+          - skills/refactoring/references/moving-features/move-field.md
+          - skills/refactoring/references/moving-features/move-statements-into-function.md
+          - skills/refactoring/references/moving-features/move-statements-to-callers.md
+          - skills/refactoring/references/moving-features/replace-inline-code-with-function-call.md
+          - skills/refactoring/references/moving-features/slide-statements.md
+          - skills/refactoring/references/moving-features/split-loop.md
+          - skills/refactoring/references/moving-features/replace-loop-with-pipeline.md
+          - skills/refactoring/references/moving-features/remove-dead-code.md
       - "Organizing data (ch. 9)":
-          - skills/fowler-refactoring/references/organizing-data/split-variable.md
-          - skills/fowler-refactoring/references/organizing-data/rename-field.md
-          - skills/fowler-refactoring/references/organizing-data/replace-derived-variable-with-query.md
-          - skills/fowler-refactoring/references/organizing-data/change-reference-to-value.md
-          - skills/fowler-refactoring/references/organizing-data/change-value-to-reference.md
-          - skills/fowler-refactoring/references/organizing-data/replace-magic-literal.md
+          - skills/refactoring/references/organizing-data/split-variable.md
+          - skills/refactoring/references/organizing-data/rename-field.md
+          - skills/refactoring/references/organizing-data/replace-derived-variable-with-query.md
+          - skills/refactoring/references/organizing-data/change-reference-to-value.md
+          - skills/refactoring/references/organizing-data/change-value-to-reference.md
+          - skills/refactoring/references/organizing-data/replace-magic-literal.md
       - "Simplifying conditional logic (ch. 10)":
-          - skills/fowler-refactoring/references/conditional-logic/decompose-conditional.md
-          - skills/fowler-refactoring/references/conditional-logic/consolidate-conditional-expression.md
-          - skills/fowler-refactoring/references/conditional-logic/replace-nested-conditional-with-guard-clauses.md
-          - skills/fowler-refactoring/references/conditional-logic/replace-conditional-with-polymorphism.md
-          - skills/fowler-refactoring/references/conditional-logic/introduce-special-case.md
-          - skills/fowler-refactoring/references/conditional-logic/introduce-assertion.md
-          - skills/fowler-refactoring/references/conditional-logic/replace-control-flag-with-break.md
+          - skills/refactoring/references/conditional-logic/decompose-conditional.md
+          - skills/refactoring/references/conditional-logic/consolidate-conditional-expression.md
+          - skills/refactoring/references/conditional-logic/replace-nested-conditional-with-guard-clauses.md
+          - skills/refactoring/references/conditional-logic/replace-conditional-with-polymorphism.md
+          - skills/refactoring/references/conditional-logic/introduce-special-case.md
+          - skills/refactoring/references/conditional-logic/introduce-assertion.md
+          - skills/refactoring/references/conditional-logic/replace-control-flag-with-break.md
       - "Refactoring APIs (ch. 11)":
-          - skills/fowler-refactoring/references/refactoring-apis/separate-query-from-modifier.md
-          - skills/fowler-refactoring/references/refactoring-apis/parameterize-function.md
-          - skills/fowler-refactoring/references/refactoring-apis/remove-flag-argument.md
-          - skills/fowler-refactoring/references/refactoring-apis/preserve-whole-object.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-parameter-with-query.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-query-with-parameter.md
-          - skills/fowler-refactoring/references/refactoring-apis/remove-setting-method.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-constructor-with-factory-function.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-function-with-command.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-command-with-function.md
-          - skills/fowler-refactoring/references/refactoring-apis/return-modified-value.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-error-code-with-exception.md
-          - skills/fowler-refactoring/references/refactoring-apis/replace-exception-with-precheck.md
+          - skills/refactoring/references/refactoring-apis/separate-query-from-modifier.md
+          - skills/refactoring/references/refactoring-apis/parameterize-function.md
+          - skills/refactoring/references/refactoring-apis/remove-flag-argument.md
+          - skills/refactoring/references/refactoring-apis/preserve-whole-object.md
+          - skills/refactoring/references/refactoring-apis/replace-parameter-with-query.md
+          - skills/refactoring/references/refactoring-apis/replace-query-with-parameter.md
+          - skills/refactoring/references/refactoring-apis/remove-setting-method.md
+          - skills/refactoring/references/refactoring-apis/replace-constructor-with-factory-function.md
+          - skills/refactoring/references/refactoring-apis/replace-function-with-command.md
+          - skills/refactoring/references/refactoring-apis/replace-command-with-function.md
+          - skills/refactoring/references/refactoring-apis/return-modified-value.md
+          - skills/refactoring/references/refactoring-apis/replace-error-code-with-exception.md
+          - skills/refactoring/references/refactoring-apis/replace-exception-with-precheck.md
       - "Dealing with inheritance (ch. 12)":
-          - skills/fowler-refactoring/references/inheritance/pull-up-method.md
-          - skills/fowler-refactoring/references/inheritance/pull-up-field.md
-          - skills/fowler-refactoring/references/inheritance/pull-up-constructor-body.md
-          - skills/fowler-refactoring/references/inheritance/push-down-method.md
-          - skills/fowler-refactoring/references/inheritance/push-down-field.md
-          - skills/fowler-refactoring/references/inheritance/replace-type-code-with-subclasses.md
-          - skills/fowler-refactoring/references/inheritance/remove-subclass.md
-          - skills/fowler-refactoring/references/inheritance/extract-superclass.md
-          - skills/fowler-refactoring/references/inheritance/collapse-hierarchy.md
-          - skills/fowler-refactoring/references/inheritance/replace-subclass-with-delegate.md
-          - skills/fowler-refactoring/references/inheritance/replace-superclass-with-delegate.md
+          - skills/refactoring/references/inheritance/pull-up-method.md
+          - skills/refactoring/references/inheritance/pull-up-field.md
+          - skills/refactoring/references/inheritance/pull-up-constructor-body.md
+          - skills/refactoring/references/inheritance/push-down-method.md
+          - skills/refactoring/references/inheritance/push-down-field.md
+          - skills/refactoring/references/inheritance/replace-type-code-with-subclasses.md
+          - skills/refactoring/references/inheritance/remove-subclass.md
+          - skills/refactoring/references/inheritance/extract-superclass.md
+          - skills/refactoring/references/inheritance/collapse-hierarchy.md
+          - skills/refactoring/references/inheritance/replace-subclass-with-delegate.md
+          - skills/refactoring/references/inheritance/replace-superclass-with-delegate.md
   - Agents:
-      - agents/fowler-analyst.md
-      - agents/fowler-implementer.md
+      - agents/refactoring-analyst.md
+      - agents/refactoring-implementer.md
   - About:
       - The project: about.md
       - Catalog spec: CATALOG.md

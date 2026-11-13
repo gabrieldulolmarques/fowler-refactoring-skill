@@ -1,11 +1,11 @@
-# fowler-refactoring-skill
+# refactoring-skill
 
 Martin Fowler's refactoring catalog (*Refactoring*, 2nd ed., 2018) packaged as
-[Agent Skills](https://agentskills.io) for coding agents: one skill, `fowler-refactoring`,
+[Agent Skills](https://agentskills.io) for coding agents: one skill, `refactoring`,
 that maps the 24 code smells to the refactorings that fix them, with one reference file per
 refactoring (mechanics, a C# example and verification steps).
 
-**Site:** <https://gabrieldulolmarques.github.io/fowler-refactoring-skill/> (English and Portuguese).
+**Site:** <https://gabrieldulolmarques.github.io/refactoring-skill/> (English and Portuguese).
 
 ## Layout
 
@@ -15,9 +15,9 @@ LICENSE # CC BY 4.0
 NOTICE # credit to Fowler and Addison-Wesley; what the license covers
 CATALOG.md # the spec: 66 refactorings, 24 smells, file format
 agents/
-├── fowler-analyst.md # read-only: finds smells and returns a short plan
-└── fowler-implementer.md # applies one refactoring, testing after each step
-skills/fowler-refactoring/
+├── refactoring-analyst.md # read-only: finds smells and returns a short plan
+└── refactoring-implementer.md # applies one refactoring, testing after each step
+skills/refactoring/
 ├── SKILL.md # flow smell → refactoring → file, smell index, table of the 66
 └── references/ # smells.md, discipline.md and one <slug>.md per refactoring, in a folder per chapter
 ```
@@ -29,10 +29,10 @@ used, and each refactoring's file only when the agent opens it.
 
 Two subagents that use the skill:
 
-- `fowler-analyst` reads the code it is pointed at, names the smells and returns a short
+- `refactoring-analyst` reads the code it is pointed at, names the smells and returns a short
   plan: where, which smell, which refactoring, whether tests cover it, and the risk. It never
   edits.
-- `fowler-implementer` applies one item of that plan (or a named refactoring), following
+- `refactoring-implementer` applies one item of that plan (or a named refactoring), following
   the mechanics with a build and a test run after each step.
 
 Review the plan before handing an item to the implementer. The build and test commands come
@@ -41,10 +41,10 @@ from the call or from the project's own instructions, not from this package.
 ## Using it
 
 - **Any Agent Skills client** (Claude Code, Codex, OpenCode): link the
-  `skills/fowler-refactoring` folder into the project's skills folder (on Windows, a junction:
+  `skills/refactoring` folder into the project's skills folder (on Windows, a junction:
   `New-Item -ItemType Junction`).
 - **Claude Code plugin**: `claude --plugin-dir <path-to-this-repo>`. The skill and agents are
-  then namespaced as `fowler-refactoring:<name>`.
+  then namespaced as `refactoring:<name>`.
 
 Use one route per project, or Claude Code sees the skill twice.
 
