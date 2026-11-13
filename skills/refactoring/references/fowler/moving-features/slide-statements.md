@@ -26,66 +26,113 @@ Not worth it if the slide cannot be made safe in small steps: do other preparati
 Sliding out of a conditional: when the same statements end (or begin) every branch, and they do not depend on which branch ran in a way that changes behavior, remove them from each branch and put one copy after (or before) the conditional. Sliding into a conditional is the reverse and repeats the fragment in every branch.
 
 ## Example
-Before: the discount lines are mixed with the shipping lines, and `shippingCost` is declared early.
+Before: the discount lines are mixed with the surcharge lines, and `surcharge` is declared early.
 
 ```csharp
-public decimal Total(Invoice invoice)
+using System.Collections.Generic;
+using System.Linq;
+
+public class Courier
 {
-    decimal shippingCost;
-    var customer = invoice.Customer;
-    decimal discount = 0m;
-    var subtotal = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
-    shippingCost = invoice.Weight * 0.5m;
-    if (customer.IsPremium) discount = subtotal * 0.1m;
-    if (subtotal > 500m) shippingCost = 0m;
-    return subtotal - discount + shippingCost;
+    public bool IsPartner { get; set; }
+}
+
+public class Parcel
+{
+    public decimal WeightKg { get; set; }
+    public decimal RatePerKg { get; set; }
+}
+
+public class Shipment
+{
+    public Courier Courier { get; set; } = new();
+    public List<Parcel> Parcels { get; set; } = new();
+    public decimal DistanceKm { get; set; }
+}
+
+public class CostCalculator
+{
+    public decimal DeliveryCost(Shipment shipment)
+    {
+        decimal surcharge;
+        var courier = shipment.Courier;
+        decimal discount = 0m;
+        var baseCost = shipment.Parcels.Sum(p => p.WeightKg * p.RatePerKg);
+        surcharge = shipment.DistanceKm * 0.2m;
+        if (courier.IsPartner) discount = baseCost * 0.1m;
+        if (baseCost > 500m) surcharge = 0m;
+        return baseCost - discount + surcharge;
+    }
 }
 ```
 
 After: each declaration sits next to its use, and the discount lines are adjacent, ready for Extract Function.
 
 ```csharp
-public decimal Total(Invoice invoice)
+using System.Linq;
+
+public class CostCalculator
 {
-    var subtotal = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
+    public decimal DeliveryCost(Shipment shipment)
+    {
+        var baseCost = shipment.Parcels.Sum(p => p.WeightKg * p.RatePerKg);
 
-    var customer = invoice.Customer;
-    decimal discount = 0m;
-    if (customer.IsPremium) discount = subtotal * 0.1m;
+        var courier = shipment.Courier;
+        decimal discount = 0m;
+        if (courier.IsPartner) discount = baseCost * 0.1m;
 
-    decimal shippingCost = invoice.Weight * 0.5m;
-    if (subtotal > 500m) shippingCost = 0m;
+        decimal surcharge = shipment.DistanceKm * 0.2m;
+        if (baseCost > 500m) surcharge = 0m;
 
-    return subtotal - discount + shippingCost;
+        return baseCost - discount + surcharge;
+    }
 }
 ```
 
-Why it was safe: `subtotal` is declared before everything that reads it, and the shipping lines read and write only `shippingCost`, `invoice` and `subtotal`, none of which the discount lines change.
+Why it was safe: `baseCost` is declared before everything that reads it, and the surcharge lines read and write only `surcharge`, `shipment` and `baseCost`, none of which the discount lines change.
 
 Conditional case, before and after (same behavior):
 
 ```csharp
-// before
-if (account.Balance >= amount)
+using System.Collections.Generic;
+
+public class Route
 {
-    account.Debit(amount);
-    auditLog.Add(account.Id);
-}
-else
-{
-    account.Overdraft(amount);
-    auditLog.Add(account.Id);
+    public bool HasCapacity(Parcel parcel) => parcel.WeightKg <= 20m;
+    public void Add(Parcel parcel) { }
+    public void Defer(Parcel parcel) { }
 }
 
-// after
-if (account.Balance >= amount)
-    account.Debit(amount);
-else
-    account.Overdraft(amount);
-auditLog.Add(account.Id);
+public class Dispatcher
+{
+    private readonly List<string> _auditLog = new();
+
+    public void AssignBefore(Route route, Parcel parcel, string trackingCode)
+    {
+        if (route.HasCapacity(parcel))
+        {
+            route.Add(parcel);
+            _auditLog.Add(trackingCode);
+        }
+        else
+        {
+            route.Defer(parcel);
+            _auditLog.Add(trackingCode);
+        }
+    }
+
+    public void AssignAfter(Route route, Parcel parcel, string trackingCode)
+    {
+        if (route.HasCapacity(parcel))
+            route.Add(parcel);
+        else
+            route.Defer(parcel);
+        _auditLog.Add(trackingCode);
+    }
+}
 ```
 
-This is only valid because the branches do not change what `auditLog.Add(account.Id)` observes.
+This is only valid because the branches do not change what the audit entry observes.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

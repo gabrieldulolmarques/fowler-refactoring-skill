@@ -25,21 +25,21 @@ function body without wanting this code to change, they are not the same thing.
 Before:
 
 ```csharp
-public class ShippingPolicy
+public class CourierCoverage
 {
-    private static readonly string[] RestrictedCountries = { "KP", "IR", "SY" };
+    private static readonly string[] ServiceAreas = { "north", "central", "harbor" };
 
-    public bool IsRestricted(string countryCode)
+    public bool Covers(string zone)
     {
-        bool restricted = false;
-        foreach (var code in RestrictedCountries)
+        bool covered = false;
+        foreach (var area in ServiceAreas)
         {
-            if (code == countryCode)
+            if (area == zone)
             {
-                restricted = true;
+                covered = true;
             }
         }
-        return restricted;
+        return covered;
     }
 }
 ```
@@ -47,19 +47,21 @@ public class ShippingPolicy
 After:
 
 ```csharp
-public class ShippingPolicy
-{
-    private static readonly string[] RestrictedCountries = { "KP", "IR", "SY" };
+using System.Linq;
 
-    public bool IsRestricted(string countryCode)
+public class CourierCoverage
+{
+    private static readonly string[] ServiceAreas = { "north", "central", "harbor" };
+
+    public bool Covers(string zone)
     {
-        return RestrictedCountries.Contains(countryCode);
+        return ServiceAreas.Contains(zone);
     }
 }
 ```
 
 (`Contains` on an array comes from `System.Linq`; add `using System.Linq;` where needed.)
-Behavior is unchanged: both return true when the code is in the list.
+Behavior is unchanged: both return true when the zone is in the list.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

@@ -26,25 +26,37 @@ the extra allocations matter.
    rename lambda parameters to say what they hold, and put one operation per line.
 
 ## Example
-Before: the numbers of the first overdue invoices, up to a limit.
+Before: the tracking codes of the first late shipments, up to a limit.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(string Number, DateOnly DueDate, bool IsPaid);
-
-public class InvoiceReport
+public class Shipment
 {
-    public List<string> OverdueNumbers(IEnumerable<Invoice> invoices, DateOnly today, int limit)
+    public Shipment(string trackingCode, DateTime promisedBy, bool isDelivered)
+    {
+        TrackingCode = trackingCode;
+        PromisedBy = promisedBy;
+        IsDelivered = isDelivered;
+    }
+
+    public string TrackingCode { get; }
+    public DateTime PromisedBy { get; }
+    public bool IsDelivered { get; }
+}
+
+public class DelayReport
+{
+    public List<string> LateTrackingCodes(IEnumerable<Shipment> shipments, DateTime now, int limit)
     {
         var result = new List<string>();
-        foreach (var invoice in invoices)
+        foreach (var shipment in shipments)
         {
             if (result.Count == limit) break;
-            if (invoice.IsPaid) continue;
-            if (invoice.DueDate >= today) continue;
-            result.Add(invoice.Number.ToUpperInvariant());
+            if (shipment.IsDelivered) continue;
+            if (shipment.PromisedBy >= now) continue;
+            result.Add(shipment.TrackingCode.ToUpperInvariant());
         }
         return result;
     }
@@ -58,16 +70,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public record Invoice(string Number, DateOnly DueDate, bool IsPaid);
-
-public class InvoiceReport
+public class DelayReport
 {
-    public List<string> OverdueNumbers(IEnumerable<Invoice> invoices, DateOnly today, int limit)
+    public List<string> LateTrackingCodes(IEnumerable<Shipment> shipments, DateTime now, int limit)
     {
-        return invoices
-            .Where(invoice => !invoice.IsPaid)
-            .Where(invoice => invoice.DueDate < today)
-            .Select(invoice => invoice.Number.ToUpperInvariant())
+        return shipments
+            .Where(shipment => !shipment.IsDelivered)
+            .Where(shipment => shipment.PromisedBy < now)
+            .Select(shipment => shipment.TrackingCode.ToUpperInvariant())
             .Take(limit)
             .ToList();
     }

@@ -17,72 +17,82 @@ Fowler (2018), ch. 8, p. 217. Formerly / aka: —. Inverse: Move Statements into
 6. Give the extracted function its final name: the old name of the deleted function, or a clearer one if you have it ([change-function-declaration.md](../first-set/change-function-declaration.md)). Build and test.
 
 ## Example
-Before: `PrintInvoice` and `PrintReminder` both call `WriteSummary`, which ends with the due date. Reminders must show the due date differently.
+Before: `PrintReceipt` and `PrintDelayNotice` both call `WriteSummary`, which ends with the estimated arrival. The delay notice must show the arrival differently.
 
 ```csharp
 using System;
 using System.IO;
 
-public record Invoice(string Number, decimal Total, DateTime DueDate);
-
-public static class InvoicePrinter
+public class Shipment
 {
-    public static void PrintInvoice(TextWriter output, Invoice invoice)
+    public Shipment(string trackingCode, string carrier, DateTime eta)
     {
-        output.WriteLine("INVOICE");
-        WriteSummary(output, invoice);
+        TrackingCode = trackingCode;
+        Carrier = carrier;
+        Eta = eta;
     }
 
-    public static void PrintReminder(TextWriter output, Invoice invoice)
+    public string TrackingCode { get; }
+    public string Carrier { get; }
+    public DateTime Eta { get; }
+}
+
+public static class ShipmentPrinter
+{
+    public static void PrintReceipt(TextWriter output, Shipment shipment)
     {
-        output.WriteLine("REMINDER");
-        WriteSummary(output, invoice);
+        output.WriteLine("RECEIPT");
+        WriteSummary(output, shipment);
     }
 
-    private static void WriteSummary(TextWriter output, Invoice invoice)
+    public static void PrintDelayNotice(TextWriter output, Shipment shipment)
     {
-        output.WriteLine($"Number: {invoice.Number}");
-        output.WriteLine($"Total: {invoice.Total:C}");
-        output.WriteLine($"Due: {invoice.DueDate:d}");
+        output.WriteLine("DELAY NOTICE");
+        WriteSummary(output, shipment);
+    }
+
+    private static void WriteSummary(TextWriter output, Shipment shipment)
+    {
+        output.WriteLine($"Tracking: {shipment.TrackingCode}");
+        output.WriteLine($"Carrier: {shipment.Carrier}");
+        output.WriteLine($"ETA: {shipment.Eta:d}");
     }
 }
 ```
 
 Step 2: extract what stays (temporary name `ZzTmp`), then inline `WriteSummary` into each caller and delete it. Step 6: rename `ZzTmp` back to `WriteSummary`.
 
-After: the due-date line now lives in the callers, and the reminder can change it.
+After: the arrival line now lives in the callers, and the delay notice can change it.
 
 ```csharp
 using System;
 using System.IO;
 
-public record Invoice(string Number, decimal Total, DateTime DueDate);
-
-public static class InvoicePrinter
+public static class ShipmentPrinter
 {
-    public static void PrintInvoice(TextWriter output, Invoice invoice)
+    public static void PrintReceipt(TextWriter output, Shipment shipment)
     {
-        output.WriteLine("INVOICE");
-        WriteSummary(output, invoice);
-        output.WriteLine($"Due: {invoice.DueDate:d}");
+        output.WriteLine("RECEIPT");
+        WriteSummary(output, shipment);
+        output.WriteLine($"ETA: {shipment.Eta:d}");
     }
 
-    public static void PrintReminder(TextWriter output, Invoice invoice)
+    public static void PrintDelayNotice(TextWriter output, Shipment shipment)
     {
-        output.WriteLine("REMINDER");
-        WriteSummary(output, invoice);
-        output.WriteLine($"Due: {invoice.DueDate:d}");
+        output.WriteLine("DELAY NOTICE");
+        WriteSummary(output, shipment);
+        output.WriteLine($"ETA: {shipment.Eta:d}");
     }
 
-    private static void WriteSummary(TextWriter output, Invoice invoice)
+    private static void WriteSummary(TextWriter output, Shipment shipment)
     {
-        output.WriteLine($"Number: {invoice.Number}");
-        output.WriteLine($"Total: {invoice.Total:C}");
+        output.WriteLine($"Tracking: {shipment.TrackingCode}");
+        output.WriteLine($"Carrier: {shipment.Carrier}");
     }
 }
 ```
 
-Behavior is unchanged at this point. The next change (a different due-date format in the reminder) now touches only `PrintReminder`.
+Behavior is unchanged at this point. The next change (a revised arrival window in the delay notice) now touches only `PrintDelayNotice`.
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

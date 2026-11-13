@@ -40,138 +40,159 @@ Smells: Shotgun Surgery, Insider Trading.
   one by one.
 
 ## Example
-Before: the late fee lives on the member, though it is really a term of the membership.
+Before: the retry limit lives on the shipment, though it is really a term of its delivery plan.
 
 ```csharp
-public class Member
-{
-    private readonly Membership _membership;
-    private decimal _lateFeePerDay;
+using System;
 
-    public Member(string name, decimal lateFeePerDay)
+public class Shipment
+{
+    private readonly DeliveryPlan _plan;
+    private int _maxAttempts;
+
+    public Shipment(string trackingCode, int maxAttempts)
     {
-        Name = name;
-        _lateFeePerDay = lateFeePerDay;
-        _membership = new Membership(DateTime.UtcNow.Date);
+        TrackingCode = trackingCode;
+        _maxAttempts = maxAttempts;
+        _plan = new DeliveryPlan(DateTime.UtcNow.Date);
     }
 
-    public string Name { get; }
-    public decimal LateFeePerDay => _lateFeePerDay;
+    public string TrackingCode { get; }
+    public int MaxAttempts => _maxAttempts;
 
-    public void Upgrade() => _lateFeePerDay += 0.25m;
+    public void Escalate() => _maxAttempts += 1;
 
-    public decimal FeeFor(int daysLate) => daysLate * _lateFeePerDay;
+    public bool CanRetry(int attemptsMade) => attemptsMade < _maxAttempts;
 }
 
-public class Membership
+public class DeliveryPlan
 {
-    public Membership(DateTime joinedOn) => JoinedOn = joinedOn;
-    public DateTime JoinedOn { get; }
+    public DeliveryPlan(DateTime plannedFor) => PlannedFor = plannedFor;
+    public DateTime PlannedFor { get; }
 }
 ```
 
 Step 1, encapsulate the field. The constructor now goes through the setter:
 
 ```csharp
-public Member(string name, decimal lateFeePerDay)
+// fragment
+public Shipment(string trackingCode, int maxAttempts)
 {
-    Name = name;
-    SetLateFee(lateFeePerDay);
-    _membership = new Membership(DateTime.UtcNow.Date);
+    TrackingCode = trackingCode;
+    SetMaxAttempts(maxAttempts);
+    _plan = new DeliveryPlan(DateTime.UtcNow.Date);
 }
 
-public decimal LateFeePerDay => _lateFeePerDay;
-private void SetLateFee(decimal value) => _lateFeePerDay = value;
+public int MaxAttempts => _maxAttempts;
+private void SetMaxAttempts(int value) => _maxAttempts = value;
 
-public void Upgrade() => SetLateFee(LateFeePerDay + 0.25m);
-public decimal FeeFor(int daysLate) => daysLate * LateFeePerDay;
+public void Escalate() => SetMaxAttempts(MaxAttempts + 1);
+public bool CanRetry(int attemptsMade) => attemptsMade < MaxAttempts;
 ```
 
-Step 2, add the field and accessors to `Membership`. The new parameter is optional for now, so
-`Member` still compiles unchanged:
+Step 2, add the field and accessors to `DeliveryPlan`. The new parameter is optional for now, so
+`Shipment` still compiles unchanged:
 
 ```csharp
-public class Membership
+using System;
+
+public class DeliveryPlan
 {
-    public Membership(DateTime joinedOn, decimal lateFeePerDay = 0m)
+    public DeliveryPlan(DateTime plannedFor, int maxAttempts = 0)
     {
-        JoinedOn = joinedOn;
-        LateFeePerDay = lateFeePerDay;
+        PlannedFor = plannedFor;
+        MaxAttempts = maxAttempts;
     }
 
-    public DateTime JoinedOn { get; }
-    public decimal LateFeePerDay { get; set; }
+    public DateTime PlannedFor { get; }
+    public int MaxAttempts { get; set; }
 }
 ```
 
 Step 4, first attempt: redirect the accessors while the constructor is still in its old order.
 
 ```csharp
-public decimal LateFeePerDay => _membership.LateFeePerDay;
-private void SetLateFee(decimal value) => _membership.LateFeePerDay = value;
-// the constructor calls SetLateFee before _membership is assigned:
+// fragment
+public int MaxAttempts => _plan.MaxAttempts;
+private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
+// the constructor calls SetMaxAttempts before _plan is assigned:
 // NullReferenceException on construction
 ```
 
-Revert the accessors and reorder the constructor so `_membership` exists before the setter
+Revert the accessors and reorder the constructor so `_plan` exists before the setter
 runs. Test:
 
 ```csharp
-public Member(string name, decimal lateFeePerDay)
+// fragment
+public Shipment(string trackingCode, int maxAttempts)
 {
-    Name = name;
-    _membership = new Membership(DateTime.UtcNow.Date);
-    SetLateFee(lateFeePerDay);
+    TrackingCode = trackingCode;
+    _plan = new DeliveryPlan(DateTime.UtcNow.Date);
+    SetMaxAttempts(maxAttempts);
 }
 ```
 
 Redirect the accessors again. Test:
 
 ```csharp
-public decimal LateFeePerDay => _membership.LateFeePerDay;
-private void SetLateFee(decimal value) => _membership.LateFeePerDay = value;
+// fragment
+public int MaxAttempts => _plan.MaxAttempts;
+private void SetMaxAttempts(int value) => _plan.MaxAttempts = value;
 ```
 
-Step 5: delete `_lateFeePerDay`. Test.
+Step 5: delete `_maxAttempts`. Test.
 
-Optional cleanup, as a separate step: the constructor can hand the initial fee straight to
-`Membership`, and the temporary default on the new parameter goes away. `SetLateFee` stays for
-`Upgrade`:
+Optional cleanup, as a separate step: the constructor can hand the initial limit straight to
+`DeliveryPlan`, and the temporary default on the new parameter goes away. `SetMaxAttempts` stays
+for `Escalate`:
 
 ```csharp
-public Member(string name, decimal lateFeePerDay)
+// fragment
+public Shipment(string trackingCode, int maxAttempts)
 {
-    Name = name;
-    _membership = new Membership(DateTime.UtcNow.Date, lateFeePerDay);
+    TrackingCode = trackingCode;
+    _plan = new DeliveryPlan(DateTime.UtcNow.Date, maxAttempts);
 }
 ```
 
-Moving to a shared object: a product's tax percentage becomes its category's percentage.
-During the transition the product still stores the value but asserts it matches:
+Moving to a shared object: a parcel's insurance percentage becomes its service level's percentage.
+During the transition the parcel still stores the value but asserts it matches:
 
 ```csharp
 using System.Diagnostics;
 
-public class Product
+public class ServiceLevel
 {
-    private readonly Category _category;
-    private readonly decimal _vatPercent;
-
-    public Product(string sku, Category category, decimal vatPercent)
+    public ServiceLevel(string name, decimal insurancePercent)
     {
-        Debug.Assert(vatPercent == category.VatPercent);
-        Sku = sku;
-        _category = category;
-        _vatPercent = vatPercent;
+        Name = name;
+        InsurancePercent = insurancePercent;
     }
 
-    public string Sku { get; }
-    public decimal VatPercent => _vatPercent;
+    public string Name { get; }
+    public decimal InsurancePercent { get; }
+}
+
+public class Parcel
+{
+    private readonly ServiceLevel _level;
+    private readonly decimal _insurancePercent;
+
+    public Parcel(string trackingCode, ServiceLevel level, decimal insurancePercent)
+    {
+        Debug.Assert(insurancePercent == level.InsurancePercent);
+        TrackingCode = trackingCode;
+        _level = level;
+        _insurancePercent = insurancePercent;
+    }
+
+    public string TrackingCode { get; }
+    public decimal InsurancePercent => _insurancePercent;
 }
 ```
 
 Once the assertion has held, drop the constructor parameter and the field and return
-`_category.VatPercent`.
+`_level.InsurancePercent`.
 
 ## C# notes
 - A field that is persisted or serialized keeps its stored name only if the mapping is updated

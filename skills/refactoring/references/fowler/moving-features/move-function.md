@@ -24,69 +24,117 @@ When the choice of home is unclear, the choice usually matters little. Put the f
 9. Give the target function its final name, now that it lives in its new context ([change-function-declaration.md](../first-set/change-function-declaration.md)), and move any helper functions that only it used.
 
 ## Example
-Before: `Order` computes a shipping fee from data that mostly belongs to `Customer`.
+Before: `Delivery` computes a surcharge from data that mostly belongs to `Zone`.
 
 ```csharp
-public class Customer
+public class Zone
 {
-    public string Region { get; init; } = "";
-    public bool IsMember { get; init; }
+    public Zone(string name, bool isRemote)
+    {
+        Name = name;
+        IsRemote = isRemote;
+    }
+
+    public string Name { get; }
+    public bool IsRemote { get; }
 }
 
-public class Order
+public class Delivery
 {
-    public Customer Customer { get; init; } = new();
-    public decimal Subtotal { get; init; }
-
-    public decimal Total => Subtotal + ShippingFee();
-
-    public decimal ShippingFee()
+    public Delivery(Zone zone, decimal baseRate)
     {
-        if (Customer.IsMember) return 0m;
-        return Customer.Region == "domestic" ? 5m : 20m;
+        Zone = zone;
+        BaseRate = baseRate;
+    }
+
+    public Zone Zone { get; }
+    public decimal BaseRate { get; }
+
+    public decimal Total => BaseRate + Surcharge();
+
+    public decimal Surcharge()
+    {
+        if (Zone.IsRemote) return 12m;
+        return Zone.Name == "urban" ? 0m : 4m;
     }
 }
 ```
 
-Step 3 to 7: copy the function to `Customer` (the order is not needed, so no parameter), then delegate from `Order`.
+Step 3 to 7: copy the function to `Zone` (the delivery is not needed, so no parameter), then delegate from `Delivery`.
 
 ```csharp
-public class Customer
+public class Zone
 {
-    public string Region { get; init; } = "";
-    public bool IsMember { get; init; }
-
-    public decimal ShippingFee()
+    public Zone(string name, bool isRemote)
     {
-        if (IsMember) return 0m;
-        return Region == "domestic" ? 5m : 20m;
+        Name = name;
+        IsRemote = isRemote;
+    }
+
+    public string Name { get; }
+    public bool IsRemote { get; }
+
+    public decimal Surcharge()
+    {
+        if (IsRemote) return 12m;
+        return Name == "urban" ? 0m : 4m;
     }
 }
 
-public class Order
+public class Delivery
 {
-    public Customer Customer { get; init; } = new();
-    public decimal Subtotal { get; init; }
+    public Delivery(Zone zone, decimal baseRate)
+    {
+        Zone = zone;
+        BaseRate = baseRate;
+    }
 
-    public decimal Total => Subtotal + ShippingFee();
+    public Zone Zone { get; }
+    public decimal BaseRate { get; }
 
-    public decimal ShippingFee() => Customer.ShippingFee();
+    public decimal Total => BaseRate + Surcharge();
+
+    public decimal Surcharge() => Zone.Surcharge();
 }
 ```
 
 Step 8: only `Total` calls it, so inline the delegating function.
 
 ```csharp
-public class Order
+public class Zone
 {
-    public Customer Customer { get; init; } = new();
-    public decimal Subtotal { get; init; }
+    public Zone(string name, bool isRemote)
+    {
+        Name = name;
+        IsRemote = isRemote;
+    }
 
-    public decimal Total => Subtotal + Customer.ShippingFee();
+    public string Name { get; }
+    public bool IsRemote { get; }
+
+    public decimal Surcharge()
+    {
+        if (IsRemote) return 12m;
+        return Name == "urban" ? 0m : 4m;
+    }
+}
+
+public class Delivery
+{
+    public Delivery(Zone zone, decimal baseRate)
+    {
+        Zone = zone;
+        BaseRate = baseRate;
+    }
+
+    public Zone Zone { get; }
+    public decimal BaseRate { get; }
+
+    public decimal Total => BaseRate + Zone.Surcharge();
 }
 ```
 
-If the moved function later needs more from the order (for example the subtotal for a free-shipping threshold), pass the order instead of single values: `Customer.ShippingFee(this)`.
+If the moved function later needs more from the delivery (for example the base rate for a percentage surcharge), pass the delivery instead of single values: `Zone.Surcharge(this)`.
 
 ## C# notes
 - The target can be another class, a static class, or an extension method. An extension method suits a type you cannot edit, but it can only use public members.

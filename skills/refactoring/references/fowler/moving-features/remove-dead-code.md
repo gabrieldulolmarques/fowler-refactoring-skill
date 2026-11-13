@@ -27,37 +27,67 @@ Smells: Speculative Generality.
 Before:
 
 ```csharp
-public class InvoiceService
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class TrackingEvent
 {
-    private const bool UseLegacyRounding = false;
-
-    public decimal Total(Invoice invoice)
+    public TrackingEvent(DateTime at, string status)
     {
-        decimal total = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
-
-        if (UseLegacyRounding)
-        {
-            total = Math.Floor(total * 10m) / 10m;
-        }
-
-        // total = total - invoice.Discount;
-        return Math.Round(total, 2);
+        At = at;
+        Status = status;
     }
 
-    private decimal ApplyLegacyFee(decimal total) => total * 1.02m;
+    public DateTime At { get; }
+    public string Status { get; }
+}
+
+public class Shipment
+{
+    public Shipment(string carrier, List<TrackingEvent> events)
+    {
+        Carrier = carrier;
+        Events = events;
+    }
+
+    public string Carrier { get; }
+    public List<TrackingEvent> Events { get; }
+}
+
+public class TrackingService
+{
+    private const bool UseLegacyCodes = false;
+
+    public string LatestStatus(Shipment shipment)
+    {
+        string status = shipment.Events.OrderByDescending(e => e.At).First().Status;
+
+        if (UseLegacyCodes)
+        {
+            status = status.Substring(0, 3).ToUpperInvariant();
+        }
+
+        // status = status + " (" + shipment.Carrier + ")";
+        return status.Trim();
+    }
+
+    private string ToLegacyCode(string status) => status.Substring(0, 3).ToUpperInvariant();
 }
 ```
 
-After (a search found no caller of `ApplyLegacyFee`, and `UseLegacyRounding` is a constant
+After (a search found no caller of `ToLegacyCode`, and `UseLegacyCodes` is a constant
 that is never true):
 
 ```csharp
-public class InvoiceService
+using System.Linq;
+
+public class TrackingService
 {
-    public decimal Total(Invoice invoice)
+    public string LatestStatus(Shipment shipment)
     {
-        decimal total = invoice.Lines.Sum(l => l.Quantity * l.UnitPrice);
-        return Math.Round(total, 2);
+        string status = shipment.Events.OrderByDescending(e => e.At).First().Status;
+        return status.Trim();
     }
 }
 ```

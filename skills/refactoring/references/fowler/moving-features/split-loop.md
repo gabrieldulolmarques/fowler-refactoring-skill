@@ -20,27 +20,37 @@ Do not decide against it only because the data is traversed twice. Clarity comes
 6. Consider Extract Function ([extract-function.md](../first-set/extract-function.md)) on each loop, and Replace Loop with Pipeline ([replace-loop-with-pipeline.md](replace-loop-with-pipeline.md)) where it reads better.
 
 ## Example
-Before: one pass computes both the total and the latest due date.
+Before: one pass computes both the total weight and the latest delivery time.
 
 ```csharp
 using System;
 using System.Collections.Generic;
 
-public record Invoice(decimal Amount, DateTime DueDate);
-
-public static class InvoiceReport
+public class Delivery
 {
-    public static string Summarize(IReadOnlyList<Invoice> invoices)
+    public Delivery(decimal weightKg, DateTime deliveredAt)
     {
-        decimal total = 0;
-        DateTime latestDue = DateTime.MinValue;
-        foreach (var invoice in invoices)
+        WeightKg = weightKg;
+        DeliveredAt = deliveredAt;
+    }
+
+    public decimal WeightKg { get; }
+    public DateTime DeliveredAt { get; }
+}
+
+public static class DeliveryReport
+{
+    public static string Summarize(IReadOnlyList<Delivery> deliveries)
+    {
+        decimal totalWeight = 0;
+        DateTime latestDelivery = DateTime.MinValue;
+        foreach (var delivery in deliveries)
         {
-            total += invoice.Amount;
-            if (invoice.DueDate > latestDue) latestDue = invoice.DueDate;
+            totalWeight += delivery.WeightKg;
+            if (delivery.DeliveredAt > latestDelivery) latestDelivery = delivery.DeliveredAt;
         }
 
-        return $"total: {total}, latest due: {latestDue:yyyy-MM-dd}";
+        return $"weight: {totalWeight} kg, last delivery: {latestDelivery:yyyy-MM-dd}";
     }
 }
 ```
@@ -51,38 +61,36 @@ After: one loop per concern, then each extracted into a function.
 using System;
 using System.Collections.Generic;
 
-public record Invoice(decimal Amount, DateTime DueDate);
-
-public static class InvoiceReport
+public static class DeliveryReport
 {
-    public static string Summarize(IReadOnlyList<Invoice> invoices)
+    public static string Summarize(IReadOnlyList<Delivery> deliveries)
     {
-        return $"total: {TotalAmount(invoices)}, latest due: {LatestDueDate(invoices):yyyy-MM-dd}";
+        return $"weight: {TotalWeight(deliveries)} kg, last delivery: {LatestDelivery(deliveries):yyyy-MM-dd}";
     }
 
-    private static decimal TotalAmount(IReadOnlyList<Invoice> invoices)
+    private static decimal TotalWeight(IReadOnlyList<Delivery> deliveries)
     {
-        decimal total = 0;
-        foreach (var invoice in invoices)
+        decimal totalWeight = 0;
+        foreach (var delivery in deliveries)
         {
-            total += invoice.Amount;
+            totalWeight += delivery.WeightKg;
         }
-        return total;
+        return totalWeight;
     }
 
-    private static DateTime LatestDueDate(IReadOnlyList<Invoice> invoices)
+    private static DateTime LatestDelivery(IReadOnlyList<Delivery> deliveries)
     {
-        DateTime latestDue = DateTime.MinValue;
-        foreach (var invoice in invoices)
+        DateTime latestDelivery = DateTime.MinValue;
+        foreach (var delivery in deliveries)
         {
-            if (invoice.DueDate > latestDue) latestDue = invoice.DueDate;
+            if (delivery.DeliveredAt > latestDelivery) latestDelivery = delivery.DeliveredAt;
         }
-        return latestDue;
+        return latestDelivery;
     }
 }
 ```
 
-Behavior is the same. Each function now has a single purpose and can later become a LINQ expression (`invoices.Sum(i => i.Amount)`).
+Behavior is the same. Each function now has a single purpose and can later become a LINQ expression (`deliveries.Sum(d => d.WeightKg)`).
 
 ## Verification
 - Compiles and the tests pass after every step; one commit per refactoring.

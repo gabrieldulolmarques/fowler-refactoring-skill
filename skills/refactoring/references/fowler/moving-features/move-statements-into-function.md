@@ -30,73 +30,83 @@ if a shared behavior has to start varying, the inverse refactoring is the tool.
    to the original name, or a better one.
 
 ## Example
-Two methods print a customer's contact lines. Each one prints the customer name just before
-calling `PrintContact`.
+Two methods print a shipment's address block. Each one prints the recipient name just before
+calling `PrintAddress`.
 
 Before:
 
 ```csharp
 using System.Collections.Generic;
 
-public record Customer(string Name, string Email, string Phone);
-
-public class StatementPrinter
+public class Recipient
 {
-    public IEnumerable<string> PrintInvoiceHeader(Customer customer)
+    public Recipient(string name, string street, string city)
     {
-        var lines = new List<string> { "INVOICE" };
-        lines.Add($"customer: {customer.Name}");
-        lines.AddRange(PrintContact(customer));
+        Name = name;
+        Street = street;
+        City = city;
+    }
+
+    public string Name { get; }
+    public string Street { get; }
+    public string City { get; }
+}
+
+public class LabelPrinter
+{
+    public IEnumerable<string> PrintShippingLabel(Recipient recipient)
+    {
+        var lines = new List<string> { "SHIPPING LABEL" };
+        lines.Add($"recipient: {recipient.Name}");
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    public IEnumerable<string> PrintReminder(Customer customer)
+    public IEnumerable<string> PrintDeliveryReceipt(Recipient recipient)
     {
-        var lines = new List<string> { "PAYMENT REMINDER" };
-        lines.Add($"customer: {customer.Name}");
-        lines.AddRange(PrintContact(customer));
+        var lines = new List<string> { "DELIVERY RECEIPT" };
+        lines.Add($"recipient: {recipient.Name}");
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    private IEnumerable<string> PrintContact(Customer customer)
+    private IEnumerable<string> PrintAddress(Recipient recipient)
     {
-        yield return $"email: {customer.Email}";
-        yield return $"phone: {customer.Phone}";
+        yield return $"street: {recipient.Street}";
+        yield return $"city: {recipient.City}";
     }
 }
 ```
 
-After step 3, `PrintInvoiceHeader` calls a temporary `PrintCustomerAndContact(customer)`, whose
-body is the name line followed by the `PrintContact` call; `PrintReminder` still has its own name
-line and `PrintContact` call. Steps 4 and 5 update `PrintReminder` and inline `PrintContact`, and
-step 6 renames the temporary function to `PrintContact`. After:
+After step 3, `PrintShippingLabel` calls a temporary `PrintRecipientAndAddress(recipient)`, whose
+body is the name line followed by the `PrintAddress` call; `PrintDeliveryReceipt` still has its own name
+line and `PrintAddress` call. Steps 4 and 5 update `PrintDeliveryReceipt` and inline `PrintAddress`, and
+step 6 renames the temporary function to `PrintAddress`. After:
 
 ```csharp
 using System.Collections.Generic;
 
-public record Customer(string Name, string Email, string Phone);
-
-public class StatementPrinter
+public class LabelPrinter
 {
-    public IEnumerable<string> PrintInvoiceHeader(Customer customer)
+    public IEnumerable<string> PrintShippingLabel(Recipient recipient)
     {
-        var lines = new List<string> { "INVOICE" };
-        lines.AddRange(PrintContact(customer));
+        var lines = new List<string> { "SHIPPING LABEL" };
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    public IEnumerable<string> PrintReminder(Customer customer)
+    public IEnumerable<string> PrintDeliveryReceipt(Recipient recipient)
     {
-        var lines = new List<string> { "PAYMENT REMINDER" };
-        lines.AddRange(PrintContact(customer));
+        var lines = new List<string> { "DELIVERY RECEIPT" };
+        lines.AddRange(PrintAddress(recipient));
         return lines;
     }
 
-    private IEnumerable<string> PrintContact(Customer customer)
+    private IEnumerable<string> PrintAddress(Recipient recipient)
     {
-        yield return $"customer: {customer.Name}";
-        yield return $"email: {customer.Email}";
-        yield return $"phone: {customer.Phone}";
+        yield return $"recipient: {recipient.Name}";
+        yield return $"street: {recipient.Street}";
+        yield return $"city: {recipient.City}";
     }
 }
 ```
